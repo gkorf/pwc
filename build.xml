@@ -29,20 +29,12 @@
     <property name="gwt-gears.filename" value="gwt-gears-${gwt-gears.version}.zip"/>
     <property name="gwt-gears.download.url" value="http://gwt-google-apis.googlecode.com/files/${gwt-gears.filename}"/>
 
-    <property name="gwt-incubator.filename" value="gwt-incubator-20101117-r1766.jar"/>
-    <property name="gwt-incubator.download.url" value="http://google-web-toolkit-incubator.googlecode.com/files/gwt-incubator-20101117-r1766.jar"/>
-    <property name="gwt-visualization.home" value="${deps.dir}/gwt-visualization-1.1.0" />
-    <property name="gwt-visualization.filename" value="gwt-visualization-1.1.0.zip"/>
-    <property name="gwt-visualization.download.url" value="http://gwt-google-apis.googlecode.com/files/${gwt-visualization.filename}"/>
-
     <property name="gwtquery.filename" value="gwtquery-1.0.0-20110116.074055-7.jar"/>
     <property name="gwtquery.download.url" value="http://gss.googlecode.com/hg/lib/${gwtquery.filename}?r=0473a2c1bc32c9426423f8ca3b688a29ce30216b"/>
     <property name="gwtquery-draggable-plugin.filename" value="draggable-plugin-1.0.2.jar"/>
     <property name="gwtquery-draggable-plugin.download.url" value="http://gss.googlecode.com/hg/lib/${gwtquery-draggable-plugin.filename}?r=0634eeeeaaad1b9bfb7a8e809bfc9e9545d208e2"/>
     <property name="gwtquery-droppable-plugin.filename" value="droppable-plugin-1.0.2.jar"/>
     <property name="gwtquery-droppable-plugin.download.url" value="http://gss.googlecode.com/hg/lib/${gwtquery-droppable-plugin.filename}?r=c8bca56a1c4ab780ac0d0cc72a2b40b60d7ca4f7"/>
-    <property name="gwtquery-commonui-plugin.filename" value="commonui-plugin-1.0.3.jar"/>
-    <property name="gwtquery-commonui-plugin.download.url" value="http://gss.googlecode.com/hg/lib/${gwtquery-commonui-plugin.filename}?r=0473a2c1bc32c9426423f8ca3b688a29ce30216b"/>
 
     <property name="root.context" value="gss" />
     <property name="gwt.module.class" value="GSS" />
@@ -77,9 +69,6 @@
                 <available file="${deps.dir}/${gwtquery.filename}"/>
                 <available file="${deps.dir}/${gwtquery-draggable-plugin.filename}"/>
                 <available file="${deps.dir}/${gwtquery-droppable-plugin.filename}"/>
-                <available file="${deps.dir}/${gwtquery-commonui-plugin.filename}"/>
-                <available file="${deps.dir}/${gwt-incubator.filename}"/>
-                <available file="${deps.dir}/${gwt-visualization.filename}"/>
             </and>
         </condition>
         <echo message="dependencies.present=${dependencies.present}"/>
@@ -89,15 +78,11 @@
     	<mkdir dir="${deps.dir}"/>
         <get src="${gwt.download.url}" dest="${deps.dir}/${gwt.filename}" usetimestamp="true"/>
         <get src="${gwt-gears.download.url}" dest="${deps.dir}/${gwt-gears.filename}" usetimestamp="true"/>
-        <get src="${gwt-incubator.download.url}" dest="${deps.dir}/${gwt-incubator.filename}"/>
-        <get src="${gwt-visualization.download.url}" dest="${deps.dir}/${gwt-visualization.filename}"/>
         <get src="${gwtquery.download.url}" dest="${deps.dir}/${gwtquery.filename}" usetimestamp="true"/>
         <get src="${gwtquery-draggable-plugin.download.url}" dest="${deps.dir}/${gwtquery-draggable-plugin.filename}" usetimestamp="true"/>
         <get src="${gwtquery-droppable-plugin.download.url}" dest="${deps.dir}/${gwtquery-droppable-plugin.filename}" usetimestamp="true"/>
-        <get src="${gwtquery-commonui-plugin.download.url}" dest="${deps.dir}/${gwtquery-commonui-plugin.filename}" usetimestamp="true"/>
     	<unzip src="${deps.dir}/${gwt.filename}" dest="${gwt.home}/.."/>
         <unzip src="${deps.dir}/${gwt-gears.filename}" dest="${gwt-gears.home}/.."/>
-        <unzip src="${deps.dir}/${gwt-visualization.filename}" dest="${gwt-visualization.home}/.."/>
     </target>
 
 	<target name="check-gwt-compile" description="Checks is the web gwt client sources are up-to-date with the compiled artifacts">
@@ -122,7 +107,6 @@
                 <pathelement location="${deps.dir}/${gwtquery.filename}"/>
                 <pathelement location="${deps.dir}/${gwtquery-droppable-plugin.filename}"/>
                 <pathelement location="${deps.dir}/${gwtquery-draggable-plugin.filename}"/>
-                <pathelement location="${deps.dir}/${gwtquery-commonui-plugin.filename}"/>
                 <pathelement location="${gwt-gears.home}/gwt-gears.jar"/>
                 <pathelement path="${gwt.home}/gwt-user.jar" />
 				<path refid="project.class.path"/>
@@ -156,7 +140,6 @@
                 <pathelement location="${deps.dir}/${gwtquery.filename}"/>
                 <pathelement location="${deps.dir}/${gwtquery-draggable-plugin.filename}"/>
                 <pathelement location="${deps.dir}/${gwtquery-droppable-plugin.filename}"/>
-                <pathelement location="${deps.dir}/${gwtquery-commonui-plugin.filename}"/>
                 <pathelement location="${gwt-gears.home}/gwt-gears.jar"/>
                 <pathelement path="${gwt.home}/gwt-user.jar" />
                 <path refid="project.class.path"/>
