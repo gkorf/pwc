@@ -1,3 +1,6 @@
+/*
+ *  Copyright (c) 2011 Greek Research and Technology Network
+ */
 package gr.grnet.pithos.web.client.components;
 
 import com.google.gwt.event.dom.client.ClickEvent;
