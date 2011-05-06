@@ -34,8 +34,6 @@ public class CredentialsDialog extends DialogBox {
 	private final String WIDTH_FIELD = "35em";
 	private final String WIDTH_TEXT = "42em";
 
-	private TextBox passwordBox;
-
 	/**
 	 * The 'confirm reset password' dialog box.
 	 */
@@ -173,25 +171,15 @@ public class CredentialsDialog extends DialogBox {
 		VerticalPanel outer = new VerticalPanel();
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
 		String service = conf.serviceName();
-        String path = Window.Location.getPath();
-        String baseUrl = GWT.getModuleBaseURL();
-        String homeUrl = baseUrl.substring(0, baseUrl.indexOf(path));
-		String webdavUrl = homeUrl + conf.webdavUrl();
-		String tokenNote = conf.tokenTTLNote();
 		// Create the text and set a style name so we can style it with CSS.
 		HTML text = new HTML("<p>These are the user credentials that are " +
-				"required for interacting with " + service + ". You can copy" +
-				" and paste the username and password in the WebDAV client " +
-				"in order to use " + service + " through the WebDAV " +
-				"interface, at:<br/> " + webdavUrl + "<br/>" + tokenNote +
-				"</p>");
+				"required for interacting with " + service + ".");
 		text.setStyleName("pithos-AboutText");
 		text.setWidth(WIDTH_TEXT);
 		outer.add(text);
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Username");
-		table.setText(1, 0, "Password");
-		table.setText(2, 0, "Token");
+		table.setText(1, 0, "Token");
 		TextBox username = new TextBox();
 		final GSS app = GSS.get();
 		username.setText(app.getCurrentUserResource().getUsername());
@@ -207,20 +195,6 @@ public class CredentialsDialog extends DialogBox {
 
 		});
 		table.setWidget(0, 1, username);
-		passwordBox = new TextBox();
-		passwordBox.setText(app.getWebDAVPassword());
-		passwordBox.setReadOnly(true);
-		passwordBox.setWidth(WIDTH_FIELD);
-		passwordBox.addClickHandler(new  ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				GSS.enableIESelection();
-				((TextBox) event.getSource()).selectAll();
-				GSS.preventIESelection();
-			}
-
-		});
-		table.setWidget(1, 1, passwordBox);
 
 		TextBox tokenBox = new TextBox();
 		tokenBox.setText(app.getToken());
@@ -235,14 +209,12 @@ public class CredentialsDialog extends DialogBox {
 			}
 
 		});
-		table.setWidget(2, 1, tokenBox);
+		table.setWidget(1, 1, tokenBox);
 
 		table.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
 		table.getFlexCellFormatter().setStyleName(0, 1, "props-values");
 		table.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
 		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		table.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
-		table.getFlexCellFormatter().setStyleName(2, 1, "props-values");
 		outer.add(table);
 
 		// Create the 'OK' button, along with a listener that hides the dialog
@@ -291,7 +263,6 @@ public class CredentialsDialog extends DialogBox {
 	/**
 	 * Generate an RPC request to reset WebDAV password.
 	 *
-	 * @param userId the Uri of the user whose password will be reset
 	 */
 	private void resetPassword(String userUri) {
 

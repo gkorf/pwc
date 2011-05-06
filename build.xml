@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="gss" default="package-war" basedir=".">
+<project name="gss" default="gwt-compile" basedir=".">
 	<description>The GSS project build file</description>
 
 	<property file="build.properties"/>
     <property name="deps.dir" value="dependencies"/>
 
     <property name="gwt.workers" value="1"/>
-    <property name="jboss.args" value="-b 0.0.0.0" />
-
-    <property name="jboss.version" value="5.1.0"/>
-    <property name="jboss.home" value="${deps.dir}/jboss-${jboss.version}.GA" />
-    <property name="jboss.bin.dir" value="${jboss.home}/bin" />
-    <property name="jboss.conf.dir" value="${jboss.home}/server/default/conf" />
-    <property name="jboss.deploy.dir" value="${jboss.home}/server/default/deploy" />
-    <property name="jboss.lib.dir" value="${jboss.home}/server/default/lib" />
-    <property name="jboss.root.lib.dir" value="${jboss.home}/lib" />
-    <property name="jboss.common.lib.dir" value="${jboss.home}/common/lib" />
-    <property name="jboss.filename" value="jboss-${jboss.version}.GA-jdk6.zip"/>
-	<property name="jboss.download.url" value="http://switch.dl.sourceforge.net/project/jboss/JBoss/JBoss-${jboss.version}.GA/${jboss.filename}"/>
 
     <property name="gwt.version" value="2.1.1"/>
 	<property name="gwt.home" value="${deps.dir}/gwt-${gwt.version}"/>
@@ -57,13 +45,11 @@
 	<!-- set classpath -->
 	<path id="project.class.path">
         <pathelement location="${gwt.home}/gwt-user.jar"/>
-        <pathelement location="${war.lib.dir}/commons-fileupload-1.2.jar"/>
 	</path>
 
 	<target name="check-dependencies" description="Checks if all dependencies are present">
         <condition property="dependencies.present">
             <and>
-                <available file="${jboss.home}" type="dir"/>
                 <available file="${gwt.home}" type="dir"/>
                 <available file="${gwt-gears.home}" type="dir"/>
                 <available file="${deps.dir}/${gwtquery.filename}"/>
@@ -115,13 +101,6 @@
 		</java>
         <!--move file="${gwt.www.dir}/${gwt.module}/${gwt.module.class}.html" tofile="${gwt.www.dir}/${gwt.module}/index.html"/-->
 	</target>
-	
-    <target name="package-war" depends="gwt-compile" description="Package up the web client as a war">
-        <jar destfile="${build.dir}/${dist.war}">
-            <zipfileset dir="${war.dir}"/>
-            <zipfileset dir="${gwt.www.dir}/${gwt.module}"/>
-        </jar>
-    </target>
 
 	<target name="clean" description="Delete all build artifacts">
 		<delete dir="${build.dir}"/>

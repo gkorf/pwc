@@ -21,7 +21,7 @@ public interface Configuration extends Constants {
 	/**
 	 * @return the login URL
 	 */
-	@DefaultStringValue("/pithos/login")
+	@DefaultStringValue("pithos/login")
 	String loginUrl();
 
 	/**
@@ -37,12 +37,6 @@ public interface Configuration extends Constants {
 	String authCookie();
 
 	/**
-	 * @return the webdav cookie name
-	 */
-	@DefaultStringValue("_gss_wd")
-	String webdavCookie();
-
-	/**
 	 * @return the separator string between username and token in the
 	 * authentication cookie
 	 */
@@ -54,18 +48,6 @@ public interface Configuration extends Constants {
 	 */
 	@DefaultStringValue("rest/")
 	String apiPath();
-
-	/**
-	 * @return the WebDAV URL
-	 */
-	@DefaultStringValue("/webdav/")
-	String webdavUrl();
-
-	/**
-	 * @return the token TTL note
-	 */
-	@DefaultStringValue("")
-	String tokenTTLNote();
 
 	/**
 	 * @return the version string

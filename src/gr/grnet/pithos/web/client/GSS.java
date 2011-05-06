@@ -350,15 +350,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 			public void onComplete() {
 				
 				currentUserResource = getResult();
-				final String announcement = currentUserResource.getAnnouncement();
-				if (announcement != null)
-					DeferredCommand.addCommand(new Command() {
-
-						@Override
-						public void execute() {
-							displayInformation(announcement);
-						}
-					});
 			}
 
 			@Override
@@ -378,24 +369,25 @@ public class GSS implements EntryPoint, ResizeHandler {
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
 	private void parseUserCredentials() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
-		String cookie = conf.authCookie();
-		String auth = Cookies.getCookie(cookie);
-		if (auth == null) {
-			authenticateUser();
-			// Redundant, but silences warnings about possible auth NPE, below.
-			return;
-		}
-		int sepIndex = auth.indexOf(conf.cookieSeparator());
-		if (sepIndex == -1)
-			authenticateUser();
-		token = auth.substring(sepIndex + 1);
-		final String username = auth.substring(0, sepIndex);
-		if (username == null)
-			authenticateUser();
+//		Configuration conf = (Configuration) GWT.create(Configuration.class);
+//		String cookie = conf.authCookie();
+//		String auth = Cookies.getCookie(cookie);
+//		if (auth == null) {
+//			authenticateUser();
+//			// Redundant, but silences warnings about possible auth NPE, below.
+//			return;
+//		}
+//		int sepIndex = auth.indexOf(conf.cookieSeparator());
+//		if (sepIndex == -1)
+//			authenticateUser();
+//		token = auth.substring(sepIndex + 1);
+//		final String username = auth.substring(0, sepIndex);
+//		if (username == null)
+//			authenticateUser();
+//
+//		refreshWebDAVPassword();
 
-		refreshWebDAVPassword();
-
+        final String username = "test";
 		DeferredCommand.addCommand(new Command() {
 
 			@Override
@@ -409,12 +401,13 @@ public class GSS implements EntryPoint, ResizeHandler {
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
+//		Configuration conf = (Configuration) GWT.create(Configuration.class);
         //IMPORTANT: Temporary circumvention of the Shiboleth login process for development and testing
         //Some time in the future the comment line will be restored
-		//Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + GWT.getModuleBaseURL());
-        Cookies.setCookie(conf.authCookie(), "chstath@ebs.gr" + conf.cookieSeparator() + "triapoulakiakathontan");
-        Window.Location.assign(GWT.getModuleBaseURL());
+        
+//        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
+//        Cookies.setCookie(conf.authCookie(), "chstath@ebs.gr" + conf.cookieSeparator() + "triapoulakiakathontan");
+//        Window.Location.assign(GWT.getModuleBaseURL());
 	}
 
 	/**
@@ -757,15 +750,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 	public String getApiPath() {
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
 		return GWT.getModuleBaseURL() + conf.apiPath();
-	}
-
-	public void refreshWebDAVPassword() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
-		String domain = Window.Location.getHostName();
-		String path = Window.Location.getPath();
-		String cookie = conf.webdavCookie();
-		webDAVPassword = Cookies.getCookie(cookie);
-		Cookies.setCookie(cookie, "", null, domain, path, false);
 	}
 
 	/**
