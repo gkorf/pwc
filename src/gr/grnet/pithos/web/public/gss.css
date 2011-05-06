@@ -25,21 +25,21 @@ a:visited {
 	color: black !important;
 }
 
-.gss-TopPanel {
+.pithos-TopPanel {
 	font-size: 100%;
 }
 
-.gss-TopPanelLinks {
+.pithos-TopPanelLinks {
 	font-size: 100%;
 }
 
-.gss-AboutText {
+.pithos-AboutText {
 	width: 24em;
 	/* Restore the padding we remove when overriding the gwt-DialogBox style */
 	padding: 3px;
 }
 
-.gss-Groups {
+.pithos-Groups {
 	background-color: white;
 	font-size: 80%;
 }
@@ -63,7 +63,7 @@ a:visited {
 	font-weight: normal;
 }
 
-.gss-List {
+.pithos-List {
 	background-color: white;
 	font-size: 80%;
 	cursor: default;
@@ -71,42 +71,42 @@ a:visited {
 	/* prevents selecting text in table with shift and ctrl*/
 	-moz-user-select: none;
 }
-.gss-List thead tr{
+.pithos-List thead tr{
 	border: 1px lightblue solid;
 	}
 	
 	.GK31MSKBKG{
 	border-bottom:none;
 	}
-.gss-ListHeader {
+.pithos-ListHeader {
 	
 	background-color: #E0EDFE;
 	font-weight: bold;
 	cursor: pointer;
 }
 
-.gss-searchLabel {
+.pithos-searchLabel {
 	font-weight: bold;
 	font-style: italic;
 	font-size: 90%;
 	padding:5px;
 }
 
-.gss-ListNavBar {
+.pithos-ListNavBar {
 	font-size: 80%;
 }
 
-.gss-SelectedRow {
+.pithos-SelectedRow {
 	background-color: #E0EDFE;
 }
-.gss-fileRow{
+.pithos-fileRow{
 	cursor: pointer;
 }
 
-.gss-Toolbar {
+.pithos-Toolbar {
 }
 
-.gss-ToolButton {
+.pithos-ToolButton {
 	font-size: 80%;
 	width: 10em;
 }
@@ -126,50 +126,50 @@ a:visited {
 	font-size: 80%;
 }
 
-.gss-errorMessage {
+.pithos-errorMessage {
 	font-size: 90%;
 	background-color: #ff9999;
 	cursor: pointer;
 }
 
-.gss-warnMessage {
+.pithos-warnMessage {
 	font-size: 90%;
 	background-color: #eeee99;
 	cursor: pointer;
 }
 
-.gss-infoMessage {
+.pithos-infoMessage {
 	font-size: 90%;
 	background-color: #ccffcc;
 	cursor: pointer;
 }
 
-.gss-clearMessage {
+.pithos-clearMessage {
 	font-size: 90%;
 	font-weight: bold;
 	text-decoration: none;
 	color: black;
 }
 
-.gss-clearMessage:visited {
+.pithos-clearMessage:visited {
 	font-size: 90%;
 	font-weight: bold;
 	text-decoration: none;
 	color: black;
 }
 
-.gss-search {
+.pithos-search {
 	color: black;
 }
 
-.gss-search-empty {
+.pithos-search-empty {
 	color: #d3d3d3;
 }
 
-.gss-DialogBox {
+.pithos-DialogBox {
 }
 
-.gss-readForAllNote {
+.pithos-readForAllNote {
 	width: 240px;
 	text-align: justify;
 	font-style: italic;
@@ -211,17 +211,17 @@ a.info:hover div {
 	text-align: center
 }
 
-table.gss-permList.props-labels {
+table.pithos-permList.props-labels {
 	font-weight: bold;
 }
 
-table.gss-permList {
+table.pithos-permList {
 	border-spacing: 3px;
 	border-collapse: collapse;
 	
 }
 
-table.gss-permList td {
+table.pithos-permList td {
 	padding: 5px 5px 5px 5px;
 	font-size:80%;
 }
@@ -257,7 +257,7 @@ table.gss-permList td {
 	background: white;
 }
 
-.gss-uploadNote {
+.pithos-uploadNote {
 	text-align: justify;
 	font-style: italic;
 	font-size: 12px;
@@ -267,11 +267,11 @@ table.gss-permList td {
 	padding-left: 4;
 }
 
-.gss-MainTabBar {
+.pithos-MainTabBar {
 	padding-top: 4px;
 }
 
-.gss-MainTabPanelBottom {
+.pithos-MainTabPanelBottom {
 	border-bottom: none;
 	border-left: none;
 	border-right: none;
@@ -279,19 +279,19 @@ table.gss-permList td {
 	padding: 6px;
 }
 
-.gss-TabPanelBottom {
+.pithos-TabPanelBottom {
 	border-color: darkgrey;
 	border-width: 1px 1px 1px;
 	overflow: hidden;
 	padding: 6px;
 }
 
-.gss-splitPanel {
+.pithos-splitPanel {
 	background-color: white;
 	border: 1px solid darkgrey;
 }
 
-.gss-tag {	
+.pithos-tag {
 	display:inline;
 }
 
