@@ -26,7 +26,7 @@ public class RestException extends Throwable {
     }
 
     public RestException(String aPath, int aStatusCode, String aStatusText, String aText) {
-            super("HTTP error: " + aStatusCode+"\nPapth:"+aPath + "\nStatus text:" + aStatusText + "\nText:" + aText);
+            super("HTTP error: " + aStatusCode+"\nPath:"+aPath + "\nStatus text:" + aStatusText + "\nText:" + aText);
             httpStatusCode = aStatusCode;
             httpStatusText = aStatusText;
             text = aText;

@@ -5,11 +5,9 @@ package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.DeleteFileDialog;
 import gr.grnet.pithos.web.client.DeleteFolderDialog;
-import gr.grnet.pithos.web.client.DeleteGroupDialog;
 import gr.grnet.pithos.web.client.EditMenu.Images;
 import gr.grnet.pithos.web.client.GSS;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
 import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
@@ -60,9 +58,6 @@ public class DeleteCommand implements Command{
 			dlg.center();
 		} else if (selection instanceof GroupUserResource) {
 			// TODO implement user deletion
-		} else if (selection instanceof GroupResource) {
-			DeleteGroupDialog dlg = new DeleteGroupDialog(newImages);
-			dlg.center();
 		}
-	}
+    }
 }

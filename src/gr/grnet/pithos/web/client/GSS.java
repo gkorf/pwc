@@ -3,9 +3,15 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import gr.grnet.pithos.web.client.clipboard.Clipboard;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
-import gr.grnet.pithos.web.client.rest.GetCommand;
+import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
+import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.OtherUserResource;
@@ -27,8 +33,6 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ClientBundle;
@@ -42,13 +46,12 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
@@ -67,13 +70,15 @@ public class GSS implements EntryPoint, ResizeHandler {
 	 */
 	private static Images images = (Images) GWT.create(Images.class);
 
-	private GlassPanel glassPanel = new GlassPanel();
+    public String getUsername() {
+        return username;
+    }
 
-	/**
+    /**
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
 	 */
-	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FileMenu.Images, EditMenu.Images, SettingsMenu.Images, GroupMenu.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images, SearchResults.Images, Search.Images, Groups.Images, CellTreeView.Images {
+	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FileMenu.Images, EditMenu.Images, SettingsMenu.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images, Search.Images, CellTreeView.Images {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
@@ -134,16 +139,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 	private FileList fileList;
 
 	/**
-	 * The group list widget.
-	 */
-	private Groups groups = new Groups(images);
-
-	/**
-	 * The search result widget.
-	 */
-	private SearchResults searchResults;
-
-	/**
 	 * The tab panel that occupies the right side of the screen.
 	 */
 	private TabPanel inner = new DecoratedTabPanel(){
@@ -152,10 +147,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU){
 				if(isFileListShowing()){
 					getFileList().showContextMenu(event);
-				}
-				else if(isUserListVisible()){
-					getGroups().setCurrent(null);
-					getGroups().showPopup(event.getClientX(),event.getClientY());
 				}
 			}
 		};
@@ -187,33 +178,38 @@ public class GSS implements EntryPoint, ResizeHandler {
 	 */
 	private Object currentSelection;
 
-	/**
-	 * The authentication token of the current user.
-	 */
-	private String token;
 
 	/**
 	 * The WebDAV password of the current user
 	 */
 	private String webDAVPassword;
 
-	
-
 	public HashMap<String, String> userFullNameMap = new HashMap<String, String>();
+
+    private String username = null;
+
+    /**
+     * The authentication token of the current user.
+     */
+    private String token;
+
+    private FolderTreeView folderTreeView = new FolderTreeView();
 
 	@Override
 	public void onModuleLoad() {
 		// Initialize the singleton before calling the constructors of the
 		// various widgets that might call GSS.get().
 		singleton = this;
-		RootPanel.get().add(glassPanel, 0, 0);
-		parseUserCredentials();
-		
-		topPanel = new TopPanel(GSS.images);
-		topPanel.setWidth("100%");
+		if (parseUserCredentials())
+            initialize();
+	}
 
-		messagePanel.setWidth("100%");
-		messagePanel.setVisible(false);
+    private void initialize() {
+        topPanel = new TopPanel(GSS.images);
+        topPanel.setWidth("100%");
+
+        messagePanel.setWidth("100%");
+        messagePanel.setVisible(false);
 
 		search = new Search(images);
 		searchStatus.add(search, DockPanel.WEST);
@@ -223,191 +219,106 @@ public class GSS implements EntryPoint, ResizeHandler {
 		searchStatus.setCellVerticalAlignment(userDetailsPanel, HasVerticalAlignment.ALIGN_MIDDLE);
 		searchStatus.setWidth("100%");
 
-		fileList = new FileList(images);
+        fileList = new FileList(images);
 
-		searchResults = new SearchResults(images);
+        // Inner contains the various lists.
+        inner.sinkEvents(Event.ONCONTEXTMENU);
+        inner.setAnimationEnabled(true);
+        inner.getTabBar().addStyleName("pithos-MainTabBar");
+        inner.getDeckPanel().addStyleName("pithos-MainTabPanelBottom");
+        inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
-		// Inner contains the various lists.
-		inner.sinkEvents(Event.ONCONTEXTMENU);
-		inner.setAnimationEnabled(true);
-		inner.getTabBar().addStyleName("pithos-MainTabBar");
-		inner.getDeckPanel().addStyleName("pithos-MainTabPanelBottom");
-		inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
-		
-		inner.add(groups, createHeaderHTML(AbstractImagePrototype.create(images.groups()), "Groups"), true);
-		inner.add(searchResults, createHeaderHTML(AbstractImagePrototype.create(images.search()), "Search Results"), true);
-		//inner.add(new CellTreeView(images), createHeaderHTML(AbstractImagePrototype.create(images.search()), "Cell tree sample"), true);
-		inner.setWidth("100%");
-		inner.selectTab(0);
+        inner.setWidth("100%");
+        inner.selectTab(0);
 
-		inner.addSelectionHandler(new SelectionHandler<Integer>() {
+        inner.addSelectionHandler(new SelectionHandler<Integer>() {
 
-			@Override
-			public void onSelection(SelectionEvent<Integer> event) {
-				int tabIndex = event.getSelectedItem();
-//				TreeItem treeItem = GSS.get().getFolders().getCurrent();
-				switch (tabIndex) {
-					case 0:
-//						Files tab selected
-						//fileList.clearSelectedRows();
-						fileList.updateCurrentlyShowingStats();
-						break;
-					case 1:
-//						Groups tab selected
-						groups.updateCurrentlyShowingStats();
-		        		updateHistory("Groups");
-						break;
-					case 2:
-//						Search tab selected
-						searchResults.clearSelectedRows();
-						searchResults.updateCurrentlyShowingStats();
-		        		updateHistory("Search");
-						break;
-				}
-			}
-		});
-//		If the application starts with no history token, redirect to a new "Files" state
-		String initToken = History.getToken();
-		if(initToken.length() == 0)
-			History.newItem("Files");
-//		   Add history listener to handle any history events
-		History.addValueChangeHandler(new ValueChangeHandler<String>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<String> event) {
-				String tokenInput = event.getValue();
-				String historyToken = handleSpecialFolderNames(tokenInput);
-				try {
-					if(historyToken.equals("Search"))
-						inner.selectTab(2);
-					else if(historyToken.equals("Groups"))
-						inner.selectTab(1);
-					else if(historyToken.equals("Files")|| historyToken.length()==0)
-						inner.selectTab(0);
-					else {
-						/*TODO: CELLTREE
-						PopupTree popupTree = GSS.get().getFolders().getPopupTree();
-						TreeItem treeObj = GSS.get().getFolders().getPopupTree().getTreeItem(historyToken);
-						SelectionEvent.fire(popupTree, treeObj);
-						*/
-					}
-				} catch (IndexOutOfBoundsException e) {
-					inner.selectTab(0);
-				}
-			}
-		});
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int tabIndex = event.getSelectedItem();
+                switch (tabIndex) {
+                    case 0:
+                        fileList.updateCurrentlyShowingStats();
+                        break;
+                }
+            }
+        });
 
-		// Add the left and right panels to the split panel.
-		splitPanel.setLeftWidget(treeView);
-		splitPanel.setRightWidget(inner);
-		splitPanel.setSplitPosition("25%");
-		splitPanel.setSize("100%", "100%");
-		splitPanel.addStyleName("pithos-splitPanel");
-		
-		// Create a dock panel that will contain the menu bar at the top,
-		// the shortcuts to the left, the status bar at the bottom and the
-		// right panel taking the rest.
-		VerticalPanel outer = new VerticalPanel();
-		outer.add(topPanel);
+        // Add the left and right panels to the split panel.
+        splitPanel.setLeftWidget(folderTreeView);
+        splitPanel.setRightWidget(inner);
+        splitPanel.setSplitPosition("25%");
+        splitPanel.setSize("100%", "100%");
+        splitPanel.addStyleName("pithos-splitPanel");
+
+        // Create a dock panel that will contain the menu bar at the top,
+        // the shortcuts to the left, the status bar at the bottom and the
+        // right panel taking the rest.
+        VerticalPanel outer = new VerticalPanel();
+        outer.add(topPanel);
 		outer.add(searchStatus);
-		outer.add(messagePanel);
-		outer.add(splitPanel);
-		outer.add(statusPanel);
-		outer.setWidth("100%");
-		outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
+        outer.add(messagePanel);
+        outer.add(splitPanel);
+        outer.add(statusPanel);
+        outer.setWidth("100%");
+        outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
 
-		outer.setSpacing(4);
+        outer.setSpacing(4);
 
-		// Hook the window resize event, so that we can adjust the UI.
-		Window.addResizeHandler(this);
-		// Clear out the window's built-in margin, because we want to take
-		// advantage of the entire client area.
-		Window.setMargin("0px");
-		// Finally, add the outer panel to the RootPanel, so that it will be
-		// displayed.
-		RootPanel.get().add(outer);
-		// Call the window resized handler to get the initial sizes setup. Doing
-		// this in a deferred command causes it to occur after all widgets'
-		// sizes have been computed by the browser.
-		DeferredCommand.addCommand(new Command() {
+        // Hook the window resize event, so that we can adjust the UI.
+        Window.addResizeHandler(this);
+        // Clear out the window's built-in margin, because we want to take
+        // advantage of the entire client area.
+        Window.setMargin("0px");
+        // Finally, add the outer panel to the RootPanel, so that it will be
+        // displayed.
+        RootPanel.get().add(outer);
+        // Call the window resized handler to get the initial sizes setup. Doing
+        // this in a deferred command causes it to occur after all widgets'
+        // sizes have been computed by the browser.
+        DeferredCommand.addCommand(new Command() {
 
-			@Override
-			public void execute() {
-				onWindowResized(Window.getClientHeight());
-			}
-		});
-	}
-
-	/**
-	 * Fetches the User object for the specified username.
-	 *
-	 * @param username the username of the user
-	 */
-	private void fetchUser(final String username) {
-		String path = getApiPath() + username + "/";
-		GetCommand<UserResource> getUserCommand = new GetCommand<UserResource>(UserResource.class, username, path, null) {
-
-			@Override
-			public void onComplete() {
-				
-				currentUserResource = getResult();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("Fetching user error", t);
-				if (t instanceof RestException)
-					GSS.get().displayError("No user found:" + ((RestException) t).getHttpStatusText());
-				else
-					GSS.get().displayError("System error fetching user data:" + t.getMessage());
-				authenticateUser();
-			}
-		};
-		DeferredCommand.addCommand(getUserCommand);
-	}
+            @Override
+            public void execute() {
+                onWindowResized(Window.getClientHeight());
+            }
+        });
+    }
 
 	/**
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
-	private void parseUserCredentials() {
-//		Configuration conf = (Configuration) GWT.create(Configuration.class);
-//		String cookie = conf.authCookie();
-//		String auth = Cookies.getCookie(cookie);
-//		if (auth == null) {
-//			authenticateUser();
-//			// Redundant, but silences warnings about possible auth NPE, below.
-//			return;
-//		}
-//		int sepIndex = auth.indexOf(conf.cookieSeparator());
-//		if (sepIndex == -1)
-//			authenticateUser();
-//		token = auth.substring(sepIndex + 1);
-//		final String username = auth.substring(0, sepIndex);
-//		if (username == null)
-//			authenticateUser();
-//
-//		refreshWebDAVPassword();
-
-        final String username = "test";
-		DeferredCommand.addCommand(new Command() {
-
-			@Override
-			public void execute() {
-				fetchUser(username);
-			}
-		});
+	private boolean parseUserCredentials() {
+		Configuration conf = (Configuration) GWT.create(Configuration.class);
+		String cookie = conf.authCookie();
+		String auth = Cookies.getCookie(cookie);
+		if (auth == null) {
+			authenticateUser();
+            return false;
+        }
+        else {
+            String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+            if (authSplit.length != 2) {
+                authenticateUser();
+                return false;
+            }
+            else {
+                username = authSplit[0];
+                token = authSplit[1];
+                return true;
+            }
+        }
 	}
 
-	/**
+    /**
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
-//		Configuration conf = (Configuration) GWT.create(Configuration.class);
-        //IMPORTANT: Temporary circumvention of the Shiboleth login process for development and testing
-        //Some time in the future the comment line will be restored
-        
+		Configuration conf = (Configuration) GWT.create(Configuration.class);
+
 //        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
-//        Cookies.setCookie(conf.authCookie(), "chstath@ebs.gr" + conf.cookieSeparator() + "triapoulakiakathontan");
-//        Window.Location.assign(GWT.getModuleBaseURL());
+        Cookies.setCookie(conf.authCookie(), "demo" + conf.cookieSeparator() + "0000");
+        Window.Location.assign(GWT.getModuleBaseURL() + "GSS.html");
 	}
 
 	/**
@@ -447,9 +358,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 			newHeight = 1;
 		splitPanel.setHeight("" + newHeight);
 		inner.setHeight("" + newHeight);
-		/*if(isFileListShowing()){
-			getFileList().setHeight("" + (newHeight-50));
-		}*/
 	}
 
 	@Override
@@ -500,9 +408,9 @@ public class GSS implements EntryPoint, ResizeHandler {
 			RestResource currentFolder = getTreeView().getSelection();
 			if(currentFolder!=null){
 				showFileList(currentFolder);
-			}
 		}
-		
+		}
+
 	}
 	
 	public void showFileList(RestResource r) {
@@ -535,17 +443,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 		}
 		fileList.updateFileCache(clearSelection /*clear selection*/);
 		inner.selectTab(0);
-	}
-
-	/**
-	 * Make the search results visible.
-	 *
-	 * @param query the search query string
-	 */
-	public void showSearchResults(String query) {
-		searchResults.updateFileCache(query);
-		searchResults.updateCurrentlyShowingStats();
-		inner.selectTab(2);
 	}
 
 	/**
@@ -651,25 +548,12 @@ public class GSS implements EntryPoint, ResizeHandler {
 	}
 
 	/**
-	 * Retrieve the groups.
-	 *
-	 * @return the groups
-	 */
-	public Groups getGroups() {
-		return groups;
-	}
-
-	/**
 	 * Retrieve the fileList.
 	 *
 	 * @return the fileList
 	 */
 	public FileList getFileList() {
 		return fileList;
-	}
-
-	public SearchResults getSearchResults() {
-		return searchResults;
 	}
 
 	/**
@@ -713,10 +597,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 		return webDAVPassword;
 	}
 
-	public void removeGlassPanel() {
-		glassPanel.removeFromParent();
-	}
-
 	/**
 	 * Retrieve the currentUserResource.
 	 *
@@ -749,7 +629,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 	 */
 	public String getApiPath() {
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
-		return GWT.getModuleBaseURL() + conf.apiPath();
+		return conf.apiPath();
 	}
 
 	/**
@@ -846,6 +726,4 @@ public class GSS implements EntryPoint, ResizeHandler {
 		}
 		
 	}
-	
-	
 }

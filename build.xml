@@ -102,6 +102,12 @@
         <!--move file="${gwt.www.dir}/${gwt.module}/${gwt.module.class}.html" tofile="${gwt.www.dir}/${gwt.module}/index.html"/-->
 	</target>
 
+    <target name="uploadToVM" depends="gwt-compile">
+        <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="/home/chstath/.ssh/id_rsa" passphrase="r0bax45">
+            <fileset dir="${gwt.www.dir}/${gwt.module}"/>
+        </scp>
+    </target>
+
 	<target name="clean" description="Delete all build artifacts">
 		<delete dir="${build.dir}"/>
 	</target>
@@ -128,8 +134,9 @@
             <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=55555"/>
             <arg value="-war"/>
             <arg value="${gwt.www.dir}/${gwt.module}"/>
+            <arg value="-noserver"/>
             <arg value="-startupUrl"/>
-            <arg value="GSS.html"/>
+            <arg value="http://127.0.0.1:8080/client/GSS.html"/>
             <arg value="${gwt.module}"/>
         </java>
     </target>

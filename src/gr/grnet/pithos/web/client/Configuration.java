@@ -46,7 +46,7 @@ public interface Configuration extends Constants {
 	/**
 	 * @return the relative path of the API root URL
 	 */
-	@DefaultStringValue("rest/")
+	@DefaultStringValue("/v1/")
 	String apiPath();
 
 	/**

@@ -375,7 +375,6 @@ public class CellTreeView extends Composite{
 				@Override
 				public void onComplete() {
 					others = getResult();
-					GSS.get().removeGlassPanel();
 				}
 
 				@Override

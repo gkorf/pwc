@@ -8,7 +8,6 @@ import java.io.Serializable;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.TreeItem;
 
-
 public abstract class RestResource implements Serializable{
 	String uri;
 

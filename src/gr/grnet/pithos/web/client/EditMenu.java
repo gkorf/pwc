@@ -133,8 +133,6 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 				hide();
 				if(GSS.get().isFileListShowing())
 					GSS.get().getFileList().selectAllRows();
-				else if(GSS.get().isSearchResultsShowing())
-					GSS.get().getSearchResults().selectAllRows();
 			}
 		};
 		final Command unselectAllCommand = new Command() {
@@ -144,8 +142,6 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 				hide();
 				if(GSS.get().isFileListShowing())
 					GSS.get().getFileList().clearSelectedRows();
-				else if(GSS.get().isSearchResultsShowing())
-					GSS.get().getSearchResults().clearSelectedRows();
 			}
 		};
 

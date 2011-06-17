@@ -31,7 +31,7 @@ public class TopPanel extends Composite {
 	 * An image bundle for this widgets images.
 	 */
 	public interface Images extends ClientBundle, FileMenu.Images, EditMenu.Images,
-			SettingsMenu.Images, GroupMenu.Images, FilePropertiesDialog.Images,
+			SettingsMenu.Images, FilePropertiesDialog.Images,
 			HelpMenu.Images, LoadingIndicator.Images {
 
 		@Source("gr/grnet/pithos/resources/exit.png")
@@ -75,11 +75,6 @@ public class TopPanel extends Composite {
 	private EditMenu editMenu;
 
 	/**
-	 * The group menu widget.
-	 */
-	private GroupMenu groupMenu;
-
-	/**
 	 * The settings menu widget.
 	 */
 	private SettingsMenu settingsMenu;
@@ -103,10 +98,10 @@ public class TopPanel extends Composite {
 	public TopPanel(Images images) {
 		fileMenu = new FileMenu(images);
 		editMenu = new EditMenu(images);
-		groupMenu = new GroupMenu(images);
 		settingsMenu = new SettingsMenu(images);
 		helpMenu = new HelpMenu(images);
 		loading = new LoadingIndicator(images);
+        loading.hide();
 		HorizontalPanel outer = new HorizontalPanel();
 
 		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -146,11 +141,6 @@ public class TopPanel extends Composite {
 		};
 		editItem.getElement().setId("topMenu.edit");
 		
-		MenuItem groupItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.group()).getHTML() + "</td><td>Group</td></tr></table>", true,
-					groupMenu.getContextMenu());
-		groupItem.getElement().setId("topMenu.group");
-		
 		MenuItem configureItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
 					AbstractImagePrototype.create(images.configure()).getHTML() + "</td><td>Settings</td></tr></table>",
 					true,settingsMenu.getContextMenu());
@@ -168,7 +158,6 @@ public class TopPanel extends Composite {
 		menu.addItem(quitItem);
 		menu.addItem(fileItem);
 		menu.addItem(editItem);
-		menu.addItem(groupItem);
 		menu.addItem(configureItem);
 		menu.addItem(helpItem);
 

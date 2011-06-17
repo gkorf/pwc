@@ -156,8 +156,6 @@ public class FileContextMenu extends PopupPanel implements ClickHandler {
 					hide();
 					if(GSS.get().isFileListShowing())
 						GSS.get().getFileList().clearSelectedRows();
-					else if(GSS.get().isSearchResultsShowing())
-						GSS.get().getSearchResults().clearSelectedRows();
 				}
 			};
 			cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(this));

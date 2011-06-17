@@ -63,9 +63,7 @@ public class Search extends Composite implements FocusHandler,BlurHandler {
 			@Override
 			public void onKeyPress(KeyPressEvent event) {
 				char keyCode = event.getCharCode();
-				if (keyCode == '\r')
-					GSS.get().showSearchResults(tb.getText());
-				else if (keyCode == 27) {
+                if (keyCode == 27) {
 					// Simulate the proper behavior for the escape key
 					// (27 == ESC).
 					onLostFocus((Widget)event.getSource());
@@ -74,19 +72,10 @@ public class Search extends Composite implements FocusHandler,BlurHandler {
 			}
 		});
 
-		Button b = new Button(createHeaderHTML(images.searchButton(), "Search"), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				GSS.get().showSearchResults(tb.getText());
-			}
-		});
-		b.getElement().setId("button.search");
-		
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.add(tb);
-		panel.add(b);
 		initWidget(panel);
 	}
 
