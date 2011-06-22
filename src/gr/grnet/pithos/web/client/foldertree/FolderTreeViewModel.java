@@ -18,7 +18,11 @@ import gr.grnet.pithos.web.client.GSS;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView.FolderCell;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
+import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropNodeInfo;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
 
@@ -43,7 +47,35 @@ public class FolderTreeViewModel implements TreeViewModel {
             return new DragAndDropNodeInfo<Folder>(dataProvider, new FolderCell(), selectionModel, null);
         }
         else {
+            final Folder f = (Folder) value;
             final ListDataProvider<Folder> dataProvider = new ListDataProvider<Folder>();
+            dataProvider.getList().addAll(f.getSubfolders());
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    final GSS app = GSS.get();
+                    String container = f.getContainer() == null ? f.getName() : f.getContainer();
+                    String prefix = f.getContainer() == null ? "" : f.getPrefix();
+                    String path = app.getApiPath() + app.getUsername() + "/" + container + "?format=json&delimiter=/&prefix=" + prefix;
+                    GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
+                        @Override
+                        public void onSuccess(Folder result) {
+                            Iterator<Folder> iter = result.getSubfolders().iterator();
+                            fetchFolder(iter, dataProvider, result.getSubfolders());
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+                            GWT.log("Error getting folder", t);
+                            if (t instanceof RestException)
+                                GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                            else
+                                GSS.get().displayError("System error fetching folder: " + t.getMessage());
+                        }
+                    };
+                    Scheduler.get().scheduleDeferred(getFolder);
+                }
+            });
             return new DragAndDropNodeInfo<Folder>(dataProvider, new FolderCell(), selectionModel, null);
         }
     }
@@ -58,16 +90,15 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     public void fetchAccount(final ListDataProvider<Folder> dataProvider) {
-        GSS app = GSS.get();
+        final GSS app = GSS.get();
         String path = app.getApiPath() + app.getUsername() + "?format=json";
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
             @Override
             public void onSuccess(AccountResource result) {
-                dataProvider.getList().clear();
-                for (ContainerResource c : result.getContainers()) {
-                    dataProvider.getList().add(new Folder(c.getName()));
-                }
+                app.setAccount(result);
+                Iterator<Folder> iter = result.getContainers().iterator();
+                fetchFolder(iter, dataProvider, result.getContainers());
             }
 
             @Override
@@ -81,5 +112,36 @@ public class FolderTreeViewModel implements TreeViewModel {
         };
 
         Scheduler.get().scheduleDeferred(getAccount);
+    }
+
+    private void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Set<Folder> folders) {
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+
+            GSS app = GSS.get();
+            String container = f.getContainer() == null ? f.getName() : f.getContainer();
+            String prefix = f.getContainer() == null ? "" : f.getPrefix();
+            String path = app.getApiPath() + app.getUsername() + "/" + container + "?format=json&delimiter=/&prefix=" + prefix;
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
+                @Override
+                public void onSuccess(Folder result) {
+                    fetchFolder(iter, dataProvider, folders);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("Error getting folder", t);
+                    if (t instanceof RestException)
+                        GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                    else
+                        GSS.get().displayError("System error fetching folder: " + t.getMessage());
+                }
+            };
+            Scheduler.get().scheduleDeferred(getFolder);
+        }
+        else {
+            dataProvider.getList().clear();
+            dataProvider.getList().addAll(folders);
+        }
     }
 }

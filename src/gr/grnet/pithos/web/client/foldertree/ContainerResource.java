@@ -8,7 +8,10 @@ import com.google.gwt.http.client.Header;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.resource.FolderResource;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ContainerResource extends Resource {
     /*
@@ -35,6 +38,8 @@ public class ContainerResource extends Resource {
      * The date the container was created
      */
     private Date created;
+
+    private List<Folder> subfolders = new ArrayList<Folder>();
 
     @Override
     public String getLastModifiedSince() {
@@ -79,5 +84,17 @@ public class ContainerResource extends Resource {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void addSubfolder(Folder f) {
+        subfolders.add(f);
+    }
+
+    public boolean hasSubfolders() {
+        return !subfolders.isEmpty();
+    }
+
+    public List<Folder> getSubfolders() {
+        return subfolders;
     }
 }

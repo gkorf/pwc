@@ -26,20 +26,27 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     private T cached;
 
+    private T result;
+
     private Map<String, String> headers = new HashMap<String, String>();
 
     public abstract void onSuccess(T result);
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Class<T> aClass, String path, int okCode) {
+    public GetRequest(Class<T> aClass, String path, int okCode, T result) {
         this.aClass = aClass;
         this.path = path;
         this.okCode = okCode;
+        this.result = result;
     }
 
     public GetRequest(Class<T> aClass, String path) {
-        this(aClass, path, -1);
+        this(aClass, path, -1, null);
+    }
+
+    public GetRequest(Class<T> aClass, String path, T result) {
+        this(aClass, path, -1, result);
     }
 
     @Override
@@ -56,7 +63,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public T deserialize(Response response) {
-                    return Resource.createFromResponse(aClass, response);
+                    return Resource.createFromResponse(aClass, response, result);
                 }
 
                 @Override

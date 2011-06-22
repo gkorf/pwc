@@ -67,31 +67,7 @@ public class QuotaHolder implements Serializable{
 		quotaLeftSize = aQuotaLeftSize;
 	}
 
-	public String getFileSizeAsString() {
-		if (fileSize < 1024)
-			return String.valueOf(fileSize) + " B";
-		else if (fileSize < 1024*1024)
-			return getSize(fileSize, 1024D) + " KB";
-		else if (fileSize < 1024*1024*1024)
-			return getSize(fileSize,(1024D*1024D)) + " MB";
-		return getSize(fileSize , (1024D*1024D*1024D)) + " GB";
-	}
 
-	public String getQuotaLeftAsString() {
-		if (quotaLeftSize < 1024)
-			return String.valueOf(quotaLeftSize) + " B";
-		else if (quotaLeftSize < 1024*1024)
-			return getSize(quotaLeftSize, 1024D) + " KB";
-		else if (quotaLeftSize < 1024*1024*1024)
-			return getSize(quotaLeftSize,(1024D*1024D)) + " MB";
-		return getSize(quotaLeftSize , (1024D*1024D*1024D)) + " GB";
-	}
-
-	private String getSize(Long size, Double division){
-		Double res = Double.valueOf(size.toString())/division;
-		NumberFormat nf = NumberFormat.getFormat("######.#");
-		return nf.format(res);
-	}
 
 	public long percentOfFreeSpace(){
 		return (long) ((double)quotaLeftSize*100/(fileSize+quotaLeftSize)+0.5);

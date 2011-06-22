@@ -474,14 +474,13 @@ public class FileList extends Composite {
 		celltable.setSelectionModel(selectionModel,GSSSelectionEventManager.<FileResource>createDefaultManager());
 		celltable.setPageSize(GSS.VISIBLE_FILE_COUNT);
 		
-		//celltable.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-		Scheduler.get().scheduleIncremental(new RepeatingCommand() {
-
-			@Override
-			public boolean execute() {
-				return fetchRootFolder();
-			}
-		});
+//		Scheduler.get().scheduleIncremental(new RepeatingCommand() {
+//
+//			@Override
+//			public boolean execute() {
+//				return fetchRootFolder();
+//			}
+//		});
 		sinkEvents(Event.ONCONTEXTMENU);
 		sinkEvents(Event.ONMOUSEUP);
 		sinkEvents(Event.ONMOUSEDOWN);
@@ -491,13 +490,7 @@ public class FileList extends Composite {
 		GSS.preventIESelection();
 	}
 	
-	//public native void fireClickEvent(Element element) /*-{
-	  //  var evObj = $doc.createEvent('MouseEvents');
-	    //evObj.initEvent('click', true, true);
-	    //element.dispatchEvent(evObj);
-  	//}-*/;
-	
-	
+
 	
 	 public List<FileResource> getSelectedFiles() {
          return new ArrayList<FileResource>(selectionModel.getSelectedSet());

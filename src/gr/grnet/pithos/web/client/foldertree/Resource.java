@@ -4,7 +4,6 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
@@ -13,6 +12,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import java.util.Date;
 
 public abstract class Resource {
@@ -55,15 +55,6 @@ public abstract class Resource {
         return false;
     }
 
-    protected static Date unmarshallTimestamp(JSONObject obj, String key){
-        if(obj.get(key) != null) {
-            JSONString s = obj.get(key).isString();
-            if (s != null)
-                return new Date(Long.valueOf(s.stringValue()).longValue());
-        }
-        return null;
-    }
-
     protected static Date unmarshallDate(JSONObject obj, String key){
         if(obj.get(key) != null) {
             JSONString s = obj.get(key).isString();
@@ -79,27 +70,12 @@ public abstract class Resource {
 
     public abstract String getLastModifiedSince();
 
-    public static <T> T createFromResponse(Class<T> aClass, Response response) {
-        JSONValue json = JSONParser.parseStrict(response.getText());
-        T result = null;
+    public static <T> T createFromResponse(Class<T> aClass, Response response, T result) {
         if (aClass.equals(AccountResource.class)) {
-            AccountResource a = new AccountResource();
-            JSONArray array = json.isArray();
-            if (array != null) {
-                for (int i=0; i<array.size(); i++) {
-                    JSONObject o = array.get(i).isObject();
-                    if (o != null) {
-                        ContainerResource container = new ContainerResource();
-                        container.setName(unmarshallString(o, "name"));
-                        container.setCount(unmarshallLong(o, "count"));
-                        container.setBytes(unmarshallLong(o, "bytes"));
-                        container.setCreated(unmarshallTimestamp(o, "created"));
-                        container.setLastModified(unmarshallDate(o, "last_modified"));
-                        a.getContainers().add(container);
-                    }
-                }
-                result = (T) a;
-            }
+            result = (T) AccountResource.createFromResponse(response);
+        }
+        else if (aClass.equals(Folder.class)) {
+            result = (T) Folder.createFromResponse(response, (Folder) result);
         }
         return result;
     }

@@ -36,13 +36,13 @@ public class UserDetailsPanel extends Composite {
 
 		initWidget(outer);
 
-		DeferredCommand.addCommand(new IncrementalCommand() {
-
-			@Override
-			public boolean execute() {
-				return displayUserInfo();
-			}
-		});
+//		DeferredCommand.addCommand(new IncrementalCommand() {
+//
+//			@Override
+//			public boolean execute() {
+//				return displayUserInfo();
+//			}
+//		});
 	}
 
 	/**

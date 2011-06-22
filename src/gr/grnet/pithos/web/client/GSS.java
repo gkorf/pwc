@@ -74,6 +74,14 @@ public class GSS implements EntryPoint, ResizeHandler {
         return username;
     }
 
+    public void setAccount(AccountResource acct) {
+        account = acct;
+    }
+
+    public AccountResource getAccount() {
+        return account;
+    }
+
     /**
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
@@ -126,7 +134,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 	/**
 	 * The bottom panel that contains the status bar.
 	 */
-	private StatusPanel statusPanel = new StatusPanel(GSS.images);
+	private StatusPanel statusPanel = null;
 
 	/**
 	 * The top right panel that displays the logged in user details
@@ -158,20 +166,10 @@ public class GSS implements EntryPoint, ResizeHandler {
 	private HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
 
 	/**
-	 * The horizontal panel that will contain the search and status panels.
-	 */
-	private DockPanel searchStatus = new DockPanel();
-
-	/**
-	 * The search widget.
-	 */
-	private Search search;
-
-	/**
 	 * The widget that displays the tree of folders.
 	 */
 	
-	private CellTreeView treeView = new CellTreeView(images);
+	private CellTreeView treeView = null;
 	/**
 	 * The currently selected item in the application, for use by the Edit menu
 	 * commands. Potential types are Folder, File, User and Group.
@@ -195,6 +193,8 @@ public class GSS implements EntryPoint, ResizeHandler {
 
     private FolderTreeView folderTreeView = new FolderTreeView();
 
+    private AccountResource account;
+
 	@Override
 	public void onModuleLoad() {
 		// Initialize the singleton before calling the constructors of the
@@ -210,14 +210,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 
         messagePanel.setWidth("100%");
         messagePanel.setVisible(false);
-
-		search = new Search(images);
-		searchStatus.add(search, DockPanel.WEST);
-		searchStatus.add(userDetailsPanel, DockPanel.EAST);
-		searchStatus.setCellHorizontalAlignment(userDetailsPanel, HasHorizontalAlignment.ALIGN_RIGHT);
-		searchStatus.setCellVerticalAlignment(search, HasVerticalAlignment.ALIGN_MIDDLE);
-		searchStatus.setCellVerticalAlignment(userDetailsPanel, HasVerticalAlignment.ALIGN_MIDDLE);
-		searchStatus.setWidth("100%");
 
         fileList = new FileList(images);
 
@@ -256,9 +248,9 @@ public class GSS implements EntryPoint, ResizeHandler {
         // right panel taking the rest.
         VerticalPanel outer = new VerticalPanel();
         outer.add(topPanel);
-		outer.add(searchStatus);
         outer.add(messagePanel);
         outer.add(splitPanel);
+        statusPanel = new StatusPanel(GSS.images);
         outer.add(statusPanel);
         outer.setWidth("100%");
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -519,15 +511,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 	public Folders getFolders() {
 		return folders;
 	}*/
-
-	/**
-	 * Retrieve the search.
-	 *
-	 * @return the search
-	 */
-	Search getSearch() {
-		return search;
-	}
 
 	/**
 	 * Retrieve the currentSelection.

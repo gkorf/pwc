@@ -5,7 +5,6 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
@@ -15,27 +14,17 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.gwt.view.client.TreeViewModel;
 import com.google.gwt.view.client.TreeViewModel.NodeInfo;
-import gr.grnet.pithos.web.client.CellTreeViewModel;
-import gr.grnet.pithos.web.client.CellTreeViewUtils;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.GSS;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTree;
-import java.util.Arrays;
 
 public class FolderTreeView extends Composite {
 

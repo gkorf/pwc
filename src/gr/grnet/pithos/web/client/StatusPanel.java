@@ -3,7 +3,11 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.rest.GetCommand;
+import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.QuotaHolder;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
@@ -12,8 +16,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -101,44 +103,38 @@ public class StatusPanel extends Composite {
 
 		initWidget(outer);
 
-		// Initialize and display the quota information.
-		DeferredCommand.addCommand(new IncrementalCommand() {
-			@Override
-			public boolean execute() {
-				GSS app = GSS.get();
-				UserResource user = app.getCurrentUserResource();
-				if (user == null || app.getTreeView().getMyFolders() == null)
-					return !DONE;
-				displayStats(user);
-				return DONE;
-			}
-		});
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+            @Override
+            public void execute() {
+                AccountResource account = GSS.get().getAccount();
+                displayStats(account);
+            }
+        });
 	}
 
 	/**
 	 * Refresh the widget with the provided statistics.
 	 */
-	private void displayStats(UserResource user) {
-		QuotaHolder stats = user.getQuota();
-		if (stats.getFileCount() == 1)
-			fileCountLabel.setHTML("1 file");
+	private void displayStats(AccountResource account) {
+		if (account.getNumberOfObjects() == 1)
+			fileCountLabel.setHTML("1 object");
 		else
-			fileCountLabel.setHTML(stats.getFileCount() + " files");
-		fileSizeLabel.setHTML(stats.getFileSizeAsString() + " used");
-		long pc = stats.percentOfFreeSpace();
-		if(pc<10) {
+			fileCountLabel.setHTML(account.getNumberOfObjects() + " objects");
+		fileSizeLabel.setHTML(account.getFileSizeAsString() + " used");
+		long pc = (long) ((double) account.getBytesRemaining()/(account.getBytesRemaining() + account.getBytesUsed()) + 0.5);
+		if (pc < 10) {
 			quotaIcon.setHTML(AbstractImagePrototype.create(images.redSize()).getHTML());
-			quotaLabel.setHTML(stats.getQuotaLeftAsString() +" free");
+			quotaLabel.setHTML(account.getQuotaLeftAsString() + " free");
 		} else if(pc<20) {
 			quotaIcon.setHTML(AbstractImagePrototype.create(images.yellowSize()).getHTML());
-			quotaLabel.setHTML(stats.getQuotaLeftAsString() +" free");
+			quotaLabel.setHTML(account.getQuotaLeftAsString() +" free");
 		} else {
 			quotaIcon.setHTML(AbstractImagePrototype.create(images.greenSize()).getHTML());
-			quotaLabel.setHTML(stats.getQuotaLeftAsString() +" free");
+			quotaLabel.setHTML(account.getQuotaLeftAsString() +" free");
 		}
 		final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-		lastLoginLabel.setHTML(formatter.format(user.getLastLogin()));
-		currentLoginLabel.setHTML(formatter.format(user.getCurrentLogin()));
+		lastLoginLabel.setHTML(formatter.format(account.getLastLogin()));
+		currentLoginLabel.setHTML(formatter.format(account.getCurrentLogin()));
 	}
 
 	/**
@@ -147,25 +143,26 @@ public class StatusPanel extends Composite {
 	 */
 	public void updateStats() {
 		final GSS app = GSS.get();
-		UserResource user = app.getCurrentUserResource();
-		GetCommand<UserResource> uc = new GetCommand<UserResource>(UserResource.class, user.getUri(), null){
-			@Override
-			public void onComplete() {
-				displayStats(getResult());
-			}
+        String path = app.getApiPath() + app.getUsername();
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
+            @Override
+            public void onSuccess(AccountResource result) {
+                displayStats(result);
+            }
 
-			@Override
-			public void onError(Throwable t) {
-				if(t instanceof RestException)
-					app.displayError("Unable to fetch quota:" +
-								((RestException)t).getHttpStatusText());
-				else
-					app.displayError("System error fetching quota:" +
-								t.getMessage());
-				GWT.log("ERR", t);
-			}
-		};
-		DeferredCommand.addCommand(uc);
+            @Override
+            public void onError(Throwable t) {
+                if(t instanceof RestException)
+                    app.displayError("Unable to fetch quota:" +
+                                ((RestException)t).getHttpStatusText());
+                else
+                    app.displayError("System error fetching quota:" +
+                                t.getMessage());
+                GWT.log("ERR", t);
+            }
+        };
+
+        Scheduler.get().scheduleDeferred(getAccount);
 	}
 
 	/**
