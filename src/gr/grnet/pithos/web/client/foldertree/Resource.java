@@ -17,12 +17,6 @@ import java.util.Date;
 
 public abstract class Resource {
 
-    String uri;
-
-    public String getUri() {
-        return uri;
-    }
-
     protected static String unmarshallString(JSONObject obj, String key){
         if(obj.get(key) != null) {
             JSONString s = obj.get(key).isString();

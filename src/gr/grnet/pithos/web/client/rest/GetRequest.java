@@ -70,7 +70,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
                 public void onError(Request request, Throwable throwable) {
                     if (throwable instanceof RestException) {
                         if (((RestException) throwable).getHttpStatusCode() == 304 && cached != null){
-                            GWT.log("Using cache: " + cached.getUri(), null);
+                            GWT.log("Using cache: " + cached.toString(), null);
                             onSuccess(cached);
                             return;
                         }

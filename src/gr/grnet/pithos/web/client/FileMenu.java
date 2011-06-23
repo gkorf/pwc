@@ -158,8 +158,10 @@ public class FileMenu extends PopupPanel implements ClickHandler {
 				preDownloadCheck();
 			}
 		};
-		//
-		RestResource selectedItem = GSS.get().getTreeView().getSelection();
+        CellTreeView treeView = GSS.get().getTreeView();
+        if (treeView == null)
+            return contextMenu;
+		RestResource selectedItem = treeView.getSelection();
 		boolean downloadVisible = GSS.get().getCurrentSelection() != null && GSS.get().getCurrentSelection() instanceof FileResource;
 		boolean propertiesVisible = !(selectedItem != null && (selectedItem instanceof TrashResource || selectedItem instanceof TrashFolderResource || selectedItem instanceof SharedResource || selectedItem instanceof OthersResource || selectedItem instanceof OtherUserResource 
 					//|| folders.isOthersShared(selectedItem) || selectedItem.getUserObject() instanceof GroupUserResource 

@@ -7,10 +7,13 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.view.client.ListDataProvider;
 import gr.grnet.pithos.web.client.clipboard.Clipboard;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -191,7 +195,9 @@ public class GSS implements EntryPoint, ResizeHandler {
      */
     private String token;
 
-    private FolderTreeView folderTreeView = new FolderTreeView();
+    private FolderTreeViewModel folderTreeViewModel = new FolderTreeViewModel();
+
+    private FolderTreeView folderTreeView = new FolderTreeView(folderTreeViewModel);
 
     private AccountResource account;
 
@@ -268,11 +274,18 @@ public class GSS implements EntryPoint, ResizeHandler {
         // Call the window resized handler to get the initial sizes setup. Doing
         // this in a deferred command causes it to occur after all widgets'
         // sizes have been computed by the browser.
-        DeferredCommand.addCommand(new Command() {
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
             @Override
             public void execute() {
                 onWindowResized(Window.getClientHeight());
+            }
+        });
+
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+            @Override
+            public void execute() {
+                fetchAccount();
             }
         });
     }
@@ -312,6 +325,30 @@ public class GSS implements EntryPoint, ResizeHandler {
         Cookies.setCookie(conf.authCookie(), "demo" + conf.cookieSeparator() + "0000");
         Window.Location.assign(GWT.getModuleBaseURL() + "GSS.html");
 	}
+
+    private void fetchAccount() {
+        String path = getApiPath() + username + "?format=json";
+
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
+            @Override
+            public void onSuccess(AccountResource result) {
+                account = result;
+                statusPanel.displayStats(account);
+                folderTreeViewModel.initialize(account);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("Error getting account", t);
+                if (t instanceof RestException)
+                    GSS.get().displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                else
+                    GSS.get().displayError("System error fetching user data: " + t.getMessage());
+            }
+        };
+
+        Scheduler.get().scheduleDeferred(getAccount);
+    }
 
 	/**
 	 * Clear the cookie and redirect the user to the logout page.

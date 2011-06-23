@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import java.util.Date;
 
 /**
  * The panel that displays a status bar with quota information.
@@ -102,20 +103,12 @@ public class StatusPanel extends Composite {
 		outer.setCellHorizontalAlignment(right, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		initWidget(outer);
-
-        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-            @Override
-            public void execute() {
-                AccountResource account = GSS.get().getAccount();
-                displayStats(account);
-            }
-        });
 	}
 
 	/**
 	 * Refresh the widget with the provided statistics.
 	 */
-	private void displayStats(AccountResource account) {
+	public void displayStats(AccountResource account) {
 		if (account.getNumberOfObjects() == 1)
 			fileCountLabel.setHTML("1 object");
 		else
@@ -133,14 +126,18 @@ public class StatusPanel extends Composite {
 			quotaLabel.setHTML(account.getQuotaLeftAsString() +" free");
 		}
 		final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-		lastLoginLabel.setHTML(formatter.format(account.getLastLogin()));
-		currentLoginLabel.setHTML(formatter.format(account.getCurrentLogin()));
+        Date login = account.getLastLogin();
+		lastLoginLabel.setHTML(login == null ? "" : formatter.format(login));
+
+        login = account.getCurrentLogin();
+		currentLoginLabel.setHTML(login == null ? "" : formatter.format(login));
 	}
 
 	/**
 	 * Requests updated quota information from the server and refreshes
 	 * the display.
 	 */
+    //TODO: This should not be done here
 	public void updateStats() {
 		final GSS app = GSS.get();
         String path = app.getApiPath() + app.getUsername();

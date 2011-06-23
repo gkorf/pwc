@@ -25,6 +25,7 @@ import com.google.gwt.view.client.TreeViewModel.NodeInfo;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.GSS;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTree;
+import java.util.Iterator;
 
 public class FolderTreeView extends Composite {
 
@@ -74,10 +75,11 @@ public class FolderTreeView extends Composite {
         }
     }
 
-    private SingleSelectionModel<Folder> selectionModel = new SingleSelectionModel<Folder>();
 
-    public FolderTreeView() {
-        final FolderTreeViewModel model = new FolderTreeViewModel(selectionModel);
+    private FolderTreeViewModel model;
+
+    public FolderTreeView(FolderTreeViewModel viewModel) {
+        this.model = viewModel;
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
@@ -88,21 +90,6 @@ public class FolderTreeView extends Composite {
 
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        Handler selectionHandler = new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(com.google.gwt.view.client.SelectionChangeEvent event) {
-                NodeInfo<Folder> nodeInfo = (NodeInfo<Folder>) model.getNodeInfo(selectionModel.getSelectedObject());
-                if(nodeInfo == null || nodeInfo.getValueUpdater() == null) {
-                    //GSS.get().showFileList(selectionModel.getSelectedObject());
-                }
-                else
-                    nodeInfo.getValueUpdater().update(selectionModel.getSelectedObject());
-                GSS.get().setCurrentSelection(selectionModel.getSelectedObject());
-
-
-            }
-        };
-        selectionModel.addSelectionChangeHandler(selectionHandler);
         sinkEvents(Event.ONCONTEXTMENU);
         sinkEvents(Event.ONMOUSEUP);
         initWidget(tree);
