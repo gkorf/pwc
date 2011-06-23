@@ -4,13 +4,9 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
@@ -20,10 +16,7 @@ import gr.grnet.pithos.web.client.GSS;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView.FolderCell;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropNodeInfo;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
@@ -38,7 +31,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             public void onSelectionChange(SelectionChangeEvent event) {
                 NodeInfo<Folder> nodeInfo = (NodeInfo<Folder>) getNodeInfo(selectionModel.getSelectedObject());
                 if(nodeInfo == null || nodeInfo.getValueUpdater() == null) {
-                    //GSS.get().showFileList(selectionModel.getSelectedObject());
+//                    GSS.get().showFileList(selectionModel.getSelectedObject());
                 }
                 else
                     nodeInfo.getValueUpdater().update(selectionModel.getSelectedObject());
@@ -53,7 +46,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (value == null) {
             Folder f = new Folder("Loading ...");
             rootDataProvider.getList().add(f);
-            return new DragAndDropNodeInfo<Folder>(rootDataProvider, new FolderCell(), selectionModel, null);
+            return new DefaultNodeInfo<Folder>(rootDataProvider, new FolderCell(), selectionModel, null);
         }
         else {
             final Folder f = (Folder) value;
@@ -83,7 +76,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                     Scheduler.get().scheduleDeferred(getFolder);
                 }
             });
-            return new DragAndDropNodeInfo<Folder>(dataProvider, new FolderCell(), selectionModel, null);
+            return new DefaultNodeInfo<Folder>(dataProvider, new FolderCell(), selectionModel, null);
         }
     }
 

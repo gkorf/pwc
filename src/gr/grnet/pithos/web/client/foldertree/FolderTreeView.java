@@ -18,14 +18,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
-import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.gwt.view.client.TreeViewModel.NodeInfo;
 import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.GSS;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTree;
-import java.util.Iterator;
 
 public class FolderTreeView extends Composite {
 
@@ -86,7 +79,7 @@ public class FolderTreeView extends Composite {
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        DragAndDropCellTree tree = new DragAndDropCellTree(model,null, res);
+        CellTree tree = new CellTree(model, null, res);
 
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
