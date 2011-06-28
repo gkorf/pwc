@@ -158,7 +158,7 @@ public class StatusPanel extends Composite {
                 GWT.log("ERR", t);
             }
         };
-
+        getAccount.setHeader("X-Auth-Token", app.getToken());
         Scheduler.get().scheduleDeferred(getAccount);
 	}
 

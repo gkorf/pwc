@@ -7,6 +7,9 @@ package gr.grnet.pithos.web.client;
 import static com.google.gwt.query.client.GQuery.$;
 
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.RestCommand;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
@@ -19,7 +22,6 @@ import gr.grnet.pithos.web.client.rest.resource.SharedResource;
 import gr.grnet.pithos.web.client.rest.resource.TrashFolderResource;
 import gr.grnet.pithos.web.client.rest.resource.TrashResource;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
-import gr.grnet.pithos.web.client.rest.resource.UserSearchResource;
 import gwtquery.plugins.draggable.client.DraggableOptions;
 import gwtquery.plugins.draggable.client.StopDragException;
 import gwtquery.plugins.draggable.client.DraggableOptions.DragFunction;
@@ -44,12 +46,9 @@ import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
@@ -59,7 +58,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.GssSimplePager;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -72,16 +70,25 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import java.util.Set;
 
 /**
  * A composite that displays the list of files in a particular folder.
  */
 public class FileList extends Composite {
-	ListDataProvider<FileResource> provider = new ListDataProvider<FileResource>();
+
+	ListDataProvider<File> provider = new ListDataProvider<File>();
+
+    /**
+       * The styles applied to the table.
+       */
+    interface TableStyle extends CellTable.Style {
+    }
+
 	interface TableResources extends DragAndDropCellTable.Resources {
 	    @Source({CellTable.Style.DEFAULT_CSS, "GssCellTable.css"})
 	    TableStyle cellTableStyle();
-	  }
+	}
 	
 	static interface Templates extends SafeHtmlTemplates {
 	    Templates INSTANCE = GWT.create(Templates.class);
@@ -100,16 +107,9 @@ public class FileList extends Composite {
 
         @Template("<span id='{0}' class='{1}'>{2}</span>")
         public SafeHtml spanWithIdAndClass(String id, String cssClass, String content);
-	  }
-	
-	
-	/**
-	   * The styles applied to the table.
-	   */
-	  interface TableStyle extends CellTable.Style {
-	  }
+	}
 
-	private String showingStats = "";
+    private String showingStats = "";
 
 	private int startIndex = 0;
 
@@ -118,8 +118,6 @@ public class FileList extends Composite {
 	 */
 	public static final boolean DONE = false;
 
-	
-	
 	private final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
 
 	/**
@@ -202,53 +200,6 @@ public class FileList extends Composite {
 
 	}
 	
-	DragStopEventHandler dragStop = new DragStopEventHandler() {
-		
-		@Override
-		public void onDragStop(DragStopEvent event) {
-			GWT.log("DRAG STOPPED");
-			
-		}
-	};
-	
-	private static class ContactCell extends AbstractCell<gr.grnet.pithos.web.client.rest.resource.FileResource> {
-
-	    /**
-	     * The html of the image used for contacts.
-	     * 
-	     */
-	    private final String imageHtml;
-
-	    public ContactCell(ImageResource image) {
-	      this.imageHtml = AbstractImagePrototype.create(image).getHTML();
-	    }
-
-	    
-
-		
-
-	    @Override
-	    public void render(Context context, FileResource value, SafeHtmlBuilder sb) {
-	      // Value can be null, so do a null check..
-	      if (value == null) {
-	        return;
-	      }
-
-          sb.append(Templates.INSTANCE.rendelContactCell(imageHtml, value.getName(), value.getFileSizeAsString()));
-	    }
-
-
-	  }
-	/**
-	 * Retrieve the celltable.
-	 *
-	 * @return the celltable
-	 */
-	public DragAndDropCellTable<FileResource> getCelltable() {
-		return celltable;
-	}
-	
-	
 	/**
 	 * The number of files in this folder.
 	 */
@@ -262,7 +213,7 @@ public class FileList extends Composite {
 	/**
 	 * A cache of the files in the list.
 	 */
-	private List<FileResource> files;
+	private List<File> files;
 
 	/**
 	 * The widget's image bundle.
@@ -270,15 +221,26 @@ public class FileList extends Composite {
 	private final Images images;
 	
 	private FileContextMenu menuShowing;
-	private DragAndDropCellTable<FileResource> celltable;
-	private final MultiSelectionModel<FileResource> selectionModel;
+
+	private DragAndDropCellTable<File> celltable;
+
+	private final MultiSelectionModel<File> selectionModel;
+
 	private final List<SortableHeader> allHeaders = new ArrayList<SortableHeader>();
+
 	SortableHeader nameHeader;
+
 	GssSimplePager pagerBottom;
+
 	GssSimplePager pagerTop;
+
 	Button uploadButtonBottom;
+
 	Button uploadButtonTop;
-	/**
+
+    FolderTreeView treeView;
+
+    /**
 	 * Construct the file list widget. This entails setting up the widget
 	 * layout, fetching the number of files in the current folder from the
 	 * server and filling the local file cache of displayed files with data from
@@ -286,117 +248,133 @@ public class FileList extends Composite {
 	 *
 	 * @param _images
 	 */
-	public FileList(Images _images) {
+	public FileList(Images _images, FolderTreeView treeView) {
 		images = _images;
-		DragAndDropCellTable.Resources resources = GWT.create(TableResources.class);
-		ProvidesKey<FileResource> keyProvider = new ProvidesKey<FileResource>(){
+        this.treeView = treeView;
+
+        DragAndDropCellTable.Resources resources = GWT.create(TableResources.class);
+
+        ProvidesKey<File> keyProvider = new ProvidesKey<File>(){
 
 			@Override
-			public Object getKey(FileResource item) {
+			public Object getKey(File item) {
 				return item.getUri();
 			}
-			
 		};
-		celltable = new DragAndDropCellTable<FileResource>(GSS.VISIBLE_FILE_COUNT,resources,keyProvider);
-		
-		DragAndDropColumn<FileResource, ImageResource> status = new DragAndDropColumn<FileResource, ImageResource>(new ImageResourceCell(){
-			@Override
-	          public boolean handlesSelection() {
-	        	    return false;
-	        	  }
-		}) {
-	          @Override
-	          public ImageResource getValue(FileResource entity) {
-	            return getFileIcon(entity);
-	          }
-	          
-	       };
+
+		celltable = new DragAndDropCellTable<File>(GSS.VISIBLE_FILE_COUNT, resources, keyProvider);
+        celltable.setWidth("100%");
+        celltable.setStyleName("pithos-List");
+
+		DragAndDropColumn<File, ImageResource> status = new DragAndDropColumn<File, ImageResource>(new ImageResourceCell() {
+		    @Override
+	        public boolean handlesSelection() {
+	            return false;
+	        }
+		})
+        {
+	         @Override
+	         public ImageResource getValue(File entity) {
+	             return getFileIcon(entity);
+	         }
+	    };
 	    celltable.addColumn(status,"");
-	    
 	    initDragOperation(status);
-		final DragAndDropColumn<FileResource,SafeHtml> nameColumn = new DragAndDropColumn<FileResource,SafeHtml>(new SafeHtmlCell()) {
+
+        final DragAndDropColumn<File,SafeHtml> nameColumn = new DragAndDropColumn<File,SafeHtml>(new SafeHtmlCell()) {
 
 			@Override
-			public SafeHtml getValue(FileResource object) {
+			public SafeHtml getValue(File object) {
 				SafeHtmlBuilder sb = new SafeHtmlBuilder();
                 sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
-				if (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg") ){
-					sb.appendHtmlConstant("&nbsp;").append(Templates.INSTANCE.viewLink(GSS.get().getTopPanel().getFileMenu().getDownloadURL(object), object.getOwner() + " : " + object.getPath() + object.getName()));
+				if (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg")) {
+        			sb.appendHtmlConstant("&nbsp;")
+                      .append(Templates.INSTANCE.viewLink(object.getUri(), object.getOwner() + " : " + object.getPath() + object.getName()));
 				}
 				
 				return sb.toSafeHtml();
 			}
 			
 		};
-		initDragOperation(nameColumn);
-		celltable.addColumn(nameColumn,nameHeader = new SortableHeader("Name"));
+        initDragOperation(nameColumn);
+        celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name"));
 		allHeaders.add(nameHeader);
-		//nameHeader.setSorted(true);
-		//nameHeader.toggleReverseSort();
 		nameHeader.setUpdater(new FileValueUpdater(nameHeader, "name"));
+
 		celltable.redrawHeaders();
 		
-		
-	    
-	    
-	    SortableHeader aheader;
-	    DragAndDropColumn<FileResource,String> aColumn;
-		celltable.addColumn(aColumn=new DragAndDropColumn<FileResource,String>(new TextCell()) {
+	    DragAndDropColumn<File,String> aColumn = new DragAndDropColumn<File, String>(new TextCell()) {
 			@Override
-			public String getValue(FileResource object) {
-				return GSS.get().findUserFullName(object.getOwner());
-			}			
-		},aheader = new SortableHeader("Owner"));
+			public String getValue(File object) {
+				return object.getOwner();
+			}
+		};
+        SortableHeader aheader = new SortableHeader("Owner");
+		celltable.addColumn(aColumn, aheader);
 		initDragOperation(aColumn);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "owner"));
-		celltable.addColumn(aColumn=new DragAndDropColumn<FileResource,String>(new TextCell()) {
+        aheader.setUpdater(new FileValueUpdater(aheader, "owner"));
+
+        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
 			@Override
-			public String getValue(FileResource object) {
-				// TODO Auto-generated method stub
+			public String getValue(File object) {
 				return object.getPath();
-			}			
-		},aheader = new SortableHeader("Path"));
+			}
+		};
+        aheader = new SortableHeader("Path");
+		celltable.addColumn(aColumn, aheader);
 		initDragOperation(aColumn);
 		allHeaders.add(aheader);
-		
-		aheader.setUpdater(new FileValueUpdater(aheader, "path"));	
-		celltable.addColumn(aColumn=new DragAndDropColumn<FileResource,String>(new TextCell()) {
+		aheader.setUpdater(new FileValueUpdater(aheader, "path"));
+
+        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
 			@Override
-			public String getValue(FileResource object) {
-				if(object.isVersioned())
-					return object.getVersion().toString();
-				return "-";
-			}			
-		},aheader = new SortableHeader("Version"));
+			public String getValue(File object) {
+    			return String.valueOf(object.getVersion());
+			}
+		};
+        aheader = new SortableHeader("Version");
+		celltable.addColumn(aColumn, aheader);
 		initDragOperation(aColumn);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "version"));
-		celltable.addColumn(aColumn=new DragAndDropColumn<FileResource,String>(new TextCell()) {
+
+        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
 			@Override
-			public String getValue(FileResource object) {
+			public String getValue(File object) {
 				// TODO Auto-generated method stub
-				return object.getFileSizeAsString();
-			}			
-		},aheader = new SortableHeader("Size"));
+				return object.getSizeAsString();
+			}
+		};
+        aheader = new SortableHeader("Size");
+        celltable.addColumn(aColumn, aheader);
 		initDragOperation(aColumn);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "size"));	
-		celltable.addColumn(aColumn=new DragAndDropColumn<FileResource,String>(new TextCell()) {
+		aheader.setUpdater(new FileValueUpdater(aheader, "size"));
+
+        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
 			@Override
-			public String getValue(FileResource object) {
-				return formatter.format(object.getModificationDate());
-			}			
-		},aheader = new SortableHeader("Last Modified"));
+			public String getValue(File object) {
+				return formatter.format(object.getLastModified());
+			}
+		};
+        aheader = new SortableHeader("Last Modified");
+		celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "date"));
 	       
-		
 		provider.addDataDisplay(celltable);
-		celltable.addDragStopHandler(dragStop);
+
+		celltable.addDragStopHandler(new DragStopEventHandler() {
+
+	    	@Override
+		    public void onDragStop(DragStopEvent event) {
+			    GWT.log("DRAG STOPPED");
+		    }
+	    });
 		celltable.addDragStartHandler(new DragStartEventHandler() {
 
-		      public void onDragStart(DragStartEvent event) {
+		    public void onDragStart(DragStartEvent event) {
 		        FileResource value = event.getDraggableData();
 		        
 		        com.google.gwt.dom.client.Element helper = event.getHelper();
@@ -409,20 +387,16 @@ public class FileList extends Composite {
 		        	sb.appendEscaped(getSelectedFiles().size()+" files");
 		        sb.appendHtmlConstant("</b>");
 		        helper.setInnerHTML(sb.toSafeHtml().asString());
+		    }
+		});
 
-		      }
-		    });
-		
-		
-		
-		
-		
-		
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
+
 		pagerTop = new GssSimplePager(GssSimplePager.TextLocation.CENTER);
-		pagerTop.setDisplay(celltable);	
-		uploadButtonTop=new Button("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>");
+        pagerTop.setVisible(false);
+		pagerTop.setDisplay(celltable);
+		uploadButtonTop = new Button("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>");
 		uploadButtonTop.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -434,12 +408,12 @@ public class FileList extends Composite {
 		topPanel.add(pagerTop);
 		topPanel.add(uploadButtonTop);
 		vp.add(topPanel);
-		celltable.setWidth("100%");
-		vp.add(celltable);
+
+        vp.add(celltable);
+
 		pagerBottom = new GssSimplePager(GssSimplePager.TextLocation.CENTER);
+        pagerBottom.setVisible(false);
 		pagerBottom.setDisplay(celltable);
-		HorizontalPanel bottomPanel = new HorizontalPanel();
-		bottomPanel.add(pagerBottom);
 		uploadButtonBottom=new Button("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>");
 		uploadButtonBottom.addClickHandler(new ClickHandler() {
 			
@@ -448,22 +422,20 @@ public class FileList extends Composite {
 				new UploadFileCommand(null).execute();
 			}
 		});
+        HorizontalPanel bottomPanel = new HorizontalPanel();
+        bottomPanel.add(pagerBottom);
 		bottomPanel.add(uploadButtonBottom);
+
 		vp.add(bottomPanel);
 		vp.setCellWidth(celltable, "100%");
-		
 		initWidget(vp);
-		pagerBottom.setVisible(false);
-		pagerTop.setVisible(false);
 
-		celltable.setStyleName("pithos-List");
-		selectionModel = new MultiSelectionModel<FileResource>(keyProvider);
-		
+		selectionModel = new MultiSelectionModel<File>(keyProvider);
 
-		 Handler selectionHandler = new SelectionChangeEvent.Handler() { 
+		 Handler selectionHandler = new SelectionChangeEvent.Handler() {
              @Override 
-             public void onSelectionChange(com.google.gwt.view.client.SelectionChangeEvent event) {
-            	 if(getSelectedFiles().size()==1)
+             public void onSelectionChange(SelectionChangeEvent event) {
+            	 if(getSelectedFiles().size() == 1)
             		 GSS.get().setCurrentSelection(getSelectedFiles().get(0));
             	 else
             		 GSS.get().setCurrentSelection(getSelectedFiles());
@@ -471,16 +443,9 @@ public class FileList extends Composite {
          };
          selectionModel.addSelectionChangeHandler(selectionHandler);
          
-		celltable.setSelectionModel(selectionModel,GSSSelectionEventManager.<FileResource>createDefaultManager());
+		celltable.setSelectionModel(selectionModel, GSSSelectionEventManager.<File> createDefaultManager());
 		celltable.setPageSize(GSS.VISIBLE_FILE_COUNT);
 		
-//		Scheduler.get().scheduleIncremental(new RepeatingCommand() {
-//
-//			@Override
-//			public boolean execute() {
-//				return fetchRootFolder();
-//			}
-//		});
 		sinkEvents(Event.ONCONTEXTMENU);
 		sinkEvents(Event.ONMOUSEUP);
 		sinkEvents(Event.ONMOUSEDOWN);
@@ -489,50 +454,43 @@ public class FileList extends Composite {
 		sinkEvents(Event.ONDBLCLICK);
 		GSS.preventIESelection();
 	}
-	
 
+	public List<File> getSelectedFiles() {
+        return new ArrayList<File>(selectionModel.getSelectedSet());
+	}
 	
-	 public List<FileResource> getSelectedFiles() {
-         return new ArrayList<FileResource>(selectionModel.getSelectedSet());
-	 }
+	private void initDragOperation(DragAndDropColumn<?, ?> column) {
+        // retrieve draggableOptions on the column
+		DraggableOptions draggableOptions = column.getDraggableOptions();
+		// use template to construct the helper. The content of the div will be set
+		// after
+		draggableOptions.setHelper($(Templates.INSTANCE.outerHelper().asString()));
+		//draggableOptions.setZIndex(100);
+		// opacity of the helper
+		draggableOptions.setAppendTo("body");
+		//draggableOptions.setOpacity((float) 0.8);
+		draggableOptions.setContainment("document");
+		// cursor to use during the drag operation
+		draggableOptions.setCursor(Cursor.MOVE);
+		// set the revert option
+		draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
+		// prevents dragging when user click on the category drop-down list
+		draggableOptions.setCancel("select");
+	    draggableOptions.setOnBeforeDragStart(new DragFunction() {
+			@Override
+			public void f(DragContext context) {
+		        File value = context.getDraggableData();
+				if (!selectionModel.isSelected(value)) {
+    		       	throw new StopDragException();
+	    	    }
+			}
+		});
+    }
 	
-	 private void initDragOperation(DragAndDropColumn<?, ?> column) {
-
-		    // retrieve draggableOptions on the column
-		    DraggableOptions draggableOptions = column.getDraggableOptions();
-		    // use template to construct the helper. The content of the div will be set
-		    // after
-		    draggableOptions.setHelper($(Templates.INSTANCE.outerHelper().asString()));
-		    //draggableOptions.setZIndex(100);
-		    // opacity of the helper
-		    draggableOptions.setAppendTo("body"); 
-		    //draggableOptions.setOpacity((float) 0.8);
-		    draggableOptions.setContainment("document");
-		    // cursor to use during the drag operation
-		    draggableOptions.setCursor(Cursor.MOVE);
-		    // set the revert option
-		    draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
-		    // prevents dragging when user click on the category drop-down list
-		    draggableOptions.setCancel("select");
-		    
-		    
-		    draggableOptions.setOnBeforeDragStart(new DragFunction() {
-				
-				@Override
-				public void f(DragContext context) {
-					 FileResource value = context.getDraggableData();
-				     if(!selectionModel.isSelected(value)){
-				       	throw new StopDragException();
-				      }
-					
-				}
-			});
-		  }
-	
-	 public void showContextMenu(Event event){
-		 menuShowing = new FileContextMenu(images, false, true);
-			menuShowing=menuShowing.onEmptyEvent(event);
-	 }
+	public void showContextMenu(Event event){
+		menuShowing = new FileContextMenu(images, false, true);
+		menuShowing=menuShowing.onEmptyEvent(event);
+	}
 	@Override
 	public void onBrowserEvent(Event event) {
 		
@@ -559,33 +517,13 @@ public class FileList extends Composite {
 		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				GSS app = GSS.get();
-				FileResource file = getSelectedFiles().get(0);
-				String dateString = RestCommand.getDate();
-				String resource = file.getUri().substring(app.getApiPath().length() - 1, file.getUri().length());
-				String sig = app.getCurrentUserResource().getUsername() + " " +
-						RestCommand.calculateSig("GET", dateString, resource,
-						RestCommand.base64decode(app.getToken()));
-				Window.open(file.getUri() + "?Authorization=" + URL.encodeComponent(sig) + "&Date=" + URL.encodeComponent(dateString), "_blank", "");
+				File file = getSelectedFiles().get(0);
+				Window.open(file.getUri(), "_blank", "");
 				event.preventDefault();
 				return;
 			}
 		super.onBrowserEvent(event);
 	}
-
-	/**
-	 * Retrieve the root folder for the current user.
-	 *
-	 * @return true if the retrieval was successful
-	 */
-	protected boolean fetchRootFolder() {
-		UserResource user = GSS.get().getCurrentUserResource();
-		if (user == null)
-			return !DONE;
-		// Update cache and clear selection.
-		updateFileCache(true);
-		return DONE;
-	}
-
 
 	/**
 	 * Update the display of the file list.
@@ -597,9 +535,8 @@ public class FileList extends Composite {
 			max = count;
 		folderTotalSize = 0;
 		
-		copyListAndContinue(files);
-		for(FileResource f : files){
-			folderTotalSize += f.getContentLength();
+		for(File f : files){
+			folderTotalSize += f.getBytes();
 		}
 		if (folderFileCount == 0) {
 			showingStats = "no files";
@@ -623,28 +560,9 @@ public class FileList extends Composite {
 	 * @param file
 	 * @return the icon
 	 */
-	private ImageResource getFileIcon(FileResource file) {
+	private ImageResource getFileIcon(File file) {
 		String mimetype = file.getContentType();
-		boolean shared = false;
-		if(GSS.get().getTreeView().getSelection()!=null && (GSS.get().getTreeView().getSelection() instanceof OtherUserResource || GSS.get().getTreeView().getSelection() instanceof OthersFolderResource)){
-			OtherUserResource otherUser = null;
-			if(GSS.get().getTreeView().getSelection() instanceof OtherUserResource)
-				otherUser = (OtherUserResource) GSS.get().getTreeView().getSelection();
-			else if (GSS.get().getTreeView().getSelection() instanceof OthersFolderResource){
-				otherUser = GSS.get().getTreeView().getOtherUserResourceOfOtherFolder((OthersFolderResource) GSS.get().getTreeView().getSelection());
-			}
-			if(otherUser ==null)
-				shared=false;
-			else{
-				String uname = otherUser.getUsername();
-				if(uname==null)
-					uname = GSS.get().getTreeView().getOthers().getUsernameOfUri(otherUser.getUri());
-				if(uname != null)
-					shared = file.isShared();
-			}
-		}
-		else
-			shared = file.isShared();
+		boolean shared = file.isShared();
 		if (mimetype == null)
 			return shared ? images.documentShared() : images.document();
 		mimetype = mimetype.toLowerCase();
@@ -682,53 +600,18 @@ public class FileList extends Composite {
 		GSS.get().getStatusPanel().updateCurrentlyShowing(showingStats);
 	}
 	
-	public void updateFileCache(boolean clearSelection){
-		if(clearSelection){
-			clearSelectedRows();
-		}
-		
-		final RestResource folderItem = GSS.get().getTreeView().getSelection();
-		// Validation.
-		if (folderItem == null || folderItem.equals(GSS.get().getTreeView().getOthers())) {
-			setFiles(new ArrayList<FileResource>());
-			update(true);
-			return;
-		}
-		else if (folderItem instanceof RestResourceWrapper) {
-			setFiles(((RestResourceWrapper) folderItem).getResource().getFiles());
-			update(true);
-		}
-		else if (folderItem instanceof SharedResource) {
-			setFiles(((SharedResource) folderItem).getFiles());
-			update(true);
-		}
-		else if (folderItem instanceof OtherUserResource) {
-			setFiles(((OtherUserResource) folderItem).getFiles());
-			update(true);
-		}
-		else if (folderItem instanceof TrashResource) {
-			setFiles(((TrashResource) folderItem).getFiles());
-			update(true);
-		}
-	}
-	
-
 	/**
 	 * Fill the file cache with data.
 	 */
-	public void setFiles(final List<FileResource> _files) {
-		if (_files.size() > 0 && ! (GSS.get().getTreeView().getSelection() instanceof TrashResource)) {
-			files = new ArrayList<FileResource>();
-			for (FileResource fres : _files)
-				if (!fres.isDeleted())
-					files.add(fres);
-		}
-		else
-			files = _files;
-		Collections.sort(files, new Comparator<FileResource>() {
+	public void setFiles(final List<File> _files) {
+		files = new ArrayList<File>();
+    	for (File fres : _files)
+	    	if (!fres.isInTrash())
+				files.add(fres);
+		Collections.sort(files, new Comparator<File>() {
 
 			@Override
-			public int compare(FileResource arg0, FileResource arg1) {
+			public int compare(File arg0, File arg1) {
 				return arg0.getName().compareTo(arg1.getName());
 			}
 
@@ -738,17 +621,27 @@ public class FileList extends Composite {
 		nameHeader.setSorted(true);
 		nameHeader.toggleReverseSort();
 		for (SortableHeader otherHeader : allHeaders) {
-	          if (otherHeader != nameHeader) {
+	        if (otherHeader != nameHeader) {
 	            otherHeader.setSorted(false);
 	            otherHeader.setReverseSort(true);
-	          }
 	        }
-		//
+	    }
+
+        if(files.size() > GSS.VISIBLE_FILE_COUNT){
+            pagerBottom.setVisible(true);
+            pagerTop.setVisible(true);
+        }
+        else{
+            pagerTop.setVisible(false);
+            pagerBottom.setVisible(false);
+        }
+        Folder selectedItem = treeView.getSelection();
+
+        provider.setList(files);
+        provider.refresh();
+        celltable.redrawHeaders();
 	}
 
-	
-
-	
 	/**
 	 * Does the list contains the requested filename
 	 *
@@ -763,7 +656,7 @@ public class FileList extends Composite {
 	}
 
 	public void clearSelectedRows() {
-		Iterator<FileResource> it = selectionModel.getSelectedSet().iterator();
+		Iterator<File> it = selectionModel.getSelectedSet().iterator();
 		while(it.hasNext()){
 			selectionModel.setSelected(it.next(),false);
 		}
@@ -774,7 +667,7 @@ public class FileList extends Composite {
 	 *
 	 */
 	public void selectAllRows() {
-		Iterator<FileResource> it = provider.getList().iterator();
+		Iterator<File> it = provider.getList().iterator();
 		while(it.hasNext()){
 			selectionModel.setSelected(it.next(),true);
 		}
@@ -784,21 +677,21 @@ public class FileList extends Composite {
 
 	
 	private void sortFiles(final String sortingProperty, final boolean sortingType){
-		Collections.sort(files, new Comparator<FileResource>() {
+		Collections.sort(files, new Comparator<File>() {
 
             @Override
-            public int compare(FileResource arg0, FileResource arg1) {
+            public int compare(File arg0, File arg1) {
                     AbstractImagePrototype descPrototype = AbstractImagePrototype.create(images.desc());
                     AbstractImagePrototype ascPrototype = AbstractImagePrototype.create(images.asc());
                     if (sortingType){
                             if (sortingProperty.equals("version")) {
-                                    return arg0.getVersion().compareTo(arg1.getVersion());
+                                    return arg0.getVersion() - arg1.getVersion();
                             } else if (sortingProperty.equals("owner")) {
                                     return arg0.getOwner().compareTo(arg1.getOwner());
                             } else if (sortingProperty.equals("date")) {
-                                    return arg0.getModificationDate().compareTo(arg1.getModificationDate());
+                                    return arg0.getLastModified().compareTo(arg1.getLastModified());
                             } else if (sortingProperty.equals("size")) {
-                                    return arg0.getContentLength().compareTo(arg1.getContentLength());
+                                    return (int) (arg0.getBytes() - arg1.getBytes());
                             } else if (sortingProperty.equals("name")) {
                                     return arg0.getName().compareTo(arg1.getName());
                             } else if (sortingProperty.equals("path")) {
@@ -809,16 +702,15 @@ public class FileList extends Composite {
                     }
                     else if (sortingProperty.equals("version")) {
                             
-                            return arg1.getVersion().compareTo(arg0.getVersion());
+                            return arg1.getVersion() - arg0.getVersion();
                     } else if (sortingProperty.equals("owner")) {
                             
                             return arg1.getOwner().compareTo(arg0.getOwner());
                     } else if (sortingProperty.equals("date")) {
                             
-                            return arg1.getModificationDate().compareTo(arg0.getModificationDate());
+                            return arg1.getLastModified().compareTo(arg0.getLastModified());
                     } else if (sortingProperty.equals("size")) {
-                            
-                            return arg1.getContentLength().compareTo(arg0.getContentLength());
+                            return (int) (arg1.getBytes() - arg0.getBytes());
                     } else if (sortingProperty.equals("name")) {
                             
                             return arg1.getName().compareTo(arg0.getName());
@@ -861,96 +753,10 @@ public class FileList extends Composite {
 		}
 		
 	}
-	/**
-	 * Creates a new ArrayList<FileResources> from the given files ArrayList 
-	 * in order that the input files remain untouched 
-	 * and continues to find user's full names of each FileResource element
-	 * in the new ArrayList
-	 *    
-	 * @param filesInput
-	 */
-	private void copyListAndContinue(List<FileResource> filesInput){
-		List<FileResource> copiedFiles = new ArrayList<FileResource>();		
-		for(FileResource file : filesInput) {
-			copiedFiles.add(file);
-		}
-		handleFullNames(copiedFiles);
-	}
-	
-	/**
-	 * Examines whether or not the user's full name exists in the 
-	 * userFullNameMap in the GSS.java for every element of the input list.
-	 * If the user's full name does not exist in the map then a command is being made.  
-	 * 
-	 * @param filesInput
-	 */
-	private void handleFullNames(List<FileResource> filesInput){		
-		if(filesInput.size() == 0){
-			showCellTable();
-			return;
-		}		
 
-		if(GSS.get().findUserFullName(filesInput.get(0).getOwner()) == null){
-			findFullNameAndUpdate(filesInput);		
-			return;
-		}
-				
-		if(filesInput.size() >= 1){
-			filesInput.remove(filesInput.get(0));
-			if(filesInput.isEmpty()){
-				showCellTable();				
-			}else{
-				handleFullNames(filesInput);
-			}
-		}		
-	}
-	
-	/**
-	 * Makes a command to search for full name from a given username. 
-	 * Only after the completion of the command the celltable is shown
-	 * or the search for the next full name continues.
-	 *  
-	 * @param filesInput
-	 */
-	private void findFullNameAndUpdate(final List<FileResource> filesInput){		
-		String aUserName = filesInput.get(0).getOwner();
-		String path = GSS.get().getApiPath() + "users/" + aUserName; 
-
-		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class, path, false,null) {
-			@Override
-			public void onComplete() {
-				final UserSearchResource result = getResult();
-				for (UserResource user : result.getUsers()){
-					String username = user.getUsername();
-					String userFullName = user.getName();
-					GSS.get().putUserToMap(username, userFullName);
-					if(filesInput.size() >= 1){
-						filesInput.remove(filesInput.get(0));
-						if(filesInput.isEmpty()){
-							showCellTable();
-						}else{
-							handleFullNames(filesInput);
-						}												
-					}									
-				}
-			}
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				GSS.get().displayError("Unable to fetch user's full name from the given username " + filesInput.get(0).getOwner());
-				if(filesInput.size() >= 1){
-					filesInput.remove(filesInput.get(0));
-					handleFullNames(filesInput);					
-				}
-			}
-		};
-		DeferredCommand.addCommand(gg);
-	
-	}
 	/**
 	 * Shows the files in the cellTable 
-	 */
-
+     */
 	private void showCellTable(){
 		if(files.size()>GSS.VISIBLE_FILE_COUNT){
 			pagerBottom.setVisible(true);
@@ -960,10 +766,6 @@ public class FileList extends Composite {
 			pagerTop.setVisible(false);
 			pagerBottom.setVisible(false);
 		}
-		RestResource selectedItem = GSS.get().getTreeView().getSelection();
-		boolean uploadVisible = !(selectedItem != null && (selectedItem instanceof TrashResource || selectedItem instanceof TrashFolderResource || selectedItem instanceof SharedResource || selectedItem instanceof OthersResource || selectedItem instanceof OtherUserResource));
-		uploadButtonBottom.setVisible(uploadVisible&&files.size()>=GSS.VISIBLE_FILE_COUNT);
-		uploadButtonTop.setVisible(uploadVisible&&files.size()>=GSS.VISIBLE_FILE_COUNT);
 		provider.setList(files);
 		
 		provider.refresh();
@@ -971,6 +773,4 @@ public class FileList extends Composite {
 		//celltable.redraw();
 		celltable.redrawHeaders();		
 	}
-
-	
 }

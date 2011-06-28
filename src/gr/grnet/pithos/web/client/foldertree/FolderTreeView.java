@@ -87,4 +87,8 @@ public class FolderTreeView extends Composite {
         sinkEvents(Event.ONMOUSEUP);
         initWidget(tree);
     }
+
+    public Folder getSelection() {
+       return model.getSelection();
+    }
 }

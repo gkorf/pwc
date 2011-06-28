@@ -139,10 +139,7 @@ public class FileMenu extends PopupPanel implements ClickHandler {
 	public String getDownloadURL(FileResource file) {
 		GSS app = GSS.get();
 		if (file != null) {
-			String dateString = RestCommand.getDate();
-			String resource = file.getUri().substring(app.getApiPath().length()-1,file.getUri().length());
-			String sig = app.getCurrentUserResource().getUsername()+" "+RestCommand.calculateSig("GET", dateString, resource, RestCommand.base64decode(app.getToken()));
-			return file.getUri() + "?Authorization=" + URL.encodeComponent(sig) + "&Date="+URL.encodeComponent(dateString);
+			return file.getUri();
 		}
 		return "";
 	}

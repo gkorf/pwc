@@ -322,24 +322,24 @@ public class CellTreeViewModel implements TreeViewModel{
         	  
         	  DnDFolderPopupMenu popup ;
         	  if(context.getDraggableData() instanceof FileResource){
-        		  if(context.getDroppableData() instanceof RestResourceWrapper)
-        			  popup = new DnDFolderPopupMenu(images, ((RestResourceWrapper) context.getDroppableData()).getResource(), Arrays.asList(context.getDraggableData()));
-        		  else
-        			  popup = new DnDFolderPopupMenu(images, null, Arrays.asList(context.getDraggableData()));
+//        		  if(context.getDroppableData() instanceof RestResourceWrapper)
+//        			  popup = new DnDFolderPopupMenu(images, ((RestResourceWrapper) context.getDroppableData()).getResource(), Arrays.asList(context.getDraggableData()));
+ //       		  else
+ //       			  popup = new DnDFolderPopupMenu(images, null, Arrays.asList(context.getDraggableData()));
         	  }
         	  
         	  else{
-        		  if(context.getDroppableData() instanceof RestResourceWrapper)
-        			  popup = new DnDFolderPopupMenu(images, ((RestResourceWrapper) context.getDroppableData()).getResource(), context.getDraggableData());
-        		  else
-        			  popup = new DnDFolderPopupMenu(images, null, context.getDraggableData());
+//        		  if(context.getDroppableData() instanceof RestResourceWrapper)
+//        			  popup = new DnDFolderPopupMenu(images, ((RestResourceWrapper) context.getDroppableData()).getResource(), context.getDraggableData());
+//        		  else
+//        			  popup = new DnDFolderPopupMenu(images, null, context.getDraggableData());
         	  }
         	  
         	  int left = context.getDroppable().getAbsoluteLeft() + 40;
               int top = context.getDroppable().getAbsoluteTop() + 20;
-              popup.setPopupPosition(left, top);
+//              popup.setPopupPosition(left, top);
         	 
-        	  popup.show();
+ //       	  popup.show();
           }
         });
 	}

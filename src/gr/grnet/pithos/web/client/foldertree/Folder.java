@@ -11,8 +11,10 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Folder extends Resource {
@@ -37,6 +39,8 @@ public class Folder extends Resource {
      * parameter in the request that fetches its children). If the folder is a cointainer this is empty string
      */
     private String prefix = "";
+
+    private Set<File> files = new LinkedHashSet<File>();
 
     public Folder() {};
 
@@ -102,7 +106,9 @@ public class Folder extends Resource {
                         subfolders.add(f);
                     }
                     else {
-                        // add file
+                        File file = new File();
+                        file.populate(o);
+                        files.add(file);
                     }
                 }
             }
@@ -165,5 +171,9 @@ public class Folder extends Resource {
     @Override
     public int hashCode() {
         return prefix.hashCode() + name.hashCode();
+    }
+
+    public Set<File> getFiles() {
+        return files;
     }
 }

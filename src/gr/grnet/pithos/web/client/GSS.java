@@ -8,9 +8,14 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.view.client.TreeViewModel.NodeInfo;
 import gr.grnet.pithos.web.client.clipboard.Clipboard;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
@@ -55,6 +60,7 @@ import com.google.gwt.user.client.ui.HorizontalSplitPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.Set;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -195,9 +201,9 @@ public class GSS implements EntryPoint, ResizeHandler {
      */
     private String token;
 
-    private FolderTreeViewModel folderTreeViewModel = new FolderTreeViewModel();
-
-    private FolderTreeView folderTreeView = new FolderTreeView(folderTreeViewModel);
+    private SingleSelectionModel<Folder> folderTreeSelectionModel;
+    private FolderTreeViewModel folderTreeViewModel;
+    private FolderTreeView folderTreeView;
 
     private AccountResource account;
 
@@ -217,17 +223,14 @@ public class GSS implements EntryPoint, ResizeHandler {
         messagePanel.setWidth("100%");
         messagePanel.setVisible(false);
 
-        fileList = new FileList(images);
 
         // Inner contains the various lists.
         inner.sinkEvents(Event.ONCONTEXTMENU);
         inner.setAnimationEnabled(true);
         inner.getTabBar().addStyleName("pithos-MainTabBar");
         inner.getDeckPanel().addStyleName("pithos-MainTabPanelBottom");
-        inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
         inner.setWidth("100%");
-        inner.selectTab(0);
 
         inner.addSelectionHandler(new SelectionHandler<Integer>() {
 
@@ -241,6 +244,21 @@ public class GSS implements EntryPoint, ResizeHandler {
                 }
             }
         });
+
+        folderTreeSelectionModel = new SingleSelectionModel<Folder>();
+        folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Folder f = folderTreeSelectionModel.getSelectedObject();
+                showFiles(f);
+            }
+        });
+
+        folderTreeViewModel = new FolderTreeViewModel(folderTreeSelectionModel);
+        folderTreeView = new FolderTreeView(folderTreeViewModel);
+
+        fileList = new FileList(images, folderTreeView);
+        inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(folderTreeView);
@@ -290,7 +308,13 @@ public class GSS implements EntryPoint, ResizeHandler {
         });
     }
 
-	/**
+    private void showFiles(Folder f) {
+        Set<File> files = f.getFiles();
+        fileList.setFiles(new ArrayList<File>(files));
+        inner.selectTab(0);
+    }
+
+    /**
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
 	private boolean parseUserCredentials() {
@@ -322,7 +346,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
 
 //        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
-        Cookies.setCookie(conf.authCookie(), "demo" + conf.cookieSeparator() + "0000");
+        Cookies.setCookie(conf.authCookie(), "test" + conf.cookieSeparator() + "0000");
         Window.Location.assign(GWT.getModuleBaseURL() + "GSS.html");
 	}
 
@@ -335,6 +359,7 @@ public class GSS implements EntryPoint, ResizeHandler {
                 account = result;
                 statusPanel.displayStats(account);
                 folderTreeViewModel.initialize(account);
+                inner.selectTab(0);
             }
 
             @Override
@@ -346,7 +371,7 @@ public class GSS implements EntryPoint, ResizeHandler {
                     GSS.get().displayError("System error fetching user data: " + t.getMessage());
             }
         };
-
+        getAccount.setHeader("X-Auth-Token", token);
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
@@ -410,21 +435,6 @@ public class GSS implements EntryPoint, ResizeHandler {
 	}
 
 	/**
-	 * Make the user list visible.
-	 */
-	public void showUserList() {
-		inner.selectTab(1);
-	}
-
-	/**
-	 * Make the file list visible.
-	 */
-	public void showFileList() {
-		fileList.updateFileCache(true /*clear selection*/);
-		inner.selectTab(0);
-	}
-
-	/**
 	 * Make the file list visible.
 	 *
 	 * @param update
@@ -453,24 +463,8 @@ public class GSS implements EntryPoint, ResizeHandler {
 			if (currentFolder instanceof RestResourceWrapper) {
 				RestResourceWrapper folder = (RestResourceWrapper) currentFolder;
 				files = folder.getResource().getFiles();
-			} else if (currentFolder instanceof TrashResource) {
-				TrashResource folder = (TrashResource) currentFolder;
-				files = folder.getFiles();
 			}
-			else if (currentFolder instanceof SharedResource) {
-				SharedResource folder = (SharedResource) currentFolder;
-				files = folder.getFiles();
-			}
-			else if (currentFolder instanceof OtherUserResource) {
-				OtherUserResource folder = (OtherUserResource) currentFolder;
-				files = folder.getFiles();
-			}
-			if (files != null)
-				getFileList().setFiles(files);
-			else
-				getFileList().setFiles(new ArrayList<FileResource>());
 		}
-		fileList.updateFileCache(clearSelection /*clear selection*/);
 		inner.selectTab(0);
 	}
 

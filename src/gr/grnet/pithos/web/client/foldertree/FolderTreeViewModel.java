@@ -21,24 +21,12 @@ import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
 
-    private SingleSelectionModel<Folder> selectionModel = new SingleSelectionModel<Folder>();
-
     private ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
 
-    public FolderTreeViewModel() {
-        Handler selectionHandler = new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                NodeInfo<Folder> nodeInfo = (NodeInfo<Folder>) getNodeInfo(selectionModel.getSelectedObject());
-                if(nodeInfo == null || nodeInfo.getValueUpdater() == null) {
-//                    GSS.get().showFileList(selectionModel.getSelectedObject());
-                }
-                else
-                    nodeInfo.getValueUpdater().update(selectionModel.getSelectedObject());
-                GSS.get().setCurrentSelection(selectionModel.getSelectedObject());
-            }
-        };
-        selectionModel.addSelectionChangeHandler(selectionHandler);
+    private SingleSelectionModel<Folder> selectionModel;
+
+    public FolderTreeViewModel(SingleSelectionModel<Folder> selectionModel) {
+        this.selectionModel = selectionModel;
     }
 
     @Override
@@ -73,6 +61,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                                 GSS.get().displayError("System error fetching folder: " + t.getMessage());
                         }
                     };
+                    getFolder.setHeader("X-Auth-Token", app.getToken());
                     Scheduler.get().scheduleDeferred(getFolder);
                 }
             });
@@ -110,16 +99,23 @@ public class FolderTreeViewModel implements TreeViewModel {
                         GSS.get().displayError("System error fetching folder: " + t.getMessage());
                 }
             };
+            getFolder.setHeader("X-Auth-Token", app.getToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else {
             dataProvider.getList().clear();
             dataProvider.getList().addAll(folders);
+            if (dataProvider.equals(rootDataProvider))
+                selectionModel.setSelected(dataProvider.getList().get(0), true);
         }
     }
 
     public void initialize(AccountResource account) {
         Iterator<Folder> iter = account.getContainers().iterator();
         fetchFolder(iter, rootDataProvider, account.getContainers());
+    }
+
+    public Folder getSelection() {
+        return selectionModel.getSelectedObject();
     }
 }
