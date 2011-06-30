@@ -71,6 +71,9 @@ public abstract class Resource {
         else if (aClass.equals(Folder.class)) {
             result = (T) Folder.createFromResponse(response, (Folder) result);
         }
+        else if (aClass.equals(File.class)) {
+            result = (T) File.createFromResponse(response, (File) result);
+        }
         return result;
     }
 }

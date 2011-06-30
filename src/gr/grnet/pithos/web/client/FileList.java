@@ -638,8 +638,6 @@ public class FileList extends Composite {
         Folder selectedItem = treeView.getSelection();
 
         provider.setList(files);
-        provider.refresh();
-        celltable.redrawHeaders();
 	}
 
 	/**

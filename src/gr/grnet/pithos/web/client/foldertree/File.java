@@ -4,8 +4,13 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import java.util.Date;
 
 public class File extends Resource {
@@ -30,6 +35,8 @@ public class File extends Resource {
     private String owner;
 
     private boolean inTrash;
+
+    private String container;
 
     public String getContentType() {
         return contentType;
@@ -99,8 +106,8 @@ public class File extends Resource {
         return inTrash;
     }
 
-    public void populate(JSONObject o) {
-        String path = unmarshallString(o, "name");
+    public void populate(JSONObject o, String container) {
+        path = unmarshallString(o, "name");
         if (path.contains("/"))
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
         else
@@ -112,6 +119,7 @@ public class File extends Resource {
         lastModified = unmarshallDate(o, "last_modified");
         modifiedBy = unmarshallString(o, "modified_by");
         versionTimestamp = unmarshallDate(o, "version_timestamp");
+        this.container = container;
     }
 
     public boolean equals(Object other) {
@@ -124,5 +132,25 @@ public class File extends Resource {
 
     public int hashCode() {
         return name.hashCode();
+    }
+
+    public String getContainer() {
+        return container;
+    }
+
+    public static File createFromResponse(Response response, File result) {
+        result.populate(response);
+        return result;
+    }
+
+    private void populate(Response response) {
+        String header = response.getHeader("X-Object-Meta-Trash");
+        if (header != null)
+            inTrash = Boolean.valueOf(header);
+        else
+            inTrash = false;
+
+        JSONValue json = JSONParser.parseStrict(response.getText());
+        JSONObject o = json.isObject();
     }
 }

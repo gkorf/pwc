@@ -5,13 +5,8 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.gwt.view.client.TreeViewModel.NodeInfo;
 import gr.grnet.pithos.web.client.clipboard.Clipboard;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
@@ -46,10 +41,8 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
@@ -309,9 +302,36 @@ public class GSS implements EntryPoint, ResizeHandler {
     }
 
     private void showFiles(Folder f) {
-        Set<File> files = f.getFiles();
-        fileList.setFiles(new ArrayList<File>(files));
         inner.selectTab(0);
+        Set<File> files = f.getFiles();
+        Iterator<File> iter = files.iterator();
+        fetchFile(iter, files);
+    }
+
+    private void fetchFile(final Iterator<File> iter, final Set<File> files) {
+        if (iter.hasNext()) {
+            File file = iter.next();
+            String path = getApiPath() + username + "/" + file.getContainer() + "/" + file.getPath() + "?format=json";
+            GetRequest<File> getFile = new GetRequest<File>(File.class, path, file) {
+                @Override
+                public void onSuccess(File result) {
+                    fetchFile(iter, files);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("Error getting file", t);
+                    if (t instanceof RestException)
+                        GSS.get().displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
+                    else
+                        GSS.get().displayError("System error fetching file: " + t.getMessage());
+                }
+            };
+            getFile.setHeader("X-Auth-Token", "0000");
+            Scheduler.get().scheduleDeferred(getFile);
+        }
+        else
+            fileList.setFiles(new ArrayList<File>(files));
     }
 
     /**

@@ -100,14 +100,14 @@ public class Folder extends Resource {
                 JSONObject o = array.get(i).isObject();
                 if (o != null) {
                     String contentType = unmarshallString(o, "content_type");
-                    if (o.containsKey("subdir") || (contentType != null && contentType.startsWith("application/directory"))) {
+                    if (o.containsKey("subdir") || (contentType != null && (contentType.startsWith("application/directory") || contentType.startsWith("application/folder")))) {
                         Folder f = new Folder();
                         f.populate(o, container);
                         subfolders.add(f);
                     }
                     else {
                         File file = new File();
-                        file.populate(o);
+                        file.populate(o, container);
                         files.add(file);
                     }
                 }
