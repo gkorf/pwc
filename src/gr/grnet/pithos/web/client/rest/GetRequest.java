@@ -83,8 +83,10 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
     @Override
     public void execute() {
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-        for (String header : headers.keySet())
+        for (String header : headers.keySet()) {
+            builder.setHeader("If-Modified-Since", "0");
             builder.setHeader(header, headers.get(header));
+        }
         try {
             builder.sendRequest("", new RestRequestCallback<T>(path, okCode) {
                 @Override
