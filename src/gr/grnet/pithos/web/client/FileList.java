@@ -1,27 +1,49 @@
 /*
- * Copyright (c) 2011 Greek Research and Technology Network
+ * Copyright 2011 GRNET S.A. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or
+ * without modification, are permitted provided that the following
+ * conditions are met:
+ *
+ *   1. Redistributions of source code must retain the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed
+ * or implied, of GRNET S.A.
  */
 
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.event.dom.client.ContextMenuHandler;
 import static com.google.gwt.query.client.GQuery.$;
 
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.RestCommand;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.OtherUserResource;
-import gr.grnet.pithos.web.client.rest.resource.OthersFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.OthersResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-import gr.grnet.pithos.web.client.rest.resource.SharedResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashResource;
-import gr.grnet.pithos.web.client.rest.resource.UserResource;
 import gwtquery.plugins.draggable.client.DraggableOptions;
 import gwtquery.plugins.draggable.client.StopDragException;
 import gwtquery.plugins.draggable.client.DraggableOptions.DragFunction;
@@ -40,7 +62,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
@@ -70,7 +91,6 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
-import java.util.Set;
 
 /**
  * A composite that displays the list of files in a particular folder.
@@ -220,7 +240,7 @@ public class FileList extends Composite {
 	 */
 	private final Images images;
 	
-	private FileContextMenu menuShowing;
+	private FileContextMenu contextMenu;
 
 	private DragAndDropCellTable<File> celltable;
 
@@ -248,9 +268,9 @@ public class FileList extends Composite {
 	 *
 	 * @param _images
 	 */
-	public FileList(Images _images, FolderTreeView treeView) {
+	public FileList(Images _images, FolderTreeView _treeView) {
 		images = _images;
-        this.treeView = treeView;
+        this.treeView = _treeView;
 
         DragAndDropCellTable.Resources resources = GWT.create(TableResources.class);
 
@@ -428,6 +448,16 @@ public class FileList extends Composite {
 
 		vp.add(bottomPanel);
 		vp.setCellWidth(celltable, "100%");
+        vp.addHandler(new ContextMenuHandler() {
+            @Override
+            public void onContextMenu(ContextMenuEvent event) {
+                contextMenu = new FileContextMenu(images, treeView.getSelection(), false);
+                int x = event.getNativeEvent().getClientX();
+                int y = event.getNativeEvent().getClientY();
+                contextMenu.setPopupPosition(x, y);
+                contextMenu.show();
+            }
+        }, ContextMenuEvent.getType());
 		initWidget(vp);
 
 		selectionModel = new MultiSelectionModel<File>(keyProvider);
@@ -487,43 +517,39 @@ public class FileList extends Composite {
 		});
     }
 	
-	public void showContextMenu(Event event){
-		menuShowing = new FileContextMenu(images, false, true);
-		menuShowing=menuShowing.onEmptyEvent(event);
-	}
-	@Override
-	public void onBrowserEvent(Event event) {
-		
-		if (files == null || files.size() == 0) {
-			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
-				menuShowing = new FileContextMenu(images, false, true);
-				menuShowing=menuShowing.onEmptyEvent(event);
-				event.preventDefault();
-				event.cancelBubble(true);
-			}
-			return;
-		}
-		if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() != 0) {
-			GWT.log("*****GOING TO SHOW CONTEXT MENU ****", null);
-			menuShowing =  new FileContextMenu(images, false, false);
-			menuShowing=menuShowing.onEvent(event);
-			event.cancelBubble(true);
-			event.preventDefault();
-		} else if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
-			menuShowing = new FileContextMenu(images, false, true);
-			menuShowing=menuShowing.onEmptyEvent(event);
-			event.cancelBubble(true);
-			event.preventDefault();
-		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
-			if (getSelectedFiles().size() == 1) {
-				GSS app = GSS.get();
-				File file = getSelectedFiles().get(0);
-				Window.open(file.getUri(), "_blank", "");
-				event.preventDefault();
-				return;
-			}
-		super.onBrowserEvent(event);
-	}
+//	@Override
+//	public void onBrowserEvent(Event event) {
+//
+//		if (files == null || files.size() == 0) {
+//			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
+//				contextMenu = new FileContextMenu(images, false, true);
+//                contextMenu.show();
+//				event.preventDefault();
+//				event.cancelBubble(true);
+//			}
+//			return;
+//		}
+//		if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() != 0) {
+//			GWT.log("*****GOING TO SHOW CONTEXT MENU ****", null);
+//			contextMenu =  new FileContextMenu(images, false, false);
+//			contextMenu = contextMenu.onEvent(event);
+//			event.cancelBubble(true);
+//			event.preventDefault();
+//		} else if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
+//			contextMenu = new FileContextMenu(images, false, true);
+//			contextMenu = contextMenu.onEmptyEvent(event);
+//			event.cancelBubble(true);
+//			event.preventDefault();
+//		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
+//			if (getSelectedFiles().size() == 1) {
+//				GSS app = GSS.get();
+//				File file = getSelectedFiles().get(0);
+//				Window.open(file.getUri(), "_blank", "");
+//				event.preventDefault();
+//				return;
+//			}
+//		super.onBrowserEvent(event);
+//	}
 
 	/**
 	 * Update the display of the file list.

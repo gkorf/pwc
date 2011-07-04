@@ -1,5 +1,36 @@
 /*
- *  Copyright (c) 2011 Greek Research and Technology Network
+ * Copyright 2011 GRNET S.A. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or
+ * without modification, are permitted provided that the following
+ * conditions are met:
+ *
+ *   1. Redistributions of source code must retain the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed
+ * or implied, of GRNET S.A.
  */
 package gr.grnet.pithos.web.client;
 
@@ -12,6 +43,7 @@ import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gr.grnet.pithos.web.client.rest.resource.RestResource;
@@ -35,7 +67,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 /**
  * The 'File Context' menu implementation.
  */
-public class FileContextMenu extends PopupPanel implements ClickHandler {
+public class FileContextMenu extends PopupPanel {
 
 	/**
 	 * The widget's images.
@@ -95,247 +127,89 @@ public class FileContextMenu extends PopupPanel implements ClickHandler {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(Images newImages, boolean isTrash, boolean isEmpty) {
+	public FileContextMenu(Images newImages, Folder selectedFolder, boolean isTrash) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
 		GSS gss = GSS.get();
 		setAnimationEnabled(true);
 		images = newImages;
+        MenuBar contextMenu = new MenuBar(true);
 
-		// The command that does some validation before downloading a file.
-		Command downloadCmd = new Command() {
+		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(this));
+        contextMenu.addItem(pasteItem);
 
-			@Override
-			public void execute() {
-				hide();
-				GSS.get().getTopPanel().getFileMenu().preDownloadCheck();
-			}
-		};
+        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));
+        contextMenu.addItem(upload);
 
-		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(this));
-		pasteItem.getElement().setId("FileContextMenu.paste");
-		RestResource sel = GSS.get().getTreeView().getSelection();
-		MenuBar contextMenu = new MenuBar(true);
-		if (isEmpty) {
-			contextMenu.addItem(pasteItem);
-			if (sel != null)
-				/*TODO:CELLTREE
-				if (GSS.get().getTreeView().isFileItem(GSS.get().getTreeView().getCurrent()))
-					contextMenu.addItem("<span>" + AbstractImagePrototype.create(newImages.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));
-				else if (GSS.get().getTreeView().isMySharedItem(GSS.get().getTreeView().getCurrent()) || GSS	.get()
-																											.getTreeView()
-																											.isOthersSharedItem(GSS	.get()
-																																	.getTreeView()
-																																	.getCurrent()))
-					if(sel instanceof FolderResource)
-						contextMenu.addItem("<span>" + AbstractImagePrototype.create(newImages.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));
-			*/
-			if(sel instanceof RestResourceWrapper && !(sel instanceof TrashFolderResource)){
-				MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));
-				upload.getElement().setId("fileContextMenu.upload");
-				contextMenu.addItem(upload);
-			}
-			MenuItem refresh = new MenuItem("<span>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
-			refresh.getElement().setId("fileContextMenu.refresh");
-			contextMenu.addItem(refresh);
-			
-		} else if (isTrash) {
-			MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(this));
-			restore.getElement().setId("fileContextMenu.restore");
+        MenuItem refresh = new MenuItem("<span>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
+        contextMenu.addItem(refresh);
+
+		if (isTrash) {
+			MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(this));
 			contextMenu.addItem(restore);
-			
-			MenuItem delete = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, images));
-			delete.getElement().setId("fileContextMenu.delete");
+
+			MenuItem delete = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, images));
 			contextMenu.addItem(delete);
 		} else {
-			final Command unselectAllCommand = new Command() {
-
-				@Override
-				public void execute() {
-					hide();
-					if(GSS.get().isFileListShowing())
-						GSS.get().getFileList().clearSelectedRows();
-				}
-			};
 			cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(this));
-			cutItem.getElement().setId("fileContextMenu.cut");
-			
+            contextMenu.addItem(cutItem);
+
 			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(this));
-			copyItem.getElement().setId("fileContextMenu.copy");
-			
+            contextMenu.addItem(copyItem);
+
 			updateItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));
-			updateItem.getElement().setId("fileContextMenu.upload");
+            contextMenu.addItem(updateItem);
 
 			trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(this));
-			trashItem.getElement().setId("fileContextMenu.moveToTrash");
-			
+            contextMenu.addItem(trashItem);
+
 			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, images));
-			deleteItem.getElement().setId("fileContextMenu.delete");
+            contextMenu.addItem(deleteItem);
 
 			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));
-			sharingItem.getElement().setId("fileContextMenu.sharing");
-			
-			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
-			propItem.getElement().setId("fileContextMenu.properties");
+            contextMenu.addItem(sharingItem);
 
-			
-			if(sel!=null && sel instanceof FolderResource)
-				contextMenu.addItem(updateItem);
+			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
+            contextMenu.addItem(propItem);
+
+
 			String[] link = {"", ""};
 			gss.getTopPanel().getFileMenu().createDownloadLink(link, false);
+		// The command that does some validation before downloading a file.
+            Command downloadCmd = new Command() {
+
+                @Override
+                public void execute() {
+                    hide();
+                    GSS.get().getTopPanel().getFileMenu().preDownloadCheck();
+                }
+            };
 			downloadItem = new MenuItem("<span>" + link[0] + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download" + link[1] + "</span>", true, downloadCmd);
-			downloadItem.getElement().setId("fileContextMenu.download");
 			contextMenu.addItem(downloadItem);
 			
 			gss.getTopPanel().getFileMenu().createDownloadLink(link, true);
 			saveAsItem = new MenuItem("<span>" + link[0] + AbstractImagePrototype.create(newImages.download()).getHTML() + " Save As" + link[1] + "</span>", true, downloadCmd);
-			saveAsItem.getElement().setId("fileContextMenu.saveAs");
 			contextMenu.addItem(saveAsItem);
-			contextMenu.addItem(cutItem);
-			contextMenu.addItem(copyItem);
-			if(sel!=null && sel instanceof FolderResource)
-				contextMenu.addItem(pasteItem);
+
+            final Command unselectAllCommand = new Command() {
+
+                @Override
+                public void execute() {
+                    hide();
+                    if(GSS.get().isFileListShowing())
+                        GSS.get().getFileList().clearSelectedRows();
+                }
+            };
 			MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, unselectAllCommand);
-			unSelect.getElement().setId("fileContextMenu.unSelect");
 			contextMenu.addItem(unSelect);
-			
-			contextMenu.addItem(trashItem);
-			contextMenu.addItem(deleteItem);
-			
-			MenuItem refresh = new MenuItem("<span id='fileContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
-			refresh.getElement().setId("fileContextMenu.refresh");
-			contextMenu.addItem(refresh);
-			
-			contextMenu.addItem(sharingItem);
-			contextMenu.addItem(propItem);
+
 		}
 		add(contextMenu);
-		if (gss.getClipboard().hasFileItem())
-			pasteItem.setVisible(true);
-		else
-			pasteItem.setVisible(false);
+
+//		if (gss.getClipboard().hasFileItem())
+//			pasteItem.setVisible(true);
+//		else
+//			pasteItem.setVisible(false);
 	}
-
-	void onMultipleSelection() {
-		updateItem.setVisible(false);
-		downloadItem.setVisible(false);
-		saveAsItem.setVisible(false);
-		sharingItem.setVisible(false);
-	}
-	@Override
-	public void onClick(ClickEvent event) {
-		if (GSS.get().getCurrentSelection() != null)
-			if (GSS.get().getCurrentSelection() instanceof FileResource) {
-				FileResource res = (FileResource) GSS.get().getCurrentSelection();
-				FileContextMenu menu;
-				if (res.isDeleted())
-					menu = new FileContextMenu(images, true, false);
-				else
-					menu = new FileContextMenu(images, false, false);
-				int left = event.getRelativeElement().getAbsoluteLeft();
-				int top = event.getRelativeElement().getAbsoluteTop() + event.getRelativeElement().getOffsetHeight();
-				menu.setPopupPosition(left, top);
-				menu.show();
-			} else if (GSS.get().getCurrentSelection() instanceof List) {
-				FileContextMenu menu;
-				/*TODO: CELLTREE
-				if (GSS.get().getTreeView().isTrashItem(GSS.get().getTreeView().getCurrent()))
-					menu = new FileContextMenu(images, true, false);
-				else {
-					menu = new FileContextMenu(images, false, false);
-					menu.onMultipleSelection();
-				}
-				*/
-				menu = new FileContextMenu(images, false, false);
-				menu.onMultipleSelection();
-				int left = event.getRelativeElement().getAbsoluteLeft();
-				int top = event.getRelativeElement().getAbsoluteTop() + event.getRelativeElement().getOffsetHeight();
-				menu.setPopupPosition(left, top);
-				menu.show();
-			}
-	}
-
-	
-	public void onContextEvent(ContextMenuEvent event) {
-		if (GSS.get().getCurrentSelection() != null)
-			if (GSS.get().getCurrentSelection() instanceof FileResource) {
-				FileResource res = (FileResource) GSS.get().getCurrentSelection();
-				FileContextMenu menu;
-				if (res.isDeleted())
-					menu = new FileContextMenu(images, true, false);
-				else
-					menu = new FileContextMenu(images, false, false);
-				int left = event.getNativeEvent().getClientX();
-				int top = event.getNativeEvent().getClientY();
-				menu.setPopupPosition(left, top);
-				menu.show();
-
-			} else if (GSS.get().getCurrentSelection() instanceof List) {
-				FileContextMenu menu;
-				/*TODO: CELLTREE
-				if (GSS.get().getTreeView().isTrashItem(GSS.get().getTreeView().getCurrent()))
-					menu = new FileContextMenu(images, true, false);
-				else {
-					menu = new FileContextMenu(images, false, false);
-					menu.onMultipleSelection();
-				}
-				*/
-				int left = event.getNativeEvent().getClientX();
-				int top = event.getNativeEvent().getClientY();
-				//menu.setPopupPosition(left, top);
-				//menu.show();
-			}
-	}
-
-	public FileContextMenu onEvent(Event event) {
-		FileContextMenu menu=null;
-		if (GSS.get().getCurrentSelection() != null)
-			if (GSS.get().getCurrentSelection() instanceof FileResource) {
-				FileResource res = (FileResource) GSS.get().getCurrentSelection();
-
-				if (res.isDeleted())
-					menu = new FileContextMenu(images, true, false);
-				else
-					menu = new FileContextMenu(images, false, false);
-				int left = event.getClientX();
-				int top = event.getClientY();
-				menu.setPopupPosition(left, top);
-				menu.show();
-			} else if (GSS.get().getCurrentSelection() instanceof List) {
-				/*TODO: CELLTREE
-				if (GSS.get().getTreeView().isTrashItem(GSS.get().getTreeView().getSelection()))
-					menu = new FileContextMenu(images, true, false);
-				else {
-					menu = new FileContextMenu(images, false, false);
-					menu.onMultipleSelection();
-				}*/
-				menu = new FileContextMenu(images, false, false);
-				menu.onMultipleSelection();
-				int left = event.getClientX();
-				int top = event.getClientY();
-				menu.setPopupPosition(left, top);
-				menu.show();
-			}
-		return menu;
-	}
-
-	public FileContextMenu onEmptyEvent(Event event) {
-		FileContextMenu menu=null;
-		/*TODO: CELLTREE
-		if (GSS.get().getTreeView().isTrashItem(GSS.get().getTreeView().getCurrent()))
-			menu = new FileContextMenu(images, true, true);
-		else if(((DnDTreeItem)GSS.get().getTreeView().getCurrent()).getFolderResource() != null)
-			menu = new FileContextMenu(images, false, true);
-		else return menu;
-		*/
-		menu = new FileContextMenu(images, false, true);
-		int left = event.getClientX();
-		int top = event.getClientY();
-		menu.setPopupPosition(left, top);
-		menu.show();
-		return menu;
-	}
-
-
 }
