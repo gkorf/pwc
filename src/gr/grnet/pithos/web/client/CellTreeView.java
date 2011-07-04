@@ -335,9 +335,9 @@ public class CellTreeView extends Composite{
 			return;
 		if (menu != null)
 			menu.hide();
-		menu = new FolderContextMenu(images);
-		menu.setPopupPosition(x, y);
-		menu.show();
+//		menu = new FolderContextMenu(images);
+//		menu.setPopupPosition(x, y);
+//		menu.show();
 	}
 	private boolean init=false;
 	public boolean fetchRootFolders() {

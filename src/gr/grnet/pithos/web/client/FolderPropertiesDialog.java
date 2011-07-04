@@ -34,30 +34,20 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.Event;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupResource;
-import gr.grnet.pithos.web.client.rest.resource.PermissionHolder;
 import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-
-import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Button;
@@ -77,10 +67,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FolderPropertiesDialog extends DialogBox {
 
-	private List<GroupResource> groups = null;
-
-	final PermissionsList permList;
-
 	private CheckBox readForAll;
 
 	/**
@@ -94,19 +80,18 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private final boolean create;
 
-	final FolderResource folder;
+	final Folder folder;
 
 	final TabPanel inner;
 
 	/**
 	 * The widget's constructor.
 	 *
-	 * @param images the image icons from the file properties dialog
 	 * @param _create true if the dialog is displayed for creating a new
 	 *            sub-folder of the selected folder, false if it is displayed
 	 *            for modifying the selected folder
 	 */
-	public FolderPropertiesDialog(Images images, boolean _create,  final List<GroupResource> _groups) {
+	public FolderPropertiesDialog(boolean _create,  Folder selected) {
 		setAnimationEnabled(true);
 
 		// Enable IE selection for the dialog (must disable it upon closing it)
@@ -114,9 +99,7 @@ public class FolderPropertiesDialog extends DialogBox {
 
 		create = _create;
 		
-		folder = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
-		permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner());
-		groups = _groups;
+		folder = selected;
 
 		// Use this opportunity to set the dialog's caption.
 		if (create)
@@ -141,42 +124,22 @@ public class FolderPropertiesDialog extends DialogBox {
 			inner.add(permPanel, "Sharing");
 		inner.selectTab(0);
 
-		final Label folderNameNote = new Label("Please note that slashes ('/') are not allowed in folder names.", true);
-		folderNameNote.setVisible(false);
-		folderNameNote.setStylePrimaryName("pithos-readForAllNote");
-
 		FlexTable generalTable = new FlexTable();
 		generalTable.setText(0, 0, "Name");
 		generalTable.setText(1, 0, "Parent");
 		generalTable.setText(2, 0, "Creator");
 		generalTable.setText(3, 0, "Last modified");
 		folderName.setText(create ? "" : folder.getName());
-		folderName.getElement().setId("folderPropertiesDialog.textBox.name");
 		generalTable.setWidget(0, 1, folderName);
-		folderName.addChangeHandler(new ChangeHandler() {
-			
-			@Override
-			public void onChange(ChangeEvent event) {
-				if(folderName.getText().contains("/"))
-					folderNameNote.setVisible(true);
-				else
-					folderNameNote.setVisible(false);				
-				
-			}
-		});
-
 
 		if (create)
 			generalTable.setText(1, 1, folder.getName());
-		else if(folder.getParentName() == null)
-			generalTable.setText(1, 1, "-");
 		else
-			generalTable.setText(1, 1, folder.getParentName());
-		generalTable.setWidget(0, 2, folderNameNote);
-		generalTable.setText(2, 1, folder.getOwner());
+			generalTable.setText(1, 1, folder.getPrefix());
+		generalTable.setText(2, 1, "");
 		DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-		if(folder.getModificationDate() != null)
-			generalTable.setText(3, 1, formatter.format(folder.getModificationDate()));
+		if(folder.getLastModified() != null)
+			generalTable.setText(3, 1, formatter.format(folder.getLastModified()));
 		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
 		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
 		generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
@@ -196,18 +159,11 @@ public class FolderPropertiesDialog extends DialogBox {
 			okLabel = "Update";
 		Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {				
-				if(folderName.getText().contains("/"))
-					folderNameNote.setVisible(true);
-				else {
-					folderNameNote.setVisible(false);
-					createOrUpdateFolder();
-					closeDialog();
-				}
-
+			public void onClick(ClickEvent event) {
+				createOrUpdateFolder();
+				closeDialog();
 			}
 		});
-		ok.getElement().setId("folderPropertiesDialog.button.ok");
 		buttons.add(ok);
 		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
 		// Create the 'Cancel' button, along with a listener that hides the
@@ -219,91 +175,13 @@ public class FolderPropertiesDialog extends DialogBox {
 				closeDialog();
 			}
 		});
-		cancel.getElement().setId("folderPropertiesDialog.button.cancel");
 		buttons.add(cancel);
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
 		buttons.addStyleName("pithos-TabPanelBottom");
 
-		Button add = new Button("Add Group", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, false);
-				dlg.center();
-			}
-		});
-		add.getElement().setId("folderPropertiesDialog.button.addGroup");
-		permButtons.add(add);
-		permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-
-		Button addUser = new Button("Add User", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, true);
-				dlg.center();
-			}
-		});
-		addUser.getElement().setId("folderPropertiesDialog.button.addUser");
-		permButtons.add(addUser);
-		permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-
-		permButtons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		permButtons.setSpacing(8);
-		permButtons.addStyleName("pithos-TabPanelBottom");
-
-		final Label readForAllNote = new Label("When this option is enabled, the folder will be readable" +
-					" by everyone. By checking this option, you are certifying that you have the right to " +
-					"distribute this folder's contents and that it does not violate the Terms of Use.", true);
-		readForAllNote.setVisible(false);
-		readForAllNote.setStylePrimaryName("pithos-readForAllNote");
-
-		readForAll = new CheckBox();
-		readForAll.getElement().setId("folderPropertiesDialog.checkBox.public");
-		readForAll.setValue(folder.isReadForAll());
-		readForAll.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				readForAllNote.setVisible(readForAll.getValue());
-			}
-
-		});
-
 		generalPanel.add(generalTable);
-		permPanel.add(permList);
-		permPanel.add(permButtons);
 
-		// Only show the read for all permission if the user is the owner.
-		if (folder.getOwner().equals(GSS.get().getCurrentUserResource().getUsername())) {
-			permForAll.add(new Label("Public"));
-			permForAll.add(readForAll);
-			permForAll.setSpacing(8);
-			permForAll.addStyleName("pithos-TabPanelBottom");
-			permForAll.add(readForAllNote);
-			permPanel.add(permForAll);
-		}
-		TextBox path = new TextBox();
-		path.getElement().setId("folderPropertiesDialog.textBox.link");
-		path.setWidth("100%");
-		path.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				GSS.enableIESelection();
-				((TextBox) event.getSource()).selectAll();
-				GSS.preventIESelection();
-			}
-
-		});
-		path.setText(folder.getUri());
-		path.setTitle("Use this link for sharing the folder via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-		path.setWidth("100%");
-		path.setReadOnly(true);
-		pathPanel.setWidth("100%");
-		pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		pathPanel.add(new Label("Link"));
-		pathPanel.setSpacing(8);
-		pathPanel.addStyleName("pithos-TabPanelBottom");
-		pathPanel.add(path);
-		permPanel.add(pathPanel);
 
 		outer.add(inner);
 		outer.add(buttons);
@@ -329,7 +207,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		super.onPreviewNativeEvent(preview);
 
 		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
+		if (evt.getType().equals(KeyDownEvent.getType().getName()))
 			// Use the popup's key preview hooks to close the dialog when either
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {
@@ -355,52 +233,45 @@ public class FolderPropertiesDialog extends DialogBox {
 
 	/**
 	 * Generate an RPC request to create a new folder.
-	 *
-	 * @param userId the ID of the user whose namespace will be searched for
-	 *            folders
-	 * @param _folderName the name of the folder to create
 	 */
 	private void createFolder() {
 		String name = folderName.getText();
-		if (!GSS.isValidResourceName(name)) {
-			GSS.get().displayError("The folder name '" + name + "' is invalid");
-			return;
-		}
-		PostCommand ep = new PostCommand(folder.getUri() + "?new=" +
-				URL.encodeComponent(name), "", 201) {
 
-			@Override
-			public void onComplete() {
-				//TODO:CELLTREE
-				if(folder.getUri().equals(GSS.get().getTreeView().getMyFolders().getUri())){
-					GSS.get().getTreeView().updateRootNode();
-				}
-				else
-					GSS.get().getTreeView().updateNodeChildren((RestResourceWrapper) GSS.get().getTreeView().getSelection());
-				//GSS.get().getFolders().updateFolder((DnDTreeItem) GSS.get().getFolders().getCurrent());
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if(t instanceof RestException){
-					int statusCode = ((RestException)t).getHttpStatusCode();
-					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary" +
-								" permissions or a folder with same name " +
-								"already exists");
-					else if(statusCode == 404)
-						GSS.get().displayError("Resource not found");
-					else
-						GSS.get().displayError("Unable to create folder:" +
-								((RestException)t).getHttpStatusText());
-				}
-				else
-					GSS.get().displayError("System error creating folder:" +
-							t.getMessage());
-			}
-		};
-		DeferredCommand.addCommand(ep);
+//		PostCommand ep = new PostCommand(folder.getUri() + "?new=" +
+//				URL.encodeComponent(name), "", 201) {
+//
+//			@Override
+//			public void onComplete() {
+//				//TODO:CELLTREE
+//				if(folder.getUri().equals(GSS.get().getTreeView().getMyFolders().getUri())){
+//					GSS.get().getTreeView().updateRootNode();
+//				}
+//				else
+//					GSS.get().getTreeView().updateNodeChildren((RestResourceWrapper) GSS.get().getTreeView().getSelection());
+//				//GSS.get().getFolders().updateFolder((DnDTreeItem) GSS.get().getFolders().getCurrent());
+//			}
+//
+//			@Override
+//			public void onError(Throwable t) {
+//				GWT.log("", t);
+//				if(t instanceof RestException){
+//					int statusCode = ((RestException)t).getHttpStatusCode();
+//					if(statusCode == 405)
+//						GSS.get().displayError("You don't have the necessary" +
+//								" permissions or a folder with same name " +
+//								"already exists");
+//					else if(statusCode == 404)
+//						GSS.get().displayError("Resource not found");
+//					else
+//						GSS.get().displayError("Unable to create folder:" +
+//								((RestException)t).getHttpStatusText());
+//				}
+//				else
+//					GSS.get().displayError("System error creating folder:" +
+//							t.getMessage());
+//			}
+//		};
+//		DeferredCommand.addCommand(ep);
 
 	}
 
@@ -408,8 +279,6 @@ public class FolderPropertiesDialog extends DialogBox {
 	 * Upon closing the dialog by clicking OK or pressing ENTER this method does
 	 * the actual work of modifying folder properties or creating a new Folder
 	 * depending on the value of the create field
-	 *
-	 * @param userId
 	 */
 	private void createOrUpdateFolder() {
 		if (create)
@@ -420,83 +289,83 @@ public class FolderPropertiesDialog extends DialogBox {
 	}
 
 	private void updateFolder() {
-		permList.updatePermissionsAccordingToInput();
-		Set<PermissionHolder> perms = permList.getPermissions();
-		JSONObject json = new JSONObject();
-		if(!folder.getName().equals(folderName.getText()))
-			json.put("name", new JSONString(folderName.getText()));
-		//only update the read for all perm if the user is the owner
-		if (readForAll.getValue() != folder.isReadForAll())
-			if (folder.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
-				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
-		if (permList.hasChanges()) {
-			JSONArray perma = new JSONArray();
-			int i=0;
-			for(PermissionHolder p : perms){
-				JSONObject po = new JSONObject();
-				if(p.getUser() != null)
-					po.put("user", new JSONString(p.getUser()));
-				if(p.getGroup() != null)
-					po.put("group", new JSONString(p.getGroup()));
-				po.put("read", JSONBoolean.getInstance(p.isRead()));
-				po.put("write", JSONBoolean.getInstance(p.isWrite()));
-				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
-				perma.set(i,po);
-				i++;
-			}
-			json.put("permissions", perma);
-			GWT.log(json.toString(), null);
-		}
-		PostCommand ep = new PostCommand(folder.getUri()+"?update=", json.toString(), 200){
-
-			@Override
-			public void onComplete() {
-				//TODO:CELLTREE
-				
-				if(getPostBody() != null && !"".equals(getPostBody().trim())){
-					
-					
-					FolderResource fres = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
-					String initialPath = fres.getUri();
-					String newPath =  getPostBody().trim();
-					fres.setUri(newPath);
-					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource().setUri(newPath);
-					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).setUri(newPath);
-					GSS.get().getTreeView().updateNodeChildren(fres.getParentURI());
-					if (permList.hasChanges()) {
-						GSS.get().getTreeView().updateMySharedNode();
-					}
-					/*
-					if(folderItem.getParentItem() != null && ((DnDTreeItem)folderItem.getParentItem()).getFolderResource() != null){
-						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().removeSubfolderPath(initialPath);
-						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().getSubfolderPaths().add(newPath);
-					}*/
-				}
-				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
-				
-				GSS.get().showFileList(true);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if(t instanceof RestException){
-					int statusCode = ((RestException)t).getHttpStatusCode();
-					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions or" +
-								" a folder with same name already exists");
-					else if(statusCode == 404)
-						GSS.get().displayError("Resource not found, or user specified in sharing does not exist");
-					else
-						GSS.get().displayError("Unable to update folder: "+((RestException)t).getHttpStatusText());
-				}
-				else
-					GSS.get().displayError("System error moifying file: "+t.getMessage());
-				//TODO:CELLTREE
-				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
-			}
-		};
-		DeferredCommand.addCommand(ep);
+//		permList.updatePermissionsAccordingToInput();
+//		Set<PermissionHolder> perms = permList.getPermissions();
+//		JSONObject json = new JSONObject();
+//		if(!folder.getName().equals(folderName.getText()))
+//			json.put("name", new JSONString(folderName.getText()));
+//		//only update the read for all perm if the user is the owner
+//		if (readForAll.getValue() != folder.isReadForAll())
+//			if (folder.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
+//				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
+//		if (permList.hasChanges()) {
+//			JSONArray perma = new JSONArray();
+//			int i=0;
+//			for(PermissionHolder p : perms){
+//				JSONObject po = new JSONObject();
+//				if(p.getUser() != null)
+//					po.put("user", new JSONString(p.getUser()));
+//				if(p.getGroup() != null)
+//					po.put("group", new JSONString(p.getGroup()));
+//				po.put("read", JSONBoolean.getInstance(p.isRead()));
+//				po.put("write", JSONBoolean.getInstance(p.isWrite()));
+//				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
+//				perma.set(i,po);
+//				i++;
+//			}
+//			json.put("permissions", perma);
+//			GWT.log(json.toString(), null);
+//		}
+//		PostCommand ep = new PostCommand(folder.getUri()+"?update=", json.toString(), 200){
+//
+//			@Override
+//			public void onComplete() {
+//				//TODO:CELLTREE
+//
+//				if(getPostBody() != null && !"".equals(getPostBody().trim())){
+//
+//
+//					FolderResource fres = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
+//					String initialPath = fres.getUri();
+//					String newPath =  getPostBody().trim();
+//					fres.setUri(newPath);
+//					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource().setUri(newPath);
+//					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).setUri(newPath);
+//					GSS.get().getTreeView().updateNodeChildren(fres.getParentURI());
+//					if (permList.hasChanges()) {
+//						GSS.get().getTreeView().updateMySharedNode();
+//					}
+//					/*
+//					if(folderItem.getParentItem() != null && ((DnDTreeItem)folderItem.getParentItem()).getFolderResource() != null){
+//						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().removeSubfolderPath(initialPath);
+//						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().getSubfolderPaths().add(newPath);
+//					}*/
+//				}
+//				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
+//
+//				GSS.get().showFileList(true);
+//			}
+//
+//			@Override
+//			public void onError(Throwable t) {
+//				GWT.log("", t);
+//				if(t instanceof RestException){
+//					int statusCode = ((RestException)t).getHttpStatusCode();
+//					if(statusCode == 405)
+//						GSS.get().displayError("You don't have the necessary permissions or" +
+//								" a folder with same name already exists");
+//					else if(statusCode == 404)
+//						GSS.get().displayError("Resource not found, or user specified in sharing does not exist");
+//					else
+//						GSS.get().displayError("Unable to update folder: "+((RestException)t).getHttpStatusText());
+//				}
+//				else
+//					GSS.get().displayError("System error moifying file: "+t.getMessage());
+//				//TODO:CELLTREE
+//				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
+//			}
+//		};
+//		DeferredCommand.addCommand(ep);
 	}
 
 	public void selectTab(int _tab) {

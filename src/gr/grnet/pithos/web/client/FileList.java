@@ -78,9 +78,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.GssSimplePager;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -240,8 +238,6 @@ public class FileList extends Composite {
 	 */
 	private final Images images;
 	
-	private FileContextMenu contextMenu;
-
 	private DragAndDropCellTable<File> celltable;
 
 	private final MultiSelectionModel<File> selectionModel;
@@ -451,7 +447,7 @@ public class FileList extends Composite {
         vp.addHandler(new ContextMenuHandler() {
             @Override
             public void onContextMenu(ContextMenuEvent event) {
-                contextMenu = new FileContextMenu(images, treeView.getSelection(), false);
+                FileContextMenu contextMenu = new FileContextMenu(images, treeView.getSelection(), false);
                 int x = event.getNativeEvent().getClientX();
                 int y = event.getNativeEvent().getClientY();
                 contextMenu.setPopupPosition(x, y);
@@ -477,11 +473,11 @@ public class FileList extends Composite {
 		celltable.setPageSize(GSS.VISIBLE_FILE_COUNT);
 		
 		sinkEvents(Event.ONCONTEXTMENU);
-		sinkEvents(Event.ONMOUSEUP);
-		sinkEvents(Event.ONMOUSEDOWN);
-		sinkEvents(Event.ONCLICK);
-		sinkEvents(Event.ONKEYDOWN);
-		sinkEvents(Event.ONDBLCLICK);
+//		sinkEvents(Event.ONMOUSEUP);
+//		sinkEvents(Event.ONMOUSEDOWN);
+//		sinkEvents(Event.ONCLICK);
+//		sinkEvents(Event.ONKEYDOWN);
+//		sinkEvents(Event.ONDBLCLICK);
 		GSS.preventIESelection();
 	}
 

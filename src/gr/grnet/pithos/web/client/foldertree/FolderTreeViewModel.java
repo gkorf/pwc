@@ -35,22 +35,47 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
+import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.GSS;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView.FolderCell;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import java.util.Iterator;
 import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
+
+    private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
+
+       @Override
+        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+            String html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
+            safeHtmlBuilder.appendHtmlConstant(html);
+            safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
+        }
+
+        @Override
+        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
+            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+                Folder target = (Folder) context.getKey();
+                FolderTreeViewModel.this.selectionModel.setSelected(target, true);
+                FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, target);
+                menu.setPopupPosition(event.getClientX(), event.getClientY());
+                menu.show();
+            }
+        }
+    };
 
     private ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
 
@@ -65,7 +90,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (value == null) {
             Folder f = new Folder("Loading ...");
             rootDataProvider.getList().add(f);
-            return new DefaultNodeInfo<Folder>(rootDataProvider, new FolderCell(), selectionModel, null);
+            return new DefaultNodeInfo<Folder>(rootDataProvider, folderCell, selectionModel, null);
         }
         else {
             final Folder f = (Folder) value;
@@ -96,7 +121,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                     Scheduler.get().scheduleDeferred(getFolder);
                 }
             });
-            return new DefaultNodeInfo<Folder>(dataProvider, new FolderCell(), selectionModel, null);
+            return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
     }
 

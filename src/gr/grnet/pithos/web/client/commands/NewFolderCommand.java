@@ -34,9 +34,13 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import gr.grnet.pithos.web.client.FileMenu.Images;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.MultipleGetCommand;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
@@ -58,6 +62,8 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class NewFolderCommand implements Command{
 	private PopupPanel containerPanel;
+
+    private Folder folder;
 	final Images images;
 
 	private List<GroupResource> groups = null;
@@ -66,83 +72,22 @@ public class NewFolderCommand implements Command{
 	 * @param aContainerPanel
 	 * @param newImages the images of the new folder dialog
 	 */
-	public NewFolderCommand(PopupPanel aContainerPanel, final Images newImages){
+	public NewFolderCommand(PopupPanel aContainerPanel, Folder folder, final Images newImages){
 		containerPanel = aContainerPanel;
 		images=newImages;
+        this.folder = folder;
 	}
 
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		getGroups();
-		DeferredCommand.addCommand(new IncrementalCommand() {
-
-			@Override
-			public boolean execute() {
-				boolean res = canContinue();
-				if (res) {
-					displayNewFolder();
-					return false;
-				}
-				return true;
-			}
-
-		});
+        displayNewFolderDialog();
 	}
 
-	private boolean canContinue() {
-		if (groups == null)
-			return false;
-		return true;
+	void displayNewFolderDialog() {
+        if (folder != null) {
+            FolderPropertiesDialog dlg = new FolderPropertiesDialog(true, folder);
+            dlg.center();
+        }
 	}
-
-	void displayNewFolder() {
-		RestResource currentFolder = GSS.get().getTreeView().getSelection();
-		if (currentFolder == null) {
-			GSS.get().displayError("You have to select the parent folder first");
-			return;
-		}
-		FolderPropertiesDialog dlg = new FolderPropertiesDialog(images, true,  groups);
-		dlg.center();
-	}
-
-	private void getGroups() {
-		GetCommand<GroupsResource> gg = new GetCommand<GroupsResource>(GroupsResource.class, GSS.get().getCurrentUserResource().getGroupsPath(), null){
-
-			@Override
-			public void onComplete() {
-				GroupsResource res = getResult();
-				MultipleGetCommand<GroupResource> ga = new MultipleGetCommand<GroupResource>(GroupResource.class, res.getGroupPaths().toArray(new String[]{}), null){
-
-					@Override
-					public void onComplete() {
-						List<GroupResource> groupList = getResult();
-						groups = groupList;
-					}
-
-					@Override
-					public void onError(Throwable t) {
-						GWT.log("", t);
-						GSS.get().displayError("Unable to fetch groups");
-						groups = new ArrayList<GroupResource>();
-					}
-
-					@Override
-					public void onError(String p, Throwable throwable) {
-						GWT.log("Path:"+p, throwable);
-					}
-				};
-				DeferredCommand.addCommand(ga);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				GSS.get().displayError("Unable to fetch groups");
-				groups = new ArrayList<GroupResource>();
-			}
-		};
-		DeferredCommand.addCommand(gg);
-	}
-
 }
