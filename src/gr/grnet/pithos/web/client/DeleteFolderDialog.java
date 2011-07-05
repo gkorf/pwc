@@ -34,8 +34,14 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.Event;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteCommand;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gr.grnet.pithos.web.client.rest.resource.RestResource;
@@ -62,15 +68,19 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class DeleteFolderDialog extends DialogBox {
 
+    private GSS app;
+    private Folder folder;
+    
 	/**
 	 * The widget's constructor.
 	 * @param images the supplied images
 	 */
-	public DeleteFolderDialog(Images images) {
+	public DeleteFolderDialog(GSS app, Images images, Folder folder) {
+        this.app = app;
+        this.folder = folder;
 		// Set the dialog's caption.
 		setText("Confirmation");
 		setAnimationEnabled(true);
-		FolderResource folder = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
 		// Create a VerticalPanel to contain the HTML label and the buttons.
 		VerticalPanel outer = new VerticalPanel();
 		HorizontalPanel buttons = new HorizontalPanel();
@@ -90,7 +100,6 @@ public class DeleteFolderDialog extends DialogBox {
 				hide();
 			}
 		});
-		ok.getElement().setId("confirmation.ok");
 		buttons.add(ok);
 		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
 		// Create the 'Cancel' button, along with a listener that hides the
@@ -101,7 +110,6 @@ public class DeleteFolderDialog extends DialogBox {
 				hide();
 			}
 		});
-		cancel.getElement().setId("confirmation.cancel");
 		buttons.add(cancel);
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
@@ -116,50 +124,29 @@ public class DeleteFolderDialog extends DialogBox {
 	/**
 	 * Generate an RPC request to delete a folder.
 	 *
-	 * @param userId the ID of the current user
 	 */
 	private void deleteFolder() {
-		RestResource folder = GSS.get().getTreeView().getSelection();
-		if (folder == null) {
-			GSS.get().displayError("No folder was selected");
-			return;
-		}
-		if(!(folder instanceof RestResourceWrapper))
-			return;
+        String prefix = folder.getPrefix();
+        String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + (prefix.length() == 0 ? "" : "/" + prefix);
+        DeleteRequest deleteFolder = new DeleteRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
 
-		DeleteCommand df = new DeleteCommand(folder.getUri()){
+            }
 
-			@Override
-			public void onComplete() {
-				FolderResource fres = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
-				if((RestResourceWrapper) GSS.get().getTreeView().getSelection() instanceof TrashFolderResource)
-					GSS.get().getTreeView().updateTrashNode();
-				else
-					GSS.get().getTreeView().updateNodeChildrenForRemove(fres.getParentURI());
-				GSS.get().getTreeView().clearSelection();
-				GSS.get().showFileList(true);
-				
-				GSS.get().getStatusPanel().updateStats();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if(t instanceof RestException){
-					int statusCode = ((RestException)t).getHttpStatusCode();
-					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
-					else if(statusCode == 404)
-						GSS.get().displayError("Folder not found");
-					else
-						GSS.get().displayError("Unable to delete folder: "+((RestException)t).getHttpStatusText());
-				}
-				else
-					GSS.get().displayError("System error unable to delete folder: "+t.getMessage());
-			}
-		};
-
-		DeferredCommand.addCommand(df);
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    int statusCode = ((RestException)t).getHttpStatusCode();
+                    app.displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
+                }
+                else
+                    GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
+            }
+        };
+        deleteFolder.setHeader("X-Auth-Token", app.getToken());
+        Scheduler.get().scheduleDeferred(deleteFolder);
 	}
 
 	@Override
@@ -167,7 +154,7 @@ public class DeleteFolderDialog extends DialogBox {
 		super.onPreviewNativeEvent(preview);
 
 		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
+		if (evt.getType().equals(KeyDownEvent.getType().getName()))
 			// Use the popup's key preview hooks to close the dialog when either
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {

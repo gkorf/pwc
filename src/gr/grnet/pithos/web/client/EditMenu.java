@@ -226,7 +226,7 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 		contextMenu	.addItem(moveToTrashItem)
 					.setVisible(cutcopyVisible);
 		
-		MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, images));
+		MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, null, images));
 		deleteItem.getElement().setId("topMenu.edit.delete");
 		contextMenu	.addItem(deleteItem)
 					.setVisible(cutcopyVisible);

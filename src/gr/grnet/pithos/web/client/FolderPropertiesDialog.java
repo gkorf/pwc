@@ -256,7 +256,7 @@ public class FolderPropertiesDialog extends DialogBox {
 					app.displayError("System error creating folder:" + t.getMessage());
             }
         };
-        createFolder.setHeader("X-Auth-Token", "0000");
+        createFolder.setHeader("X-Auth-Token", app.getToken());
         createFolder.setHeader("Accept", "*/*");
         createFolder.setHeader("Content-Length", "0");
         createFolder.setHeader("Content-Type", "application/folder");

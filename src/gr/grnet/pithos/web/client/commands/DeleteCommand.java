@@ -38,6 +38,9 @@ import gr.grnet.pithos.web.client.DeleteFileDialog;
 import gr.grnet.pithos.web.client.DeleteFolderDialog;
 import gr.grnet.pithos.web.client.EditMenu.Images;
 import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
 import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
@@ -57,13 +60,16 @@ public class DeleteCommand implements Command{
 	private PopupPanel containerPanel;
 	final Images newImages;
 
+    private Resource resource;
+
 	/**
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 */
-	public DeleteCommand( PopupPanel _containerPanel, final Images _newImages ){
+	public DeleteCommand( PopupPanel _containerPanel, Resource resource, final Images _newImages ){
 		containerPanel = _containerPanel;
-		newImages=_newImages;
+		newImages = _newImages;
+        this.resource = resource;
 	}
 
 	@Override
@@ -77,18 +83,12 @@ public class DeleteCommand implements Command{
 	 *
 	 */
 	void displayDelete() {
-		Object selection = GSS.get().getCurrentSelection();
-		if (selection == null)
-			return;
-		GWT.log("selection: " + selection.toString(), null);
-		if (selection instanceof RestResourceWrapper) {
-			DeleteFolderDialog dlg = new DeleteFolderDialog(newImages);
+		if (resource instanceof Folder) {
+			DeleteFolderDialog dlg = new DeleteFolderDialog(GSS.get(), newImages, (Folder) resource);
 			dlg.center();
-		} else if (selection instanceof FileResource || selection instanceof List) {
+		} else if (resource instanceof File) {
 			DeleteFileDialog dlg = new DeleteFileDialog(newImages);
 			dlg.center();
-		} else if (selection instanceof GroupUserResource) {
-			// TODO implement user deletion
 		}
     }
 }
