@@ -106,4 +106,8 @@ public class FolderTreeView extends Composite {
     public Folder getSelection() {
        return model.getSelection();
     }
+
+    public void updateFolder(Folder folder) {
+        model.updateFolder(folder);
+    }
 }

@@ -120,6 +120,10 @@ public class GSS implements EntryPoint, ResizeHandler {
         return account;
     }
 
+    public void updateFolder(Folder f) {
+        folderTreeView.updateFolder(f);
+    }
+
     /**
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.

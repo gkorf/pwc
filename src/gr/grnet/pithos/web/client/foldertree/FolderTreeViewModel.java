@@ -51,7 +51,9 @@ import gr.grnet.pithos.web.client.GSS;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
@@ -68,9 +70,8 @@ public class FolderTreeViewModel implements TreeViewModel {
         @Override
         public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
-                Folder target = (Folder) context.getKey();
-                FolderTreeViewModel.this.selectionModel.setSelected(target, true);
-                FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, target);
+                FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
+                FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, folder);
                 menu.setPopupPosition(event.getClientX(), event.getClientY());
                 menu.show();
             }
@@ -78,6 +79,8 @@ public class FolderTreeViewModel implements TreeViewModel {
     };
 
     private ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
+
+    private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
 
     private SingleSelectionModel<Folder> selectionModel;
 
@@ -94,33 +97,11 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
         else {
             final Folder f = (Folder) value;
-            final ListDataProvider<Folder> dataProvider = new ListDataProvider<Folder>();
-            dataProvider.flush();
-            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                @Override
-                public void execute() {
-                    final GSS app = GSS.get();
-                    String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-                    GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
-                        @Override
-                        public void onSuccess(Folder result) {
-                            Iterator<Folder> iter = result.getSubfolders().iterator();
-                            fetchFolder(iter, dataProvider, result.getSubfolders());
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-                            GWT.log("Error getting folder", t);
-                            if (t instanceof RestException)
-                                GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                            else
-                                GSS.get().displayError("System error fetching folder: " + t.getMessage());
-                        }
-                    };
-                    getFolder.setHeader("X-Auth-Token", app.getToken());
-                    Scheduler.get().scheduleDeferred(getFolder);
-                }
-            });
+            if (dataProviderMap.get(f) == null) {
+                dataProviderMap.put(f, new ListDataProvider<Folder>());
+            }
+            final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
+            fetchFolder(f, dataProvider);
             return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
     }
@@ -173,5 +154,42 @@ public class FolderTreeViewModel implements TreeViewModel {
 
     public Folder getSelection() {
         return selectionModel.getSelectedObject();
+    }
+
+    public void updateFolder(Folder folder) {
+        if (dataProviderMap.get(folder) == null) {
+            dataProviderMap.put(folder, new ListDataProvider<Folder>());
+        }
+        final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
+        fetchFolder(folder, dataProvider);
+    }
+
+    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider) {
+        dataProvider.flush();
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+            @Override
+            public void execute() {
+                final GSS app = GSS.get();
+                String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
+                    @Override
+                    public void onSuccess(Folder result) {
+                        Iterator<Folder> iter = result.getSubfolders().iterator();
+                        fetchFolder(iter, dataProvider, result.getSubfolders());
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        GWT.log("Error getting folder", t);
+                        if (t instanceof RestException)
+                            GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                        else
+                            GSS.get().displayError("System error fetching folder: " + t.getMessage());
+                    }
+                };
+                getFolder.setHeader("X-Auth-Token", app.getToken());
+                Scheduler.get().scheduleDeferred(getFolder);
+            }
+        });
     }
 }

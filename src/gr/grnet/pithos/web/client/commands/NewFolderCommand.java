@@ -86,7 +86,7 @@ public class NewFolderCommand implements Command{
 
 	void displayNewFolderDialog() {
         if (folder != null) {
-            FolderPropertiesDialog dlg = new FolderPropertiesDialog(true, folder);
+            FolderPropertiesDialog dlg = new FolderPropertiesDialog(GSS.get(), true, folder);
             dlg.center();
         }
 	}

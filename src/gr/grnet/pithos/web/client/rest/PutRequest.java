@@ -33,9 +33,43 @@
  * or implied, of GRNET S.A.
  */
 
+/*
+ * Copyright 2011 GRNET S.A. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or
+ * without modification, are permitted provided that the following
+ * conditions are met:
+ *
+ *   1. Redistributions of source code must retain the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed
+ * or implied, of GRNET S.A.
+ */
+
 package gr.grnet.pithos.web.client.rest;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -45,68 +79,43 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class GetRequest<T extends Resource> implements ScheduledCommand {
-
-    private Class<T> aClass;
+public abstract class PutRequest implements ScheduledCommand {
 
     private String path;
 
-    private int okCode;
-    
-    private T cached;
-
-    private T result;
+    private String username;
 
     private Map<String, String> headers = new HashMap<String, String>();
 
-    public abstract void onSuccess(T result);
+    public abstract void onSuccess(Resource result);
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Class<T> aClass, String path, int okCode, T result) {
-        this.aClass = aClass;
+    public PutRequest(String path) {
         this.path = path;
-        this.okCode = okCode;
-        this.result = result;
-    }
-
-    public GetRequest(Class<T> aClass, String path) {
-        this(aClass, path, -1, null);
-    }
-
-    public GetRequest(Class<T> aClass, String path, T result) {
-        this(aClass, path, -1, result);
     }
 
     @Override
     public void execute() {
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-        builder.setHeader("If-Modified-Since", "0");
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback<T>(path, okCode) {
+            builder.sendRequest("", new RestRequestCallback(path, Response.SC_CREATED) {
                 @Override
-                public void onSuccess(T object) {
-                    GetRequest.this.onSuccess(object);
+                public void onSuccess(Resource object) {
+                    PutRequest.this.onSuccess(object);
                 }
 
                 @Override
-                public T deserialize(Response response) {
-                    return Resource.createFromResponse(aClass, response, result);
+                public Resource deserialize(Response response) {
+                    return Resource.createFromResponse(Resource.class, response, null);
                 }
 
                 @Override
                 public void onError(Request request, Throwable throwable) {
-                    if (throwable instanceof RestException) {
-                        if (((RestException) throwable).getHttpStatusCode() == 304 && cached != null){
-                            GWT.log("Using cache: " + cached.toString(), null);
-                            onSuccess(cached);
-                            return;
-                        }
-                    }
-                    GetRequest.this.onError(throwable);
+                    PutRequest.this.onError(throwable);
                 }
             });
         }

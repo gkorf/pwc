@@ -34,10 +34,13 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Event;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostCommand;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
@@ -67,6 +70,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FolderPropertiesDialog extends DialogBox {
 
+    private GSS app;
+
 	private CheckBox readForAll;
 
 	/**
@@ -86,16 +91,13 @@ public class FolderPropertiesDialog extends DialogBox {
 
 	/**
 	 * The widget's constructor.
-	 *
-	 * @param _create true if the dialog is displayed for creating a new
-	 *            sub-folder of the selected folder, false if it is displayed
-	 *            for modifying the selected folder
 	 */
-	public FolderPropertiesDialog(boolean _create,  Folder selected) {
+	public FolderPropertiesDialog(GSS app, boolean _create,  Folder selected) {
+        this.app = app;
 		setAnimationEnabled(true);
 
 		// Enable IE selection for the dialog (must disable it upon closing it)
-		GSS.enableIESelection();
+		app.enableIESelection();
 
 		create = _create;
 		
@@ -227,7 +229,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 * (we disable the prevention on creation of the dialog)
 	 */
 	public void closeDialog() {
-		GSS.preventIESelection();
+		app.preventIESelection();
 		hide();
 	}
 
@@ -236,43 +238,29 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private void createFolder() {
 		String name = folderName.getText();
+        String prefix = folder.getPrefix();
+        String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + "/" + (prefix.length() == 0 ? "" : prefix +  "/") + name;
+        PutRequest createFolder = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                app.updateFolder(folder);
+            }
 
-//		PostCommand ep = new PostCommand(folder.getUri() + "?new=" +
-//				URL.encodeComponent(name), "", 201) {
-//
-//			@Override
-//			public void onComplete() {
-//				//TODO:CELLTREE
-//				if(folder.getUri().equals(GSS.get().getTreeView().getMyFolders().getUri())){
-//					GSS.get().getTreeView().updateRootNode();
-//				}
-//				else
-//					GSS.get().getTreeView().updateNodeChildren((RestResourceWrapper) GSS.get().getTreeView().getSelection());
-//				//GSS.get().getFolders().updateFolder((DnDTreeItem) GSS.get().getFolders().getCurrent());
-//			}
-//
-//			@Override
-//			public void onError(Throwable t) {
-//				GWT.log("", t);
-//				if(t instanceof RestException){
-//					int statusCode = ((RestException)t).getHttpStatusCode();
-//					if(statusCode == 405)
-//						GSS.get().displayError("You don't have the necessary" +
-//								" permissions or a folder with same name " +
-//								"already exists");
-//					else if(statusCode == 404)
-//						GSS.get().displayError("Resource not found");
-//					else
-//						GSS.get().displayError("Unable to create folder:" +
-//								((RestException)t).getHttpStatusText());
-//				}
-//				else
-//					GSS.get().displayError("System error creating folder:" +
-//							t.getMessage());
-//			}
-//		};
-//		DeferredCommand.addCommand(ep);
-
+            @Override
+            public void onError(Throwable t) {
+				GWT.log("", t);
+				if (t instanceof RestException) {
+					app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+				}
+				else
+					app.displayError("System error creating folder:" + t.getMessage());
+            }
+        };
+        createFolder.setHeader("X-Auth-Token", "0000");
+        createFolder.setHeader("Accept", "*/*");
+        createFolder.setHeader("Content-Length", "0");
+        createFolder.setHeader("Content-Type", "application/folder");
+        Scheduler.get().scheduleDeferred(createFolder);
 	}
 
 	/**
@@ -296,7 +284,7 @@ public class FolderPropertiesDialog extends DialogBox {
 //			json.put("name", new JSONString(folderName.getText()));
 //		//only update the read for all perm if the user is the owner
 //		if (readForAll.getValue() != folder.isReadForAll())
-//			if (folder.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
+//			if (folder.getOwner().equals(app.getCurrentUserResource().getUsername()))
 //				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
 //		if (permList.hasChanges()) {
 //			JSONArray perma = new JSONArray();
@@ -325,15 +313,15 @@ public class FolderPropertiesDialog extends DialogBox {
 //				if(getPostBody() != null && !"".equals(getPostBody().trim())){
 //
 //
-//					FolderResource fres = ((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource();
+//					FolderResource fres = ((RestResourceWrapper) app.getTreeView().getSelection()).getResource();
 //					String initialPath = fres.getUri();
 //					String newPath =  getPostBody().trim();
 //					fres.setUri(newPath);
-//					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).getResource().setUri(newPath);
-//					((RestResourceWrapper) GSS.get().getTreeView().getSelection()).setUri(newPath);
-//					GSS.get().getTreeView().updateNodeChildren(fres.getParentURI());
+//					((RestResourceWrapper) app.getTreeView().getSelection()).getResource().setUri(newPath);
+//					((RestResourceWrapper) app.getTreeView().getSelection()).setUri(newPath);
+//					app.getTreeView().updateNodeChildren(fres.getParentURI());
 //					if (permList.hasChanges()) {
-//						GSS.get().getTreeView().updateMySharedNode();
+//						app.getTreeView().updateMySharedNode();
 //					}
 //					/*
 //					if(folderItem.getParentItem() != null && ((DnDTreeItem)folderItem.getParentItem()).getFolderResource() != null){
@@ -341,9 +329,9 @@ public class FolderPropertiesDialog extends DialogBox {
 //						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().getSubfolderPaths().add(newPath);
 //					}*/
 //				}
-//				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
+//				//app.getFolders().updateFolder( (DnDTreeItem) app.getFolders().getCurrent());
 //
-//				GSS.get().showFileList(true);
+//				app.get().showFileList(true);
 //			}
 //
 //			@Override
@@ -352,17 +340,17 @@ public class FolderPropertiesDialog extends DialogBox {
 //				if(t instanceof RestException){
 //					int statusCode = ((RestException)t).getHttpStatusCode();
 //					if(statusCode == 405)
-//						GSS.get().displayError("You don't have the necessary permissions or" +
+//						app.displayError("You don't have the necessary permissions or" +
 //								" a folder with same name already exists");
 //					else if(statusCode == 404)
-//						GSS.get().displayError("Resource not found, or user specified in sharing does not exist");
+//						app.displayError("Resource not found, or user specified in sharing does not exist");
 //					else
-//						GSS.get().displayError("Unable to update folder: "+((RestException)t).getHttpStatusText());
+//						app.displayError("Unable to update folder: "+((RestException)t).getHttpStatusText());
 //				}
 //				else
-//					GSS.get().displayError("System error moifying file: "+t.getMessage());
+//					app.displayError("System error moifying file: "+t.getMessage());
 //				//TODO:CELLTREE
-//				//GSS.get().getFolders().updateFolder( (DnDTreeItem) GSS.get().getFolders().getCurrent());
+//				//app.getFolders().updateFolder( (DnDTreeItem) app.getFolders().getCurrent());
 //			}
 //		};
 //		DeferredCommand.addCommand(ep);
@@ -371,5 +359,4 @@ public class FolderPropertiesDialog extends DialogBox {
 	public void selectTab(int _tab) {
 		inner.selectTab(_tab);
 	}
-
 }
