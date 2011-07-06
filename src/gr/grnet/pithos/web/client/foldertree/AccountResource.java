@@ -171,7 +171,7 @@ public class AccountResource extends Resource {
                 JSONObject o = array.get(i).isObject();
                 if (o != null) {
                     Folder f = new Folder();
-                    f.populate(o, null);
+                    f.populate(null, o, null);
                     containers.add(f);
                 }
             }

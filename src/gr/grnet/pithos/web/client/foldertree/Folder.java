@@ -59,6 +59,8 @@ public class Folder extends Resource {
 
     private long bytesUsed = 0;
 
+    private Folder parent = null;
+    
     private Set<Folder> subfolders = new LinkedHashSet<Folder>();
     /*
      * The name of the container that this folder belongs to. If this folder is container, this field equals name
@@ -124,6 +126,7 @@ public class Folder extends Resource {
         if (header != null)
             bytesUsed = Long.valueOf(header);
 
+        subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONArray array = json.isArray();
         if (array != null) {
@@ -133,12 +136,12 @@ public class Folder extends Resource {
                     String contentType = unmarshallString(o, "content_type");
                     if (o.containsKey("subdir") || (contentType != null && (contentType.startsWith("application/directory") || contentType.startsWith("application/folder")))) {
                         Folder f = new Folder();
-                        f.populate(o, container);
+                        f.populate(this, o, container);
                         subfolders.add(f);
                     }
                     else {
                         File file = new File();
-                        file.populate(o, container);
+                        file.populate(this, o, container);
                         files.add(file);
                     }
                 }
@@ -146,7 +149,8 @@ public class Folder extends Resource {
         }
     }
 
-    public void populate(JSONObject o, String aContainer) {
+    public void populate(Folder parent, JSONObject o, String aContainer) {
+        this.parent = parent;
         String path = null;
         if (o.containsKey("subdir")) {
             path = unmarshallString(o, "subdir");
@@ -203,5 +207,9 @@ public class Folder extends Resource {
 
     public Set<File> getFiles() {
         return files;
+    }
+
+    public Folder getParent() {
+        return parent;
     }
 }

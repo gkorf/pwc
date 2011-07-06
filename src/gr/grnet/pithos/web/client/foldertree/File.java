@@ -69,6 +69,8 @@ public class File extends Resource {
 
     private String container;
 
+    private Folder parent;
+
     public String getContentType() {
         return contentType;
     }
@@ -137,7 +139,8 @@ public class File extends Resource {
         return inTrash;
     }
 
-    public void populate(JSONObject o, String container) {
+    public void populate(Folder parent, JSONObject o, String container) {
+        this.parent = parent;
         path = unmarshallString(o, "name");
         if (path.contains("/"))
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix

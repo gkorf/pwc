@@ -131,14 +131,13 @@ public class DeleteFolderDialog extends DialogBox {
         DeleteRequest deleteFolder = new DeleteRequest(path) {
             @Override
             public void onSuccess(Resource result) {
-
+                app.updateFolder(folder.getParent());
             }
 
             @Override
             public void onError(Throwable t) {
                 GWT.log("", t);
                 if (t instanceof RestException) {
-                    int statusCode = ((RestException)t).getHttpStatusCode();
                     app.displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
                 }
                 else
