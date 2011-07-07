@@ -60,13 +60,13 @@ public class DeleteCommand implements Command{
 	private PopupPanel containerPanel;
 	final Images newImages;
 
-    private Resource resource;
+    private Object resource;
 
 	/**
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 */
-	public DeleteCommand( PopupPanel _containerPanel, Resource resource, final Images _newImages ){
+	public DeleteCommand( PopupPanel _containerPanel, Object resource, final Images _newImages ){
 		containerPanel = _containerPanel;
 		newImages = _newImages;
         this.resource = resource;
@@ -86,8 +86,8 @@ public class DeleteCommand implements Command{
 		if (resource instanceof Folder) {
 			DeleteFolderDialog dlg = new DeleteFolderDialog(GSS.get(), newImages, (Folder) resource);
 			dlg.center();
-		} else if (resource instanceof File) {
-			DeleteFileDialog dlg = new DeleteFileDialog(newImages);
+		} else if (resource instanceof List) {
+			DeleteFileDialog dlg = new DeleteFileDialog(newImages, (List<File>) resource);
 			dlg.center();
 		}
     }

@@ -43,6 +43,7 @@ import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
@@ -127,7 +128,7 @@ public class FileContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(Images newImages, Folder selectedFolder, boolean isTrash) {
+	public FileContextMenu(Images newImages, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
@@ -161,7 +162,7 @@ public class FileContextMenu extends PopupPanel {
 			trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(this));
             contextMenu.addItem(trashItem);
 
-			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, null, images));
+			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, selectedFiles, images));
             contextMenu.addItem(deleteItem);
 
 			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));

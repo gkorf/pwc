@@ -127,6 +127,7 @@ public class Folder extends Resource {
             bytesUsed = Long.valueOf(header);
 
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
+        files.clear();
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONArray array = json.isArray();
         if (array != null) {

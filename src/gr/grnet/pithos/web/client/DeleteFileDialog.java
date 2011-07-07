@@ -34,13 +34,18 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteCommand;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.MultipleDeleteCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -63,23 +68,24 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class DeleteFileDialog extends DialogBox {
 
+    private List<File> files;
 	/**
 	 * The widget's constructor.
 	 *
 	 * @param images the supplied images
 	 */
-	public DeleteFileDialog(Images images) {
+	public DeleteFileDialog(Images images, List<File> _files) {
+        files = _files;
 		// Set the dialog's caption.
 		setText("Confirmation");
 		setAnimationEnabled(true);
-		Object selection = GSS.get().getCurrentSelection();
 		// Create a VerticalPanel to contain the label and the buttons.
 		VerticalPanel outer = new VerticalPanel();
 		HorizontalPanel buttons = new HorizontalPanel();
 
 		HTML text;
-		if (selection instanceof FileResource)
-			text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete file '" + ((FileResource) selection).getName() + "'?</td></tr></table>");
+		if (files.size() == 1)
+			text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete file '" + files.get(0).getName() + "'?</td></tr></table>");
 		else
 			text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete the selected files?</td></tr></table>");
 		text.setStyleName("pithos-warnMessage");
@@ -90,7 +96,7 @@ public class DeleteFileDialog extends DialogBox {
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				deleteFile();
+				deleteFiles();
 				hide();
 			}
 		});
@@ -119,85 +125,39 @@ public class DeleteFileDialog extends DialogBox {
 
 	/**
 	 * Generate an RPC request to delete a file.
-	 *
-	 * @param userId the ID of the current user
 	 */
-	private void deleteFile() {
-		Object selection = GSS.get().getCurrentSelection();
-		if (selection == null) {
-			GSS.get().displayError("No file was selected");
-			return;
-		}
-		if (selection instanceof FileResource) {
-			FileResource file = (FileResource) selection;
+	private void deleteFiles() {
+        Iterator<File> iter = files.iterator();
+        deleteFile(iter);
+    }
 
-			DeleteCommand df = new DeleteCommand(file.getUri()){
+    private void deleteFile(final Iterator<File> iter) {
+        if (iter.hasNext()) {
+            File f = iter.next();
+            String path = GSS.get().getApiPath() + GSS.get().getUsername() + f.getUri();
+            DeleteRequest deleteFile = new DeleteRequest(path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    deleteFile(iter);
+                }
 
-				@Override
-				public void onComplete() {
-					GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());
-					GSS.get().getStatusPanel().updateStats();
-				}
-
-				@Override
-				public void onError(Throwable t) {
-					GWT.log("", t);
-					if(t instanceof RestException){
-						int statusCode = ((RestException)t).getHttpStatusCode();
-						if(statusCode == 405)
-							GSS.get().displayError("You don't have the necessary permissions");
-						else if(statusCode == 404)
-							GSS.get().displayError("File not found");
-						else
-							GSS.get().displayError("Unable to delete file: "+((RestException)t).getHttpStatusText());
-					}
-					else
-						GSS.get().displayError("System error unable to delete file: "+t.getMessage());
-				}
-			};
-
-			DeferredCommand.addCommand(df);
-		}
-		else if(selection instanceof List){
-			List<FileResource> files = (List<FileResource>) selection;
-			List<String> fileIds = new ArrayList<String>();
-			for(FileResource f : files)
-				fileIds.add(f.getUri());
-
-			MultipleDeleteCommand ed = new MultipleDeleteCommand(fileIds.toArray(new String[0])){
-
-				@Override
-				public void onComplete() {
-					GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());
-				}
-
-				@Override
-				public void onError(Throwable t) {
-					GWT.log("", t);
-					GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());
-				}
-
-				@Override
-				public void onError(String path, Throwable t) {
-					GWT.log("", t);
-					if(t instanceof RestException){
-						int statusCode = ((RestException)t).getHttpStatusCode();
-						if(statusCode == 405)
-							GSS.get().displayError("You don't have the necessary permissions");
-						else if(statusCode == 404)
-							GSS.get().displayError("File not found");
-						else
-							GSS.get().displayError("Unable to delete file:"+((RestException)t).getHttpStatusText());
-					}
-					else
-						GSS.get().displayError("System error unable to delete file:"+t.getMessage());
-
-				}
-			};
-
-			DeferredCommand.addCommand(ed);
-		}
-	}
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    if (t instanceof RestException) {
+                        GSS.get().displayError("Unable to delete file: " + ((RestException) t).getHttpStatusText());
+                    }
+                    else
+                        GSS.get().displayError("System error unable to delete file: "+t.getMessage());
+                }
+            };
+            deleteFile.setHeader("X-Auth-Token", GSS.get().getToken());
+            Scheduler.get().scheduleDeferred(deleteFile);
+        }
+        else {
+            GSS.get().updateFolder(files.get(0).getParent());
+        }
+    }
 
 	@Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
@@ -210,7 +170,7 @@ public class DeleteFileDialog extends DialogBox {
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
 					hide();
-					deleteFile();
+					deleteFiles();
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();

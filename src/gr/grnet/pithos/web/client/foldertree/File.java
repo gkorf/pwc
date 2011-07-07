@@ -105,7 +105,7 @@ public class File extends Resource {
     }
 
     public String getUri() {
-        return path + "/" + name;
+        return "/" + container + "/" + path;
     }
 
     public String getOwner() {
@@ -186,5 +186,9 @@ public class File extends Resource {
 
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONObject o = json.isObject();
+    }
+
+    public Folder getParent() {
+        return parent;
     }
 }

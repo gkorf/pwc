@@ -174,7 +174,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
                     @Override
                     public void onSuccess(Folder result) {
-                        app.showFiles(f);
+                        app.showFiles(result);
                         Iterator<Folder> iter = result.getSubfolders().iterator();
                         fetchFolder(iter, dataProvider, result.getSubfolders());
                     }
