@@ -36,6 +36,7 @@ package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.FileUploadDialog;
 import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
@@ -58,10 +59,15 @@ import com.google.gwt.user.client.ui.PopupPanel;
 public class UploadFileCommand implements Command {
 
 	private PopupPanel containerPanel;
-	private List<FileResource> files;
 
-	public UploadFileCommand(PopupPanel _containerPanel) {
+    /*
+     * The folder that is the target of the upload
+     */
+    private Folder folder;
+
+	public UploadFileCommand(PopupPanel _containerPanel, Folder _folder) {
 		containerPanel = _containerPanel;
+        folder = _folder;
 	}
 
 	@Override
@@ -75,50 +81,9 @@ public class UploadFileCommand implements Command {
 	 * Display the 'new file' dialog for uploading a new file to the system.
 	 */
 	private void displayNewFile() {
-		RestResource currentFolder = GSS.get().getTreeView().getSelection();
-		if (currentFolder == null) {
-			GSS.get().displayError("You have to select the parent folder first");
-			return;
-		}
-		getFileList();
-		DeferredCommand.addCommand(new IncrementalCommand() {
-
-			@Override
-			public boolean execute() {
-				boolean res = canContinue();
-				if (res) {
-					FileUploadDialog dlg = GWT.create(FileUploadDialog.class);
-					dlg.setFiles(files);
-					dlg.center();
-					return false;
-				}
-				return true;
-			}
-
-		});
+        FileUploadDialog dlg = GWT.create(FileUploadDialog.class);
+        dlg.setApp(GSS.get());
+        dlg.setFolder(folder);
+		dlg.center();
 	}
-
-	private boolean canContinue() {
-		if (files != null )
-			return true;
-		return false;
-	}
-
-	private void getFileList() {
-		GetCommand<FolderResource> eg = new GetCommand<FolderResource>(FolderResource.class,((RestResourceWrapper)GSS.get().getTreeView().getSelection()).getUri(), null){
-
-			@Override
-			public void onComplete() {
-				files = getResult().getFiles();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				files = new ArrayList<FileResource>();
-			}
-
-		};
-		DeferredCommand.addCommand(eg);
-	}
-
 }

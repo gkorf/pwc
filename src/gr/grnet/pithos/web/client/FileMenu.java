@@ -202,7 +202,7 @@ public class FileMenu extends PopupPanel implements ClickHandler {
 //			contextMenu.addItem(newFolderItem);
 		}
 		if(uploadVisible){
-			MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this));			
+			MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this, null));
 			contextMenu.addItem(uploadItem);
 		}
 		if (downloadVisible) {

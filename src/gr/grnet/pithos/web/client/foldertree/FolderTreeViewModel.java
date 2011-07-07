@@ -116,10 +116,10 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     private void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Set<Folder> folders) {
+        final GSS app = GSS.get();
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
-            GSS app = GSS.get();
             String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
                 @Override
@@ -174,6 +174,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
                     @Override
                     public void onSuccess(Folder result) {
+                        app.showFiles(f);
                         Iterator<Folder> iter = result.getSubfolders().iterator();
                         fetchFolder(iter, dataProvider, result.getSubfolders());
                     }

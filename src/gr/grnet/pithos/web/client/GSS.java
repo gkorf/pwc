@@ -283,7 +283,7 @@ public class GSS implements EntryPoint, ResizeHandler {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 Folder f = folderTreeSelectionModel.getSelectedObject();
-                showFiles(f);
+                updateFolder(f);
             }
         });
 
@@ -341,7 +341,7 @@ public class GSS implements EntryPoint, ResizeHandler {
         });
     }
 
-    private void showFiles(Folder f) {
+    public void showFiles(Folder f) {
         inner.selectTab(0);
         Set<File> files = f.getFiles();
         Iterator<File> iter = files.iterator();

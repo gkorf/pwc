@@ -212,4 +212,8 @@ public class Folder extends Resource {
     public Folder getParent() {
         return parent;
     }
+
+    public String getUri() {
+        return "/" + container + (prefix.length() == 0 ? "" : "/" + prefix);
+    }
 }

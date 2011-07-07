@@ -34,8 +34,14 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Response;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.PostCommand;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
@@ -72,19 +78,14 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import javax.xml.transform.Templates;
 
 /**
  * The 'File upload' dialog box implementation.
  */
-public class FileUploadDialog extends DialogBox implements Updateable {
+public class FileUploadDialog extends DialogBox {
 
-	protected int prgBarInterval = 1500;
-
-	private ProgressBar progressBar;
-
-	protected RepeatingTimer repeater = new RepeatingTimer(this, prgBarInterval);
-
-	public static final boolean DONE = true;
+    public static final boolean DONE = true;
 
 	/**
 	 * The Form element that performs the file upload.
@@ -93,15 +94,15 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 
 	private final FileUpload upload = new FileUpload();
 
-	protected final Label filenameLabel = new Label("");
+	private final Label filenameLabel = new Label();
 
-	protected List<FileResource> files;
+    private final Label foldernameLabel = new Label();
 
-	protected boolean cancelEvent = false;
+    private Button submit;
 
-	protected String fileNameToUse;
+	protected Folder folder;
 
-	protected FolderResource folder;
+    protected GSS app;
 
 	/**
 	 * The widget's constructor.
@@ -123,29 +124,24 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 				"Gears</a><br> for uploading multiple files simultaneously.");
 		info.addStyleName("pithos-uploadNote");
 		panel.add(info);
-		final Hidden date = new Hidden("Date", "");
-		panel.add(date);
-		final Hidden auth = new Hidden("Authorization", "");
-		panel.add(auth);
-		// Add an informative label with the folder name.
-		Object selection = GSS.get().getTreeView().getSelection();
-		folder = ((RestResourceWrapper) selection).getResource();
+
+        final Hidden auth = new Hidden("X-Auth-Token", "");
+        panel.add(auth);
 		upload.setName("file");
 		filenameLabel.setText("");
 		filenameLabel.setVisible(false);
 		filenameLabel.setStyleName("props-labels");
-		HorizontalPanel fileUloadPanel = new HorizontalPanel();
-		fileUloadPanel.add(filenameLabel);
-		fileUloadPanel.add(upload);
-		upload.getElement().setId("fileUploadDiallog.uploadPanel");
+		HorizontalPanel fileUploadPanel = new HorizontalPanel();
+		fileUploadPanel.add(filenameLabel);
+		fileUploadPanel.add(upload);
 		Grid generalTable = new Grid(2, 2);
 		generalTable.setText(0, 0, "Folder");
+        generalTable.setWidget(0, 1, foldernameLabel);
 		generalTable.setText(1, 0, "File");
-		generalTable.setText(0, 1, folder.getName());
-		generalTable.setWidget(1, 1, fileUloadPanel);
+		generalTable.setWidget(1, 1, fileUploadPanel);
 		generalTable.getCellFormatter().setStyleName(0, 0, "props-labels");
+        generalTable.getCellFormatter().setStyleName(0, 1, "props-values");
 		generalTable.getCellFormatter().setStyleName(1, 0, "props-labels");
-		generalTable.getCellFormatter().setStyleName(0, 1, "props-values");
 		generalTable.getCellFormatter().setStyleName(1, 1, "props-values");
 		generalTable.setCellSpacing(4);
 
@@ -156,13 +152,12 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 
 		// Create the 'upload' button, along with a listener that submits the
 		// form.
-		final Button submit = new Button("Upload", new ClickHandler() {
+		submit = new Button("Upload", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				prepareAndSubmit();
 			}
 		});
-		submit.getElement().setId("fileUploadDialog.button.upload");
 		buttons.add(submit);
 		buttons.setCellHorizontalAlignment(submit, HasHorizontalAlignment.ALIGN_CENTER);
 		// Create the 'Cancel' button, along with a listener that hides the
@@ -170,66 +165,22 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 		final Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				repeater.finish();
 				hide();
 			}
 		});
-		cancel.getElement().setId("fileUploadDialog.button.cancel");
 		buttons.add(cancel);
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
 		buttons.addStyleName("pithos-DialogBox");
+        panel.add(buttons);
+        panel.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
 
 		// Add an event handler to the form.
 		form.addSubmitHandler(new SubmitHandler() {
 
 			@Override
 			public void onSubmit(SubmitEvent event) {
-				GSS app = GSS.get();
-				// This event is fired just before the form is submitted. We can
-				// take this opportunity to perform validation.
-				if (upload.getFilename().length() == 0) {
-					app.displayError("You must select a file!");
-					event.cancel();
-					hide();
-				} else {
-
-					canContinue();
-					GWT.log("Cancel:" + cancelEvent, null);
-					if (cancelEvent) {
-						cancelEvent = false;
-						app.displayError("The specified file name already exists in this folder");
-						event.cancel();
-						hide();
-					} else {
-
-						fileNameToUse = getFilename(upload.getFilename());
-						String apath;
-						FileResource selectedFile = getFileForName(fileNameToUse);
-						if (selectedFile == null ) {
-							//we are going to create a file
-							apath = folder.getUri();
-							if (!apath.endsWith("/"))
-								apath = apath + "/";
-							apath = apath + encodeComponent(fileNameToUse);
-						} else
-							apath = selectedFile.getUri();
-						form.setAction(apath);
-						String dateString = RestCommand.getDate();
-						String resource = apath.substring(app.getApiPath().length() - 1, apath.length());
-						String sig = RestCommand.calculateSig("POST", dateString, resource, RestCommand.base64decode(app.getToken()));
-						date.setValue(dateString);
-						auth.setValue(app.getCurrentUserResource().getUsername() + " " + sig);
-						GWT.log("FolderPATH:" + folder.getUri(), null);
-						submit.setEnabled(false);
-						upload.setVisible(false);
-						filenameLabel.setText(fileNameToUse);
-						filenameLabel.setVisible(true);
-						repeater.start();
-						progressBar.setVisible(true);
-					}
-				}
-
+                auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
 			}
 		});
 		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
@@ -244,25 +195,16 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 
 				// Unfortunately the results are never empty, even in
 				// the absense of errors, so we have to check for '<pre></pre>'.
-				if (!results.equalsIgnoreCase("<pre></pre>")) {
+				if (results != null && !results.equalsIgnoreCase("<pre></pre>")) {
 					GWT.log(results, null);
-					GSS.get().displayError(results);
+					app.displayError(results);
 				}
-				progressBar.setProgress(100);
-				cancelUpload();
-				GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());
-				GSS.get().getStatusPanel().updateStats();
-
+                app.updateFolder(folder);
+				hide();
 			}
 		});
 
 
-		panel.add(buttons);
-		progressBar = new ProgressBar(50, ProgressBar.SHOW_TIME_REMAINING);
-		panel.add(progressBar);
-		progressBar.setVisible(false);
-		panel.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
-		panel.setCellHorizontalAlignment(progressBar, HasHorizontalAlignment.ALIGN_CENTER);
 		panel.addStyleName("pithos-DialogBox");
 		addStyleName("pithos-DialogBox");
 		setWidget(form);
@@ -281,54 +223,29 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 					prepareAndSubmit();
 					break;
 				case KeyCodes.KEY_ESCAPE:
-					cancelUpload();
+					hide();
 					break;
 			}
-	}
-
-
-
-	/**
-	 * Cancels the file upload.
-	 */
-	private void cancelUpload() {
-		repeater.finish();
-		hide();
 	}
 
 	/**
 	 * Make any last minute checks and start the upload.
 	 */
-	public void prepareAndSubmit() {
-		final String fname = getFilename(upload.getFilename());
+	protected void prepareAndSubmit() {
+        if (upload.getFilename().length() == 0) {
+            app.displayError("You must select a file!");
+            return;
+        }
+        final String fname = getFilename(upload.getFilename());
+        String apath = app.getApiPath() + app.getUsername() + folder.getUri() + "/" + fname;
+        form.setAction(apath);
+        submit.setEnabled(false);
+        upload.setVisible(false);
+        filenameLabel.setText(fname);
+        filenameLabel.setVisible(true);
+
 		if (getFileForName(fname) == null) {
-			//we are going to create a file, so we check to see if there is a trashed file with the same name
-			FileResource same = null;
-			for (FileResource fres : folder.getFiles())
-				if (fres.isDeleted() && fres.getName().equals(fname))
-					same = fres;
-			if (same == null)
-				form.submit();
-			else {
-				final FileResource sameFile = same;
-				GWT.log("Same deleted file", null);
-				ConfirmationDialog confirm = new ConfirmationDialog("A file with " +
-						"the same name exists in the trash. If you continue,<br/>the trashed " +
-						"file  '" + fname + "' will be renamed automatically for you.", "Continue") {
-
-					@Override
-					public void cancel() {
-						FileUploadDialog.this.hide();
-					}
-
-					@Override
-					public void confirm() {
-						updateTrashedFile(getBackupFilename(fname), sameFile);
-					}
-
-				};
-				confirm.center();
-			}
+			doUpload(apath);
 		}
 		else {
 			// We are going to update an existing file, so show a confirmation dialog.
@@ -350,7 +267,29 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 		}
 	}
 
-	/**
+    private void doUpload(String path) {
+        PutRequest createFile = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                form.submit();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    app.displayError("Unable to create file:" + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    app.displayError("System error creating file:" + t.getMessage());
+            }
+        };
+        createFile.setHeader("X-Auth-Token", app.getToken());
+        createFile.setHeader("Content-Length", "0");
+        Scheduler.get().scheduleDeferred(createFile);
+    }
+
+    /**
 	 * Returns the file name from a potential full path argument. Apparently IE
 	 * insists on sending the full path name of a file when uploading, forcing
 	 * us to trim the extra path info. Since this is only observed on Windows we
@@ -369,182 +308,19 @@ public class FileUploadDialog extends DialogBox implements Updateable {
 		return name.substring(pathSepIndex + 1);
 	}
 
-	/**
-	 * Check whether the file name exists in selected folder.
-	 *
-	 * @return
-	 */
-	private boolean canContinue() {
-		if (files == null)
-			return false;
-		String fileName = getFilename(upload.getFilename());
-		if (getFileForName(fileName) == null) {
-			// For file creation, check to see if the file already exists.
-			GWT.log("filename to upload:" + fileName, null);
-			for (FileResource dto : files) {
-				GWT.log("Check:" + dto.getName() + "/" + fileName, null);
-				if (!dto.isDeleted() && dto.getName().equals(fileName)) {
-					cancelEvent = true;
-					return true;
-				}
-			}
-		}
-		return true;
-	}
-
-	class RepeatingTimer extends Timer {
-
-		private Updateable updateable;
-
-		private int interval = 1500;
-
-		private boolean running = true;
-
-		RepeatingTimer(Updateable _updateable, int _interval) {
-			updateable = _updateable;
-			interval = _interval;
-		}
-
-		@Override
-		public void run() {
-			updateable.update();
-		}
-
-		public void start() {
-			running = true;
-
-			scheduleRepeating(interval);
-		}
-
-		public void finish() {
-			running = false;
-			cancel();
-		}
-
-		public int getInterval() {
-			return interval;
-		}
-
-		public void setInterval(int anInterval) {
-			if (interval != anInterval) {
-				interval = anInterval;
-				if (running) {
-					finish();
-					start();
-				}
-			}
-		}
-	}
-
-	@Override
-	public void update() {
-		String apath = folder.getUri();
-		if (!apath.endsWith("/"))
-			apath = apath + "/";
-		apath = apath + encodeComponent(fileNameToUse) + "?progress=" + encodeComponent(fileNameToUse);
-		GetCommand eg = new GetCommand<UploadStatusResource>(UploadStatusResource.class, apath, false, null) {
-
-			@Override
-			public void onComplete() {
-				UploadStatusResource res = getResult();
-				progressBar.setProgress(res.percent());
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-			}
-
-		};
-		DeferredCommand.addCommand(eg);
-	}
-
-	protected String getBackupFilename(String filename) {
-		List<FileResource> filesInSameFolder = new ArrayList<FileResource>();
-		for (FileResource deleted : folder.getFiles())
-			if (deleted.isDeleted())
-				filesInSameFolder.add(deleted);
-		int i = 1;
-		for (FileResource same : filesInSameFolder)
-			if (same.getName().startsWith(filename)) {
-				String toCheck = same.getName().substring(filename.length(), same.getName().length());
-				if (toCheck.startsWith(" ")) {
-					int test = -1;
-					try {
-						test = Integer.valueOf(toCheck.replace(" ", ""));
-					} catch (NumberFormatException e) {
-						// Do nothing since string is not a number.
-					}
-					if (test >= i)
-						i = test + 1;
-				}
-			}
-
-		return filename + " " + i;
-	}
-
-	/**
-	 * Rename the conflicting trashed file with the supplied new name.
-	 */
-	private void updateTrashedFile(String newName, FileResource trashedFile) {
-		JSONObject json = new JSONObject();
-		json.put("name", new JSONString(newName));
-		PostCommand cf = new PostCommand(trashedFile.getUri() + "?update=", json.toString(), 200) {
-
-			@Override
-			public void onComplete() {
-				form.submit();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GSS app = GSS.get();
-				GWT.log("", t);
-				if (t instanceof RestException) {
-					int statusCode = ((RestException) t).getHttpStatusCode();
-					if (statusCode == 405)
-						app.displayError("You don't have the necessary permissions");
-					else if (statusCode == 404)
-						app.displayError("User in permissions does not exist");
-					else if (statusCode == 409)
-						app.displayError("A file with the same name already exists");
-					else if (statusCode == 413)
-						app.displayError("Your quota has been exceeded");
-					else
-						app.displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
-				} else
-					app.displayError("System error modifying file:" + t.getMessage());
-			}
-
-		};
-		DeferredCommand.addCommand(cf);
-	}
-
-	protected FileResource getFileForName(String name){
-		for (FileResource f : folder.getFiles())
-			if (!f.isDeleted() && f.getName().equals(name))
+	protected File getFileForName(String name){
+		for (File f : folder.getFiles())
+			if (!f.isInTrash() && f.getName().equals(name))
 				return f;
 		return null;
 	}
 
+    public void setApp(GSS app) {
+        this.app = app;
+    }
 
-	/**
-	 * Same as URL.encodeComponent, but also
-	 * encode apostrophe since browsers aren't consistent about it
-	 * (FF encodes, IE does not).
-	 */
-	private String encodeComponent(String decodedURLComponent) {
-		String retv = URL.encodeComponent(decodedURLComponent);
-		retv = retv.replaceAll("'", "%27");
-		return retv;
-	}
-
-	/**
-	 * Modify the files.
-	 *
-	 * @param newFiles the files to set
-	 */
-	public void setFiles(List<FileResource> newFiles) {
-		files = newFiles;
-	}
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+        foldernameLabel.setText(folder.getName());
+    }
 }

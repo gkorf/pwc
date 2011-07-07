@@ -417,7 +417,7 @@ public class FileList extends Composite {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				new UploadFileCommand(null).execute();
+				new UploadFileCommand(null, treeView.getSelection()).execute();
 			}
 		});
 		HorizontalPanel topPanel = new HorizontalPanel();
@@ -435,7 +435,7 @@ public class FileList extends Composite {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				new UploadFileCommand(null).execute();
+				new UploadFileCommand(null, treeView.getSelection()).execute();
 			}
 		});
         HorizontalPanel bottomPanel = new HorizontalPanel();

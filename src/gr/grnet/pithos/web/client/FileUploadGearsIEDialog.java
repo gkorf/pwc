@@ -48,7 +48,7 @@ import com.google.gwt.gears.client.httprequest.RequestCallback;
  * The 'File upload' dialog box implementation with Google Gears support
  * for IE.
  */
-public class FileUploadGearsIEDialog extends FileUploadGearsDialog implements Updateable {
+public class FileUploadGearsIEDialog extends FileUploadGearsDialog {
 
 	/**
 	 * Perform the HTTP request to upload the specified file.

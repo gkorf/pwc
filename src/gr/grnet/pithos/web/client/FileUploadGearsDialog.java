@@ -34,11 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.RestCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +71,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * The 'File upload' dialog box implementation with Google Gears support.
  */
-public class FileUploadGearsDialog extends FileUploadDialog implements Updateable {
+public class FileUploadGearsDialog extends FileUploadDialog {
 
 	protected final Factory factory = Factory.getInstance();
 
@@ -97,16 +97,21 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 
 	private FlexTable generalTable;
 
-	private Map<String, FileResource> toRename;
+	private Map<String, gr.grnet.pithos.web.client.foldertree.File> toRename;
 
 	protected List<HttpRequest> requests = new ArrayList<HttpRequest>();
 	
 	private boolean canContinue = true;
 
+    protected FileUploadGearsDialog() {
+    }
+
 	/**
 	 * The widget's constructor.
 	 */
-	public FileUploadGearsDialog() {
+	public FileUploadGearsDialog(GSS _app, Folder _folder) {
+        this.folder = _folder;
+        this.app = _app;
 		// Set the dialog's caption.
 		setText("File upload");
 		setAnimationEnabled(true);
@@ -117,7 +122,6 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 		panel.add(info);
 		// Add an informative label with the folder name.
 		Object selection = GSS.get().getTreeView().getSelection();
-		folder = ((RestResourceWrapper) selection).getResource();
 
 		browse = new Button("Browse...");
 
@@ -206,19 +210,6 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 		hide();		
 	}
 
-	/**
-	 * Check whether the specified file name exists in the selected folder.
-	 */
-	private boolean canContinue(File file) {
-		String fileName = getFilename(file.getName());
-		if (getFileForName(fileName) == null)
-			// For file creation, check to see if the file already exists.
-			for (FileResource fileRes : files)
-				if (!fileRes.isDeleted() && fileRes.getName().equals(fileName))
-					return false;
-		return true;
-	}
-
 	@Override
 	public void prepareAndSubmit() {
 		GSS app = GSS.get();
@@ -227,25 +218,18 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 			hide();
 			return;
 		}
-		for (File file: selectedFiles)
-			if (!canContinue(file)) {
-				app.displayError("The file name " + file.getName() +
-							" already exists in this folder");
-				hide();
-				return;
-			}
 		submit.setEnabled(false);
 		browse.setVisible(false);
 		List<String> toUpdate = new ArrayList<String>();
-		toRename = new HashMap<String, FileResource>();
+		toRename = new HashMap<String, gr.grnet.pithos.web.client.foldertree.File>();
 		for (File file: selectedFiles) {
 			String fname = getFilename(file.getName());
 			if (getFileForName(fname) == null) {
 				// We are going to create a file, so we check to see if there is a
 				// trashed file with the same name.
-				FileResource same = null;
-				for (FileResource fres : folder.getFiles())
-					if (fres.isDeleted() && fres.getName().equals(fname))
+				gr.grnet.pithos.web.client.foldertree.File same = null;
+				for (gr.grnet.pithos.web.client.foldertree.File fres : folder.getFiles())
+					if (fres.isInTrash() && fres.getName().equals(fname))
 						same = fres;
 				// In that case add it to the list of files to rename.
 				if (same != null)
@@ -286,7 +270,7 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 	private void confirmRename() {
 		if (!toRename.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
-			for (FileResource file: toRename.values())
+			for (gr.grnet.pithos.web.client.foldertree.File file: toRename.values())
 				sb.append(file.getName()).append("<br/>");
 			ConfirmationDialog confirm = new ConfirmationDialog("Files " +
 					"with the following names already exist in the trash. If" +
@@ -454,4 +438,27 @@ public class FileUploadGearsDialog extends FileUploadDialog implements Updateabl
 		return retv;
 	}
 
+    protected String getBackupFilename(String filename) {
+        List<gr.grnet.pithos.web.client.foldertree.File> filesInSameFolder = new ArrayList<gr.grnet.pithos.web.client.foldertree.File>();
+        for (gr.grnet.pithos.web.client.foldertree.File deleted : folder.getFiles())
+            if (deleted.isInTrash())
+                filesInSameFolder.add(deleted);
+        int i = 1;
+        for (gr.grnet.pithos.web.client.foldertree.File same : filesInSameFolder)
+            if (same.getName().startsWith(filename)) {
+                String toCheck = same.getName().substring(filename.length(), same.getName().length());
+                if (toCheck.startsWith(" ")) {
+                    int test = -1;
+                    try {
+                        test = Integer.valueOf(toCheck.replace(" ", ""));
+                    } catch (NumberFormatException e) {
+                        // Do nothing since string is not a number.
+                    }
+                    if (test >= i)
+                        i = test + 1;
+                }
+            }
+
+        return filename + " " + i;
+    }
 }
