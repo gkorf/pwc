@@ -32,43 +32,53 @@
  * interpreted as representing official policies, either expressed
  * or implied, of GRNET S.A.
  */
-package gr.grnet.pithos.web.client.clipboard;
+package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import java.util.List;
 
 public class Clipboard {
 	public final static int CUT=1;
 	public final static int COPY=2;
-	private ClipboardItem item;
+
+    private int operation;
+
+    private List<File> files;
+
+    private Folder folder;
 
 	/**
 	 * Retrieve the item.
 	 *
 	 * @return the item
 	 */
-	public ClipboardItem getItem() {
-		return item;
+	public Object getItem() {
+        if (folder != null)
+            return folder;
+        if (files != null)
+            return files;
+        return null;
 	}
 
-	/**
-	 * Modify the item.
-	 *
-	 * @param anItem the item to set
-	 */
-	public void setItem(ClipboardItem anItem) {
-		item = anItem;
+	public void setItem(int _operation, Folder _folder) {
+        operation = _operation;
+		folder = _folder;
+        files = null;
 	}
 
-	public boolean hasFolderOrFileItem(){
-		if( item !=null )
-			return item.isFileOrFolder();
-		return false;
-	}
+    public void setItem(int _operation, List<File> _files) {
+        operation = _operation;
+        files = _files;
+        folder = null;
+    }
 
-	public boolean isEmpty(){
-		return item == null;
-	}
+    public int getOperation() {
+        return operation;
+    }
 
-	public void clear(){
-		item = null;
-	}
+    public void clear() {
+        folder = null;
+        files = null;
+    }
 }

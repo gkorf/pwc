@@ -34,11 +34,10 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.Clipboard;
 import gr.grnet.pithos.web.client.GSS;
-import gr.grnet.pithos.web.client.clipboard.ClipboardItem;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import java.util.List;
 
@@ -50,34 +49,24 @@ import com.google.gwt.user.client.ui.PopupPanel;
  *
  */
 public class CopyCommand implements Command{
+    private GSS app;
 	private PopupPanel containerPanel;
+    private Object resource;
 
-	public CopyCommand(PopupPanel _containerPanel){
+	public CopyCommand(GSS _app, PopupPanel _containerPanel, Object _resource){
+        app = _app;
 		containerPanel = _containerPanel;
+        resource = _resource;
 	}
 
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		Object selection = GSS.get().getCurrentSelection();
-		if (selection == null)
-			return;
 
-		if (selection instanceof RestResourceWrapper) {
-			ClipboardItem clipboardItem = new ClipboardItem((RestResourceWrapper) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
-		} else if (selection instanceof FileResource) {
-			ClipboardItem clipboardItem = new ClipboardItem((FileResource) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
-		} else if (selection instanceof GroupUserResource) {
-			ClipboardItem clipboardItem = new ClipboardItem((GroupUserResource) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
+		if (resource instanceof Folder) {
+			app.getClipboard().setItem(Clipboard.COPY, (Folder) resource);
+		} else if (resource instanceof List) {
+			app.getClipboard().setItem(Clipboard.COPY, (List<File>) resource);
 		}
-		 else if (selection instanceof List){
-			 ClipboardItem clipboardItem = new ClipboardItem((List<FileResource>) selection);
-			 GSS.get().getClipboard().setItem(clipboardItem);
-		 }
-
 	}
-
 }

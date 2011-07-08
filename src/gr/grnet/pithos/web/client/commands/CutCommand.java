@@ -34,52 +34,41 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.Clipboard;
 import gr.grnet.pithos.web.client.GSS;
-import gr.grnet.pithos.web.client.clipboard.Clipboard;
-import gr.grnet.pithos.web.client.clipboard.ClipboardItem;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
+import gr.grnet.pithos.web.client.foldertree.File;
 
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
-
 
 /**
  * Command for cutting a file, folder or user to GSS Clipboard
  *
  */
-public class CutCommand implements Command{
+public class CutCommand implements Command {
+    private GSS app;
+
 	private PopupPanel containerPanel;
 
-	public CutCommand( PopupPanel _containerPanel ){
+    private Object resource;
+
+	public CutCommand(GSS _app, PopupPanel _containerPanel, Object _resource){
+        app = _app;
 		containerPanel = _containerPanel;
+        resource = _resource;
 	}
 
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		Object selection = GSS.get().getCurrentSelection();
-		if (selection == null)
-			return;
-		GWT.log("selection: " + selection.toString(), null);
-		if (selection instanceof RestResourceWrapper) {
-			ClipboardItem clipboardItem = new ClipboardItem(Clipboard.CUT, (RestResourceWrapper) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
-		} else if (selection instanceof FileResource) {
-			ClipboardItem clipboardItem = new ClipboardItem(Clipboard.CUT, (FileResource) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
-		} else if (selection instanceof GroupUserResource) {
-			ClipboardItem clipboardItem = new ClipboardItem(Clipboard.CUT, (GroupUserResource) selection);
-			GSS.get().getClipboard().setItem(clipboardItem);
-		}
-		else if (selection instanceof List){
-			 ClipboardItem clipboardItem = new ClipboardItem(Clipboard.CUT, (List<FileResource>) selection);
-			 GSS.get().getClipboard().setItem(clipboardItem);
-		 }
-	}
 
+        if (resource instanceof Folder) {
+            app.getClipboard().setItem(Clipboard.CUT, (Folder) resource);
+        } else if (resource instanceof List) {
+            app.getClipboard().setItem(Clipboard.CUT, (List<File>) resource);
+        }
+	}
 }

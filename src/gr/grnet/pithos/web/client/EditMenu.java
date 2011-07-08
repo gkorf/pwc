@@ -39,6 +39,7 @@ import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
 import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
@@ -195,32 +196,26 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 				copyLabel = "Copy Files";
 			}
 		if(GSS.get().getClipboard().getItem() != null)
-			if(GSS.get().getClipboard().getItem().getFile() != null)
-				pasteLabel = "Paste File";
-			else if(GSS.get().getClipboard().getItem().getFiles() != null)
-				pasteLabel = "Paste Files";
-			else if(GSS.get().getClipboard().getItem().getRestResourceWrapper() != null)
+			if(GSS.get().getClipboard().getItem() instanceof List) {
+                if (((List) GSS.get().getClipboard().getItem()).size() > 1)
+				    pasteLabel = "Paste Files";
+                else
+                    pasteLabel = "Paste File";
+            }
+			else if(GSS.get().getClipboard().getItem() instanceof Folder)
 				pasteLabel = "Paste Folder";
-		MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;"+cutLabel+"</span>", true, new CutCommand(this));
+		MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;"+cutLabel+"</span>", true, new CutCommand(GSS.get(), this, null));
 		cutItem.getElement().setId("topMenu.edit.cut");
 		contextMenu.addItem(cutItem).setVisible(cutcopyVisible);
 		
-		MenuItem copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.copy()).getHTML() + "&nbsp;"+copyLabel+"</span>", true, new CopyCommand(this));
+		MenuItem copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.copy()).getHTML() + "&nbsp;"+copyLabel+"</span>", true, new CopyCommand(GSS.get(), this, null));
 		copyItem.getElement().setId("topMenu.edit.copy");
 		contextMenu.addItem(copyItem).setVisible(cutcopyVisible);
 
-		MenuItem pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;"+pasteLabel+"</span>", true, new PasteCommand(this));
+		MenuItem pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;"+pasteLabel+"</span>", true, new PasteCommand(GSS.get(), this, null));
 		pasteItem.getElement().setId("topMenu.edit.paste");
 		if (GSS.get().getClipboard().getItem() != null)
-			if(GSS.get().isUserListVisible() && GSS.get().getClipboard().getItem().getUser() == null){
-				contextMenu.addItem(pasteItem);
-			}
-			else if(!GSS.get().isUserListVisible() && GSS.get().getClipboard().getItem().getUser() != null){
-				//do not show paste
-			}
-			else if (GSS.get().getTreeView().getSelection() instanceof RestResourceWrapper){
-				contextMenu.addItem(pasteItem);
-			}
+    		contextMenu.addItem(pasteItem);
 		MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(this));
 		moveToTrashItem.getElement().setId("topMenu.edit.moveToTrash");
 		contextMenu	.addItem(moveToTrashItem)
