@@ -151,7 +151,7 @@ public class FileMenu extends PopupPanel implements ClickHandler {
 	void createDownloadLink(String[] link, boolean forceDownload) {
 		String downloadURL = getDownloadURL();
 		if (!downloadURL.isEmpty()) {
-			link[0] = "<a id ='topMenu.file.download' class='hidden-link' href='" + downloadURL
+			link[0] = "<a class='hidden-link' href='" + downloadURL
 					+ (forceDownload ? "&dl=1" : "") + "' target='_blank'>";
 			link[1] = "</a>";
 		}

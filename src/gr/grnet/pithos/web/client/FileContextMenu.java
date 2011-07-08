@@ -171,25 +171,13 @@ public class FileContextMenu extends PopupPanel {
 			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
             contextMenu.addItem(propItem);
 
-
-			String[] link = {"", ""};
-			gss.getTopPanel().getFileMenu().createDownloadLink(link, false);
-		// The command that does some validation before downloading a file.
-            Command downloadCmd = new Command() {
-
+			downloadItem = new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, new Command() {
                 @Override
                 public void execute() {
-                    hide();
-                    GSS.get().getTopPanel().getFileMenu().preDownloadCheck();
                 }
-            };
-			downloadItem = new MenuItem("<span>" + link[0] + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download" + link[1] + "</span>", true, downloadCmd);
+            });
 			contextMenu.addItem(downloadItem);
 			
-			gss.getTopPanel().getFileMenu().createDownloadLink(link, true);
-			saveAsItem = new MenuItem("<span>" + link[0] + AbstractImagePrototype.create(newImages.download()).getHTML() + " Save As" + link[1] + "</span>", true, downloadCmd);
-			contextMenu.addItem(saveAsItem);
-
             final Command unselectAllCommand = new Command() {
 
                 @Override
