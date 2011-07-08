@@ -46,7 +46,7 @@ import com.google.gwt.json.client.JSONValue;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import java.util.Date;
 
-public abstract class Resource {
+public class Resource {
 
     protected static String unmarshallString(JSONObject obj, String key){
         if(obj.get(key) != null) {
@@ -92,8 +92,6 @@ public abstract class Resource {
     public static native String getDate(Long ms)/*-{
         return (new Date(ms)).toUTCString();
     }-*/;
-
-    public abstract String getLastModifiedSince();
 
     public static <T> T createFromResponse(Class<T> aClass, Response response, T result) {
         if (aClass.equals(AccountResource.class)) {

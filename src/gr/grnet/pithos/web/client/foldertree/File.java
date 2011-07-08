@@ -99,11 +99,6 @@ public class File extends Resource {
         return versionTimestamp;
     }
 
-    @Override
-    public String getLastModifiedSince() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public String getUri() {
         return "/" + container + "/" + path;
     }

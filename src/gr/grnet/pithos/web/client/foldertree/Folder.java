@@ -176,11 +176,6 @@ public class Folder extends Resource {
         }
     }
 
-    @Override
-    public String getLastModifiedSince() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public static Folder createFromResponse(Response response, Folder result) {
         Folder f = null;
         if (result == null)

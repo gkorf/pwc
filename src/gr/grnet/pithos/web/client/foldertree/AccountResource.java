@@ -121,11 +121,6 @@ public class AccountResource extends Resource {
         this.numberOfObjects = numberOfObjects;
     }
 
-    @Override
-    public String getLastModifiedSince() {
-        return null;
-    }
-
     public Set<Folder> getContainers() {
         return containers;
     }
