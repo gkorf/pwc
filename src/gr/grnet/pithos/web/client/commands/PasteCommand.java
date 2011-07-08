@@ -70,8 +70,15 @@ public class PasteCommand implements Command {
             return;
         int operation = app.getClipboard().getOperation();
         if (clipboardItem instanceof Folder) {
+            final Folder tobeCopied = (Folder) clipboardItem;
             if (operation == Clipboard.COPY) {
-
+                copyFolder(tobeCopied, folder.getUri(), new Command() {
+                    @Override
+                    public void execute() {
+                        app.getClipboard().clear();
+                        app.updateFolder(folder);
+                    }
+                });
             }
             else {
 
@@ -81,22 +88,34 @@ public class PasteCommand implements Command {
             List<File> tobeCopied = (List<File>) clipboardItem;
             Iterator<File> iter = tobeCopied.iterator();
             if (operation == Clipboard.COPY) {
-                copyFiles(iter);
+                copyFiles(iter, folder.getUri(), new Command() {
+                    @Override
+                    public void execute() {
+                        app.getClipboard().clear();
+                        app.updateFolder(folder);
+                    }
+                });
             }
             else {
-                moveFiles(iter);
+                moveFiles(iter, new Command() {
+                    @Override
+                    public void execute() {
+                        app.getClipboard().clear();
+                        app.updateFolder(folder);
+                    }
+                });
             }
         }
 	}
 
-    private void moveFiles(final Iterator<File> iter) {
+    private void moveFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = app.getApiPath() + app.getUsername() + folder.getUri() + "/" + file.getName();
             PutRequest copyFile = new PutRequest(path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    moveFiles(iter);
+                    moveFiles(iter, callback);
                 }
 
                 @Override
@@ -113,20 +132,19 @@ public class PasteCommand implements Command {
             copyFile.setHeader("X-Move-From", file.getUri());
             Scheduler.get().scheduleDeferred(copyFile);
         }
-        else {
-            app.getClipboard().clear();
-            app.updateFolder(folder);
+        else if (callback != null) {
+            callback.execute();
         }
     }
 
-    private void copyFiles(final Iterator<File> iter) {
+    private void copyFiles(final Iterator<File> iter, final String targetUri, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = app.getApiPath() + app.getUsername() + folder.getUri() + "/" + file.getName();
+            String path = app.getApiPath() + app.getUsername() + targetUri + "/" + file.getName();
             PutRequest copyFile = new PutRequest(path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    copyFiles(iter);
+                    copyFiles(iter, targetUri, callback);
                 }
 
                 @Override
@@ -143,9 +161,55 @@ public class PasteCommand implements Command {
             copyFile.setHeader("X-Copy-From", file.getUri());
             Scheduler.get().scheduleDeferred(copyFile);
         }
-        else {
-            app.getClipboard().clear();
-            app.updateFolder(folder);
+        else  if (callback != null) {
+            callback.execute();
+        }
+    }
+
+    private void copyFolder(final Folder f, final String targetUri, final Command callback) {
+        String path = app.getApiPath() + app.getUsername() + targetUri + "/" + f.getName();
+        PutRequest createFolder = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                Iterator<File> iter = f.getFiles().iterator();
+                copyFiles(iter, targetUri + "/" + f.getName(), new Command() {
+                    @Override
+                    public void execute() {
+                        Iterator<Folder> iterf = f.getSubfolders().iterator();
+                        copySubfolders(iterf, targetUri + "/" + f.getName(), new Command() {
+                            @Override
+                            public void execute() {
+                                callback.execute();
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    app.displayError("System error creating folder:" + t.getMessage());
+            }
+        };
+        createFolder.setHeader("X-Auth-Token", app.getToken());
+        createFolder.setHeader("Accept", "*/*");
+        createFolder.setHeader("Content-Length", "0");
+        createFolder.setHeader("Content-Type", "application/folder");
+        Scheduler.get().scheduleDeferred(createFolder);
+    }
+
+    private void copySubfolders(final Iterator<Folder> iter, final String targetUri, final Command callback) {
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+            copyFolder(f, targetUri, callback);
+        }
+        else  if (callback != null) {
+            callback.execute();
         }
     }
 }
