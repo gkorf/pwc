@@ -216,7 +216,7 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 		pasteItem.getElement().setId("topMenu.edit.paste");
 		if (GSS.get().getClipboard().getItem() != null)
     		contextMenu.addItem(pasteItem);
-		MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(this));
+		MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(GSS.get(), this, null));
 		moveToTrashItem.getElement().setId("topMenu.edit.moveToTrash");
 		contextMenu	.addItem(moveToTrashItem)
 					.setVisible(cutcopyVisible);
