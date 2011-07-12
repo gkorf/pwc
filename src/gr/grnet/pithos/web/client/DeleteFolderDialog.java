@@ -90,9 +90,9 @@ public class DeleteFolderDialog extends DialogBox {
 	 * The widget's constructor.
 	 * @param images the supplied images
 	 */
-	public DeleteFolderDialog(GSS app, Images images, Folder folder) {
-        this.app = app;
-        this.folder = folder;
+	public DeleteFolderDialog(GSS _app, Images images, Folder _folder) {
+        this.app = _app;
+        this.folder = _folder;
 		// Set the dialog's caption.
 		setText("Confirmation");
 		setAnimationEnabled(true);
@@ -111,7 +111,7 @@ public class DeleteFolderDialog extends DialogBox {
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				deleteFolder();
+				app.deleteFolder(folder);
 				hide();
 			}
 		});
@@ -136,118 +136,6 @@ public class DeleteFolderDialog extends DialogBox {
 		setWidget(outer);
 	}
 
-	/**
-	 * Generate an RPC request to delete a folder.
-	 *
-	 */
-	private void deleteFolder() {
-        String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + folder.getPrefix();
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-        builder.setHeader("If-Modified-Since", "0");
-        builder.setHeader("X-Auth-Token", app.getToken());
-        try {
-            builder.sendRequest("", new RequestCallback() {
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == Response.SC_OK) {
-                        JSONValue json = JSONParser.parseStrict(response.getText());
-                        JSONArray array = json.isArray();
-                        int i = 0;
-                        if (array != null) {
-                            deleteObject(i, array);
-                        }
-                    }
-                }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
-                }
-            });
-        }
-        catch (RequestException e) {
-        }
-	}
-
-    private void deleteObject(final int i, final JSONArray array) {
-        if (i < array.size()) {
-            JSONObject o = array.get(i).isObject();
-            if (o != null && !o.containsKey("subdir")) {
-                JSONString name = o.get("name").isString();
-                String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + "/" + name.stringValue();
-                DeleteRequest delete = new DeleteRequest(path) {
-                    @Override
-                    public void onSuccess(Resource result) {
-                        deleteObject(i + 1, array);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        GWT.log("", t);
-                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
-                    }
-                };
-                delete.setHeader("X-Auth-Token", app.getToken());
-                Scheduler.get().scheduleDeferred(delete);
-            }
-            else {
-                String subdir = o.get("subdir").isString().stringValue();
-                subdir = subdir.substring(0, subdir.length() - 1);
-                String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + subdir;
-                RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-                builder.setHeader("If-Modified-Since", "0");
-                builder.setHeader("X-Auth-Token", app.getToken());
-                try {
-                    builder.sendRequest("", new RequestCallback() {
-                        @Override
-                        public void onResponseReceived(Request request, Response response) {
-                            if (response.getStatusCode() == Response.SC_OK) {
-                                JSONValue json = JSONParser.parseStrict(response.getText());
-                                JSONArray array2 = json.isArray();
-                                if (array2 != null) {
-                                    int l = array.size();
-                                    for (int j=0; j<array2.size(); j++) {
-                                        array.set(l++, array2.get(j));
-                                    }
-                                }
-                                deleteObject(i + 1, array);
-                            }
-                        }
-
-                        @Override
-                        public void onError(Request request, Throwable exception) {
-                            GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
-                        }
-                    });
-                }
-                catch (RequestException e) {
-                }
-            }
-        }
-        else {
-            String prefix = folder.getPrefix();
-            String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + (prefix.length() == 0 ? "" : "/" + prefix);
-            DeleteRequest deleteFolder = new DeleteRequest(path) {
-                @Override
-                public void onSuccess(Resource result) {
-                    app.updateFolder(folder.getParent());
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    GWT.log("", t);
-                    if (t instanceof RestException) {
-                        app.displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
-                    }
-                    else
-                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
-                }
-            };
-            deleteFolder.setHeader("X-Auth-Token", app.getToken());
-            Scheduler.get().scheduleDeferred(deleteFolder);
-        }
-    }
-
 	@Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
 		super.onPreviewNativeEvent(preview);
@@ -259,7 +147,7 @@ public class DeleteFolderDialog extends DialogBox {
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
 					hide();
-					deleteFolder();
+					app.deleteFolder(folder);
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();

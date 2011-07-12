@@ -36,6 +36,16 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
@@ -44,6 +54,8 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
@@ -794,4 +806,112 @@ public class GSS implements EntryPoint, ResizeHandler {
 		}
 		
 	}
+
+    public void deleteFolder(final Folder folder) {
+        String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + folder.getPrefix();
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
+        builder.setHeader("If-Modified-Since", "0");
+        builder.setHeader("X-Auth-Token", getToken());
+        try {
+            builder.sendRequest("", new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    if (response.getStatusCode() == Response.SC_OK) {
+                        JSONValue json = JSONParser.parseStrict(response.getText());
+                        JSONArray array = json.isArray();
+                        int i = 0;
+                        if (array != null) {
+                            deleteObject(folder, i, array);
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                }
+            });
+        }
+        catch (RequestException e) {
+        }
+    }
+
+    public void deleteObject(final Folder folder, final int i, final JSONArray array) {
+        if (i < array.size()) {
+            JSONObject o = array.get(i).isObject();
+            if (o != null && !o.containsKey("subdir")) {
+                JSONString name = o.get("name").isString();
+                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "/" + name.stringValue();
+                DeleteRequest delete = new DeleteRequest(path) {
+                    @Override
+                    public void onSuccess(Resource result) {
+                        deleteObject(folder, i + 1, array);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        GWT.log("", t);
+                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
+                    }
+                };
+                delete.setHeader("X-Auth-Token", getToken());
+                Scheduler.get().scheduleDeferred(delete);
+            }
+            else {
+                String subdir = o.get("subdir").isString().stringValue();
+                subdir = subdir.substring(0, subdir.length() - 1);
+                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + subdir;
+                RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
+                builder.setHeader("If-Modified-Since", "0");
+                builder.setHeader("X-Auth-Token", getToken());
+                try {
+                    builder.sendRequest("", new RequestCallback() {
+                        @Override
+                        public void onResponseReceived(Request request, Response response) {
+                            if (response.getStatusCode() == Response.SC_OK) {
+                                JSONValue json = JSONParser.parseStrict(response.getText());
+                                JSONArray array2 = json.isArray();
+                                if (array2 != null) {
+                                    int l = array.size();
+                                    for (int j=0; j<array2.size(); j++) {
+                                        array.set(l++, array2.get(j));
+                                    }
+                                }
+                                deleteObject(folder, i + 1, array);
+                            }
+                        }
+
+                        @Override
+                        public void onError(Request request, Throwable exception) {
+                            GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                        }
+                    });
+                }
+                catch (RequestException e) {
+                }
+            }
+        }
+        else {
+            String prefix = folder.getPrefix();
+            String path = getApiPath() + getUsername() + "/" + folder.getContainer() + (prefix.length() == 0 ? "" : "/" + prefix);
+            DeleteRequest deleteFolder = new DeleteRequest(path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    updateFolder(folder.getParent());
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    if (t instanceof RestException) {
+                        displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
+                    }
+                    else
+                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
+                }
+            };
+            deleteFolder.setHeader("X-Auth-Token", getToken());
+            Scheduler.get().scheduleDeferred(deleteFolder);
+        }
+    }
 }

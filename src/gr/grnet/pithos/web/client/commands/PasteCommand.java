@@ -81,6 +81,14 @@ public class PasteCommand implements Command {
                 });
             }
             else {
+                copyFolder(tobeCopied, folder.getUri(), new Command() {
+                    @Override
+                    public void execute() {
+                        app.getClipboard().clear();
+                        app.deleteFolder(tobeCopied);
+                        app.updateFolder(folder);
+                    }
+                });
 
             }
         }
