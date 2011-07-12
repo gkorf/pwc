@@ -42,6 +42,7 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
@@ -79,39 +80,96 @@ public class ToTrashCommand implements Command{
 		containerPanel.hide();
         if (resource instanceof List) {
             Iterator<File> iter = ((List<File>) resource).iterator();
-            deleteFiles(iter);
+            trashFiles(iter, new Command() {
+                @Override
+                public void execute() {
+                    app.get().updateFolder(((List<File>) resource).get(0).getParent());
+                }
+            });
         }
         else if (resource instanceof Folder) {
+            final Folder toBeTrashed = (Folder) resource;
+            trashFolder(toBeTrashed, new Command() {
+                @Override
+                public void execute() {
+                    app.updateFolder(toBeTrashed.getParent());
+                }
+            });
 
         }
 	}
 
-    private void deleteFiles(final Iterator<File> iter) {
+    private void trashFolder(final Folder f, final Command callback) {
+        String path = app.getApiPath() + app.getUsername() + f.getUri() + "?update=";
+        PostRequest trashFolder = new PostRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                Iterator<File> iter = f.getFiles().iterator();
+                trashFiles(iter, new Command() {
+                    @Override
+                    public void execute() {
+                        Iterator<Folder> iterf = f.getSubfolders().iterator();
+                        trashSubfolders(iterf, new Command() {
+                            @Override
+                            public void execute() {
+                                callback.execute();
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    app.displayError("System error creating folder:" + t.getMessage());
+            }
+        };
+        trashFolder.setHeader("X-Auth-Token", app.getToken());
+        trashFolder.setHeader("X-Object-Meta-Trash", "true");
+        Scheduler.get().scheduleDeferred(trashFolder);
+    }
+
+    private void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = app.getApiPath() + app.getUsername() + file.getUri() + "?update=";
             PostRequest trashFile = new PostRequest(path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    deleteFiles(iter);
+                    trashFiles(iter, callback);
                 }
 
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        GSS.get().displayError("Unable to move file to trash: " + ((RestException) t).getHttpStatusText());
+                        GSS.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to move file to trash: "+t.getMessage());
+                        GSS.get().displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             trashFile.setHeader("X-Auth-Token", app.getToken());
             trashFile.setHeader("X-Object-Meta-Trash", "true");
             Scheduler.get().scheduleDeferred(trashFile);
         }
-        else {
-            app.get().updateFolder(((List<File>) resource).get(0).getParent());
+        else  if (callback != null) {
+            callback.execute();
+        }
+    }
+
+    private void trashSubfolders(final Iterator<Folder> iter, final Command callback) {
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+            trashFolder(f, callback);
+        }
+        else  if (callback != null) {
+            callback.execute();
         }
     }
 }

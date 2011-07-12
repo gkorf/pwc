@@ -44,6 +44,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +75,8 @@ public class Folder extends Resource {
     private String prefix = "";
 
     private Set<File> files = new LinkedHashSet<File>();
+
+    private boolean inTrash = false;
 
     public Folder() {};
 
@@ -126,6 +129,10 @@ public class Folder extends Resource {
         if (header != null)
             bytesUsed = Long.valueOf(header);
 
+        header = response.getHeader("X-Object-Meta-Trash");
+        if (header != null && header.equals("true"))
+            inTrash = true;
+
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         files.clear();
         JSONValue json = JSONParser.parseStrict(response.getText());
@@ -146,6 +153,18 @@ public class Folder extends Resource {
                         files.add(file);
                     }
                 }
+            }
+            Iterator<Folder> iter = subfolders.iterator();
+            while (iter.hasNext()) {
+                Folder f = iter.next();
+                if (f.isInTrash())
+                    iter.remove();
+            }
+            Iterator<File> it = files.iterator();
+            while (it.hasNext()) {
+                File f = it.next();
+                if (f.isInTrash())
+                    it.remove();
             }
         }
     }
@@ -174,6 +193,8 @@ public class Folder extends Resource {
             container = name;
             prefix = "";
         }
+        if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
+            inTrash = true;
     }
 
     public static Folder createFromResponse(Response response, Folder result) {
@@ -211,5 +232,9 @@ public class Folder extends Resource {
 
     public String getUri() {
         return "/" + container + (prefix.length() == 0 ? "" : "/" + prefix);
+    }
+
+    public boolean isInTrash() {
+        return inTrash;
     }
 }
