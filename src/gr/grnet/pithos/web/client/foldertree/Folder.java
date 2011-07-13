@@ -147,24 +147,20 @@ public class Folder extends Resource {
                         f.populate(this, o, container);
                         subfolders.add(f);
                     }
-                    else {
+                    else if (!(o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))) {
                         File file = new File();
                         file.populate(this, o, container);
                         files.add(file);
                     }
                 }
             }
+            //This step is necessary to remove the trashed folders. Trashed folders are added initially because we need to
+            //avoid having in the list the virtual folders of the form {"subdir":"folder1"} which have no indication of thrash
             Iterator<Folder> iter = subfolders.iterator();
             while (iter.hasNext()) {
                 Folder f = iter.next();
                 if (f.isInTrash())
                     iter.remove();
-            }
-            Iterator<File> it = files.iterator();
-            while (it.hasNext()) {
-                File f = it.next();
-                if (f.isInTrash())
-                    it.remove();
             }
         }
     }
