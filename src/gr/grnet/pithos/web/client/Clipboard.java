@@ -81,4 +81,12 @@ public class Clipboard {
         folder = null;
         files = null;
     }
+
+    public boolean isEmpty() {
+        return (files == null || files.isEmpty()) && folder == null;
+    }
+
+    public boolean hasFiles() {
+        return files != null && !files.isEmpty();
+    }
 }

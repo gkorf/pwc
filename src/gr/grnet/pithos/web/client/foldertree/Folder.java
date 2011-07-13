@@ -233,4 +233,8 @@ public class Folder extends Resource {
     public boolean isInTrash() {
         return inTrash;
     }
+
+    public boolean isContainer() {
+        return parent == null;
+    }
 }
