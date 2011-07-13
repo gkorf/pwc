@@ -106,16 +106,6 @@ public class TopPanel extends Composite {
 	private EditMenu editMenu;
 
 	/**
-	 * The settings menu widget.
-	 */
-	private SettingsMenu settingsMenu;
-
-	/**
-	 * The help menu widget.
-	 */
-	private HelpMenu helpMenu;
-
-	/**
 	 * A widget that displays a message indicating that communication with the
 	 * server is underway.
 	 */
@@ -126,11 +116,8 @@ public class TopPanel extends Composite {
 	 *
 	 * @param images the supplied images
 	 */
-	public TopPanel(Images images) {
-		fileMenu = new FileMenu(images);
+	public TopPanel(final Images images) {
 		editMenu = new EditMenu(images);
-		settingsMenu = new SettingsMenu(images);
-		helpMenu = new HelpMenu(images);
 		loading = new LoadingIndicator(images);
         loading.hide();
 		HorizontalPanel outer = new HorizontalPanel();
@@ -152,17 +139,15 @@ public class TopPanel extends Composite {
 		};
 		MenuItem quitItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
 					AbstractImagePrototype.create(images.exit()).getHTML() + "</td><td>Quit</td></tr></table>", true, quitCommand);
-		quitItem.getElement().setId("topMenu.quit");
-		
+
 		MenuItem fileItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
 					AbstractImagePrototype.create(images.folder()).getHTML() + "</td><td>File</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return fileMenu.createMenu();
+				return new FileMenu(GSS.get(), images);
 			}
 		};
-		fileItem.getElement().setId("topMenu.file");
-		
+
 		MenuItem editItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
 					AbstractImagePrototype.create(images.edit()).getHTML() + "</td><td>Edit</td></tr></table>", true, new MenuBar(true)){
 			@Override
@@ -170,27 +155,10 @@ public class TopPanel extends Composite {
 				return editMenu.createMenu();
 			}
 		};
-		editItem.getElement().setId("topMenu.edit");
-		
-		MenuItem configureItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.configure()).getHTML() + "</td><td>Settings</td></tr></table>",
-					true,settingsMenu.getContextMenu());
-		configureItem.getElement().setId("topMenu.settings");
-		
-		MenuItem helpItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.help()).getHTML() + "</td><td>Help</td></tr></table>", true, new MenuBar(true)){
-			@Override
-			public MenuBar getSubMenu() {
-				return helpMenu.createMenu();
-			}
-		};
-		helpItem.getElement().setId("topMenu.help");
-		
+
 		menu.addItem(quitItem);
 		menu.addItem(fileItem);
 		menu.addItem(editItem);
-		menu.addItem(configureItem);
-		menu.addItem(helpItem);
 
 		outer.setSpacing(2);
 		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -218,23 +186,5 @@ public class TopPanel extends Composite {
 	 */
 	public LoadingIndicator getLoading() {
 		return loading;
-	}
-
-	/**
-	 * Retrieve the fileMenu.
-	 *
-	 * @return the fileMenu
-	 */
-	FileMenu getFileMenu() {
-		return fileMenu;
-	}
-
-	/**
-	 * Retrieve the editMenu.
-	 *
-	 * @return the editMenu
-	 */
-	EditMenu getEditMenu() {
-		return editMenu;
 	}
 }

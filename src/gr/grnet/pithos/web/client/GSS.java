@@ -914,4 +914,8 @@ public class GSS implements EntryPoint, ResizeHandler {
             Scheduler.get().scheduleDeferred(deleteFolder);
         }
     }
+
+    public FolderTreeView getFolderTreeView() {
+        return folderTreeView;
+    }
 }
