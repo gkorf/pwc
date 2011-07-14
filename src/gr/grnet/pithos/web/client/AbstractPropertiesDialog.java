@@ -176,5 +176,4 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 		GSS.preventIESelection();
 		hide();
 	}
-
 }

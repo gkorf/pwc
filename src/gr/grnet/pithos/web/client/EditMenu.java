@@ -174,17 +174,21 @@ public class EditMenu extends MenuBar {
             else if (selectedFolder != null)
                 cutObject = selectedFolder;
 
-            MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;" + cutLabel + "</span>", true, new CutCommand(_app, null, cutObject));
-            addItem(cutItem);
+            if (selectedFiles.size() != 0 || (selectedFolder != null && !selectedFolder.isContainer())) {
+                MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;" + cutLabel + "</span>", true, new CutCommand(_app, null, cutObject));
+                addItem(cutItem);
+            }
 
             MenuItem copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.copy()).getHTML() + "&nbsp;"+copyLabel+"</span>", true, new CopyCommand(_app, null, cutObject));
             addItem(copyItem);
 
-            MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(_app, null, cutObject));
-            addItem(moveToTrashItem);
+            if (selectedFiles.size() != 0 || (selectedFolder != null && !selectedFolder.isContainer())) {
+                MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(_app, null, cutObject));
+                addItem(moveToTrashItem);
 
-            MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(null, cutObject, images));
-            addItem(deleteItem);
+                MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(null, cutObject, images));
+                addItem(deleteItem);
+            }
         }
 
         if (selectedFolder != null && !_app.getClipboard().isEmpty()) {

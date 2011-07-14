@@ -76,20 +76,13 @@ public class DeleteCommand implements Command{
 	public void execute() {
         if (containerPanel != null)
     		containerPanel.hide();
-		displayDelete();
+
+        if (resource instanceof Folder) {
+            DeleteFolderDialog dlg = new DeleteFolderDialog(GSS.get(), newImages, (Folder) resource);
+            dlg.center();
+        } else if (resource instanceof List) {
+            DeleteFileDialog dlg = new DeleteFileDialog(newImages, (List<File>) resource);
+            dlg.center();
+        }
 	}
-	/**
-	 * Display the delete dialog, according to the selected object.
-	 *
-	 *
-	 */
-	void displayDelete() {
-		if (resource instanceof Folder) {
-			DeleteFolderDialog dlg = new DeleteFolderDialog(GSS.get(), newImages, (Folder) resource);
-			dlg.center();
-		} else if (resource instanceof List) {
-			DeleteFileDialog dlg = new DeleteFileDialog(newImages, (List<File>) resource);
-			dlg.center();
-		}
-    }
 }

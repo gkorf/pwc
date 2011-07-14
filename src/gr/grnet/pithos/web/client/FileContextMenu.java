@@ -170,8 +170,7 @@ public class FileContextMenu extends PopupPanel {
 //			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));
 //            contextMenu.addItem(sharingItem);
 
-//			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
-//            contextMenu.addItem(propItem);
+            contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), this, selectedFiles, images, 0)));
 
 			contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
 

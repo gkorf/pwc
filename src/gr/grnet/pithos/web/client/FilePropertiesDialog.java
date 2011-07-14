@@ -34,7 +34,12 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.core.client.Scheduler;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostCommand;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
@@ -79,7 +84,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
-	final PermissionsList permList;
+	private PermissionsList permList;
 
 	private CheckBox readForAll;
 
@@ -111,126 +116,54 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 	private final CheckBox versioned = new CheckBox();
 
-	final FileResource file;
+	final File file;
 
 	private String userFullName;
 
+    private GSS app;
+
 	/**
 	 * The widget's constructor.
-	 *
-	 * @param images the dialog's ImageBundle
-	 * @param groups
-	 * @param bodies
 	 */
-	public FilePropertiesDialog(final Images images, final List<GroupResource> groups, List<FileResource> bodies, String _userFullName) {
+	public FilePropertiesDialog(GSS _app, File _file) {
+        app = _app;
+        file = _file;
 
 		// Set the dialog's caption.
 		setText("File properties");
 
-		file = (FileResource) GSS.get().getCurrentSelection();
-		userFullName = _userFullName;
-		permList = new PermissionsList(images, file.getPermissions(), file.getOwner());
 
-		GWT.log("FILE PERMISSIONS:"+file.getPermissions());
+//		permList = new PermissionsList(images, file.getPermissions(), file.getOwner());
+
 		// Outer contains inner and buttons.
 		final VerticalPanel outer = new VerticalPanel();
 		final FocusPanel focusPanel = new FocusPanel(outer);
 		// Inner contains generalPanel and permPanel.
 		inner = new DecoratedTabPanel();
 		inner.setAnimationEnabled(true);
-		final VerticalPanel generalPanel = new VerticalPanel();
-		final VerticalPanel permPanel = new VerticalPanel();
+
+
+        inner.add(createGeneralPanel(), "General");
+
+        inner.add(createSharingPanel(), "Sharing");
+
+        inner.add(createVersionPanel(), "Versions");
+
+        inner.selectTab(0);
+
+        outer.add(inner);
+
 		final HorizontalPanel buttons = new HorizontalPanel();
-		final HorizontalPanel permButtons = new HorizontalPanel();
-		final HorizontalPanel permForAll = new HorizontalPanel();
-		final HorizontalPanel pathPanel = new HorizontalPanel();
-		final VerticalPanel verPanel = new VerticalPanel();
-		final HorizontalPanel vPanel = new HorizontalPanel();
-		final HorizontalPanel vPanel2 = new HorizontalPanel();
-
-		versioned.setValue(file.isVersioned());
-		versioned.getElement().setId("filePropertiesDialog.chechBox.versioned");
-		inner.add(generalPanel, "General");
-		inner.add(permPanel, "Sharing");
-		inner.add(verPanel, "Versions");
-		inner.selectTab(0);
-
-		final Label fileNameNote = new Label("Please note that slashes ('/') are not allowed in file names.", true);
-		fileNameNote.setVisible(false);
-		fileNameNote.setStylePrimaryName("pithos-readForAllNote");
-
-		final FlexTable generalTable = new FlexTable();
-		generalTable.setText(0, 0, "Name");
-		generalTable.setText(1, 0, "Folder");
-		generalTable.setText(2, 0, "Owner");
-		generalTable.setText(3, 0, "Last modified");
-		generalTable.setText(4, 0, "Tags");
-		name.setWidth("100%");
-		name.setText(file.getName());
-		name.getElement().setId("filePropertiesDialog.textBox.name");
-		generalTable.setWidget(0, 1, name);
-		name.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				if(name.getText().contains("/"))
-					fileNameNote.setVisible(true);
-				else
-					fileNameNote.setVisible(false);
-
-			}
-		});
-
-		if(file.getFolderName() != null)
-			generalTable.setText(1, 1, file.getFolderName());
-		else
-			generalTable.setText(1, 1, "-");
-		generalTable.setWidget(0, 2, fileNameNote);
-		generalTable.setText(2, 1,userFullName);
-
-		final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-		generalTable.setText(3, 1, formatter.format(file.getModificationDate()));
-		// Get the tags.
-		StringBuffer tagsBuffer = new StringBuffer();
-		Iterator i = file.getTags().iterator();
-		while (i.hasNext()) {
-			String tag = (String) i.next();
-			tagsBuffer.append(tag).append(", ");
-		}
-		if (tagsBuffer.length() > 1)
-			tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
-		initialTagText = tagsBuffer.toString();
-		tags.setWidth("100%");
-		tags.getElement().setId("filePropertiesDialog.textBox.tags");
-		tags.setText(initialTagText);
-		generalTable.setWidget(4, 1, tags);
-		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(3, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(4, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(4, 1, "props-values");
-		generalTable.setCellSpacing(4);
-
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if(name.getText().contains("/"))
-					fileNameNote.setVisible(true);
-				else{
-					fileNameNote.setVisible(false);
-					accept();
-					closeDialog();
-				}		
+				accept();
+				closeDialog();
 			}
 		});
-		ok.getElement().setId("filePropertiesDialog.button.ok");		
+
 		buttons.add(ok);
 		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
 		// Create the 'Cancel' button, along with a listener that hides the
@@ -241,158 +174,225 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				closeDialog();
 			}
 		});
-		cancel.getElement().setId("filePropertiesDialog.button.cancel");
 		buttons.add(cancel);
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
 		buttons.addStyleName("pithos-TabPanelBottom");
 
-		generalPanel.add(generalTable);
+        outer.add(buttons);
+        outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
+        outer.addStyleName("pithos-TabPanelBottom");
+
+        focusPanel.setFocus(true);
+        setWidget(outer);
 
 		// Asynchronously retrieve the tags defined by this user.
 		DeferredCommand.addCommand(new Command() {
 
 			@Override
 			public void execute() {
-				updateTags();
+//				updateTags();
 			}
 		});
-
-		DisclosurePanel allTags = new DisclosurePanel("All tags");
-		allTagsContent = new FlowPanel();
-		allTagsContent.setWidth("100%");
-		allTags.setContent(allTagsContent);
-		generalPanel.add(allTags);
-		generalPanel.setSpacing(4);
-
-		final Button add = new Button("Add Group", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, false);
-				dlg.center();
-			}
-		});
-		add.getElement().setId("filePropertiesDialog.button.addGroup");
-		permButtons.add(add);
-		permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-
-		final Button addUser = new Button("Add User", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, true);
-				dlg.center();
-			}
-		});
-		add.getElement().setId("filePropertiesDialog.button.addUser");
-		permButtons.add(addUser);
-		permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-
-		permButtons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		permButtons.setSpacing(8);
-		permButtons.addStyleName("pithos-TabPanelBottom");
-
-		final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
-					" by everyone. By checking this option, you are certifying that you have the right to " +
-					"distribute this file and that it does not violate the Terms of Use.", true);
-		readForAllNote.setVisible(false);
-		readForAllNote.setStylePrimaryName("pithos-readForAllNote");
-
-		readForAll = new CheckBox();
-		readForAll.getElement().setId("filePropertiesDialog.checkBox.public");
-		readForAll.setValue(file.isReadForAll());
-		readForAll.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				readForAllNote.setVisible(readForAll.getValue());
-			}
-
-		});
-
-		permPanel.add(permList);
-		permPanel.add(permButtons);
-		// Only show the read for all permission if the user is the owner.
-		if (file.getOwner().equals(GSS.get().getCurrentUserResource().getUsername())) {
-			permForAll.add(new Label("Public"));
-			permForAll.add(readForAll);
-			permForAll.setSpacing(8);
-			permForAll.addStyleName("pithos-TabPanelBottom");
-			permForAll.add(readForAllNote);
-			permPanel.add(permForAll);
-		}
-
-		TextBox path = new TextBox();
-		path.setWidth("100%");
-		path.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				GSS.enableIESelection();
-				((TextBox) event.getSource()).selectAll();
-				GSS.preventIESelection();
-			}
-
-		});
-		path.setText(file.getUri());
-		path.getElement().setId("filePropertiesDialog.textBox.link");
-		path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-		path.setWidth("100%");
-		path.setReadOnly(true);
-		pathPanel.setWidth("100%");
-		pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		pathPanel.add(new Label("Link"));
-		pathPanel.setSpacing(8);
-		pathPanel.addStyleName("pithos-TabPanelBottom");
-		pathPanel.add(path);
-		permPanel.add(pathPanel);
-
-		VersionsList verList = new VersionsList(this, images, bodies);
-		verPanel.add(verList);
-
-		vPanel.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		vPanel.setSpacing(8);
-		vPanel.addStyleName("pithos-TabPanelBottom");
-		vPanel.add(new Label("Versioned"));
-
-		vPanel.add(versioned);
-		verPanel.add(vPanel);
-		vPanel2.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		vPanel2.setSpacing(8);
-		vPanel2.addStyleName("pithos-TabPanelBottom");
-		Button removeVersionsButton = new Button(AbstractImagePrototype.create(images.delete()).getHTML(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				ConfirmationDialog confirm = new ConfirmationDialog("Really " +
-						"remove all previous versions?", "Remove") {
-
-					@Override
-					public void cancel() {
-					}
-
-					@Override
-					public void confirm() {
-						FilePropertiesDialog.this.closeDialog();
-						removeAllOldVersions();
-					}
-
-				};
-				confirm.center();
-			}
-
-		});
-		HTML removeAllVersion = new HTML("<span>Remove all previous versions?</span>");
-		vPanel2.add(removeAllVersion);
-		vPanel2.add(removeVersionsButton);
-		verPanel.add(vPanel2);
-		if(!file.isVersioned())
-			vPanel2.setVisible(false);
-		outer.add(inner);
-		outer.add(buttons);
-		outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
-		outer.addStyleName("pithos-TabPanelBottom");
-
-		focusPanel.setFocus(true);
-		setWidget(outer);
 	}
 
+    private VerticalPanel createGeneralPanel() {
+        final VerticalPanel generalPanel = new VerticalPanel();
+        final FlexTable generalTable = new FlexTable();
+        generalTable.setText(0, 0, "Name");
+        generalTable.setText(1, 0, "Folder");
+        generalTable.setText(2, 0, "Owner");
+        generalTable.setText(3, 0, "Last modified");
+//        generalTable.setText(4, 0, "Tags");
+
+        name.setWidth("100%");
+        name.setText(file.getName());
+        generalTable.setWidget(0, 1, name);
+        if(file.getParent() != null)
+            generalTable.setText(1, 1, file.getParent().getName());
+        else
+            generalTable.setText(1, 1, "-");
+        generalTable.setText(2, 1, file.getOwner());
+
+        final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
+        generalTable.setText(3, 1, formatter.format(file.getLastModified()));
+
+		// Get the tags.
+//		StringBuffer tagsBuffer = new StringBuffer();
+//		Iterator i = file.getTags().iterator();
+//		while (i.hasNext()) {
+//			String tag = (String) i.next();
+//			tagsBuffer.append(tag).append(", ");
+//		}
+//		if (tagsBuffer.length() > 1)
+//			tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
+//		initialTagText = tagsBuffer.toString();
+//		tags.setWidth("100%");
+//		tags.getElement().setId("filePropertiesDialog.textBox.tags");
+//		tags.setText(initialTagText);
+//		generalTable.setWidget(4, 1, tags);
+
+        generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(3, 0, "props-labels");
+//        generalTable.getFlexCellFormatter().setStyleName(4, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
+//        generalTable.getFlexCellFormatter().setStyleName(4, 1, "props-values");
+        generalTable.setCellSpacing(4);
+
+        generalPanel.add(generalTable);
+
+        DisclosurePanel allTags = new DisclosurePanel("All tags");
+        allTagsContent = new FlowPanel();
+        allTagsContent.setWidth("100%");
+        allTags.setContent(allTagsContent);
+        generalPanel.add(allTags);
+        generalPanel.setSpacing(4);
+        return generalPanel;
+    }
+
+    private VerticalPanel createSharingPanel() {
+        VerticalPanel permPanel = new VerticalPanel();
+//
+//        permList = new PermissionsList(images, file.getPermissions(), file.getOwner());
+//        permPanel.add(permList);
+//
+//        HorizontalPanel permButtons = new HorizontalPanel();
+//        Button add = new Button("Add Group", new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, false);
+//                dlg.center();
+//            }
+//        });
+//        permButtons.add(add);
+//        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+//
+//        final Button addUser = new Button("Add User", new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, true);
+//                dlg.center();
+//            }
+//        });
+//        permButtons.add(addUser);
+//        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+//
+//        permButtons.setSpacing(8);
+//        permButtons.addStyleName("pithos-TabPanelBottom");
+//        permPanel.add(permButtons);
+//
+//        final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
+//                    " by everyone. By checking this option, you are certifying that you have the right to " +
+//                    "distribute this file and that it does not violate the Terms of Use.", true);
+//        readForAllNote.setVisible(false);
+//        readForAllNote.setStylePrimaryName("pithos-readForAllNote");
+//
+//        readForAll = new CheckBox();
+//        readForAll.setValue(file.isReadForAll());
+//        readForAll.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                readForAllNote.setVisible(readForAll.getValue());
+//            }
+//
+//        });
+//
+//        // Only show the read for all permission if the user is the owner.
+//        if (file.getOwner().equals(app.getUsername())) {
+//            final HorizontalPanel permForAll = new HorizontalPanel();
+//            permForAll.add(new Label("Public"));
+//            permForAll.add(readForAll);
+//            permForAll.setSpacing(8);
+//            permForAll.addStyleName("pithos-TabPanelBottom");
+//            permForAll.add(readForAllNote);
+//            permPanel.add(permForAll);
+//        }
+//
+//
+//        final HorizontalPanel pathPanel = new HorizontalPanel();
+//        pathPanel.setWidth("100%");
+//        pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+//        pathPanel.add(new Label("Link"));
+//        pathPanel.setSpacing(8);
+//        pathPanel.addStyleName("pithos-TabPanelBottom");
+//
+//        TextBox path = new TextBox();
+//        path.setWidth("100%");
+//        path.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                GSS.enableIESelection();
+//                ((TextBox) event.getSource()).selectAll();
+//                GSS.preventIESelection();
+//            }
+//        });
+//        path.setText(file.getUri());
+//        path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
+//        path.setWidth("100%");
+//        path.setReadOnly(true);
+//        pathPanel.add(path);
+//        permPanel.add(pathPanel);
+
+        return permPanel;
+    }
+
+    private VerticalPanel createVersionPanel() {
+        VerticalPanel versionPanel = new VerticalPanel();
+
+//        VersionsList verList = new VersionsList(this, images, bodies);
+//        versionPanel.add(verList);
+//
+//        HorizontalPanel vPanel = new HorizontalPanel();
+//
+//		vPanel.setSpacing(8);
+//		vPanel.addStyleName("pithos-TabPanelBottom");
+//		vPanel.add(new Label("Versioned"));
+//
+//		versioned.setValue(file.isVersioned());
+//		vPanel.add(versioned);
+//		versionPanel.add(vPanel);
+//
+//        HorizontalPanel vPanel2 = new HorizontalPanel();
+//		vPanel2.setSpacing(8);
+//		vPanel2.addStyleName("pithos-TabPanelBottom");
+//
+//        HTML removeAllVersion = new HTML("<span>Remove all previous versions?</span>");
+//        vPanel2.add(removeAllVersion);
+//
+//		Button removeVersionsButton = new Button(AbstractImagePrototype.create(images.delete()).getHTML(), new ClickHandler() {
+//			@Override
+//			public void onClick(ClickEvent event) {
+//				ConfirmationDialog confirm = new ConfirmationDialog("Really " +
+//						"remove all previous versions?", "Remove") {
+//
+//					@Override
+//					public void cancel() {
+//					}
+//
+//					@Override
+//					public void confirm() {
+//						FilePropertiesDialog.this.closeDialog();
+//						removeAllOldVersions();
+//					}
+//
+//				};
+//				confirm.center();
+//			}
+//
+//		});
+//		vPanel2.add(removeVersionsButton);
+//        if(!file.isVersioned())
+//            vPanel2.setVisible(false);
+//
+//        versionPanel.add(vPanel2);
+
+        return versionPanel;
+    }
 
 	/**
 	 * Accepts any change and updates the file
@@ -401,84 +401,75 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 	@Override
 	protected void accept() {
 		String newFilename = null;
-		permList.updatePermissionsAccordingToInput();
-		Set<PermissionHolder> perms = permList.getPermissions();
-		JSONObject json = new JSONObject();
+//		permList.updatePermissionsAccordingToInput();
+//		Set<PermissionHolder> perms = permList.getPermissions();
+//		JSONObject json = new JSONObject();
 		if (!name.getText().equals(file.getName())) {
 			newFilename = name.getText();
-			json.put("name", new JSONString(newFilename));
+//			json.put("name", new JSONString(newFilename));
 		}
-		if (versioned.getValue() != file.isVersioned())
-			json.put("versioned", JSONBoolean.getInstance(versioned.getValue()));
+//		if (versioned.getValue() != file.isVersioned())
+//			json.put("versioned", JSONBoolean.getInstance(versioned.getValue()));
 		//only update the read for all perm if the user is the owner
-		if (readForAll.getValue() != file.isReadForAll())
-			if (file.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
-				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
-		int i = 0;
-		if (permList.hasChanges()) {
-			GWT.log("Permissions change", null);
-			JSONArray perma = new JSONArray();
-
-			for (PermissionHolder p : perms) {
-				JSONObject po = new JSONObject();
-				if (p.getUser() != null)
-					po.put("user", new JSONString(p.getUser()));
-				if (p.getGroup() != null)
-					po.put("group", new JSONString(p.getGroup()));
-				po.put("read", JSONBoolean.getInstance(p.isRead()));
-				po.put("write", JSONBoolean.getInstance(p.isWrite()));
-				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
-				perma.set(i, po);
-				i++;
-			}
-			json.put("permissions", perma);
-		}
-		JSONArray taga = new JSONArray();
-		i = 0;
-		if (!tags.getText().equals(initialTagText)) {
-			String[] tagset = tags.getText().split(",");
-			for (String t : tagset) {
-				JSONString to = new JSONString(t);
-				taga.set(i, to);
-				i++;
-			}
-			json.put("tags", taga);
-		}
-		String jsonString = json.toString();
-		if(jsonString.equals("{}")){
-			GWT.log("NO CHANGES", null);
-			return;
-		}
+//		if (readForAll.getValue() != file.isReadForAll())
+//			if (file.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
+//				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
+//		int i = 0;
+//		if (permList.hasChanges()) {
+//			GWT.log("Permissions change", null);
+//			JSONArray perma = new JSONArray();
+//
+//			for (PermissionHolder p : perms) {
+//				JSONObject po = new JSONObject();
+//				if (p.getUser() != null)
+//					po.put("user", new JSONString(p.getUser()));
+//				if (p.getGroup() != null)
+//					po.put("group", new JSONString(p.getGroup()));
+//				po.put("read", JSONBoolean.getInstance(p.isRead()));
+//				po.put("write", JSONBoolean.getInstance(p.isWrite()));
+//				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
+//				perma.set(i, po);
+//				i++;
+//			}
+//			json.put("permissions", perma);
+//		}
+//		JSONArray taga = new JSONArray();
+//		i = 0;
+//		if (!tags.getText().equals(initialTagText)) {
+//			String[] tagset = tags.getText().split(",");
+//			for (String t : tagset) {
+//				JSONString to = new JSONString(t);
+//				taga.set(i, to);
+//				i++;
+//			}
+//			json.put("tags", taga);
+//		}
+//		String jsonString = json.toString();
+//		if(jsonString.equals("{}")){
+//			GWT.log("NO CHANGES", null);
+//			return;
+//		}
 		final String newFilenameFinal = newFilename;
-		PostCommand cf = new PostCommand(file.getUri() + "?update=", jsonString, 200) {
 
-			@Override
-			public void onComplete() {
-				GSS.get().getTreeView().refreshCurrentNode(false);
-			}
+        if (newFilename == null)
+            return;
+        String path = app.getApiPath() + app.getUsername() + file.getParent().getUri() + "/" + newFilename;
+        PutRequest updateFile = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                app.updateFolder(file.getParent());
+            }
 
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if (t instanceof RestException) {
-					int statusCode = ((RestException) t).getHttpStatusCode();
-					if (statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
-					else if (statusCode == 404)
-						GSS.get().displayError("User in permissions does not exist");
-					else if (statusCode == 409)
-						GSS.get().displayError("A file with the same name already exists");
-					else if (statusCode == 413)
-						GSS.get().displayError("Your quota has been exceeded");
-					else
-						GSS.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
-				} else
-					GSS.get().displayError("System error modifying file:" + t.getMessage());
-			}
-
-		};
-		DeferredCommand.addCommand(cf);
-
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                app.displayError("System error modifying file:" + t.getMessage());
+            }
+        };
+        updateFile.setHeader("X-Auth-Token", app.getToken());
+        updateFile.setHeader("X-Move-From", file.getUri());
+        updateFile.setHeader("Content-Type", file.getContentType());
+        Scheduler.get().scheduleDeferred(updateFile);
 	}
 
 	private void removeAllOldVersions() {
