@@ -127,7 +127,7 @@ public class FileUploadDialog extends DialogBox {
 
         final Hidden auth = new Hidden("X-Auth-Token", "");
         panel.add(auth);
-		upload.setName("file");
+		upload.setName("X-Object-Data");
 		filenameLabel.setText("");
 		filenameLabel.setVisible(false);
 		filenameLabel.setStyleName("props-labels");
@@ -195,7 +195,7 @@ public class FileUploadDialog extends DialogBox {
 
 				// Unfortunately the results are never empty, even in
 				// the absense of errors, so we have to check for '<pre></pre>'.
-				if (results != null && !results.equalsIgnoreCase("<pre></pre>")) {
+				if (results != null && results.length() > 0 && !results.equalsIgnoreCase("<pre></pre>")) {
 					GWT.log(results, null);
 					app.displayError(results);
 				}
@@ -245,7 +245,7 @@ public class FileUploadDialog extends DialogBox {
         filenameLabel.setVisible(true);
 
 		if (getFileForName(fname) == null) {
-			doUpload(apath);
+            form.submit();
 		}
 		else {
 			// We are going to update an existing file, so show a confirmation dialog.
@@ -266,28 +266,6 @@ public class FileUploadDialog extends DialogBox {
 			confirm.center();
 		}
 	}
-
-    private void doUpload(String path) {
-        PutRequest createFile = new PutRequest(path) {
-            @Override
-            public void onSuccess(Resource result) {
-                form.submit();
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                GWT.log("", t);
-                if (t instanceof RestException) {
-                    app.displayError("Unable to create file:" + ((RestException) t).getHttpStatusText());
-                }
-                else
-                    app.displayError("System error creating file:" + t.getMessage());
-            }
-        };
-        createFile.setHeader("X-Auth-Token", app.getToken());
-        createFile.setHeader("Content-Length", "0");
-        Scheduler.get().scheduleDeferred(createFile);
-    }
 
     /**
 	 * Returns the file name from a potential full path argument. Apparently IE
