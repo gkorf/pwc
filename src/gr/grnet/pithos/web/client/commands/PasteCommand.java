@@ -64,7 +64,9 @@ public class PasteCommand implements Command {
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
+        if (containerPanel != null)
+    		containerPanel.hide();
+
         Object clipboardItem = app.getClipboard().getItem();
         if (clipboardItem == null)
             return;

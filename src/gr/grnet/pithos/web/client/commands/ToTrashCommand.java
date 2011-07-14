@@ -77,7 +77,8 @@ public class ToTrashCommand implements Command{
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
+        if (containerPanel != null)
+    		containerPanel.hide();
         if (resource instanceof List) {
             Iterator<File> iter = ((List<File>) resource).iterator();
             trashFiles(iter, new Command() {

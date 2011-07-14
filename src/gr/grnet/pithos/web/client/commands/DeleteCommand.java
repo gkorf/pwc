@@ -74,7 +74,8 @@ public class DeleteCommand implements Command{
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
+        if (containerPanel != null)
+    		containerPanel.hide();
 		displayDelete();
 	}
 	/**

@@ -61,7 +61,8 @@ public class CopyCommand implements Command{
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
+        if (containerPanel != null)
+		    containerPanel.hide();
 
 		if (resource instanceof Folder) {
 			app.getClipboard().setItem(Clipboard.COPY, (Folder) resource);

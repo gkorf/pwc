@@ -91,21 +91,6 @@ public class TopPanel extends Composite {
 	}
 
 	/**
-	 * The menu bar widget.
-	 */
-	private MenuBar menu;
-
-	/**
-	 * The file menu widget.
-	 */
-	private FileMenu fileMenu;
-
-	/**
-	 * The edit menu widget.
-	 */
-	private EditMenu editMenu;
-
-	/**
 	 * A widget that displays a message indicating that communication with the
 	 * server is underway.
 	 */
@@ -117,14 +102,13 @@ public class TopPanel extends Composite {
 	 * @param images the supplied images
 	 */
 	public TopPanel(final Images images) {
-		editMenu = new EditMenu(images);
 		loading = new LoadingIndicator(images);
         loading.hide();
 		HorizontalPanel outer = new HorizontalPanel();
 
 		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
-		menu = new MenuBar();
+		MenuBar menu = new MenuBar();
 		menu.setWidth("100%");
 		menu.setAutoOpen(false);
 		menu.setAnimationEnabled(true);
@@ -152,7 +136,7 @@ public class TopPanel extends Composite {
 					AbstractImagePrototype.create(images.edit()).getHTML() + "</td><td>Edit</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return editMenu.createMenu();
+				return new EditMenu(GSS.get(), images);
 			}
 		};
 

@@ -39,6 +39,7 @@ import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
@@ -60,14 +61,12 @@ import com.google.gwt.user.client.ui.PopupPanel;
 /**
  * The 'Edit' menu implementation.
  */
-public class EditMenu extends PopupPanel implements ClickHandler {
+public class EditMenu extends MenuBar {
 
 	/**
 	 * The widget's images.
 	 */
 	private final Images images;
-
-	private final MenuBar contextMenu  = new MenuBar(true);
 
 	/**
 	 * An image bundle for this widget's images.
@@ -135,107 +134,81 @@ public class EditMenu extends PopupPanel implements ClickHandler {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public EditMenu(final Images newImages) {
-		// The popup's constructor's argument is a boolean specifying that it
-		// auto-close itself when the user clicks outside of it.
+	public EditMenu(final GSS _app, final Images newImages) {
 		super(true);
 		setAnimationEnabled(true);
 		images = newImages;
-		createMenu();
-		add(contextMenu);
-	}
 
-	@Override
-	public void onClick(ClickEvent event) {
-		final EditMenu menu = new EditMenu(images);
-		final int left = event.getRelativeElement().getAbsoluteLeft();
-		final int top = event.getRelativeElement().getAbsoluteTop() + event.getRelativeElement().getOffsetHeight();
-		menu.setPopupPosition(left, top);
-		menu.show();
-	}
+        Folder selectedFolder = _app.getFolderTreeView().getSelection();
+        List<File> selectedFiles = _app.getFileList().getSelectedFiles();
 
-	public MenuBar createMenu() {
-		contextMenu.clearItems();
-		contextMenu.setAutoOpen(false);
+        String cutLabel = "Cut";
+        String copyLabel ="Copy";
+        String pasteLabel = "Paste";
+        if(selectedFiles.size() == 1) {
+            cutLabel = "Cut File";
+            copyLabel = "Copy File";
+        }
+        else if (selectedFiles.size() > 1) {
+            cutLabel = "Cut Files";
+            copyLabel = "Copy Files";
+        }
+        else if (selectedFolder != null) {
+            cutLabel = "Cut Folder";
+            copyLabel = "Copy Folder";
+        }
 
-		final Command selectAllCommand = new Command() {
+        if (_app.getClipboard().hasFiles()) {
+            if (((List<File>) _app.getClipboard().getItem()).size() > 1)
+                pasteLabel = "Paste Files";
+            else
+                pasteLabel = "Paste File";
+        }
+        else
+            pasteLabel = "Paste Folder";
 
-			@Override
-			public void execute() {
-				hide();
-				if(GSS.get().isFileListShowing())
-					GSS.get().getFileList().selectAllRows();
-			}
-		};
-		final Command unselectAllCommand = new Command() {
+        if (selectedFiles.size() > 0 || selectedFolder != null) {
+            Object cutObject = null;
+            if (selectedFiles.size() > 0)
+                cutObject = selectedFiles;
+            else if (selectedFolder != null)
+                cutObject = selectedFolder;
 
-			@Override
-			public void execute() {
-				hide();
-				if(GSS.get().isFileListShowing())
-					GSS.get().getFileList().clearSelectedRows();
-			}
-		};
+            MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;" + cutLabel + "</span>", true, new CutCommand(_app, null, cutObject));
+            addItem(cutItem);
 
-		boolean cutcopyVisible = GSS.get().getCurrentSelection() != null && (GSS.get().getCurrentSelection() instanceof RestResourceWrapper
-					|| GSS.get().getCurrentSelection() instanceof FileResource || GSS	.get().getCurrentSelection() instanceof GroupUserResource || GSS	.get().getCurrentSelection() instanceof List);
-		String cutLabel = "Cut";
-		String copyLabel ="Copy";
-		String pasteLabel = "Paste";
-		if(GSS.get().getCurrentSelection() != null)
-			if(GSS.get().getCurrentSelection() instanceof RestResourceWrapper){
-				cutLabel = "Cut Folder";
-				copyLabel = "Copy Folder";
-			}
-			else if(GSS.get().getCurrentSelection() instanceof FileResource){
-				cutLabel = "Cut File";
-				copyLabel = "Copy File";
-			}
-			else if(GSS.get().getCurrentSelection() instanceof List){
-				cutLabel = "Cut Files";
-				copyLabel = "Copy Files";
-			}
-		if(GSS.get().getClipboard().getItem() != null)
-			if(GSS.get().getClipboard().getItem() instanceof List) {
-                if (((List) GSS.get().getClipboard().getItem()).size() > 1)
-				    pasteLabel = "Paste Files";
-                else
-                    pasteLabel = "Paste File";
+            MenuItem copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.copy()).getHTML() + "&nbsp;"+copyLabel+"</span>", true, new CopyCommand(_app, null, cutObject));
+            addItem(copyItem);
+
+            MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(_app, null, cutObject));
+            addItem(moveToTrashItem);
+
+            MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(null, cutObject, images));
+            addItem(deleteItem);
+        }
+
+        if (selectedFolder != null && !_app.getClipboard().isEmpty()) {
+            MenuItem pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;" + pasteLabel + "</span>", true, new PasteCommand(_app, null, selectedFolder));
+            addItem(pasteItem);
+        }
+
+
+        MenuItem selectAllItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.selectAll()).getHTML() + "&nbsp;Select All</span>", true, new Command() {
+
+            @Override
+            public void execute() {
+                _app.getFileList().selectAllRows();
             }
-			else if(GSS.get().getClipboard().getItem() instanceof Folder)
-				pasteLabel = "Paste Folder";
-		MenuItem cutItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.cut()).getHTML() + "&nbsp;"+cutLabel+"</span>", true, new CutCommand(GSS.get(), this, null));
-		cutItem.getElement().setId("topMenu.edit.cut");
-		contextMenu.addItem(cutItem).setVisible(cutcopyVisible);
-		
-		MenuItem copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.copy()).getHTML() + "&nbsp;"+copyLabel+"</span>", true, new CopyCommand(GSS.get(), this, null));
-		copyItem.getElement().setId("topMenu.edit.copy");
-		contextMenu.addItem(copyItem).setVisible(cutcopyVisible);
+        });
+        addItem(selectAllItem);
 
-		MenuItem pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;"+pasteLabel+"</span>", true, new PasteCommand(GSS.get(), this, null));
-		pasteItem.getElement().setId("topMenu.edit.paste");
-		if (GSS.get().getClipboard().getItem() != null)
-    		contextMenu.addItem(pasteItem);
-		MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(GSS.get(), this, null));
-		moveToTrashItem.getElement().setId("topMenu.edit.moveToTrash");
-		contextMenu	.addItem(moveToTrashItem)
-					.setVisible(cutcopyVisible);
-		
-		MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, null, images));
-		deleteItem.getElement().setId("topMenu.edit.delete");
-		contextMenu	.addItem(deleteItem)
-					.setVisible(cutcopyVisible);
-		
-		MenuItem selectAllItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.selectAll()).getHTML() + "&nbsp;Select All</span>", true, selectAllCommand);
-		selectAllItem.getElement().setId("topMenu.edit.selectAll");
-		contextMenu.addItem(selectAllItem);
-		
-		MenuItem unSelectAllItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect All</span>", true, unselectAllCommand);
-		unSelectAllItem.getElement().setId("topMenu.edit.unSelectAll");
-		contextMenu.addItem(unSelectAllItem);
-		return contextMenu;
+        MenuItem unSelectAllItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect All</span>", true, new Command() {
+
+            @Override
+            public void execute() {
+                    _app.getFileList().clearSelectedRows();
+            }
+        });
+        addItem(unSelectAllItem);
 	}
-
-
-
 }
