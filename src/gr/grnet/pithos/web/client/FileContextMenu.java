@@ -173,24 +173,16 @@ public class FileContextMenu extends PopupPanel {
 //			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
 //            contextMenu.addItem(propItem);
 
-			downloadItem = new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, new Command() {
+			contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
+
+			MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
                 @Override
                 public void execute() {
+                    hide();
+                    GSS.get().getFileList().clearSelectedRows();
                 }
             });
-			contextMenu.addItem(downloadItem);
-			
-//            final Command unselectAllCommand = new Command() {
-//
-//                @Override
-//                public void execute() {
-//                    hide();
-//                    if(GSS.get().isFileListShowing())
-//                        GSS.get().getFileList().clearSelectedRows();
-//                }
-//            };
-//			MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, unselectAllCommand);
-//			contextMenu.addItem(unSelect);
+			contextMenu.addItem(unSelect);
 
 //		}
 		add(contextMenu);

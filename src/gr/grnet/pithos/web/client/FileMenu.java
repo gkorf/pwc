@@ -90,9 +90,10 @@ public class FileMenu extends MenuBar {
 
 		@Source("gr/grnet/pithos/resources/refresh.png")
 		ImageResource refresh();
-}
 
-	final MenuBar contextMenu = new MenuBar(true);
+        @Source("gr/grnet/pithos/resources/")
+        ImageResource unselectAll();
+    }
 
 	/**
 	 * The widget's constructor.
@@ -100,16 +101,9 @@ public class FileMenu extends MenuBar {
 	 * @param _images the image bundle passed on by the parent object
 	 */
 	public FileMenu(GSS _app, final Images _images) {
+        super(true);
 		setAnimationEnabled(true);
 		images = _images;
-
-        final Command downloadCmd = new Command() {
-
-            @Override
-            public void execute() {
-                preDownloadCheck();
-            }
-        };
 
         Folder selectedFolder = _app.getFolderTreeView().getSelection();
         List<File> selectedFiles = _app.getFileList().getSelectedFiles();
@@ -117,15 +111,11 @@ public class FileMenu extends MenuBar {
 		    MenuItem newFolderItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(null, selectedFolder, images));
 		    addItem(newFolderItem);
 
-//            MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this, null));
-//            addItem(uploadItem);
+            MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(null, selectedFolder));
+            addItem(uploadItem);
         }
         if (selectedFiles.size() == 1) {
-//            String[] link = {"", ""};
-//            createDownloadLink(link, false);
-//
-//            MenuItem downloadItem = new MenuItem("<span>" + link[0] + AbstractImagePrototype.create(images.download()).getHTML() + "&nbsp;Download" + link[1] + "</span>", true, downloadCmd);
-//            addItem(downloadItem);
+            addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(images.download()).getHTML() + " Download</a></span>", true, (Command) null));
         }
 
 //        MenuItem emptyTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(this));
@@ -146,53 +136,4 @@ public class FileMenu extends MenuBar {
 //        contextMenu.addItem(propertiesItem)
 //                       .setVisible(propertiesVisible);
 	}
-
-	/**
-	 * Do some validation before downloading a file.
-	 */
-	void preDownloadCheck() {
-		Object selection = GSS.get().getCurrentSelection();
-		if (selection == null || !(selection instanceof FileResource)) {
-			GSS.get().displayError("You have to select a file first");
-			return;
-		}
-	}
-
-	/**
-	 * Create a download link for the respective menu item, if the currently
-	 * selected object is a file.
-	 *
-	 * @param link a String array with two elements that is modified so that the
-	 *            first position contains the opening tag and the second one the
-	 *            closing tag
-	 * @param forceDownload If true, link will be such that browser should ask for filename
-	 * 				and save location
-	 */
-	void createDownloadLink(String[] link, boolean forceDownload) {
-		String downloadURL = getDownloadURL();
-		if (!downloadURL.isEmpty()) {
-			link[0] = "<a class='hidden-link' href='" + downloadURL
-					+ (forceDownload ? "&dl=1" : "") + "' target='_blank'>";
-			link[1] = "</a>";
-		}
-	}
-
-	public String getDownloadURL() {
-		GSS app = GSS.get();
-		Object selection = app.getCurrentSelection();
-		if (selection != null && selection instanceof FileResource) {
-			FileResource file = (FileResource) selection;
-			return getDownloadURL(file);
-		}
-		return "";
-	}
-
-	public String getDownloadURL(FileResource file) {
-		GSS app = GSS.get();
-		if (file != null) {
-			return file.getUri();
-		}
-		return "";
-	}
-
 }
