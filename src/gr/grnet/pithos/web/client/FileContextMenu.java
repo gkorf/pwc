@@ -142,8 +142,8 @@ public class FileContextMenu extends PopupPanel {
             contextMenu.addItem(pasteItem);
         }
 
-//        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this, selectedFolder));
-//        contextMenu.addItem(upload);
+        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this, selectedFolder));
+        contextMenu.addItem(upload);
 
 //        MenuItem refresh = new MenuItem("<span>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
 //        contextMenu.addItem(refresh);
@@ -173,12 +173,12 @@ public class FileContextMenu extends PopupPanel {
 //			propItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(this, images, 0));
 //            contextMenu.addItem(propItem);
 
-//			downloadItem = new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, new Command() {
-//                @Override
-//                public void execute() {
-//                }
-//            });
-//			contextMenu.addItem(downloadItem);
+			downloadItem = new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, new Command() {
+                @Override
+                public void execute() {
+                }
+            });
+			contextMenu.addItem(downloadItem);
 			
 //            final Command unselectAllCommand = new Command() {
 //
