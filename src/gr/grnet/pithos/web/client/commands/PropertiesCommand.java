@@ -114,9 +114,9 @@ public class PropertiesCommand implements Command {
         else if (resource instanceof List) {
             List<File> files = (List<File>) resource;
             if (files.size() > 1) {
-//                FilesPropertiesDialog dlg = new FilesPropertiesDialog(files);
-//                dlg.selectTab(tabToShow);
-//                dlg.center();
+                FilesPropertiesDialog dlg = new FilesPropertiesDialog(app, files);
+                dlg.selectTab(tabToShow);
+                dlg.center();
             }
             else {
                 FilePropertiesDialog dlg = new FilePropertiesDialog(app, files.get(0));

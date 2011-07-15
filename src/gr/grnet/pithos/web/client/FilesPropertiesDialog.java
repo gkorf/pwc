@@ -35,6 +35,8 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.components.TristateCheckBox;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
@@ -71,9 +73,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
-	private final TristateCheckBox versionedCheck;
+//	private final TristateCheckBox versionedCheck;
 
-	private final List<FileResource> files;
+	private final List<File> files;
 
 	private Boolean initialVersioned;
 
@@ -83,18 +85,21 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 	 *
 	 * @param _files
 	 */
-	public FilesPropertiesDialog(final List<FileResource> _files) {
+	public FilesPropertiesDialog(GSS _app, final List<File> _files) {
 		super();
 
 		files = _files;
-		int versionedNum = 0;
-		for (FileResource fr : files)
-			if (fr.isVersioned()) versionedNum++;
-		Boolean versioned = null;
-		if (versionedNum==0) versioned = false;
-		if (versionedNum==files.size()) versioned = true;
-		initialVersioned = versioned;
-		versionedCheck = new TristateCheckBox(versioned);
+//		int versionedNum = 0;
+//		for (File fr : files)
+//			if (fr.isVersioned()) versionedNum++;
+//		Boolean versioned = null;
+//		if (versionedNum == 0)
+//            versioned = false;
+//		if (versionedNum == files.size())
+//            versioned = true;
+
+//		initialVersioned = versioned;
+//		versionedCheck = new TristateCheckBox(versioned);
 
 		// Set the dialog's caption.
 		setText("Files properties");
@@ -105,69 +110,24 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		// Inner contains generalPanel and permPanel.
 		inner = new DecoratedTabPanel();
 		inner.setAnimationEnabled(true);
-		final VerticalPanel generalPanel = new VerticalPanel();
-		final HorizontalPanel buttons = new HorizontalPanel();
-		final VerticalPanel verPanel = new VerticalPanel();
-		final HorizontalPanel vPanel = new HorizontalPanel();
 
-		inner.add(generalPanel, "General");
+		inner.add(createGeneralPanel(), "General");
+
+        final VerticalPanel verPanel = new VerticalPanel();
+
+//        final HorizontalPanel vPanel = new HorizontalPanel();
+//        vPanel.setSpacing(8);
+//        vPanel.addStyleName("pithos-TabPanelBottom");
+//        vPanel.add(new Label("Versioned"));
+//        vPanel.add(versionedCheck);
+//
+//        verPanel.add(vPanel);
+
 		inner.add(verPanel, "Versions");
 		inner.selectTab(0);
+        outer.add(inner);
 
-		final FlexTable generalTable = new FlexTable();
-		generalTable.setText(0, 0, String.valueOf(files.size())+" files selected");
-		generalTable.setText(1, 0, "Folder");
-		generalTable.setText(2, 0, "Tags");
-		FileResource firstFile = files.get(0);
-		if(firstFile.getFolderName() != null)
-			generalTable.setText(1, 1, firstFile.getFolderName());
-		else
-			generalTable.setText(1, 1, "-");
-
-		// Find if tags are identical
-		List<String> tagsList = files.get(0).getTags();
-		List<String> tagss;
-		for (int i=1; i<files.size(); i++) {
-			tagss = files.get(i).getTags();
-			if (tagsList.size() != tagss.size() || !tagsList.containsAll(tagss)) {
-				tagsList = null;
-				break;
-			}
-		}
-		// Get the tags.
-		StringBuffer tagsBuffer = new StringBuffer();
-		if (tagsList==null)
-			tagsBuffer.append(MULTIPLE_VALUES_TEXT);
-		else {
-			Iterator i = tagsList.iterator();
-			while (i.hasNext()) {
-				String tag = (String) i.next();
-				tagsBuffer.append(tag).append(", ");
-			}
-			if (tagsBuffer.length() > 1)
-				tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
-		}
-		initialTagText = tagsBuffer.toString();
-		tags.setText(initialTagText);
-		tags.addFocusHandler(new FocusHandler() {
-			@Override
-			public void onFocus(FocusEvent event) {
-				if (MULTIPLE_VALUES_TEXT.equals(tags.getText()))
-					tags.setText("");
-			}
-		}
-		);
-
-		generalTable.setWidget(2, 1, tags);
-		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setColSpan(0, 0, 2);
-		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
-		generalTable.setCellSpacing(4);
-
+        final HorizontalPanel buttons = new HorizontalPanel();
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
@@ -191,33 +151,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
 		buttons.addStyleName("pithos-TabPanelBottom");
-
-		generalPanel.add(generalTable);
-
-		// Asynchronously retrieve the tags defined by this user.
-		DeferredCommand.addCommand(new Command() {
-
-			@Override
-			public void execute() {
-				updateTags();
-			}
-		});
-
-		DisclosurePanel allTags = new DisclosurePanel("All tags");
-		allTagsContent = new FlowPanel();
-		allTags.setContent(allTagsContent);
-		generalPanel.add(allTags);
-		generalPanel.setSpacing(4);
-
-
-		vPanel.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		vPanel.setSpacing(8);
-		vPanel.addStyleName("pithos-TabPanelBottom");
-		vPanel.add(new Label("Versioned"));
-
-		vPanel.add(versionedCheck);
-		verPanel.add(vPanel);
-		outer.add(inner);
 		outer.add(buttons);
 		outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
 		outer.addStyleName("pithos-TabPanelBottom");
@@ -226,6 +159,82 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		setWidget(outer);
 	}
 
+    private VerticalPanel createGeneralPanel() {
+        VerticalPanel generalPanel = new VerticalPanel();
+
+        final FlexTable generalTable = new FlexTable();
+        generalTable.setText(0, 0, String.valueOf(files.size())+" files selected");
+        generalTable.setText(1, 0, "Folder");
+        generalTable.setText(2, 0, "Tags");
+        Folder parent = files.get(0).getParent();
+        if(parent != null)
+            generalTable.setText(1, 1, parent.getName());
+        else
+            generalTable.setText(1, 1, "-");
+
+		// Find if tags are identical
+//		List<String> tagsList = files.get(0).getTags();
+//		List<String> tagss;
+//		for (int i=1; i<files.size(); i++) {
+//			tagss = files.get(i).getTags();
+//			if (tagsList.size() != tagss.size() || !tagsList.containsAll(tagss)) {
+//				tagsList = null;
+//				break;
+//			}
+//		}
+//		// Get the tags.
+//		StringBuffer tagsBuffer = new StringBuffer();
+//		if (tagsList==null)
+//			tagsBuffer.append(MULTIPLE_VALUES_TEXT);
+//		else {
+//			Iterator i = tagsList.iterator();
+//			while (i.hasNext()) {
+//				String tag = (String) i.next();
+//				tagsBuffer.append(tag).append(", ");
+//			}
+//			if (tagsBuffer.length() > 1)
+//				tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
+//		}
+//		initialTagText = tagsBuffer.toString();
+//		tags.setText(initialTagText);
+//		tags.addFocusHandler(new FocusHandler() {
+//			@Override
+//			public void onFocus(FocusEvent event) {
+//				if (MULTIPLE_VALUES_TEXT.equals(tags.getText()))
+//					tags.setText("");
+//			}
+//		}
+//		);
+//
+//		generalTable.setWidget(2, 1, tags);
+		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+		generalTable.getFlexCellFormatter().setColSpan(0, 0, 2);
+		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
+		generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
+		generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
+		generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+		generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
+		generalTable.setCellSpacing(4);
+
+        generalPanel.add(generalTable);
+
+		// Asynchronously retrieve the tags defined by this user.
+//		DeferredCommand.addCommand(new Command() {
+//
+//			@Override
+//			public void execute() {
+//				updateTags();
+//			}
+//		});
+
+		DisclosurePanel allTags = new DisclosurePanel("All tags");
+		allTagsContent = new FlowPanel();
+		allTags.setContent(allTagsContent);
+		generalPanel.add(allTags);
+		generalPanel.setSpacing(4);
+
+        return generalPanel;
+    }
 
 	/**
 	 * Accepts any change and updates the file
@@ -233,59 +242,57 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected void accept() {
-		JSONObject json = new JSONObject();
-		if ( versionedCheck.getState()!=null && !versionedCheck.getState().equals(initialVersioned) )
-				json.put("versioned", JSONBoolean.getInstance(versionedCheck.getState()));
-
-		JSONArray taga = new JSONArray();
-		int i = 0;
-		String tagText = tags.getText();
-		if (!MULTIPLE_VALUES_TEXT.equals(tagText) && !initialTagText.equals(tagText)) {
-			String[] tagset = tagText.split(",");
-			for (String t : tagset) {
-				JSONString to = new JSONString(t);
-				taga.set(i, to);
-				i++;
-			}
-			json.put("tags", taga);
-		}
-		String jsonString = json.toString();
-		if(jsonString.equals("{}")){
-			GWT.log("NO CHANGES", null);
-			return;
-		}
-		final List<String> fileIds = new ArrayList<String>();
-		for(FileResource f : files)
-			fileIds.add(f.getUri()+"?update=");
-		MultiplePostCommand rt = new MultiplePostCommand(fileIds.toArray(new String[0]), jsonString, 200){
-
-			@Override
-			public void onComplete() {
-				GSS.get().getTreeView().refreshCurrentNode(false);
-			}
-
-			@Override
-			public void onError(String p, Throwable t) {
-				GWT.log("", t);
-				if(t instanceof RestException){
-					int statusCode = ((RestException)t).getHttpStatusCode();
-					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
-					else if(statusCode == 404)
-						GSS.get().displayError("File does not exist");
-					else if(statusCode == 409)
-						GSS.get().displayError("A file with the same name already exists");
-					else if(statusCode == 413)
-						GSS.get().displayError("Your quota has been exceeded");
-					else
-						GSS.get().displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
-				}
-				else
-					GSS.get().displayError("System error modifying file:"+t.getMessage());
-			}
-		};
-		DeferredCommand.addCommand(rt);
+//		JSONObject json = new JSONObject();
+//		if ( versionedCheck.getState()!=null && !versionedCheck.getState().equals(initialVersioned) )
+//				json.put("versioned", JSONBoolean.getInstance(versionedCheck.getState()));
+//
+//		JSONArray taga = new JSONArray();
+//		int i = 0;
+//		String tagText = tags.getText();
+//		if (!MULTIPLE_VALUES_TEXT.equals(tagText) && !initialTagText.equals(tagText)) {
+//			String[] tagset = tagText.split(",");
+//			for (String t : tagset) {
+//				JSONString to = new JSONString(t);
+//				taga.set(i, to);
+//				i++;
+//			}
+//			json.put("tags", taga);
+//		}
+//		String jsonString = json.toString();
+//		if(jsonString.equals("{}")){
+//			GWT.log("NO CHANGES", null);
+//			return;
+//		}
+//		final List<String> fileIds = new ArrayList<String>();
+//		for(FileResource f : files)
+//			fileIds.add(f.getUri()+"?update=");
+//		MultiplePostCommand rt = new MultiplePostCommand(fileIds.toArray(new String[0]), jsonString, 200){
+//
+//			@Override
+//			public void onComplete() {
+//				GSS.get().getTreeView().refreshCurrentNode(false);
+//			}
+//
+//			@Override
+//			public void onError(String p, Throwable t) {
+//				GWT.log("", t);
+//				if(t instanceof RestException){
+//					int statusCode = ((RestException)t).getHttpStatusCode();
+//					if(statusCode == 405)
+//						GSS.get().displayError("You don't have the necessary permissions");
+//					else if(statusCode == 404)
+//						GSS.get().displayError("File does not exist");
+//					else if(statusCode == 409)
+//						GSS.get().displayError("A file with the same name already exists");
+//					else if(statusCode == 413)
+//						GSS.get().displayError("Your quota has been exceeded");
+//					else
+//						GSS.get().displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
+//				}
+//				else
+//					GSS.get().displayError("System error modifying file:"+t.getMessage());
+//			}
+//		};
+//		DeferredCommand.addCommand(rt);
 	}
-
-
 }
