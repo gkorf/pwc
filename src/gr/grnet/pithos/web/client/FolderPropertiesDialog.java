@@ -135,7 +135,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		generalTable.setText(2, 0, "Creator");
 		generalTable.setText(3, 0, "Last modified");
 		folderName.setText(create ? "" : folder.getName());
-        folderName.setReadOnly(folder.isContainer());
+        folderName.setReadOnly(folder.isContainer() && !create);
 		generalTable.setWidget(0, 1, folderName);
 
 		if (create)
