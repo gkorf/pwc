@@ -131,8 +131,8 @@ public class FileMenu extends MenuBar {
 //        contextMenu.addItem(sharingItem)
 //                       .setVisible(propertiesVisible);
 //
-        if (selectedFiles.size() > 0) {
-            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), null, selectedFiles, images, 0));
+        if (selectedFiles.size() > 0 || selectedFolder != null) {
+            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), null, selectedFiles.size() > 0 ? selectedFiles : selectedFolder, images, 0));
             addItem(propertiesItem);
         }
 	}

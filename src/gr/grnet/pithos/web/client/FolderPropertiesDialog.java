@@ -36,7 +36,9 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostCommand;
@@ -64,6 +66,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.Iterator;
 
 /**
  * The 'Folder properties' dialog box implementation.
@@ -132,6 +135,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		generalTable.setText(2, 0, "Creator");
 		generalTable.setText(3, 0, "Last modified");
 		folderName.setText(create ? "" : folder.getName());
+        folderName.setReadOnly(folder.isContainer());
 		generalTable.setWidget(0, 1, folderName);
 
 		if (create)
@@ -354,6 +358,44 @@ public class FolderPropertiesDialog extends DialogBox {
 //			}
 //		};
 //		DeferredCommand.addCommand(ep);
+        final String newName = folderName.getText();
+        if (!folder.isContainer() && !folder.getName().equals(newName)) {
+            final String path = app.getApiPath() + app.getUsername() + folder.getParent().getUri() + "/" + newName;
+            PutRequest newFolder = new PutRequest(path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    Iterator<File> iter = folder.getFiles().iterator();
+                    app.copyFiles(iter, folder.getParent().getUri() + "/" + newName, new Command() {
+                        @Override
+                        public void execute() {
+                            Iterator<Folder> iterf = folder.getSubfolders().iterator();
+                            app.copySubfolders(iterf, folder.getParent().getUri() + "/" + newName, new Command() {
+                                @Override
+                                public void execute() {
+                                    app.deleteFolder(folder);
+                                    app.updateFolder(folder.getParent());
+                                }
+                            });
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    if(t instanceof RestException){
+                        app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
+                    }
+                    else
+                        app.displayError("System error modifying folder: " + t.getMessage());
+                }
+            };
+            newFolder.setHeader("X-Auth-Token", app.getToken());
+            newFolder.setHeader("Content-Type", "application/folder");
+            newFolder.setHeader("Accept", "*/*");
+            newFolder.setHeader("Content-Length", "0");
+            Scheduler.get().scheduleDeferred(newFolder);
+        }
 	}
 
 	public void selectTab(int _tab) {

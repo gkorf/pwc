@@ -46,6 +46,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
@@ -57,6 +58,7 @@ import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.OtherUserResource;
@@ -917,5 +919,81 @@ public class GSS implements EntryPoint, ResizeHandler {
 
     public FolderTreeView getFolderTreeView() {
         return folderTreeView;
+    }
+
+    public void copyFiles(final Iterator<File> iter, final String targetUri, final Command callback) {
+        if (iter.hasNext()) {
+            File file = iter.next();
+            String path = getApiPath() + getUsername() + targetUri + "/" + file.getName();
+            PutRequest copyFile = new PutRequest(path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    copyFiles(iter, targetUri, callback);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    if (t instanceof RestException) {
+                        GSS.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                    }
+                    else
+                        GSS.get().displayError("System error unable to copy file: "+t.getMessage());
+                }
+            };
+            copyFile.setHeader("X-Auth-Token", getToken());
+            copyFile.setHeader("X-Copy-From", file.getUri());
+            Scheduler.get().scheduleDeferred(copyFile);
+        }
+        else  if (callback != null) {
+            callback.execute();
+        }
+    }
+
+    public void copySubfolders(final Iterator<Folder> iter, final String targetUri, final Command callback) {
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+            copyFolder(f, targetUri, callback);
+        }
+        else  if (callback != null) {
+            callback.execute();
+        }
+    }
+
+    public void copyFolder(final Folder f, final String targetUri, final Command callback) {
+        String path = getApiPath() + getUsername() + targetUri + "/" + f.getName();
+        PutRequest createFolder = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                Iterator<File> iter = f.getFiles().iterator();
+                copyFiles(iter, targetUri + "/" + f.getName(), new Command() {
+                    @Override
+                    public void execute() {
+                        Iterator<Folder> iterf = f.getSubfolders().iterator();
+                        copySubfolders(iterf, targetUri + "/" + f.getName(), new Command() {
+                            @Override
+                            public void execute() {
+                                callback.execute();
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    displayError("System error creating folder:" + t.getMessage());
+            }
+        };
+        createFolder.setHeader("X-Auth-Token", getToken());
+        createFolder.setHeader("Accept", "*/*");
+        createFolder.setHeader("Content-Length", "0");
+        createFolder.setHeader("Content-Type", "application/folder");
+        Scheduler.get().scheduleDeferred(createFolder);
     }
 }
