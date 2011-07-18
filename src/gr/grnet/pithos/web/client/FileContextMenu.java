@@ -172,7 +172,8 @@ public class FileContextMenu extends PopupPanel {
 
             contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), this, selectedFiles, images, 0)));
 
-			contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
+            if (!selectedFiles.isEmpty())
+			    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
 
 			MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
                 @Override

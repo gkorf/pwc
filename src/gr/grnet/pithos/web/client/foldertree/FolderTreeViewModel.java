@@ -75,9 +75,11 @@ public class FolderTreeViewModel implements TreeViewModel {
         public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
-                FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, folder);
-                menu.setPopupPosition(event.getClientX(), event.getClientY());
-                menu.show();
+                if (!folder.isTrash()) {
+                    FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, folder);
+                    menu.setPopupPosition(event.getClientX(), event.getClientY());
+                    menu.show();
+                }
             }
         }
     };
