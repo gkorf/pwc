@@ -793,4 +793,14 @@ public class FileList extends Composite {
 		//celltable.redraw();
 		celltable.redrawHeaders();		
 	}
+
+    public void showTrash() {
+        uploadButtonBottom.setVisible(false);
+        uploadButtonTop.setVisible(false);
+    }
+
+    public void showFiles() {
+        uploadButtonBottom.setVisible(true);
+        uploadButtonTop.setVisible(true);
+    }
 }

@@ -62,7 +62,11 @@ public class FolderTreeViewModel implements TreeViewModel {
 
        @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
-            String html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
+            String html;
+            if (folder.isTrash())
+                html = AbstractImagePrototype.create(FolderTreeView.images.emptyTrash()).getHTML();
+            else
+                html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
@@ -142,8 +146,13 @@ public class FolderTreeViewModel implements TreeViewModel {
         else {
             dataProvider.getList().clear();
             dataProvider.getList().addAll(folders);
-            if (dataProvider.equals(rootDataProvider))
+            if (dataProvider.equals(rootDataProvider)) {
                 selectionModel.setSelected(dataProvider.getList().get(0), true);
+                Folder f = new Folder("Trash");
+                f.setTrash(true);
+                f.setContainer("trash");
+                dataProvider.getList().add(f);
+            }
         }
     }
 
@@ -161,7 +170,10 @@ public class FolderTreeViewModel implements TreeViewModel {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
         final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
-        fetchFolder(folder, dataProvider);
+        if (!folder.isTrash())
+            fetchFolder(folder, dataProvider);
+        else
+            GSS.get().showFiles(folder);
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider) {

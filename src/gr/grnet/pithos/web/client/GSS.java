@@ -351,6 +351,11 @@ public class GSS implements EntryPoint, ResizeHandler {
 
     public void showFiles(Folder f) {
         inner.selectTab(0);
+        if (f.isTrash()) {
+            fileList.showTrash();
+        }
+        else
+            fileList.showFiles();
         Set<File> files = f.getFiles();
         Iterator<File> iter = files.iterator();
         fetchFile(iter, files);

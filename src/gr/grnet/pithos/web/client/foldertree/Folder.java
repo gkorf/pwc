@@ -78,6 +78,11 @@ public class Folder extends Resource {
 
     private boolean inTrash = false;
 
+    /*
+     * Flag that indicates that this folder is the Trash
+     */
+    private boolean trash = false;
+
     public Folder() {};
 
     public Folder(String name) {
@@ -236,5 +241,17 @@ public class Folder extends Resource {
 
     public boolean isContainer() {
         return parent == null;
+    }
+
+    public boolean isTrash() {
+        return trash;
+    }
+
+    public void setTrash(boolean trash) {
+        this.trash = trash;
+    }
+
+    public void setContainer(String container) {
+        this.container = container;
     }
 }
