@@ -33,7 +33,7 @@
  * or implied, of GRNET S.A.
  */
 
-package gr.grnet.pithos.web.client.foldertree;
+package gr.grnet.pithos.web.client.tagtree;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
@@ -47,7 +47,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 
-public class FolderTreeView extends Composite {
+public class TagTreeView extends Composite {
 
     static interface BasicResources extends CellTree.Resources {
 
@@ -72,8 +72,8 @@ public class FolderTreeView extends Composite {
         @Source("gr/grnet/pithos/resources/folder_home.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder_yellow.png")
-        public ImageResource folderYellow();
+        @Source("gr/grnet/pithos/resources/info.png")
+        public ImageResource tag();
     }
 
     static Images images = GWT.create(Images.class);
@@ -85,9 +85,9 @@ public class FolderTreeView extends Composite {
         public SafeHtml nameSpan(String name);
       }
 
-    private FolderTreeViewModel model;
+    private TagTreeViewModel model;
 
-    public FolderTreeView(FolderTreeViewModel viewModel) {
+    public TagTreeView(TagTreeViewModel viewModel) {
         this.model = viewModel;
         /*
          * Create the tree using the model. We use <code>null</code> as the default
@@ -103,11 +103,11 @@ public class FolderTreeView extends Composite {
     }
 
 
-    public Folder getSelection() {
+    public Tag getSelection() {
        return model.getSelection();
     }
 
-    public void updateFolder(Folder folder) {
-        model.updateFolder(folder);
+    public void updateTag(Tag tag) {
+        model.updateTag(tag);
     }
 }

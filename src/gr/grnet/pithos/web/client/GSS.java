@@ -68,6 +68,9 @@ import gr.grnet.pithos.web.client.rest.resource.SharedResource;
 import gr.grnet.pithos.web.client.rest.resource.TrashResource;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
 
+import gr.grnet.pithos.web.client.tagtree.Tag;
+import gr.grnet.pithos.web.client.tagtree.TagTreeView;
+import gr.grnet.pithos.web.client.tagtree.TagTreeViewModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -246,6 +249,10 @@ public class GSS implements EntryPoint, ResizeHandler {
     private FolderTreeViewModel folderTreeViewModel;
     private FolderTreeView folderTreeView;
 
+    private SingleSelectionModel<Tag> tagTreeSelectionModel;
+    private TagTreeViewModel tagTreeViewModel;
+    private TagTreeView tagTreeView;
+
     private AccountResource account;
 
 	@Override
@@ -301,8 +308,15 @@ public class GSS implements EntryPoint, ResizeHandler {
         fileList = new FileList(images, folderTreeView);
         inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
+        tagTreeSelectionModel = new SingleSelectionModel<Tag>();
+        tagTreeViewModel = new TagTreeViewModel(tagTreeSelectionModel);
+        tagTreeView = new TagTreeView(tagTreeViewModel);
+        
+        VerticalPanel trees = new VerticalPanel();
+        trees.add(folderTreeView);
+        trees.add(tagTreeView);
         // Add the left and right panels to the split panel.
-        splitPanel.setLeftWidget(folderTreeView);
+        splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
         splitPanel.setSplitPosition("25%");
         splitPanel.setSize("100%", "100%");
