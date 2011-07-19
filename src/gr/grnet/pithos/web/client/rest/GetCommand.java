@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
@@ -132,7 +132,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 	public GetCommand(Class<T> theclass, String pathToGet, boolean showLoading, T theCached){
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Getting ",pathToGet);
+			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
 		this.aclass = theclass;
 		if(pathToGet.indexOf("?") != -1)
 			path = pathToGet;
@@ -148,7 +148,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 	public GetCommand(Class<T> theclass, String aUsername , String pathToGet, boolean showLoading, T theCached){
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Getting ",pathToGet);
+			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
 		this.aclass = theclass;
 		path = fixPath(pathToGet);
 		this.username = aUsername;
@@ -227,7 +227,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 				else {
 					// Use cache data
 					if(isShowLoadingIndicator())
-						GSS.get().hideLoadingIndicator();
+						Pithos.get().hideLoadingIndicator();
 					if (resp.result instanceof Throwable) {
 						// Error to be handled
 						Throwable ex = (Throwable) resp.result;
@@ -251,7 +251,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 		
 		if(com){
 			if(isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			if(getResult() != null) {
 				// Add to cache
 				cache.put(key, new ResponseData(System.currentTimeMillis(), getResult()));
@@ -274,7 +274,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 		}
 		else if(aclass.equals(FileResource.class)){
 			result1 = new FileResource(aPath);
-			result1.createFromJSON(response.getHeader("X-GSS-Metadata"));
+			result1.createFromJSON(response.getHeader("X-Pithos-Metadata"));
 		}
 		else if(aclass.equals(GroupsResource.class)){
 			result1 = new GroupsResource(aPath);

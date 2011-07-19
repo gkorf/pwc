@@ -37,23 +37,18 @@ package gr.grnet.pithos.web.client;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Event;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -62,7 +57,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -73,7 +67,7 @@ import java.util.Iterator;
  */
 public class FolderPropertiesDialog extends DialogBox {
 
-    private GSS app;
+    private Pithos app;
 
 	private CheckBox readForAll;
 
@@ -95,7 +89,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	/**
 	 * The widget's constructor.
 	 */
-	public FolderPropertiesDialog(GSS app, boolean _create,  Folder selected) {
+	public FolderPropertiesDialog(Pithos app, boolean _create,  Folder selected) {
         this.app = app;
 		setAnimationEnabled(true);
 

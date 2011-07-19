@@ -37,17 +37,12 @@ package gr.grnet.pithos.web.client.commands;
 import gr.grnet.pithos.web.client.DeleteFileDialog;
 import gr.grnet.pithos.web.client.DeleteFolderDialog;
 import gr.grnet.pithos.web.client.EditMenu.Images;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -78,7 +73,7 @@ public class DeleteCommand implements Command{
     		containerPanel.hide();
 
         if (resource instanceof Folder) {
-            DeleteFolderDialog dlg = new DeleteFolderDialog(GSS.get(), newImages, (Folder) resource);
+            DeleteFolderDialog dlg = new DeleteFolderDialog(Pithos.get(), newImages, (Folder) resource);
             dlg.center();
         } else if (resource instanceof List) {
             DeleteFileDialog dlg = new DeleteFileDialog(newImages, (List<File>) resource);

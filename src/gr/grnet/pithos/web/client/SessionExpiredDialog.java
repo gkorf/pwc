@@ -66,7 +66,7 @@ public class SessionExpiredDialog extends DialogBox {
 		Button confirm = new Button("Proceed", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				GSS.get().authenticateUser();
+				Pithos.get().authenticateUser();
 				hide();
 			}
 		});
@@ -86,7 +86,7 @@ public class SessionExpiredDialog extends DialogBox {
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
-					GSS.get().authenticateUser();
+					Pithos.get().authenticateUser();
 					hide();
 					break;
 				case KeyCodes.KEY_ESCAPE:

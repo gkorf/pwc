@@ -49,7 +49,7 @@ public class ResreshOthersSharesCommand implements Command{
 	public void execute() {
 		containerPanel.hide();
 		//TODO:CELLTREE
-		//GSS.get().getFolders().update( GSS.get().getFolders().getCurrent());
+		//Pithos.get().getFolders().update( Pithos.get().getFolders().getCurrent());
 	}
 
 }

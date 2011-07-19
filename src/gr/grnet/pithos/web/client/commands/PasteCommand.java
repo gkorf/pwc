@@ -36,7 +36,7 @@ package gr.grnet.pithos.web.client.commands;
 
 import com.google.gwt.core.client.Scheduler;
 import gr.grnet.pithos.web.client.Clipboard;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
@@ -52,11 +52,11 @@ import com.google.gwt.user.client.ui.PopupPanel;
 
 public class PasteCommand implements Command {
 
-    private GSS app;
+    private Pithos app;
 	private PopupPanel containerPanel;
     private Folder folder;
 
-	public PasteCommand(GSS _app, PopupPanel _containerPanel, Folder _folder) {
+	public PasteCommand(Pithos _app, PopupPanel _containerPanel, Folder _folder) {
         app = _app;
 		containerPanel = _containerPanel;
         folder = _folder;
@@ -131,10 +131,10 @@ public class PasteCommand implements Command {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        GSS.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to copy file: "+t.getMessage());
+                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             copyFile.setHeader("X-Auth-Token", app.getToken());

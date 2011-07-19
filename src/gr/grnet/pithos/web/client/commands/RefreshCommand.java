@@ -35,7 +35,7 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.FileMenu;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
 
@@ -63,17 +63,17 @@ public class RefreshCommand implements Command {
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		if (GSS.get().getCurrentSelection() instanceof FileResource || GSS.get().getCurrentSelection() instanceof List)
-			GSS.get().showFileList(true);
-		else if (GSS.get().getCurrentSelection() instanceof GroupUserResource)
+		if (Pithos.get().getCurrentSelection() instanceof FileResource || Pithos.get().getCurrentSelection() instanceof List)
+			Pithos.get().showFileList(true);
+		else if (Pithos.get().getCurrentSelection() instanceof GroupUserResource)
 			return;
 		else{
 			//TODO:CELLTREE
-			//DnDTreeItem selectedTreeItem = (DnDTreeItem) GSS.get().getFolders().getCurrent();
+			//DnDTreeItem selectedTreeItem = (DnDTreeItem) Pithos.get().getFolders().getCurrent();
 			//if(selectedTreeItem != null){
-				//GSS.get().getFolders().updateFolder(selectedTreeItem);
-			GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());
-				GSS.get().showFileList(true);
+				//Pithos.get().getFolders().updateFolder(selectedTreeItem);
+			Pithos.get().getTreeView().updateNode(Pithos.get().getTreeView().getSelection());
+				Pithos.get().showFileList(true);
 			//}
 		}
 	}

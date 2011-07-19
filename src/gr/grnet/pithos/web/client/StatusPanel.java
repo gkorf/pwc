@@ -35,13 +35,9 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
-import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.QuotaHolder;
-import gr.grnet.pithos.web.client.rest.resource.UserResource;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -170,7 +166,7 @@ public class StatusPanel extends Composite {
 	 */
     //TODO: This should not be done here
 	public void updateStats() {
-		final GSS app = GSS.get();
+		final Pithos app = Pithos.get();
         String path = app.getApiPath() + app.getUsername();
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
             @Override

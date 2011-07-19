@@ -36,7 +36,7 @@
 package gr.grnet.pithos.web.client.rest.resource;
 
 import gr.grnet.pithos.web.client.DisplayHelper;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.MultipleGetCommand;
 import gr.grnet.pithos.web.client.rest.MultipleGetCommand.Cached;
 
@@ -600,7 +600,7 @@ public class FolderResource extends RestResource {
 		else if(treeItem.getParentItem() == null){
 			//this is the case when the user uses the browser's forward arrow to navigate through other's
 			//shared folders and item.getParentItem is null only inside other's shared folder
-			String apiPath = GSS.get().getApiPath();
+			String apiPath = Pithos.get().getApiPath();
 			String newPath = getParentURI().substring(apiPath.lastIndexOf("/"));
 			constructedUri = constructedUri + "Files"+ newPath + getName();
 			return constructedUri;

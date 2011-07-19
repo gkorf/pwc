@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.user.client.Window;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -96,7 +95,7 @@ public class CredentialsDialog extends DialogBox {
 			Button ok = new Button("Yes", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					resetPassword(GSS.get().getCurrentUserResource().getUri());
+					resetPassword(Pithos.get().getCurrentUserResource().getUri());
 					hide();
 				}
 			});
@@ -161,7 +160,7 @@ public class CredentialsDialog extends DialogBox {
 			Button confirm = new Button("Proceed", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					GSS.get().authenticateUser();
+					Pithos.get().authenticateUser();
 					hide();
 				}
 			});
@@ -180,7 +179,7 @@ public class CredentialsDialog extends DialogBox {
 				// either enter or escape is pressed.
 				switch (evt.getKeyCode()) {
 					case KeyCodes.KEY_ENTER:
-						GSS.get().authenticateUser();
+						Pithos.get().authenticateUser();
 						hide();
 						break;
 					case KeyCodes.KEY_ESCAPE:
@@ -212,16 +211,16 @@ public class CredentialsDialog extends DialogBox {
 		table.setText(0, 0, "Username");
 		table.setText(1, 0, "Token");
 		TextBox username = new TextBox();
-		final GSS app = GSS.get();
+		final Pithos app = Pithos.get();
 		username.setText(app.getCurrentUserResource().getUsername());
 		username.setReadOnly(true);
 		username.setWidth(WIDTH_FIELD);
 		username.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				GSS.enableIESelection();
+				Pithos.enableIESelection();
 				((TextBox) event.getSource()).selectAll();
-				GSS.preventIESelection();
+				Pithos.preventIESelection();
 			}
 
 		});
@@ -234,9 +233,9 @@ public class CredentialsDialog extends DialogBox {
 		tokenBox.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				GSS.enableIESelection();
+				Pithos.enableIESelection();
 				((TextBox) event.getSource()).selectAll();
-				GSS.preventIESelection();
+				Pithos.preventIESelection();
 			}
 
 		});
@@ -298,7 +297,7 @@ public class CredentialsDialog extends DialogBox {
 	private void resetPassword(String userUri) {
 
 		if (userUri == null || userUri.length() == 0) {
-			GSS.get().displayError("Empty user Uri!");
+			Pithos.get().displayError("Empty user Uri!");
 			return;
 		}
 		GWT.log("resetPassword(" + userUri + ")", null);
@@ -316,16 +315,16 @@ public class CredentialsDialog extends DialogBox {
 				if(t instanceof RestException){
 					int statusCode = ((RestException)t).getHttpStatusCode();
 					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary" +
+						Pithos.get().displayError("You don't have the necessary" +
 								" permissions");
 					else if(statusCode == 404)
-						GSS.get().displayError("Resource does not exist");
+						Pithos.get().displayError("Resource does not exist");
 					else
-						GSS.get().displayError("Unable to reset password:" +
+						Pithos.get().displayError("Unable to reset password:" +
 									((RestException)t).getHttpStatusText());
 				}
 				else
-					GSS.get().displayError("System error resetting password:" +
+					Pithos.get().displayError("System error resetting password:" +
 								t.getMessage());
 			}
 		};

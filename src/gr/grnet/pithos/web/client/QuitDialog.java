@@ -73,7 +73,7 @@ public class QuitDialog extends DialogBox {
 			@Override
 			public void onClick(ClickEvent event) {
 				hide();
-				GSS.get().logout();
+				Pithos.get().logout();
 			}
 		});
 		buttons.add(quit);
@@ -105,7 +105,7 @@ public class QuitDialog extends DialogBox {
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
 					hide();
-					GSS.get().logout();
+					Pithos.get().logout();
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();

@@ -34,28 +34,13 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.components.TristateCheckBox;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -64,7 +49,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -85,7 +69,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 	 *
 	 * @param _files
 	 */
-	public FilesPropertiesDialog(GSS _app, final List<File> _files) {
+	public FilesPropertiesDialog(Pithos _app, final List<File> _files) {
 		super();
 
 		files = _files;
@@ -270,7 +254,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 //
 //			@Override
 //			public void onComplete() {
-//				GSS.get().getTreeView().refreshCurrentNode(false);
+//				Pithos.get().getTreeView().refreshCurrentNode(false);
 //			}
 //
 //			@Override
@@ -279,18 +263,18 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 //				if(t instanceof RestException){
 //					int statusCode = ((RestException)t).getHttpStatusCode();
 //					if(statusCode == 405)
-//						GSS.get().displayError("You don't have the necessary permissions");
+//						Pithos.get().displayError("You don't have the necessary permissions");
 //					else if(statusCode == 404)
-//						GSS.get().displayError("File does not exist");
+//						Pithos.get().displayError("File does not exist");
 //					else if(statusCode == 409)
-//						GSS.get().displayError("A file with the same name already exists");
+//						Pithos.get().displayError("A file with the same name already exists");
 //					else if(statusCode == 413)
-//						GSS.get().displayError("Your quota has been exceeded");
+//						Pithos.get().displayError("Your quota has been exceeded");
 //					else
-//						GSS.get().displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
+//						Pithos.get().displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
 //				}
 //				else
-//					GSS.get().displayError("System error modifying file:"+t.getMessage());
+//					Pithos.get().displayError("System error modifying file:"+t.getMessage());
 //			}
 //		};
 //		DeferredCommand.addCommand(rt);

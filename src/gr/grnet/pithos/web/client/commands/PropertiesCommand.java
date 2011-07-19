@@ -38,31 +38,16 @@ import gr.grnet.pithos.web.client.FileMenu;
 import gr.grnet.pithos.web.client.FilePropertiesDialog;
 import gr.grnet.pithos.web.client.FilesPropertiesDialog;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
-import gr.grnet.pithos.web.client.GSS;
-import gr.grnet.pithos.web.client.FileMenu.Images;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.HeadCommand;
-import gr.grnet.pithos.web.client.rest.MultipleGetCommand;
-import gr.grnet.pithos.web.client.rest.MultipleHeadCommand;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.MultipleGetCommand.Cached;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupsResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.PopupPanel;
-import org.w3c.css.sac.ElementSelector;
 
 /**
  * The command that displays the appropriate Properties dialog, according to the
@@ -85,14 +70,14 @@ public class PropertiesCommand implements Command {
 
     private Object resource;
 
-    private GSS app;
+    private Pithos app;
 
 	/**
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 * @param _tab the tab to switch to
 	 */
-	public PropertiesCommand(GSS _app, PopupPanel _containerPanel, Object _resource, final FileMenu.Images _newImages, int _tab) {
+	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, final FileMenu.Images _newImages, int _tab) {
 		containerPanel = _containerPanel;
 		newImages = _newImages;
 		tabToShow = _tab;

@@ -35,21 +35,11 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.FileUploadDialog;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -82,7 +72,7 @@ public class UploadFileCommand implements Command {
 	 */
 	private void displayNewFile() {
         FileUploadDialog dlg = GWT.create(FileUploadDialog.class);
-        dlg.setApp(GSS.get());
+        dlg.setApp(Pithos.get());
         dlg.setFolder(folder);
 		dlg.center();
 	}

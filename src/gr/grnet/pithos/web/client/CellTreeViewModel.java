@@ -65,7 +65,6 @@ import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropNodeInfo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,8 +217,8 @@ public class CellTreeViewModel implements TreeViewModel{
 		public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, RestResource value, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<RestResource> valueUpdater) {
 			if(event.getType().equals("contextmenu")){
 				selectionModel.setSelected(value, true);
-				GSS.get().setCurrentSelection(value);
-				GSS.get().getTreeView().showPopup(event.getClientX(), event.getClientY());
+				Pithos.get().setCurrentSelection(value);
+				Pithos.get().getTreeView().showPopup(event.getClientX(), event.getClientY());
 			}
 		};
 		
@@ -266,7 +265,7 @@ public class CellTreeViewModel implements TreeViewModel{
 	        // Second level.
 			ListDataProvider<RestResource> trashProvider = new ListDataProvider<RestResource>();
 			List<RestResource> r = new ArrayList<RestResource>();
-			for(FolderResource f : GSS.get().getTreeView().getTrash().getFolders()){
+			for(FolderResource f : Pithos.get().getTreeView().getTrash().getFolders()){
 				r.add(new TrashFolderResource(f));
 			}
 			trashProvider.setList(r);
@@ -334,7 +333,7 @@ public class CellTreeViewModel implements TreeViewModel{
 			public void f(final DragAndDropContext context) {
 				if(context.getDroppableData()!=null && context.getDroppableData() instanceof RestResource){
 					
-					GSS.get().getTreeView().getUtils().openNodeContainingResource((RestResource) context.getDroppableData(), new RefreshHandler() {
+					Pithos.get().getTreeView().getUtils().openNodeContainingResource((RestResource) context.getDroppableData(), new RefreshHandler() {
 						
 						@Override
 						public void onRefresh() {
@@ -423,23 +422,23 @@ public class CellTreeViewModel implements TreeViewModel{
 						FolderResource rootResource = getResult();
 						//((MyFolderResource)value).getResource().setFiles(rootResource.getFiles());
 						((MyFolderResource)value).setResource(rootResource);
-						if(GSS.get().getTreeView().getSelection().getUri().equals(value.getUri()))
+						if(Pithos.get().getTreeView().getSelection().getUri().equals(value.getUri()))
 							selectionModel.setSelected(value, true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 						
 					}
 	
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 	
 				};
 				DeferredCommand.addCommand(gf);
 			}
 			else if(value instanceof TrashResource){
-				DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, GSS.get().getCurrentUserResource().getTrashPath(), null) {
+				DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, Pithos.get().getCurrentUserResource().getTrashPath(), null) {
 					@Override
 					public void onComplete() {
 						//trash = getResult();
@@ -447,11 +446,11 @@ public class CellTreeViewModel implements TreeViewModel{
 						((TrashResource)value).setFiles(getResult().getFiles());
 						for(RestResource r : getRootNodes().getList()){
 							if(r instanceof TrashResource)
-								getRootNodes().getList().set(getRootNodes().getList().indexOf(r),GSS.get().getTreeView().getTrash());
+								getRootNodes().getList().set(getRootNodes().getList().indexOf(r), Pithos.get().getTreeView().getTrash());
 						}
-						GSS.get().getTreeView().updateNodeChildren(GSS.get().getTreeView().getTrash());
-						//GSS.get().showFileList(true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().getTreeView().updateNodeChildren(Pithos.get().getTreeView().getTrash());
+						//Pithos.get().showFileList(true);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 					}
 
 					@Override
@@ -465,8 +464,8 @@ public class CellTreeViewModel implements TreeViewModel{
 						}
 						else{
 							GWT.log("", t);
-							GSS.get().displayError("Unable to fetch trash folder:"+t.getMessage());
-							//GSS.get().getTreeView().getTrash() = new TrashResource(GSS.get().getCurrentUserResource().getTrashPath());
+							Pithos.get().displayError("Unable to fetch trash folder:"+t.getMessage());
+							//Pithos.get().getTreeView().getTrash() = new TrashResource(Pithos.get().getCurrentUserResource().getTrashPath());
 						}
 					}
 				}
@@ -480,16 +479,16 @@ public class CellTreeViewModel implements TreeViewModel{
 						FolderResource rootResource = getResult();
 						//((MyFolderResource)value).getResource().setFiles(rootResource.getFiles());
 						((OthersFolderResource)value).setResource(rootResource);
-						if(GSS.get().getTreeView().getSelection().getUri().equals(value.getUri()))
+						if(Pithos.get().getTreeView().getSelection().getUri().equals(value.getUri()))
 							selectionModel.setSelected(value, true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 						
 					}
 	
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 	
 				};
@@ -503,16 +502,16 @@ public class CellTreeViewModel implements TreeViewModel{
 						FolderResource rootResource = getResult();
 						//((MyFolderResource)value).getResource().setFiles(rootResource.getFiles());
 						((SharedFolderResource)value).setResource(rootResource);
-						if(GSS.get().getTreeView().getSelection().getUri().equals(value.getUri()))
+						if(Pithos.get().getTreeView().getSelection().getUri().equals(value.getUri()))
 							selectionModel.setSelected(value, true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 						
 					}
 	
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 	
 				};
@@ -527,16 +526,16 @@ public class CellTreeViewModel implements TreeViewModel{
 						((SharedResource)value).setFolders(getResult().getFolders());
 						((SharedResource)value).setFiles(getResult().getFiles());
 						
-						if(GSS.get().getTreeView().getSelection().getUri().equals(value.getUri()))
+						if(Pithos.get().getTreeView().getSelection().getUri().equals(value.getUri()))
 							selectionModel.setSelected(value, true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 						
 					}
 	
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 	
 				};
@@ -551,16 +550,16 @@ public class CellTreeViewModel implements TreeViewModel{
 						((OtherUserResource)value).setFolders(getResult().getFolders());
 						((OtherUserResource)value).setFiles(getResult().getFiles());
 						
-						if(GSS.get().getTreeView().getSelection().getUri().equals(value.getUri()))
+						if(Pithos.get().getTreeView().getSelection().getUri().equals(value.getUri()))
 							selectionModel.setSelected(value, true);
-						GSS.get().onResourceUpdate(value,clearSelection);
+						Pithos.get().onResourceUpdate(value,clearSelection);
 						
 					}
 	
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 	
 				};
@@ -674,7 +673,7 @@ public class CellTreeViewModel implements TreeViewModel{
 
 							@Override
 							public void onError(Throwable t) {
-								GSS.get().displayError("Unable to fetch subfolders");
+								Pithos.get().displayError("Unable to fetch subfolders");
 								GWT.log("Unable to fetch subfolders", t);
 							}
 
@@ -692,7 +691,7 @@ public class CellTreeViewModel implements TreeViewModel{
 					public void onError(Throwable t) {
 						
 						GWT.log("Error fetching root folder", t);
-						GSS.get().displayError("Unable to fetch root folder");
+						Pithos.get().displayError("Unable to fetch root folder");
 					}
 
 				};
@@ -761,7 +760,7 @@ public class CellTreeViewModel implements TreeViewModel{
                                   @Override
                                   public void onError(Throwable t) {
                                           GWT.log("Error fetching Others Root folder", t);
-                                          GSS.get().displayError("Unable to fetch Others Root folder");
+                                          Pithos.get().displayError("Unable to fetch Others Root folder");
                                   }
 
                                   @Override
@@ -775,7 +774,7 @@ public class CellTreeViewModel implements TreeViewModel{
 			          @Override
 			          public void onError(Throwable t) {
 			                  GWT.log("Error fetching Others Root folder", t);
-			                  GSS.get().displayError("Unable to fetch Others Root folder");
+			                  Pithos.get().displayError("Unable to fetch Others Root folder");
 			          }
 			  };
 			  DeferredCommand.addCommand(go);

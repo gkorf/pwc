@@ -46,7 +46,7 @@ public interface Configuration extends Constants {
 	/**
 	 * @return the name of the service
 	 */
-	@DefaultStringValue("GSS")
+	@DefaultStringValue("pithos")
 	String serviceName();
 
 	/**

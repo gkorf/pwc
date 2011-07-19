@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.InsufficientPermissionsException;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public abstract class MultipleDeleteCommand extends RestCommand {
 	public MultipleDeleteCommand(String[] pathToDelete, boolean showLoading){
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Deleting "+pathToDelete.length+" items",null);
+			Pithos.get().showLoadingIndicator("Deleting "+pathToDelete.length+" items",null);
 		paths = pathToDelete;
 		for (final String pathg : pathToDelete) {
 			GWT.log("[DEL]"+pathg, null);
@@ -111,7 +111,7 @@ public abstract class MultipleDeleteCommand extends RestCommand {
 					onError(p, errors.get(p));
 			onComplete();
 			if(isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			return false;
 		}
 		return true;

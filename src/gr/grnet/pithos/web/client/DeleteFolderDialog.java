@@ -34,39 +34,14 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Event;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.DeleteCommand;
-import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.RestRequestCallback;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-import gr.grnet.pithos.web.client.rest.resource.TrashFolderResource;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
@@ -75,22 +50,20 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * The 'delete folder' dialog box.
  */
 public class DeleteFolderDialog extends DialogBox {
 
-    private GSS app;
+    private Pithos app;
     private Folder folder;
     
 	/**
 	 * The widget's constructor.
 	 * @param images the supplied images
 	 */
-	public DeleteFolderDialog(GSS _app, Images images, Folder _folder) {
+	public DeleteFolderDialog(Pithos _app, Images images, Folder _folder) {
         this.app = _app;
         this.folder = _folder;
 		// Set the dialog's caption.

@@ -55,7 +55,7 @@ public class FileUploadGearsIEDialog extends FileUploadGearsDialog {
 	 */	
 	@Override
 	protected void doSend(final List<File> filesRemaining) {
-		final GSS app = GSS.get();
+		final Pithos app = Pithos.get();
 		HttpRequest request = factory.createHttpRequest();
 		requests.add(request);
 		String method = "POST";
@@ -72,7 +72,6 @@ public class FileUploadGearsIEDialog extends FileUploadGearsDialog {
 		String date = RestCommand.getDate();
 		String sig = RestCommand.calculateSig(method, date, resource, RestCommand.base64decode(token));
 		request.open(method, path);
-		request.setRequestHeader("X-GSS-Date", date);
 		request.setRequestHeader("Authorization", app.getCurrentUserResource().getUsername() + " " + sig);
 		request.setRequestHeader("Accept", "application/json; charset=utf-8");
 		request.setCallback(new RequestCallback() {

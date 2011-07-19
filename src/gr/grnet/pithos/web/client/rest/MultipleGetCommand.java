@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
@@ -74,7 +74,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 	public MultipleGetCommand(Class<T> aNewClass, String[] pathToGet, boolean showLoading, Cached[] theCached) {
 		setShowLoadingIndicator(showLoading);
 		if (isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Getting "+pathToGet.length+" items", null);
+			Pithos.get().showLoadingIndicator("Getting "+pathToGet.length+" items", null);
 		aclass = aNewClass;
 		paths = pathToGet;
 		this.cached = theCached;
@@ -156,7 +156,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 		boolean com = isComplete();
 		if (com) {
 			if (isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			if (hasErrors())
 				for(String p : errors.keySet())
 					onError(p, errors.get(p));
@@ -180,7 +180,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 		}
 		else if (aclass.equals(FileResource.class)){
 			result1 = new FileResource(path);
-			result1.createFromJSON(response.getHeader("X-GSS-Metadata"));
+			result1.createFromJSON(response.getHeader("X-Pithos-Metadata"));
 		}
 		else if (aclass.equals(GroupsResource.class)) {
 			result1 = new GroupsResource(path);

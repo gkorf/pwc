@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.ObjectNotFoundException;
 import gr.grnet.pithos.web.client.rest.resource.FileResource;
 import gr.grnet.pithos.web.client.rest.resource.FolderResource;
@@ -69,7 +69,7 @@ public  abstract class HeadCommand<T extends RestResource> extends RestCommand{
 		setShowLoadingIndicator(showLoading);
 		this.aclass = theClass;
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Getting ",pathToGet);
+			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
 
 		if(theClass.equals(FileResource.class))
 			path = pathToGet;
@@ -137,7 +137,7 @@ public  abstract class HeadCommand<T extends RestResource> extends RestCommand{
 		boolean com = isComplete();
 		if(com){
 			if(isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			if(getResult() != null)
 				onComplete();
 			else
@@ -156,7 +156,7 @@ public  abstract class HeadCommand<T extends RestResource> extends RestCommand{
 		}
 		else if(aclass.equals(FileResource.class)){
 			result1 = new FileResource(aPath);
-			result1.createFromJSON(response.getHeader("X-GSS-Metadata"));
+			result1.createFromJSON(response.getHeader("X-Pithos-Metadata"));
 		}
 		else if(aclass.equals(GroupsResource.class)){
 			result1 = new GroupsResource(aPath);

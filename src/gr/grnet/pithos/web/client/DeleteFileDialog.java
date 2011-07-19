@@ -38,13 +38,9 @@ import com.google.gwt.core.client.Scheduler;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.DeleteCommand;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.MultipleDeleteCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,7 +49,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
@@ -134,7 +129,7 @@ public class DeleteFileDialog extends DialogBox {
     private void deleteFile(final Iterator<File> iter) {
         if (iter.hasNext()) {
             File f = iter.next();
-            String path = GSS.get().getApiPath() + GSS.get().getUsername() + f.getUri();
+            String path = Pithos.get().getApiPath() + Pithos.get().getUsername() + f.getUri();
             DeleteRequest deleteFile = new DeleteRequest(path) {
                 @Override
                 public void onSuccess(Resource result) {
@@ -145,17 +140,17 @@ public class DeleteFileDialog extends DialogBox {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        GSS.get().displayError("Unable to delete file: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Unable to delete file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to delete file: "+t.getMessage());
+                        Pithos.get().displayError("System error unable to delete file: "+t.getMessage());
                 }
             };
-            deleteFile.setHeader("X-Auth-Token", GSS.get().getToken());
+            deleteFile.setHeader("X-Auth-Token", Pithos.get().getToken());
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {
-            GSS.get().updateFolder(files.get(0).getParent());
+            Pithos.get().updateFolder(files.get(0).getParent());
         }
     }
 

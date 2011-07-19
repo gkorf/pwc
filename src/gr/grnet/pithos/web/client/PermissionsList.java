@@ -155,7 +155,7 @@ public class PermissionsList extends Composite {
 	
 	/**
 	 * Examines whether or not the user's full name exists in the 
-	 * userFullNameMap in the GSS.java for every element of the input list.
+	 * userFullNameMap in the Pithos.java for every element of the input list.
 	 * If the user's full name does not exist in the map then a request is being made
 	 * for the specific username.  
 	 * 
@@ -173,7 +173,7 @@ public class PermissionsList extends Composite {
 				aPermissions.remove(dto);				
 				handleFullNames(aPermissions);				
 			}
-		}else if(GSS.get().findUserFullName(dto.getUser()) != null){
+		}else if(Pithos.get().findUserFullName(dto.getUser()) != null){
 			if(aPermissions.size() >= 1){
 				aPermissions.remove(dto);				
 				handleFullNames(aPermissions);				
@@ -209,7 +209,7 @@ public class PermissionsList extends Composite {
 					permTable.setHTML(i, 0, "<span id=permissionList.Owner>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;Owner</span>");
 					removeButton.setVisible(false);
 				}else{
-					permTable.setHTML(i, 0, "<span id=permissionList."+GSS.get().findUserFullName(dto.getUser())+">"+ AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;"+ GSS.get().findUserFullName(dto.getUser()) + "</span>");
+					permTable.setHTML(i, 0, "<span id=permissionList."+ Pithos.get().findUserFullName(dto.getUser())+">"+ AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;"+ Pithos.get().findUserFullName(dto.getUser()) + "</span>");
 				}
 			}else if(dto.getGroup() != null){
 				permTable.setHTML(i, 0, "<span id=permissionList."+dto.getGroup()+">" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;"+ dto.getGroup() + "</span>");
@@ -257,7 +257,7 @@ public class PermissionsList extends Composite {
 
 	private void findFullNameAndUpdate(final Set<PermissionHolder> aPermissions){				
 		final PermissionHolder dto = aPermissions.iterator().next();
-		String path = GSS.get().getApiPath() + "users/" + dto.getUser(); 
+		String path = Pithos.get().getApiPath() + "users/" + dto.getUser();
 
 		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class, path, false,null) {
 			@Override
@@ -266,7 +266,7 @@ public class PermissionsList extends Composite {
 				for (UserResource user : result.getUsers()){
 					String username = user.getUsername();
 					String userFullName = user.getName();
-					GSS.get().putUserToMap(username, userFullName);
+					Pithos.get().putUserToMap(username, userFullName);
 					if(aPermissions.size() >= 1){
 						aPermissions.remove(dto);						
 						if(aPermissions.isEmpty()){
@@ -279,7 +279,7 @@ public class PermissionsList extends Composite {
 			}
 			@Override
 			public void onError(Throwable t) {				
-				GSS.get().displayError("Unable to fetch user's full name from the given username " + dto.getUser());
+				Pithos.get().displayError("Unable to fetch user's full name from the given username " + dto.getUser());
 				if(aPermissions.size() >= 1){
 					aPermissions.remove(dto);
 					if(aPermissions.isEmpty()){

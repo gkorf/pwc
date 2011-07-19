@@ -37,25 +37,11 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.commands.CopyCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RefreshCommand;
-import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
-import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
-import gr.grnet.pithos.web.client.rest.resource.MyFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.OtherUserResource;
-import gr.grnet.pithos.web.client.rest.resource.OthersFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.OthersResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.SharedFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.SharedResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashResource;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -99,20 +85,20 @@ public class FolderContextMenu extends PopupPanel {
         contextMenu.addItem(newFolder);
 
         if (!folder.isContainer()) {
-            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(GSS.get(), this, folder));
+            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(Pithos.get(), this, folder));
             contextMenu.addItem(cut);
         }
 
-        MenuItem copy = new MenuItem("<span id = 'folderContextMenu.copy'>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(GSS.get(), this, folder));
+        MenuItem copy = new MenuItem("<span id = 'folderContextMenu.copy'>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(Pithos.get(), this, folder));
         contextMenu.addItem(copy);
 
-        if (!GSS.get().getClipboard().isEmpty()) {
-            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(GSS.get(), this, folder));
+        if (!Pithos.get().getClipboard().isEmpty()) {
+            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(Pithos.get(), this, folder));
             contextMenu.addItem(pasteItem);
         }
 
         if (!folder.isContainer()) {
-            MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(GSS.get(), this, folder));
+            MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(Pithos.get(), this, folder));
             contextMenu.addItem(moveToTrash);
 
             MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, folder, newImages));
@@ -125,7 +111,7 @@ public class FolderContextMenu extends PopupPanel {
 //        MenuItem sharing = new MenuItem("<span id = 'folderContextMenu.sharing'>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, newImages, 1));
 //        contextMenu.addItem(sharing);
 
-        MenuItem properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), this, folder, newImages, 0));
+        MenuItem properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(Pithos.get(), this, folder, newImages, 0));
         contextMenu.addItem(properties);
 
 		add(contextMenu);

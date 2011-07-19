@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
 import gr.grnet.pithos.web.client.rest.resource.UserSearchResource;
@@ -46,7 +46,7 @@ import com.google.gwt.user.client.DeferredCommand;
 
 /**
  * This command manages usernames and the corresponding user's Full Name
- * along with the HashMap collection in the GSS.java class
+ * along with the HashMap collection in the Pithos.java class
  *
  *
  */
@@ -63,7 +63,7 @@ public class GetUserCommand implements Command{
 
 	@Override
 	public void execute() {
-		String path = GSS.get().getApiPath() + "users/" + userName; 
+		String path = Pithos.get().getApiPath() + "users/" + userName;
 		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class,
 					path, false ,null) {
 			@Override
@@ -72,13 +72,13 @@ public class GetUserCommand implements Command{
 				for (UserResource user : result.getUsers()){
 					String username = user.getUsername();
 					String _userFullName = user.getName();
-					GSS.get().putUserToMap(username, _userFullName);
+					Pithos.get().putUserToMap(username, _userFullName);
 				}
 			}
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
-				GSS.get().displayError("Unable to fetch user's full name from the given username " + userName);
+				Pithos.get().displayError("Unable to fetch user's full name from the given username " + userName);
 			}
 		};
 		DeferredCommand.addCommand(gg);

@@ -41,22 +41,15 @@ import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-
-import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * The 'Edit' menu implementation.
@@ -134,7 +127,7 @@ public class EditMenu extends MenuBar {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public EditMenu(final GSS _app, final Images newImages) {
+	public EditMenu(final Pithos _app, final Images newImages) {
 		super(true);
 		setAnimationEnabled(true);
 		images = newImages;

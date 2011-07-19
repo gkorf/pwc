@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -67,11 +67,11 @@ public class RestoreTrashCommand implements Command{
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		Object selection = GSS.get().getCurrentSelection();
+		Object selection = Pithos.get().getCurrentSelection();
 		if (selection == null){
 			// Check to see if Trash Node is selected.
 			List folderList = new ArrayList();
-			TrashResource trashItem = GSS.get().getTreeView().getTrash();
+			TrashResource trashItem = Pithos.get().getTreeView().getTrash();
 			for(int i=0 ; i < trashItem.getFolders().size() ; i++)
 				folderList.add(trashItem.getFolders().get(i));
 			return;
@@ -84,9 +84,9 @@ public class RestoreTrashCommand implements Command{
 				@Override
 				public void onComplete() {
 					//TODO:CELLTREE
-					//GSS.get().getFolders().update(GSS.get().getFolders().getTrashItem());
+					//Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
 					
-					GSS.get().showFileList(true);
+					Pithos.get().showFileList(true);
 				}
 
 				@Override
@@ -95,18 +95,18 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							GSS.get().displayError("You don't have the necessary permissions");
+							Pithos.get().displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							GSS.get().displayError("File does not exist");
+							Pithos.get().displayError("File does not exist");
 						else if(statusCode == 409)
-							GSS.get().displayError("A file with the same name already exists");
+							Pithos.get().displayError("A file with the same name already exists");
 						else if(statusCode == 413)
-							GSS.get().displayError("Your quota has been exceeded");
+							Pithos.get().displayError("Your quota has been exceeded");
 						else
-							GSS.get().displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
+							Pithos.get().displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
 					}
 					else
-						GSS.get().displayError("System error restoring file:"+t.getMessage());
+						Pithos.get().displayError("System error restoring file:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);
@@ -121,8 +121,8 @@ public class RestoreTrashCommand implements Command{
 				@Override
 				public void onComplete() {
 					//TODO:CELLTREE
-					//GSS.get().getFolders().update(GSS.get().getFolders().getTrashItem());
-					GSS.get().showFileList(true);
+					//Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
+					Pithos.get().showFileList(true);
 				}
 
 				@Override
@@ -131,18 +131,18 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							GSS.get().displayError("You don't have the necessary permissions");
+							Pithos.get().displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							GSS.get().displayError("File does not exist");
+							Pithos.get().displayError("File does not exist");
 						else if(statusCode == 409)
-							GSS.get().displayError("A file with the same name already exists");
+							Pithos.get().displayError("A file with the same name already exists");
 						else if(statusCode == 413)
-							GSS.get().displayError("Your quota has been exceeded");
+							Pithos.get().displayError("Your quota has been exceeded");
 						else
-							GSS.get().displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
+							Pithos.get().displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
 					}
 					else
-						GSS.get().displayError("System error restoring file:"+t.getMessage());
+						Pithos.get().displayError("System error restoring file:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);
@@ -155,13 +155,13 @@ public class RestoreTrashCommand implements Command{
 				public void onComplete() {
 					//TODO:CELLTREE
 					/*
-					GSS.get().getFolders().updateFolder((DnDTreeItem) GSS.get().getFolders().getRootItem());
+					Pithos.get().getFolders().updateFolder((DnDTreeItem) Pithos.get().getFolders().getRootItem());
 
-					GSS.get().getFolders().update(GSS.get().getFolders().getTrashItem());
+					Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
 					*/
 					
-					GSS.get().getTreeView().updateTrashNode();
-					GSS.get().getTreeView().updateRootNode();
+					Pithos.get().getTreeView().updateTrashNode();
+					Pithos.get().getTreeView().updateRootNode();
 				}
 
 				@Override
@@ -170,18 +170,18 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							GSS.get().displayError("You don't have the necessary permissions");
+							Pithos.get().displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							GSS.get().displayError("Folder does not exist");
+							Pithos.get().displayError("Folder does not exist");
 						else if(statusCode == 409)
-							GSS.get().displayError("A folder with the same name already exists");
+							Pithos.get().displayError("A folder with the same name already exists");
 						else if(statusCode == 413)
-							GSS.get().displayError("Your quota has been exceeded");
+							Pithos.get().displayError("Your quota has been exceeded");
 						else
-							GSS.get().displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
+							Pithos.get().displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
 					}
 					else
-						GSS.get().displayError("System error restoring folder:"+t.getMessage());
+						Pithos.get().displayError("System error restoring folder:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);

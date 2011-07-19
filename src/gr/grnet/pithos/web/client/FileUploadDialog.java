@@ -34,35 +34,15 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.Response;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.PostCommand;
-import gr.grnet.pithos.web.client.rest.PutRequest;
-import gr.grnet.pithos.web.client.rest.RestCommand;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-import gr.grnet.pithos.web.client.rest.resource.UploadStatusResource;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -78,7 +58,6 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import javax.xml.transform.Templates;
 
 /**
  * The 'File upload' dialog box implementation.
@@ -102,7 +81,7 @@ public class FileUploadDialog extends DialogBox {
 
 	protected Folder folder;
 
-    protected GSS app;
+    protected Pithos app;
 
 	/**
 	 * The widget's constructor.
@@ -293,7 +272,7 @@ public class FileUploadDialog extends DialogBox {
 		return null;
 	}
 
-    public void setApp(GSS app) {
+    public void setApp(Pithos app) {
         this.app = app;
     }
 

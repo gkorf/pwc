@@ -83,7 +83,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	public AbstractPropertiesDialog() {
 
 		// Enable IE selection for the dialog (must disable it upon closing it)
-		GSS.enableIESelection();
+		Pithos.enableIESelection();
 
 		setAnimationEnabled(true);
 
@@ -94,7 +94,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	 * @param userId
 	 */
 	protected void updateTags() {
-		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(TagsResource.class, GSS.get().getCurrentUserResource().getTagsPath(),null) {
+		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(TagsResource.class, Pithos.get().getCurrentUserResource().getTagsPath(),null) {
 
 			@Override
 			public void onComplete() {
@@ -130,7 +130,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
-				GSS.get().displayError("Unable to fetch user tags");
+				Pithos.get().displayError("Unable to fetch user tags");
 			}
 		};
 		DeferredCommand.addCommand(tc);
@@ -173,7 +173,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	 * (we disable the prevention on creation of the dialog)
 	 */
 	public void closeDialog() {
-		GSS.preventIESelection();
+		Pithos.preventIESelection();
 		hide();
 	}
 }

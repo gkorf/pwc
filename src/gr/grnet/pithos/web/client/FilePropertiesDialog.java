@@ -38,32 +38,19 @@ import com.google.gwt.core.client.Scheduler;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostCommand;
-import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupResource;
-import gr.grnet.pithos.web.client.rest.resource.PermissionHolder;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
@@ -71,10 +58,8 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -120,12 +105,12 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 	private String userFullName;
 
-    private GSS app;
+    private Pithos app;
 
 	/**
 	 * The widget's constructor.
 	 */
-	public FilePropertiesDialog(GSS _app, File _file) {
+	public FilePropertiesDialog(Pithos _app, File _file) {
         app = _app;
         file = _file;
 
@@ -326,9 +311,9 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //        path.addClickHandler(new ClickHandler() {
 //            @Override
 //            public void onClick(ClickEvent event) {
-//                GSS.enableIESelection();
+//                Pithos.enableIESelection();
 //                ((TextBox) event.getSource()).selectAll();
-//                GSS.preventIESelection();
+//                Pithos.preventIESelection();
 //            }
 //        });
 //        path.setText(file.getUri());
@@ -412,7 +397,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //			json.put("versioned", JSONBoolean.getInstance(versioned.getValue()));
 		//only update the read for all perm if the user is the owner
 //		if (readForAll.getValue() != file.isReadForAll())
-//			if (file.getOwner().equals(GSS.get().getCurrentUserResource().getUsername()))
+//			if (file.getOwner().equals(Pithos.get().getCurrentUserResource().getUsername()))
 //				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
 //		int i = 0;
 //		if (permList.hasChanges()) {
@@ -489,17 +474,17 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				if (t instanceof RestException) {
 					int statusCode = ((RestException) t).getHttpStatusCode();
 					if (statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
+						Pithos.get().displayError("You don't have the necessary permissions");
 					else if (statusCode == 404)
-						GSS.get().displayError("User in permissions does not exist");
+						Pithos.get().displayError("User in permissions does not exist");
 					else if (statusCode == 409)
-						GSS.get().displayError("A folder with the same name already exists");
+						Pithos.get().displayError("A folder with the same name already exists");
 					else if (statusCode == 413)
-						GSS.get().displayError("Your quota has been exceeded");
+						Pithos.get().displayError("Your quota has been exceeded");
 					else
-						GSS.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
+						Pithos.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
 				} else
-					GSS.get().displayError("System error moifying file:" + t.getMessage());
+					Pithos.get().displayError("System error moifying file:" + t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(cf);
@@ -513,7 +498,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 			@Override
 			public void onComplete() {
-				GSS.get().getTreeView().refreshCurrentNode(false);
+				Pithos.get().getTreeView().refreshCurrentNode(false);
 			}
 
 			@Override
@@ -522,17 +507,17 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				if (t instanceof RestException) {
 					int statusCode = ((RestException) t).getHttpStatusCode();
 					if (statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
+						Pithos.get().displayError("You don't have the necessary permissions");
 					else if (statusCode == 404)
-						GSS.get().displayError("User in permissions does not exist");
+						Pithos.get().displayError("User in permissions does not exist");
 					else if (statusCode == 409)
-						GSS.get().displayError("A folder with the same name already exists");
+						Pithos.get().displayError("A folder with the same name already exists");
 					else if (statusCode == 413)
-						GSS.get().displayError("Your quota has been exceeded");
+						Pithos.get().displayError("Your quota has been exceeded");
 					else
-						GSS.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
+						Pithos.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
 				} else
-					GSS.get().displayError("System error moifying file:" + t.getMessage());
+					Pithos.get().displayError("System error moifying file:" + t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(cf);

@@ -34,11 +34,9 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -128,7 +126,7 @@ public class TopPanel extends Composite {
 					AbstractImagePrototype.create(images.folder()).getHTML() + "</td><td>File</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return new FileMenu(GSS.get(), images);
+				return new FileMenu(Pithos.get(), images);
 			}
 		};
 
@@ -136,7 +134,7 @@ public class TopPanel extends Composite {
 					AbstractImagePrototype.create(images.edit()).getHTML() + "</td><td>Edit</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return new EditMenu(GSS.get(), images);
+				return new EditMenu(Pithos.get(), images);
 			}
 		};
 

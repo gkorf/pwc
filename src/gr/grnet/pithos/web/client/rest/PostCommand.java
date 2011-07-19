@@ -34,13 +34,12 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-
 
 public abstract class PostCommand extends RestCommand{
 	boolean complete = false;
@@ -53,7 +52,7 @@ public abstract class PostCommand extends RestCommand{
 	public PostCommand(final String path, String data, final int okStatusCode, boolean showLoading) {
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Updating ",path);
+			Pithos.get().showLoadingIndicator("Updating ",path);
 
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, path);
 
@@ -100,7 +99,7 @@ public abstract class PostCommand extends RestCommand{
 		boolean com = isComplete();
 		if (com) {
 			if (isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			return false;
 		}
 		return true;

@@ -47,7 +47,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -122,7 +122,7 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     private void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Set<Folder> folders) {
-        final GSS app = GSS.get();
+        final Pithos app = Pithos.get();
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -137,9 +137,9 @@ public class FolderTreeViewModel implements TreeViewModel {
                 public void onError(Throwable t) {
                     GWT.log("Error getting folder", t);
                     if (t instanceof RestException)
-                        GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                     else
-                        GSS.get().displayError("System error fetching folder: " + t.getMessage());
+                        Pithos.get().displayError("System error fetching folder: " + t.getMessage());
                 }
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());
@@ -175,7 +175,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (!folder.isTrash())
             fetchFolder(folder, dataProvider);
         else
-            GSS.get().showFiles(folder);
+            Pithos.get().showFiles(folder);
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider) {
@@ -183,7 +183,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
-                final GSS app = GSS.get();
+                final Pithos app = Pithos.get();
                 String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
                     @Override
@@ -197,9 +197,9 @@ public class FolderTreeViewModel implements TreeViewModel {
                     public void onError(Throwable t) {
                         GWT.log("Error getting folder", t);
                         if (t instanceof RestException)
-                            GSS.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                            Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                         else
-                            GSS.get().displayError("System error fetching folder: " + t.getMessage());
+                            Pithos.get().displayError("System error fetching folder: " + t.getMessage());
                     }
                 };
                 getFolder.setHeader("X-Auth-Token", app.getToken());

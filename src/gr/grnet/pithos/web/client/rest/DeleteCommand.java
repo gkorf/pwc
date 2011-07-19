@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.InsufficientPermissionsException;
 
 import com.google.gwt.http.client.Request;
@@ -54,7 +54,7 @@ public abstract class DeleteCommand extends RestCommand{
 	public DeleteCommand(String pathToDelete, boolean showLoading){
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			GSS.get().showLoadingIndicator("Deleting ",pathToDelete);
+			Pithos.get().showLoadingIndicator("Deleting ",pathToDelete);
 		final String path;
 		if(pathToDelete.endsWith("/"))
 			path = pathToDelete;
@@ -101,7 +101,7 @@ public abstract class DeleteCommand extends RestCommand{
 		boolean com = isComplete();
 		if(com){
 			if(isShowLoadingIndicator())
-				GSS.get().hideLoadingIndicator();
+				Pithos.get().hideLoadingIndicator();
 			return false;
 		}
 		return true;

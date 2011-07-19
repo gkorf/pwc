@@ -38,7 +38,6 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.RestCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +108,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 	/**
 	 * The widget's constructor.
 	 */
-	public FileUploadGearsDialog(GSS _app, Folder _folder) {
+	public FileUploadGearsDialog(Pithos _app, Folder _folder) {
         this.folder = _folder;
         this.app = _app;
 		// Set the dialog's caption.
@@ -121,7 +120,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 		info.addStyleName("pithos-uploadNote");
 		panel.add(info);
 		// Add an informative label with the folder name.
-		Object selection = GSS.get().getTreeView().getSelection();
+		Object selection = Pithos.get().getTreeView().getSelection();
 
 		browse = new Button("Browse...");
 
@@ -161,7 +160,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 			public void onClick(ClickEvent event) {
 				canContinue = false;				
 				cancelUpload();				
-				GSS.get().showFileList(true);
+				Pithos.get().showFileList(true);
 			}
 		});
 		buttons.add(cancel);
@@ -212,7 +211,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 
 	@Override
 	public void prepareAndSubmit() {
-		GSS app = GSS.get();
+		Pithos app = Pithos.get();
 		if (selectedFiles.size() == 0) {
 			app.displayError("You must select a file!");
 			hide();
@@ -310,7 +309,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 
 				@Override
 				public void onError(Throwable t) {
-					GSS app = GSS.get();
+					Pithos app = Pithos.get();
 					GWT.log("", t);
 					if (t instanceof RestException) {
 						int statusCode = ((RestException) t).getHttpStatusCode();
@@ -348,7 +347,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 	 * Perform the HTTP request to upload the specified file.
 	 */
 	protected void doSend(final List<File> filesRemaining) {
-		final GSS app = GSS.get();
+		final Pithos app = Pithos.get();
 		HttpRequest request = factory.createHttpRequest();
 		requests.add(request);
 		String method = "PUT";
@@ -365,7 +364,6 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 		String date = RestCommand.getDate();
 		String sig = RestCommand.calculateSig(method, date, resource, RestCommand.base64decode(token));
 		request.open(method, path);
-		request.setRequestHeader("X-GSS-Date", date);
 		request.setRequestHeader("Authorization", app.getCurrentUserResource().getUsername() + " " + sig);
 		request.setRequestHeader("Accept", "application/json; charset=utf-8");
 		request.setCallback(new RequestCallback() {
@@ -422,9 +420,9 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 	 */
 	protected void finish() {
 		hide();
-		//GSS.get().showFileList(true);
-		GSS.get().getTreeView().updateNode(GSS.get().getTreeView().getSelection());//showFileList(true);
-		GSS.get().getStatusPanel().updateStats();
+		//Pithos.get().showFileList(true);
+		Pithos.get().getTreeView().updateNode(Pithos.get().getTreeView().getSelection());//showFileList(true);
+		Pithos.get().getStatusPanel().updateStats();
 	}
 
 	/**

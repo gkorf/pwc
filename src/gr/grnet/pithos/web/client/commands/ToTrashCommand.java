@@ -35,27 +35,19 @@
 package gr.grnet.pithos.web.client.commands;
 
 import com.google.gwt.core.client.Scheduler;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
-import gr.grnet.pithos.web.client.rest.PostCommand;
 import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -66,10 +58,10 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class ToTrashCommand implements Command{
 	private PopupPanel containerPanel;
-    private GSS app;
+    private Pithos app;
     private Object resource;
 
-	public ToTrashCommand(GSS _app, PopupPanel _containerPanel, Object _resource){
+	public ToTrashCommand(Pithos _app, PopupPanel _containerPanel, Object _resource){
 		containerPanel = _containerPanel;
         app = _app;
         resource = _resource;
@@ -149,10 +141,10 @@ public class ToTrashCommand implements Command{
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        GSS.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to copy file: "+t.getMessage());
+                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             trashFile.setHeader("X-Auth-Token", app.getToken());

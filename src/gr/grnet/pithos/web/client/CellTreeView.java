@@ -193,11 +193,11 @@ public class CellTreeView extends Composite{
             public void onSelectionChange(com.google.gwt.view.client.SelectionChangeEvent event) {
             	NodeInfo<RestResource> nodeInfo = (NodeInfo<RestResource>) getModel().getNodeInfo(selectionModel.getSelectedObject());
             	if(nodeInfo==null || nodeInfo.getValueUpdater()==null){
-            		GSS.get().showFileList(getSelection());
+            		Pithos.get().showFileList(getSelection());
             	}
             	else
             		nodeInfo.getValueUpdater().update(selectionModel.getSelectedObject());
-            	GSS.get().setCurrentSelection(selectionModel.getSelectedObject());
+            	Pithos.get().setCurrentSelection(selectionModel.getSelectedObject());
             	
             	
             }
@@ -341,7 +341,7 @@ public class CellTreeView extends Composite{
 	}
 	private boolean init=false;
 	public boolean fetchRootFolders() {
-		UserResource userResource = GSS.get().getCurrentUserResource();
+		UserResource userResource = Pithos.get().getCurrentUserResource();
 		if (userResource == null)
 			return !DONE;
 		if(!init){
@@ -359,12 +359,12 @@ public class CellTreeView extends Composite{
 				@Override
 				public void onError(Throwable t) {
 					GWT.log("Error fetching root folder", t);
-					GSS.get().displayError("Unable to fetch root folder");
+					Pithos.get().displayError("Unable to fetch root folder");
 				}
 	
 			};
 			DeferredCommand.addCommand(gf);
-			DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, GSS.get().getCurrentUserResource().getTrashPath(), null) {
+			DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, Pithos.get().getCurrentUserResource().getTrashPath(), null) {
 				@Override
 				public void onComplete() {
 					trash = getResult();
@@ -376,12 +376,12 @@ public class CellTreeView extends Composite{
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						// On IE status code 1223 may be returned instead of 204.
 						if(statusCode == 204 || statusCode == 1223){
-							trash = new TrashResource(GSS.get().getCurrentUserResource().getTrashPath());
+							trash = new TrashResource(Pithos.get().getCurrentUserResource().getTrashPath());
 					}
 					else{
 						GWT.log("", t);
-						GSS.get().displayError("Unable to fetch trash folder:"+t.getMessage());
-						trash = new TrashResource(GSS.get().getCurrentUserResource().getTrashPath());
+						Pithos.get().displayError("Unable to fetch trash folder:"+t.getMessage());
+						trash = new TrashResource(Pithos.get().getCurrentUserResource().getTrashPath());
 					}
 				}
 			}
@@ -396,7 +396,7 @@ public class CellTreeView extends Composite{
 				@Override
 				public void onError(Throwable t) {
 					GWT.log("Error fetching Shared Root folder", t);
-					GSS.get().displayError("Unable to fetch Shared Root folder");
+					Pithos.get().displayError("Unable to fetch Shared Root folder");
 				}
 			};
 			DeferredCommand.addCommand(gs);
@@ -411,7 +411,7 @@ public class CellTreeView extends Composite{
 				@Override
 				public void onError(Throwable t) {
 					GWT.log("Error fetching Others Root folder", t);
-					GSS.get().displayError("Unable to fetch Others Root folder");
+					Pithos.get().displayError("Unable to fetch Others Root folder");
 				}
 			};
 			DeferredCommand.addCommand(go);
@@ -430,7 +430,7 @@ public class CellTreeView extends Composite{
 	
 	
 	public void updateTrashNode(){
-		DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, GSS.get().getCurrentUserResource().getTrashPath(), null) {
+		DeferredCommand.addCommand(new GetCommand<TrashResource>(TrashResource.class, Pithos.get().getCurrentUserResource().getTrashPath(), null) {
 			@Override
 			public void onComplete() {
 				trash = getResult();
@@ -446,14 +446,14 @@ public class CellTreeView extends Composite{
 					int statusCode = ((RestException)t).getHttpStatusCode();
 					// On IE status code 1223 may be returned instead of 204.
 					if(statusCode == 204 || statusCode == 1223){
-						trash = new TrashResource(GSS.get().getCurrentUserResource().getTrashPath());
+						trash = new TrashResource(Pithos.get().getCurrentUserResource().getTrashPath());
 						model.getRootNodes().getList().set(1, trash);
 						//model.getRootNodes().refresh();
 				}
 				else{
 					GWT.log("", t);
-					GSS.get().displayError("Unable to fetch trash folder:"+t.getMessage());
-					trash = new TrashResource(GSS.get().getCurrentUserResource().getTrashPath());
+					Pithos.get().displayError("Unable to fetch trash folder:"+t.getMessage());
+					trash = new TrashResource(Pithos.get().getCurrentUserResource().getTrashPath());
 					model.getRootNodes().getList().set(1, trash);
 					//model.getRootNodes().refresh();
 				}
@@ -463,7 +463,7 @@ public class CellTreeView extends Composite{
 	}
 	
 	public void updateRootNode(){
-		final String path = GSS.get().getCurrentUserResource().getFilesPath();
+		final String path = Pithos.get().getCurrentUserResource().getFilesPath();
 		GetCommand<FolderResource> gf = new GetCommand<FolderResource>(FolderResource.class, path, null) {
 
 			@Override
@@ -478,7 +478,7 @@ public class CellTreeView extends Composite{
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("Error fetching root folder", t);
-				GSS.get().displayError("Unable to fetch root folder");
+				Pithos.get().displayError("Unable to fetch root folder");
 			}
 
 		};
@@ -486,7 +486,7 @@ public class CellTreeView extends Composite{
 	}
 	
 	public void updateMySharedNode(){
-		GetCommand<SharedResource> gs = new GetCommand<SharedResource>(SharedResource.class, GSS.get().getCurrentUserResource().getSharedPath(), null) {
+		GetCommand<SharedResource> gs = new GetCommand<SharedResource>(SharedResource.class, Pithos.get().getCurrentUserResource().getSharedPath(), null) {
 
 			@Override
 			public void onComplete() {
@@ -497,7 +497,7 @@ public class CellTreeView extends Composite{
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("Error fetching Shared Root folder", t);
-				GSS.get().displayError("Unable to fetch Shared Root folder");
+				Pithos.get().displayError("Unable to fetch Shared Root folder");
 			}
 		};
 		DeferredCommand.addCommand(gs);
@@ -505,7 +505,7 @@ public class CellTreeView extends Composite{
 	
 	public void updateOtherNode(){
 		GetCommand<OthersResource> go = new GetCommand<OthersResource>(OthersResource.class,
-					GSS.get().getCurrentUserResource().getOthersPath(), null) {
+					Pithos.get().getCurrentUserResource().getOthersPath(), null) {
 
 			@Override
 			public void onComplete() {
@@ -516,7 +516,7 @@ public class CellTreeView extends Composite{
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("Error fetching Others Root folder", t);
-				GSS.get().displayError("Unable to fetch Others Root folder");
+				Pithos.get().displayError("Unable to fetch Others Root folder");
 			}
 		};
 		DeferredCommand.addCommand(go);
@@ -528,8 +528,8 @@ public class CellTreeView extends Composite{
 	}
 	
 	public void clearSelection(){
-		if(GSS.get().getCurrentSelection().equals(getSelection()))
-			GSS.get().setCurrentSelection(null);
+		if(Pithos.get().getCurrentSelection().equals(getSelection()))
+			Pithos.get().setCurrentSelection(null);
 		selectionModel.setSelected(getSelection(), false);
 	}
 	
@@ -623,7 +623,7 @@ public class CellTreeView extends Composite{
 	public void refreshCurrentNode(boolean clearSelection){
 		NodeInfo<RestResource> nodeInfo = (NodeInfo<RestResource>) getModel().getNodeInfo(selectionModel.getSelectedObject());
     	if(nodeInfo==null || nodeInfo.getValueUpdater()==null){
-    		GSS.get().showFileList(getSelection(),clearSelection);
+    		Pithos.get().showFileList(getSelection(),clearSelection);
     	}
     	else{
     		if(!clearSelection)

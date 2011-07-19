@@ -137,14 +137,14 @@ public class VersionsList extends Composite {
 			});
 
 			permTable.setHTML(i, 0, "<span>" + dto.getVersion() + "</span>");
-			permTable.setHTML(i, 1, "<span>" + formatDate(dto.getCreationDate()) + " by " + GSS.get().findUserFullName(dto.getCreatedBy()) + "</span>");
-			permTable.setHTML(i, 2, "<span>" + formatDate(dto.getModificationDate()) + " by " + GSS.get().findUserFullName(dto.getModifiedBy()) + "</span>");
+			permTable.setHTML(i, 1, "<span>" + formatDate(dto.getCreationDate()) + " by " + Pithos.get().findUserFullName(dto.getCreatedBy()) + "</span>");
+			permTable.setHTML(i, 2, "<span>" + formatDate(dto.getModificationDate()) + " by " + Pithos.get().findUserFullName(dto.getModifiedBy()) + "</span>");
 			permTable.setHTML(i, 3, "<span>" + dto.getFileSizeAsString() + "</span>");
 			HTML downloadHtml = new HTML("<a class='hidden-link info' href='#'><span>"+AbstractImagePrototype.create(images.download()).getHTML()+"</span><div>View this Version</div></a>");
 			downloadHtml.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					GSS app = GSS.get();
+					Pithos app = Pithos.get();
 					String dateString = RestCommand.getDate();
 					String resource = dto.getUri().substring(app.getApiPath().length()-1, dto.getUri().length());
 					String sig = app.getCurrentUserResource().getUsername()+" "+RestCommand.calculateSig("GET", dateString, resource, RestCommand.base64decode(app.getToken()));
@@ -173,7 +173,7 @@ public class VersionsList extends Composite {
 			public void onComplete() {
 				toRemove = version;
 				updateTable();
-				GSS.get().getTreeView().refreshCurrentNode(false);
+				Pithos.get().getTreeView().refreshCurrentNode(false);
 			}
 
 			@Override
@@ -182,14 +182,14 @@ public class VersionsList extends Composite {
 				if(t instanceof RestException){
 					int statusCode = ((RestException)t).getHttpStatusCode();
 					if(statusCode == 405)
-						GSS.get().displayError("You don't have the necessary permissions");
+						Pithos.get().displayError("You don't have the necessary permissions");
 					else if(statusCode == 404)
-						GSS.get().displayError("Versions does not exist");
+						Pithos.get().displayError("Versions does not exist");
 					else
-						GSS.get().displayError("Unable to remove version:"+((RestException)t).getHttpStatusText());
+						Pithos.get().displayError("Unable to remove version:"+((RestException)t).getHttpStatusText());
 				}
 				else
-					GSS.get().displayError("System error removing version:"+t.getMessage());
+					Pithos.get().displayError("System error removing version:"+t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(df);
@@ -197,23 +197,23 @@ public class VersionsList extends Composite {
 	}
 
 	void restoreVersion(final FileResource version) {
-		FileResource selectedFile = (FileResource) GSS.get().getCurrentSelection();
+		FileResource selectedFile = (FileResource) Pithos.get().getCurrentSelection();
 		PostCommand ep = new PostCommand(selectedFile.getUri()+"?restoreVersion="+version.getVersion(),"",200){
 
 
 			@Override
 			public void onComplete() {
 				container.hide();
-                GSS.get().getTreeView().refreshCurrentNode(false);
+                Pithos.get().getTreeView().refreshCurrentNode(false);
 			}
 
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
 				if(t instanceof RestException)
-					GSS.get().displayError("Unable to restore version:"+((RestException)t).getHttpStatusText());
+					Pithos.get().displayError("Unable to restore version:"+((RestException)t).getHttpStatusText());
 				else
-					GSS.get().displayError("System error restoring version:"+t.getMessage());
+					Pithos.get().displayError("System error restoring version:"+t.getMessage());
 			}
 
 		};
@@ -239,7 +239,7 @@ public class VersionsList extends Composite {
 	
 	/**
 	 * Examines whether or not the user's full name exists in the 
-	 * userFullNameMap in the GSS.java for every element of the input list.
+	 * userFullNameMap in the Pithos.java for every element of the input list.
 	 * If the user's full name does not exist in the map then a request is being made
 	 * for the specific username.  
 	 * 
@@ -251,7 +251,7 @@ public class VersionsList extends Composite {
 			return;
 		}
 		
-		if(GSS.get().findUserFullName(input.get(0).getOwner()) == null){
+		if(Pithos.get().findUserFullName(input.get(0).getOwner()) == null){
 			findFullNameAndUpdate(input);		
 			return;
 		}
@@ -275,7 +275,7 @@ public class VersionsList extends Composite {
 
 	private void findFullNameAndUpdate(final List<FileResource> input){				
 		final String aUserName = input.get(0).getOwner();
-		String path = GSS.get().getApiPath() + "users/" + aUserName; 
+		String path = Pithos.get().getApiPath() + "users/" + aUserName;
 
 		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class, path, false,null) {
 			@Override
@@ -284,7 +284,7 @@ public class VersionsList extends Composite {
 				for (UserResource user : result.getUsers()){
 					String username = user.getUsername();
 					String userFullName = user.getName();
-					GSS.get().putUserToMap(username, userFullName);
+					Pithos.get().putUserToMap(username, userFullName);
 					if(input.size() >= 1){
 						input.remove(input.get(0));						
 						if(input.isEmpty()){
@@ -297,7 +297,7 @@ public class VersionsList extends Composite {
 			}
 			@Override
 			public void onError(Throwable t) {				
-				GSS.get().displayError("Unable to fetch user's full name from the given username " + aUserName);
+				Pithos.get().displayError("Unable to fetch user's full name from the given username " + aUserName);
 				if(input.size() >= 1){
 					input.remove(input.get(0));
 					handleFullNames(input);					

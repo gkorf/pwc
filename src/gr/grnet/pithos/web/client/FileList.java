@@ -278,7 +278,7 @@ public class FileList extends Composite {
 			}
 		};
 
-		celltable = new DragAndDropCellTable<File>(GSS.VISIBLE_FILE_COUNT, resources, keyProvider);
+		celltable = new DragAndDropCellTable<File>(Pithos.VISIBLE_FILE_COUNT, resources, keyProvider);
         celltable.setWidth("100%");
         celltable.setStyleName("pithos-List");
 
@@ -465,15 +465,15 @@ public class FileList extends Composite {
              @Override 
              public void onSelectionChange(SelectionChangeEvent event) {
             	 if(getSelectedFiles().size() == 1)
-            		 GSS.get().setCurrentSelection(getSelectedFiles().get(0));
+            		 Pithos.get().setCurrentSelection(getSelectedFiles().get(0));
             	 else
-            		 GSS.get().setCurrentSelection(getSelectedFiles());
+            		 Pithos.get().setCurrentSelection(getSelectedFiles());
              }
          };
          selectionModel.addSelectionChangeHandler(selectionHandler);
          
 		celltable.setSelectionModel(selectionModel, GSSSelectionEventManager.<File> createDefaultManager());
-		celltable.setPageSize(GSS.VISIBLE_FILE_COUNT);
+		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
 		sinkEvents(Event.ONCONTEXTMENU);
 //		sinkEvents(Event.ONMOUSEUP);
@@ -481,7 +481,7 @@ public class FileList extends Composite {
 //		sinkEvents(Event.ONCLICK);
 //		sinkEvents(Event.ONKEYDOWN);
 //		sinkEvents(Event.ONDBLCLICK);
-		GSS.preventIESelection();
+		Pithos.preventIESelection();
 	}
 
 	public List<File> getSelectedFiles() {
@@ -541,7 +541,7 @@ public class FileList extends Composite {
 //			event.preventDefault();
 //		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 //			if (getSelectedFiles().size() == 1) {
-//				GSS app = GSS.get();
+//				Pithos app = Pithos.get();
 //				File file = getSelectedFiles().get(0);
 //				Window.open(file.getUri(), "_blank", "");
 //				event.preventDefault();
@@ -555,7 +555,7 @@ public class FileList extends Composite {
 	 */
 	void update(boolean sort) {
 		int count = folderFileCount;
-		int max = startIndex + GSS.VISIBLE_FILE_COUNT;
+		int max = startIndex + Pithos.VISIBLE_FILE_COUNT;
 		if (max > count)
 			max = count;
 		folderTotalSize = 0;
@@ -565,7 +565,7 @@ public class FileList extends Composite {
 		}
 		if (folderFileCount == 0) {
 			showingStats = "no files";
-		} else if (folderFileCount < GSS.VISIBLE_FILE_COUNT) {
+		} else if (folderFileCount < Pithos.VISIBLE_FILE_COUNT) {
 			if (folderFileCount == 1)
 				showingStats = "1 file";
 			else
@@ -622,7 +622,7 @@ public class FileList extends Composite {
 	 * Update status panel with currently showing file stats.
 	 */
 	public void updateCurrentlyShowingStats() {
-		GSS.get().getStatusPanel().updateCurrentlyShowing(showingStats);
+		Pithos.get().getStatusPanel().updateCurrentlyShowing(showingStats);
 	}
 	
 	/**
@@ -652,7 +652,7 @@ public class FileList extends Composite {
 	        }
 	    }
 
-        if(files.size() > GSS.VISIBLE_FILE_COUNT){
+        if(files.size() > Pithos.VISIBLE_FILE_COUNT){
             pagerBottom.setVisible(true);
             pagerTop.setVisible(true);
         }
@@ -781,7 +781,7 @@ public class FileList extends Composite {
 	 * Shows the files in the cellTable 
      */
 	private void showCellTable(){
-		if(files.size()>GSS.VISIBLE_FILE_COUNT){
+		if(files.size()> Pithos.VISIBLE_FILE_COUNT){
 			pagerBottom.setVisible(true);
 			pagerTop.setVisible(true);
 		}

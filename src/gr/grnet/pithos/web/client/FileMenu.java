@@ -34,19 +34,14 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
 
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
@@ -100,7 +95,7 @@ public class FileMenu extends MenuBar {
 	 *
 	 * @param _images the image bundle passed on by the parent object
 	 */
-	public FileMenu(GSS _app, final Images _images) {
+	public FileMenu(Pithos _app, final Images _images) {
         super(true);
 		setAnimationEnabled(true);
 		images = _images;
@@ -115,7 +110,7 @@ public class FileMenu extends MenuBar {
             addItem(uploadItem);
         }
         if (selectedFiles.size() == 1) {
-            addItem(new MenuItem("<span><a class='hidden-link' href='" + GSS.get().getApiPath() + GSS.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + GSS.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(images.download()).getHTML() + " Download</a></span>", true, (Command) null));
+            addItem(new MenuItem("<span><a class='hidden-link' href='" + Pithos.get().getApiPath() + Pithos.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + Pithos.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(images.download()).getHTML() + " Download</a></span>", true, (Command) null));
         }
 
 //        MenuItem emptyTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(this));
@@ -132,7 +127,7 @@ public class FileMenu extends MenuBar {
 //                       .setVisible(propertiesVisible);
 //
         if (selectedFiles.size() > 0 || selectedFolder != null) {
-            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(GSS.get(), null, selectedFiles.size() > 0 ? selectedFiles : selectedFolder, images, 0));
+            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(Pithos.get(), null, selectedFiles.size() > 0 ? selectedFiles : selectedFolder, images, 0));
             addItem(propertiesItem);
         }
 	}

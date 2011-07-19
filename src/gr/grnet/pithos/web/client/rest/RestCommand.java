@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SessionExpiredDialog;
 
 import com.google.gwt.http.client.RequestBuilder;
@@ -45,9 +45,9 @@ public abstract class RestCommand implements IncrementalCommand {
 
 	protected void handleHeaders(String username, RequestBuilder requestBuilder, String path) {
 		String date = getDate();
-		requestBuilder.setHeader("X-GSS-Date", date);
+		requestBuilder.setHeader("X-Pithos-Date", date);
 
-		GSS app = GSS.get();
+		Pithos app = Pithos.get();
 		String token = app.getToken();
 		if (token == null)
 			token = "aa";
@@ -58,11 +58,11 @@ public abstract class RestCommand implements IncrementalCommand {
 	}
 
 	protected void handleHeaders(RequestBuilder requestBuilder, String path) {
-		if (GSS.get().getCurrentUserResource() != null) {
-			String username = GSS.get().getCurrentUserResource().getUsername();
+		if (Pithos.get().getCurrentUserResource() != null) {
+			String username = Pithos.get().getCurrentUserResource().getUsername();
 			handleHeaders(username, requestBuilder, path);
 		} else
-			GSS.get().displayError("no username");
+			Pithos.get().displayError("no username");
 	}
 
 	public static native String getDate()/*-{

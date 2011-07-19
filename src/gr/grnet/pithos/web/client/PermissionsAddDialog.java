@@ -200,7 +200,7 @@ public class PermissionsAddDialog extends DialogBox {
 			selectedUser = suggestBox.getText();
 			for(PermissionHolder p : permList.permissions)
 				if (selectedUser.equals(p.getUser())){
-					GSS.get().displayError("User already has access to the resource");
+					Pithos.get().displayError("User already has access to the resource");
 					return;
 				}
 			perm.setUser(selectedUser);
@@ -214,7 +214,7 @@ public class PermissionsAddDialog extends DialogBox {
 				return;
 			for(PermissionHolder p : permList.permissions)
 				if (selected.getName().equals(p.getGroup())){
-					GSS.get().displayError("Group already has access to the resource");
+					Pithos.get().displayError("Group already has access to the resource");
 					return;
 				}
 			perm.setGroup(selected.getName());
@@ -261,7 +261,7 @@ public class PermissionsAddDialog extends DialogBox {
 	 * Update the list of suggestions.
 	 */
 	protected void updateSuggestions() {
-		final GSS app = GSS.get();
+		final Pithos app = Pithos.get();
 		String query = selectedUser.substring(0, selectedUser.length()-1);
 		GWT.log("Searching for " + query, null);
 

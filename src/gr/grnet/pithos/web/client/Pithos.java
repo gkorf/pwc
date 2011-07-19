@@ -104,7 +104,7 @@ import java.util.Set;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class GSS implements EntryPoint, ResizeHandler {
+public class Pithos implements EntryPoint, ResizeHandler {
 
 	/**
 	 * A constant that denotes the completion of an IncrementalCommand.
@@ -152,19 +152,19 @@ public class GSS implements EntryPoint, ResizeHandler {
 	}
 
 	/**
-	 * The single GSS instance.
+	 * The single Pithos instance.
 	 */
-	private static GSS singleton;
+	private static Pithos singleton;
 
 	/**
-	 * Gets the singleton GSS instance.
+	 * Gets the singleton Pithos instance.
 	 *
-	 * @return the GSS object
+	 * @return the Pithos object
 	 */
-	public static GSS get() {
-		if (GSS.singleton == null)
-			GSS.singleton = new GSS();
-		return GSS.singleton;
+	public static Pithos get() {
+		if (Pithos.singleton == null)
+			Pithos.singleton = new Pithos();
+		return Pithos.singleton;
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 	/**
 	 * The panel that contains the various system messages.
 	 */
-	private MessagePanel messagePanel = new MessagePanel(GSS.images);
+	private MessagePanel messagePanel = new MessagePanel(Pithos.images);
 
 	/**
 	 * The bottom panel that contains the status bar.
@@ -258,14 +258,14 @@ public class GSS implements EntryPoint, ResizeHandler {
 	@Override
 	public void onModuleLoad() {
 		// Initialize the singleton before calling the constructors of the
-		// various widgets that might call GSS.get().
+		// various widgets that might call Pithos.get().
 		singleton = this;
 		if (parseUserCredentials())
             initialize();
 	}
 
     private void initialize() {
-        topPanel = new TopPanel(GSS.images);
+        topPanel = new TopPanel(Pithos.images);
         topPanel.setWidth("100%");
 
         messagePanel.setWidth("100%");
@@ -329,7 +329,7 @@ public class GSS implements EntryPoint, ResizeHandler {
         outer.add(topPanel);
         outer.add(messagePanel);
         outer.add(splitPanel);
-        statusPanel = new StatusPanel(GSS.images);
+        statusPanel = new StatusPanel(Pithos.images);
         outer.add(statusPanel);
         outer.setWidth("100%");
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -389,9 +389,9 @@ public class GSS implements EntryPoint, ResizeHandler {
                 public void onError(Throwable t) {
                     GWT.log("Error getting file", t);
                     if (t instanceof RestException)
-                        GSS.get().displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
                     else
-                        GSS.get().displayError("System error fetching file: " + t.getMessage());
+                        Pithos.get().displayError("System error fetching file: " + t.getMessage());
                 }
             };
             getFile.setHeader("X-Auth-Token", "0000");
@@ -434,7 +434,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 
 //        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
         Cookies.setCookie(conf.authCookie(), "test" + conf.cookieSeparator() + "0000");
-        Window.Location.assign(GWT.getModuleBaseURL() + "GSS.html");
+        Window.Location.assign(GWT.getModuleBaseURL() + "Pithos.html");
 	}
 
     private void fetchAccount() {
@@ -453,9 +453,9 @@ public class GSS implements EntryPoint, ResizeHandler {
             public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
                 if (t instanceof RestException)
-                    GSS.get().displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                    Pithos.get().displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
-                    GSS.get().displayError("System error fetching user data: " + t.getMessage());
+                    Pithos.get().displayError("System error fetching user data: " + t.getMessage());
             }
         };
         getAccount.setHeader("X-Auth-Token", token);
@@ -800,16 +800,16 @@ public class GSS implements EntryPoint, ResizeHandler {
 	}
 	public String getUserFullName(String _userName) {
 		
-        if (GSS.get().findUserFullName(_userName) == null)
+        if (Pithos.get().findUserFullName(_userName) == null)
                 //if there is no userFullName found then the map fills with the given _userName,
                 //so userFullName = _userName
-                GSS.get().putUserToMap(_userName, _userName);
-        else if(GSS.get().findUserFullName(_userName).indexOf('@') != -1){
+                Pithos.get().putUserToMap(_userName, _userName);
+        else if(Pithos.get().findUserFullName(_userName).indexOf('@') != -1){
                 //if the userFullName = _userName the GetUserCommand updates the userFullName in the map
                 GetUserCommand guc = new GetUserCommand(_userName);
                 guc.execute();
         }
-        return GSS.get().findUserFullName(_userName);
+        return Pithos.get().findUserFullName(_userName);
 	}
 	/**
 	 * Retrieve the treeView.
@@ -849,7 +849,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                    Pithos.get().displayError("System error unable to delete folder: " + exception.getMessage());
                 }
             });
         }
@@ -872,7 +872,7 @@ public class GSS implements EntryPoint, ResizeHandler {
                     @Override
                     public void onError(Throwable t) {
                         GWT.log("", t);
-                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
+                        Pithos.get().displayError("System error unable to delete folder: " + t.getMessage());
                     }
                 };
                 delete.setHeader("X-Auth-Token", getToken());
@@ -904,7 +904,7 @@ public class GSS implements EntryPoint, ResizeHandler {
 
                         @Override
                         public void onError(Request request, Throwable exception) {
-                            GSS.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                            Pithos.get().displayError("System error unable to delete folder: " + exception.getMessage());
                         }
                     });
                 }
@@ -928,7 +928,7 @@ public class GSS implements EntryPoint, ResizeHandler {
                         displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to delete folder: " + t.getMessage());
+                        Pithos.get().displayError("System error unable to delete folder: " + t.getMessage());
                 }
             };
             deleteFolder.setHeader("X-Auth-Token", getToken());
@@ -954,10 +954,10 @@ public class GSS implements EntryPoint, ResizeHandler {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        GSS.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        GSS.get().displayError("System error unable to copy file: "+t.getMessage());
+                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             copyFile.setHeader("X-Auth-Token", getToken());

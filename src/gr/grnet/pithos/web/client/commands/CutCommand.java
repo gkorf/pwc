@@ -35,7 +35,7 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.Clipboard;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -45,17 +45,17 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
- * Command for cutting a file, folder or user to GSS Clipboard
+ * Command for cutting a file, folder or user to Pithos Clipboard
  *
  */
 public class CutCommand implements Command {
-    private GSS app;
+    private Pithos app;
 
 	private PopupPanel containerPanel;
 
     private Object resource;
 
-	public CutCommand(GSS _app, PopupPanel _containerPanel, Object _resource){
+	public CutCommand(Pithos _app, PopupPanel _containerPanel, Object _resource){
         app = _app;
 		containerPanel = _containerPanel;
         resource = _resource;

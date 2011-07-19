@@ -34,26 +34,15 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import gr.grnet.pithos.web.client.FileMenu.Images;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
-import gr.grnet.pithos.web.client.GSS;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.MultipleGetCommand;
 import gr.grnet.pithos.web.client.rest.resource.GroupResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupsResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -87,7 +76,7 @@ public class NewFolderCommand implements Command{
 
 	void displayNewFolderDialog() {
         if (folder != null) {
-            FolderPropertiesDialog dlg = new FolderPropertiesDialog(GSS.get(), true, folder);
+            FolderPropertiesDialog dlg = new FolderPropertiesDialog(Pithos.get(), true, folder);
             dlg.center();
         }
 	}
