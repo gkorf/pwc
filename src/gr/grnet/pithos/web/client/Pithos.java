@@ -48,6 +48,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import gr.grnet.pithos.web.client.commands.GetUserCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
@@ -133,6 +134,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void updateFolder(Folder f) {
         folderTreeView.updateFolder(f);
+    }
+
+    public void updateTag(Tag t) {
+        tagTreeView.updateTag(t);
+    }
+
+    public void updateTags() {
+        tagTreeViewModel.initialize(account);
     }
 
     /**
@@ -309,9 +318,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
         inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
         tagTreeSelectionModel = new SingleSelectionModel<Tag>();
+        tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Tag t = tagTreeSelectionModel.getSelectedObject();
+                updateTag(t);
+            }
+        });
         tagTreeViewModel = new TagTreeViewModel(tagTreeSelectionModel);
         tagTreeView = new TagTreeView(tagTreeViewModel);
-        
+
         VerticalPanel trees = new VerticalPanel();
         trees.add(folderTreeView);
         trees.add(tagTreeView);

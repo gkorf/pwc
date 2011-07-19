@@ -46,7 +46,14 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.tagtree.TagTreeView.Templates;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class TagTreeViewModel implements TreeViewModel {
 
@@ -54,7 +61,7 @@ public class TagTreeViewModel implements TreeViewModel {
 
        @Override
         public void render(Context context, Tag tag, SafeHtmlBuilder safeHtmlBuilder) {
-            String html = AbstractImagePrototype.create(TagTreeView.images.info()).getHTML();
+            String html = AbstractImagePrototype.create(TagTreeView.images.tag()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(tag.getName()));
         }
@@ -79,14 +86,12 @@ public class TagTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            rootDataProvider.getList().add("Tags");
+//            rootDataProvider.getList().add("Tags");
             return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
                 @Override
                 public SafeHtml render(String object) {
                     SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                    String html = AbstractImagePrototype.create(TagTreeView.images.tag()).getHTML();
-                    builder.appendHtmlConstant(html);
-                    builder.append(Templates.INSTANCE.nameSpan(object));
+                    render(object, builder);
                     return builder.toSafeHtml();
                 }
 
@@ -111,17 +116,17 @@ public class TagTreeViewModel implements TreeViewModel {
         if (o == null)
             return false;
         if (o instanceof String)
-            return false;
+            return tagDataProvider.getList().isEmpty();
         else
             return true;
     }
 
-//    private void fetchFolder(final Iterator<Tag> iter, final ListDataProvider<Tag> dataProvider, final Set<Tag> tags) {
-//        final Pithos app = Pithos.get();
-//        if (iter.hasNext()) {
-//            final Tag f = iter.next();
-//
-//            String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+    private void fetchTags(final Iterator<Folder> iter) {
+        final Pithos app = Pithos.get();
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+
+            String path = app.getApiPath() + app.getUsername() + "/" + f.getUri() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
 //            GetRequest<Tag> getFolder = new GetRequest<Tag>(Tag.class, path, f) {
 //                @Override
 //                public void onSuccess(Tag result) {
@@ -139,36 +144,8 @@ public class TagTreeViewModel implements TreeViewModel {
 //            };
 //            getFolder.setHeader("X-Auth-Token", app.getToken());
 //            Scheduler.get().scheduleDeferred(getFolder);
-//        }
-//        else {
-//            dataProvider.getList().clear();
-//            dataProvider.getList().addAll(tags);
-//            if (dataProvider.equals(rootDataProvider)) {
-//                selectionModel.setSelected(dataProvider.getList().get(0), true);
-//
-//                Tag f = new Tag("Trash");
-//                f.setTrash(true);
-//                f.setContainer("trash");
-//                dataProvider.getList().add(f);
-//
-//                f = new Tag("Shared");
-//                f.setContainer("shared");
-//                dataProvider.getList().add(f);
-//
-//                f = new Tag("Others");
-//                f.setContainer("others");
-//                dataProvider.getList().add(f);
-//
-//                f = new Tag("Tags");
-//                f.setContainer("tags");
-//                dataProvider.getList().add(f);
-//
-//                f = new Tag("Groups");
-//                f.setContainer("groups");
-//                dataProvider.getList().add(f);
-//            }
-//        }
-//    }
+        }
+    }
 //
 //    public void initialize(AccountResource account) {
 //        Iterator<Tag> iter = account.getContainers().iterator();
@@ -219,4 +196,13 @@ public class TagTreeViewModel implements TreeViewModel {
 //            }
 //        });
 //    }
+
+    public void initialize(AccountResource account) {
+        List<Tag> tagList = tagDataProvider.getList();
+        for (Folder f : account.getContainers()) {
+            for (String t : f.getTags())
+                tagList.add(new Tag(t));
+        }
+        rootDataProvider.getList().add("Tags");
+    }
 }

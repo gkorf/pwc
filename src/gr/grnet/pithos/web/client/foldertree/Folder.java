@@ -83,6 +83,8 @@ public class Folder extends Resource {
      */
     private boolean trash = false;
 
+    private Set<String> tags = new LinkedHashSet<String>();
+
     public Folder() {};
 
     public Folder(String name) {
@@ -137,6 +139,12 @@ public class Folder extends Resource {
         header = response.getHeader("X-Object-Meta-Trash");
         if (header != null && header.equals("true"))
             inTrash = true;
+
+        header = response.getHeader("X-Container-Object-Meta");
+        if (header != null) {
+            tags.add("tag1");
+            tags.add("tag2");
+        }
 
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         files.clear();
@@ -253,5 +261,9 @@ public class Folder extends Resource {
 
     public void setContainer(String container) {
         this.container = container;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }

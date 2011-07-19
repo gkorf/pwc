@@ -154,6 +154,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                 f.setTrash(true);
                 f.setContainer("trash");
                 dataProvider.getList().add(f);
+                Pithos.get().updateTags();
             }
         }
     }
