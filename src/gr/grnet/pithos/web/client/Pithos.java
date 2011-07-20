@@ -306,8 +306,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Folder f = folderTreeSelectionModel.getSelectedObject();
-                updateFolder(f);
+                if (folderTreeSelectionModel.getSelectedObject() != null) {
+                    tagTreeSelectionModel.setSelected(tagTreeSelectionModel.getSelectedObject(), false);
+                    Folder f = folderTreeSelectionModel.getSelectedObject();
+                    updateFolder(f);
+                }
             }
         });
 
@@ -321,8 +324,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Tag t = tagTreeSelectionModel.getSelectedObject();
-                updateTag(t);
+                if (tagTreeSelectionModel.getSelectedObject() != null) {
+                    folderTreeSelectionModel.setSelected(folderTreeSelectionModel.getSelectedObject(), false);
+                    Tag t = tagTreeSelectionModel.getSelectedObject();
+                    updateTag(t);
+                }
             }
         });
         tagTreeViewModel = new TagTreeViewModel(tagTreeSelectionModel);
@@ -387,8 +393,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         else
             fileList.showFiles();
         Set<File> files = f.getFiles();
-        Iterator<File> iter = files.iterator();
-        fetchFile(iter, files);
+        showFiles(files);
+    }
+
+    public void showFiles(Set<File> files) {
+        //Iterator<File> iter = files.iterator();
+        //fetchFile(iter, files);
+        fileList.setFiles(new ArrayList<File>(files));
     }
 
     private void fetchFile(final Iterator<File> iter, final Set<File> files) {

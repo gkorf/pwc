@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 public class Folder extends Resource {
     /*
@@ -141,9 +142,14 @@ public class Folder extends Resource {
             inTrash = true;
 
         header = response.getHeader("X-Container-Object-Meta");
-        if (header != null) {
-            tags.add("tag1");
-            tags.add("tag2");
+        if (header != null && header.length() > 2) {
+            String tagStr = header.substring(1, header.length() - 1);
+            while (tagStr.indexOf(",") > -1) {
+                String tag = tagStr.substring(2, tagStr.indexOf(",") - 1);
+                tags.add(tag);
+                tagStr = tagStr.substring(tagStr.indexOf(",") + 1).trim();
+            }
+            tags.add(tagStr.substring(2, tagStr.length() - 1));
         }
 
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
