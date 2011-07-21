@@ -74,6 +74,7 @@ import gr.grnet.pithos.web.client.tagtree.TagTreeView;
 import gr.grnet.pithos.web.client.tagtree.TagTreeViewModel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -141,7 +142,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void updateTags() {
-        tagTreeViewModel.initialize(account);
+        tagTreeViewModel.initialize(getAllTags());
+    }
+
+    public List<Tag> getAllTags() {
+        List<Tag> tagList = new ArrayList<Tag>();
+        for (Folder f : account.getContainers()) {
+            for (String t : f.getTags()) {
+                tagList.add(new Tag(t));
+            }
+        }
+        return tagList;
     }
 
     /**
@@ -461,7 +472,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 //        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
         Cookies.setCookie(conf.authCookie(), "test" + conf.cookieSeparator() + "0000");
-        Window.Location.assign(GWT.getModuleBaseURL() + "Pithos.html");
+        Window.Location.assign(GWT.getModuleBaseURL() + "pithos.html");
 	}
 
     private void fetchAccount() {

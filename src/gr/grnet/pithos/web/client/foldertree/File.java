@@ -35,6 +35,7 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -42,7 +43,11 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import java.io.StringWriter;
+import java.security.Key;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class File extends Resource {
     private String name;
@@ -70,6 +75,8 @@ public class File extends Resource {
     private String container;
 
     private Folder parent;
+
+    private Set<String> tags = new HashSet<String>();
 
     public String getContentType() {
         return contentType;
@@ -149,6 +156,10 @@ public class File extends Resource {
         modifiedBy = unmarshallString(o, "modified_by");
         versionTimestamp = unmarshallDate(o, "version_timestamp");
         this.container = container;
+
+        for (String key : o.keySet())
+            if (key.startsWith("x_object_meta_") && !key.equals("x_object_meta_trash"))
+                tags.add(key.substring("x_object_meta_".length()).trim().toLowerCase());
     }
 
     public boolean equals(Object other) {
@@ -173,6 +184,12 @@ public class File extends Resource {
     }
 
     private void populate(Response response) {
+        for (Header h : response.getHeaders()) {
+            String header = h.getName();
+            if (header.startsWith("X-Object-Meta-") && !header.equals("X-Object-Meta-Trash"))
+                tags.add(header.substring("X-Object-Meta-".length()).trim().toLowerCase());
+
+        }
         String header = response.getHeader("X-Object-Meta-Trash");
         if (header != null)
             inTrash = Boolean.valueOf(header);
@@ -185,5 +202,9 @@ public class File extends Resource {
 
     public Folder getParent() {
         return parent;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }

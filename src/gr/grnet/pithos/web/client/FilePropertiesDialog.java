@@ -35,9 +35,14 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Label;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostCommand;
+import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -62,6 +67,8 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import gr.grnet.pithos.web.client.tagtree.Tag;
+import java.util.Iterator;
 
 /**
  * The 'File properties' dialog box implementation.
@@ -170,15 +177,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         focusPanel.setFocus(true);
         setWidget(outer);
-
-		// Asynchronously retrieve the tags defined by this user.
-		DeferredCommand.addCommand(new Command() {
-
-			@Override
-			public void execute() {
-//				updateTags();
-			}
-		});
 	}
 
     private VerticalPanel createGeneralPanel() {
@@ -188,7 +186,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         generalTable.setText(1, 0, "Folder");
         generalTable.setText(2, 0, "Owner");
         generalTable.setText(3, 0, "Last modified");
-//        generalTable.setText(4, 0, "Tags");
+        generalTable.setText(4, 0, "Tags");
 
         name.setWidth("100%");
         name.setText(file.getName());
@@ -202,31 +200,26 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
         generalTable.setText(3, 1, formatter.format(file.getLastModified()));
 
-		// Get the tags.
-//		StringBuffer tagsBuffer = new StringBuffer();
-//		Iterator i = file.getTags().iterator();
-//		while (i.hasNext()) {
-//			String tag = (String) i.next();
-//			tagsBuffer.append(tag).append(", ");
-//		}
-//		if (tagsBuffer.length() > 1)
-//			tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
-//		initialTagText = tagsBuffer.toString();
-//		tags.setWidth("100%");
-//		tags.getElement().setId("filePropertiesDialog.textBox.tags");
-//		tags.setText(initialTagText);
-//		generalTable.setWidget(4, 1, tags);
+		StringBuffer tagsBuffer = new StringBuffer();
+        for (String t : file.getTags())
+			tagsBuffer.append(t).append(", ");
+		if (tagsBuffer.length() > 1)
+			tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
+		initialTagText = tagsBuffer.toString();
+		tags.setWidth("100%");
+		tags.setText(initialTagText);
+		generalTable.setWidget(4, 1, tags);
 
         generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(3, 0, "props-labels");
-//        generalTable.getFlexCellFormatter().setStyleName(4, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(4, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
         generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
         generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
         generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
-//        generalTable.getFlexCellFormatter().setStyleName(4, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(4, 1, "props-values");
         generalTable.setCellSpacing(4);
 
         generalPanel.add(generalTable);
@@ -234,6 +227,28 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         DisclosurePanel allTags = new DisclosurePanel("All tags");
         allTagsContent = new FlowPanel();
         allTagsContent.setWidth("100%");
+        for (Tag t : app.getAllTags()) {
+            final Anchor tagAnchor = new Anchor(t.getName(), false);
+            tagAnchor.addStyleName("pithos-tag");
+            allTagsContent.add(tagAnchor);
+            Label separator = new Label(", ");
+            separator.addStyleName("pithos-tag");
+            allTagsContent.add(separator);
+            tagAnchor.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    String existing = tags.getText().trim();
+                    if (MULTIPLE_VALUES_TEXT.equals(existing))
+                        existing = "";
+                    String newTag = tagAnchor.getText().trim();
+                    // insert the new tag only if it is not in the list
+                    // already
+                    if (existing.indexOf(newTag) == -1)
+                        tags.setText(existing + (existing.length() > 0 ? ", " : "") + newTag);
+                }
+            });
+        }
         allTags.setContent(allTagsContent);
         generalPanel.add(allTags);
         generalPanel.setSpacing(4);
@@ -389,8 +404,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //		permList.updatePermissionsAccordingToInput();
 //		Set<PermissionHolder> perms = permList.getPermissions();
 //		JSONObject json = new JSONObject();
-		if (!name.getText().equals(file.getName())) {
-			newFilename = name.getText();
+		if (!name.getText().trim().equals(file.getName())) {
+			newFilename = name.getText().trim();
 //			json.put("name", new JSONString(newFilename));
 		}
 //		if (versioned.getValue() != file.isVersioned())
@@ -418,28 +433,44 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //			}
 //			json.put("permissions", perma);
 //		}
-//		JSONArray taga = new JSONArray();
-//		i = 0;
-//		if (!tags.getText().equals(initialTagText)) {
-//			String[] tagset = tags.getText().split(",");
-//			for (String t : tagset) {
-//				JSONString to = new JSONString(t);
-//				taga.set(i, to);
-//				i++;
-//			}
-//			json.put("tags", taga);
-//		}
+        String[] tagset = null;
+		if (!tags.getText().equals(initialTagText))
+			tagset = tags.getText().split(",");
 //		String jsonString = json.toString();
 //		if(jsonString.equals("{}")){
 //			GWT.log("NO CHANGES", null);
 //			return;
 //		}
-		final String newFilenameFinal = newFilename;
+        final String[] newTags = tagset;
 
-        if (newFilename == null)
-            return;
-        String path = app.getApiPath() + app.getUsername() + file.getParent().getUri() + "/" + newFilename;
-        PutRequest updateFile = new PutRequest(path) {
+        if (newFilename != null) {
+            final String path = app.getApiPath() + app.getUsername() + file.getParent().getUri() + "/" + newFilename;
+            PutRequest updateFile = new PutRequest(path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    if (newTags != null)
+                        updateMetaData(path + "?update=", newTags);
+                    else
+                        app.updateFolder(file.getParent());
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    app.displayError("System error modifying file:" + t.getMessage());
+                }
+            };
+            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Move-From", file.getUri());
+            updateFile.setHeader("Content-Type", file.getContentType());
+            Scheduler.get().scheduleDeferred(updateFile);
+        }
+        else if (newTags != null)
+            updateMetaData(app.getApiPath() + app.getUsername() + file.getUri() + "?update=", newTags);
+	}
+
+    private void updateMetaData(String path, String[] newTags) {
+        PostRequest updateFile = new PostRequest(path) {
             @Override
             public void onSuccess(Resource result) {
                 app.updateFolder(file.getParent());
@@ -452,10 +483,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             }
         };
         updateFile.setHeader("X-Auth-Token", app.getToken());
-        updateFile.setHeader("X-Move-From", file.getUri());
-        updateFile.setHeader("Content-Type", file.getContentType());
+        for (String t : newTags)
+            updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
         Scheduler.get().scheduleDeferred(updateFile);
-	}
+    }
 
 	private void removeAllOldVersions() {
 		JSONObject json = new JSONObject();

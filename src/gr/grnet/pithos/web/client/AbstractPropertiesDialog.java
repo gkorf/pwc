@@ -90,8 +90,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	}
 	/**
 	 * Retrieves all user tags from the server and updates the FlowPanel
-	 *
-	 * @param userId
 	 */
 	protected void updateTags() {
 		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(TagsResource.class, Pithos.get().getCurrentUserResource().getTagsPath(),null) {

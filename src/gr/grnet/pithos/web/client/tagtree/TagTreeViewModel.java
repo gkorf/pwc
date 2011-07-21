@@ -203,12 +203,8 @@ public class TagTreeViewModel implements TreeViewModel {
         }
     }
 
-    public void initialize(AccountResource account) {
-        List<Tag> tagList = tagDataProvider.getList();
-        for (Folder f : account.getContainers()) {
-            for (String t : f.getTags())
-                tagList.add(new Tag(t));
-        }
+    public void initialize(List<Tag> allTags) {
+        tagDataProvider.getList().addAll(allTags);
         rootDataProvider.getList().add("Tags");
     }
 }
