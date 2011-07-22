@@ -93,15 +93,15 @@ public class Resource {
         return (new Date(ms)).toUTCString();
     }-*/;
 
-    public static <T> T createFromResponse(Class<T> aClass, Response response, T result) {
+    public static <T> T createFromResponse(Class<T> aClass, String owner, Response response, T result) {
         if (aClass.equals(AccountResource.class)) {
-            result = (T) AccountResource.createFromResponse(response);
+            result = (T) AccountResource.createFromResponse(owner, response);
         }
         else if (aClass.equals(Folder.class)) {
-            result = (T) Folder.createFromResponse(response, (Folder) result);
+            result = (T) Folder.createFromResponse(owner, response, (Folder) result);
         }
         else if (aClass.equals(File.class)) {
-            result = (T) File.createFromResponse(response, (File) result);
+            result = (T) File.createFromResponse(owner, response, (File) result);
         }
         return result;
     }

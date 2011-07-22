@@ -120,8 +120,8 @@ public class PasteCommand implements Command {
     private void moveFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = app.getApiPath() + app.getUsername() + folder.getUri() + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(path) {
+            String path = folder.getUri() + "/" + file.getName();
+            PutRequest copyFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     moveFiles(iter, callback);

@@ -236,9 +236,8 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private void createFolder() {
 		String name = folderName.getText();
-        String prefix = folder.getPrefix();
-        String path = app.getApiPath() + app.getUsername() + "/" + folder.getContainer() + "/" + (prefix.length() == 0 ? "" : prefix +  "/") + name;
-        PutRequest createFolder = new PutRequest(path) {
+        String path = folder.getUri() + "/" + name;
+        PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(Resource result) {
                 app.updateFolder(folder);
@@ -354,8 +353,8 @@ public class FolderPropertiesDialog extends DialogBox {
 //		DeferredCommand.addCommand(ep);
         final String newName = folderName.getText();
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
-            final String path = app.getApiPath() + app.getUsername() + folder.getParent().getUri() + "/" + newName;
-            PutRequest newFolder = new PutRequest(path) {
+            final String path = folder.getParent().getUri() + "/" + newName;
+            PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     Iterator<File> iter = folder.getFiles().iterator();

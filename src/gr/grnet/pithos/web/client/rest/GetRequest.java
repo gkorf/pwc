@@ -41,6 +41,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,10 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     private Class<T> aClass;
 
+    private String api;
+
+    private String owner;
+    
     private String path;
 
     private int okCode;
@@ -63,30 +68,32 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Class<T> aClass, String path, int okCode, T result) {
+    public GetRequest(Class<T> aClass, String api, String owner, String path, int okCode, T result) {
         this.aClass = aClass;
+        this.api = api;
+        this.owner = owner;
         this.path = path;
         this.okCode = okCode;
         this.result = result;
     }
 
-    public GetRequest(Class<T> aClass, String path) {
-        this(aClass, path, -1, null);
+    public GetRequest(Class<T> aClass, String api, String owner, String path) {
+        this(aClass, api, owner, path, -1, null);
     }
 
-    public GetRequest(Class<T> aClass, String path, T result) {
-        this(aClass, path, -1, result);
+    public GetRequest(Class<T> aClass, String api, String owner, String path, T result) {
+        this(aClass, api, owner, path, -1, result);
     }
 
     @Override
     public void execute() {
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
         builder.setHeader("If-Modified-Since", "0");
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback<T>(path, okCode) {
+            builder.sendRequest("", new RestRequestCallback<T>(api + owner + path, okCode) {
                 @Override
                 public void onSuccess(T object) {
                     GetRequest.this.onSuccess(object);
@@ -94,7 +101,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public T deserialize(Response response) {
-                    return Resource.createFromResponse(aClass, response, result);
+                    return Resource.createFromResponse(aClass, owner, response, result);
                 }
 
                 @Override

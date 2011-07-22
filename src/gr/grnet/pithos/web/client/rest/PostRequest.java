@@ -46,6 +46,10 @@ import java.util.Map;
 
 public abstract class PostRequest implements ScheduledCommand {
 
+    private String api;
+
+    private String owner;
+
     private String path;
 
     private Map<String, String> headers = new HashMap<String, String>();
@@ -54,18 +58,20 @@ public abstract class PostRequest implements ScheduledCommand {
 
     public abstract void onError(Throwable t);
 
-    public PostRequest(String path) {
+    public PostRequest(String api, String owner, String path) {
+        this.api = api;
+        this.owner = owner;
         this.path = path;
     }
 
     @Override
     public void execute() {
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, path);
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, api + owner + path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback(path, Response.SC_ACCEPTED) {
+            builder.sendRequest("", new RestRequestCallback(api + owner + path, Response.SC_ACCEPTED) {
                 @Override
                 public void onSuccess(Resource object) {
                     PostRequest.this.onSuccess(object);
@@ -73,7 +79,7 @@ public abstract class PostRequest implements ScheduledCommand {
 
                 @Override
                 public Resource deserialize(Response response) {
-                    return Resource.createFromResponse(Resource.class, response, null);
+                    return Resource.createFromResponse(Resource.class, owner, response, null);
                 }
 
                 @Override

@@ -126,8 +126,8 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
-            String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
+            String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                 @Override
                 public void onSuccess(Folder result) {
                     fetchFolder(iter, dataProvider, folders);
@@ -185,8 +185,8 @@ public class FolderTreeViewModel implements TreeViewModel {
             @Override
             public void execute() {
                 final Pithos app = Pithos.get();
-                String path = app.getApiPath() + app.getUsername() + "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path, f) {
+                String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                     @Override
                     public void onSuccess(Folder result) {
                         app.showFiles(result);

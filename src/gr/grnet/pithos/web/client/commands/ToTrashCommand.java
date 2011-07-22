@@ -93,8 +93,8 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-        String path = app.getApiPath() + app.getUsername() + f.getUri() + "?update=";
-        PostRequest trashFolder = new PostRequest(path) {
+        String path = f.getUri() + "?update=";
+        PostRequest trashFolder = new PostRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(Resource result) {
                 Iterator<File> iter = f.getFiles().iterator();
@@ -130,8 +130,8 @@ public class ToTrashCommand implements Command{
     private void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = app.getApiPath() + app.getUsername() + file.getUri() + "?update=";
-            PostRequest trashFile = new PostRequest(path) {
+            String path = file.getUri() + "?update=";
+            PostRequest trashFile = new PostRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     trashFiles(iter, callback);

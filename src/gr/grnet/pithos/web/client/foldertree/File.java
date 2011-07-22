@@ -78,6 +78,8 @@ public class File extends Resource {
 
     private Set<String> tags = new HashSet<String>();
 
+    private boolean published;
+
     public String getContentType() {
         return contentType;
     }
@@ -141,13 +143,14 @@ public class File extends Resource {
         return inTrash;
     }
 
-    public void populate(Folder parent, JSONObject o, String container) {
+    public void populate(Folder parent, JSONObject o, String owner, String container) {
         this.parent = parent;
         path = unmarshallString(o, "name");
         if (path.contains("/"))
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
         else
             name = path;
+        this.owner = owner;
         hash = unmarshallString(o, "hash");
         bytes = unmarshallLong(o, "bytes");
         version = unmarshallInt(o, "version");
@@ -155,11 +158,14 @@ public class File extends Resource {
         lastModified = unmarshallDate(o, "last_modified");
         modifiedBy = unmarshallString(o, "modified_by");
         versionTimestamp = unmarshallDate(o, "version_timestamp");
+        published = unmarshallBoolean(o, "x_object_public");
         this.container = container;
 
         for (String key : o.keySet())
             if (key.startsWith("x_object_meta_") && !key.equals("x_object_meta_trash"))
                 tags.add(key.substring("x_object_meta_".length()).trim().toLowerCase());
+
+        
     }
 
     public boolean equals(Object other) {
@@ -178,12 +184,13 @@ public class File extends Resource {
         return container;
     }
 
-    public static File createFromResponse(Response response, File result) {
-        result.populate(response);
+    public static File createFromResponse(String owner, Response response, File result) {
+        result.populate(owner, response);
         return result;
     }
 
-    private void populate(Response response) {
+    private void populate(String owner, Response response) {
+        this.owner = owner;
         for (Header h : response.getHeaders()) {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-") && !header.equals("X-Object-Meta-Trash"))
@@ -195,9 +202,6 @@ public class File extends Resource {
             inTrash = Boolean.valueOf(header);
         else
             inTrash = false;
-
-        JSONValue json = JSONParser.parseStrict(response.getText());
-        JSONObject o = json.isObject();
     }
 
     public Folder getParent() {
@@ -206,5 +210,9 @@ public class File extends Resource {
 
     public Set<String> getTags() {
         return tags;
+    }
+
+    public boolean isPublished() {
+        return published;
     }
 }

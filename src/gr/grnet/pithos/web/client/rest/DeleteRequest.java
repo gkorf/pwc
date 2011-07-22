@@ -49,6 +49,10 @@ import java.util.Map;
  * Templates.
  */
 public abstract class DeleteRequest implements ScheduledCommand {
+    private String api;
+
+    private String owner;
+
     private String path;
 
     private Map<String, String> headers = new HashMap<String, String>();
@@ -57,18 +61,20 @@ public abstract class DeleteRequest implements ScheduledCommand {
 
     public abstract void onError(Throwable t);
 
-    public DeleteRequest(String path) {
+    public DeleteRequest(String api, String owner, String path) {
+        this.api = api;
+        this.owner = owner;
         this.path = path;
     }
 
     @Override
     public void execute() {
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, path);
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, api + owner + path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback(path, Response.SC_NO_CONTENT) {
+            builder.sendRequest("", new RestRequestCallback(api + owner + path, Response.SC_NO_CONTENT) {
                 @Override
                 public void onSuccess(Resource object) {
                     DeleteRequest.this.onSuccess(object);
@@ -76,7 +82,7 @@ public abstract class DeleteRequest implements ScheduledCommand {
 
                 @Override
                 public Resource deserialize(Response response) {
-                    return Resource.createFromResponse(Resource.class, response, null);
+                    return Resource.createFromResponse(Resource.class, owner, response, null);
                 }
 
                 @Override

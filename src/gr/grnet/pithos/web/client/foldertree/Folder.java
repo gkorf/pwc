@@ -86,6 +86,8 @@ public class Folder extends Resource {
 
     private Set<String> tags = new LinkedHashSet<String>();
 
+    private String owner;
+
     public Folder() {};
 
     public Folder(String name) {
@@ -128,7 +130,8 @@ public class Folder extends Resource {
         this.prefix = prefix;
     }
 
-    public void populate(Response response) {
+    public void populate(String owner, Response response) {
+        this.owner = owner;
         String header = response.getHeader("Last-Modified");
         if (header != null)
             lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(header);
@@ -159,12 +162,12 @@ public class Folder extends Resource {
                     String contentType = unmarshallString(o, "content_type");
                     if (o.containsKey("subdir") || (contentType != null && (contentType.startsWith("application/directory") || contentType.startsWith("application/folder")))) {
                         Folder f = new Folder();
-                        f.populate(this, o, container);
+                        f.populate(this, o, owner, container);
                         subfolders.add(f);
                     }
                     else if (!(o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))) {
                         File file = new File();
-                        file.populate(this, o, container);
+                        file.populate(this, o, owner, container);
                         files.add(file);
                     }
                 }
@@ -180,7 +183,7 @@ public class Folder extends Resource {
         }
     }
 
-    public void populate(Folder parent, JSONObject o, String aContainer) {
+    public void populate(Folder parent, JSONObject o, String owner, String aContainer) {
         this.parent = parent;
         String path = null;
         if (o.containsKey("subdir")) {
@@ -204,18 +207,19 @@ public class Folder extends Resource {
             container = name;
             prefix = "";
         }
+        this.owner = owner;
         if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
             inTrash = true;
     }
 
-    public static Folder createFromResponse(Response response, Folder result) {
+    public static Folder createFromResponse(String owner, Response response, Folder result) {
         Folder f = null;
         if (result == null)
             f = new Folder();
         else
             f = result;
 
-        f.populate(response);
+        f.populate(owner, response);
         return f;
     }
 

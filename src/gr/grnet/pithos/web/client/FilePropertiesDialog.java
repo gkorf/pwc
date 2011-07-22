@@ -286,57 +286,55 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //        permButtons.addStyleName("pithos-TabPanelBottom");
 //        permPanel.add(permButtons);
 //
-//        final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
-//                    " by everyone. By checking this option, you are certifying that you have the right to " +
-//                    "distribute this file and that it does not violate the Terms of Use.", true);
-//        readForAllNote.setVisible(false);
-//        readForAllNote.setStylePrimaryName("pithos-readForAllNote");
-//
-//        readForAll = new CheckBox();
-//        readForAll.setValue(file.isReadForAll());
-//        readForAll.addClickHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                readForAllNote.setVisible(readForAll.getValue());
-//            }
-//
-//        });
-//
-//        // Only show the read for all permission if the user is the owner.
-//        if (file.getOwner().equals(app.getUsername())) {
-//            final HorizontalPanel permForAll = new HorizontalPanel();
-//            permForAll.add(new Label("Public"));
-//            permForAll.add(readForAll);
-//            permForAll.setSpacing(8);
-//            permForAll.addStyleName("pithos-TabPanelBottom");
-//            permForAll.add(readForAllNote);
-//            permPanel.add(permForAll);
-//        }
-//
-//
-//        final HorizontalPanel pathPanel = new HorizontalPanel();
-//        pathPanel.setWidth("100%");
-//        pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-//        pathPanel.add(new Label("Link"));
-//        pathPanel.setSpacing(8);
-//        pathPanel.addStyleName("pithos-TabPanelBottom");
-//
-//        TextBox path = new TextBox();
-//        path.setWidth("100%");
-//        path.addClickHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                Pithos.enableIESelection();
-//                ((TextBox) event.getSource()).selectAll();
-//                Pithos.preventIESelection();
-//            }
-//        });
-//        path.setText(file.getUri());
-//        path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-//        path.setWidth("100%");
-//        path.setReadOnly(true);
-//        pathPanel.add(path);
-//        permPanel.add(pathPanel);
+        final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
+                    " by everyone. By checking this option, you are certifying that you have the right to " +
+                    "distribute this file and that it does not violate the Terms of Use.", true);
+        readForAllNote.setVisible(false);
+        readForAllNote.setStylePrimaryName("pithos-readForAllNote");
+
+        readForAll = new CheckBox();
+        readForAll.setValue(file.isPublished());
+        readForAll.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                readForAllNote.setVisible(readForAll.getValue());
+            }
+        });
+
+        // Only show the read for all permission if the user is the owner.
+        if (file.getOwner().equals(app.getUsername())) {
+            final HorizontalPanel permForAll = new HorizontalPanel();
+            permForAll.add(new Label("Public"));
+            permForAll.add(readForAll);
+            permForAll.setSpacing(8);
+            permForAll.addStyleName("pithos-TabPanelBottom");
+            permForAll.add(readForAllNote);
+            permPanel.add(permForAll);
+        }
+
+        final HorizontalPanel pathPanel = new HorizontalPanel();
+        pathPanel.setWidth("100%");
+        pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        pathPanel.add(new Label("Link"));
+        pathPanel.setSpacing(8);
+        pathPanel.addStyleName("pithos-TabPanelBottom");
+
+        TextBox path = new TextBox();
+        path.setWidth("100%");
+        path.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Pithos.enableIESelection();
+                ((TextBox) event.getSource()).selectAll();
+                Pithos.preventIESelection();
+            }
+        });
+        path.setText(file.getUri());
+        path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
+        path.setWidth("100%");
+        path.setReadOnly(true);
+        pathPanel.add(path);
+        permPanel.add(pathPanel);
 
         return permPanel;
     }
@@ -411,8 +409,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 //		if (versioned.getValue() != file.isVersioned())
 //			json.put("versioned", JSONBoolean.getInstance(versioned.getValue()));
 		//only update the read for all perm if the user is the owner
-//		if (readForAll.getValue() != file.isReadForAll())
-//			if (file.getOwner().equals(Pithos.get().getCurrentUserResource().getUsername()))
+        Boolean published = null;
+		if (readForAll.getValue() != file.isPublished())
+			if (file.getOwner().equals(Pithos.get().getUsername()))
+                published = readForAll.getValue();
+        final Boolean finalPublished = published;
 //				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
 //		int i = 0;
 //		if (permList.hasChanges()) {
@@ -444,12 +445,12 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         final String[] newTags = tagset;
 
         if (newFilename != null) {
-            final String path = app.getApiPath() + app.getUsername() + file.getParent().getUri() + "/" + newFilename;
-            PutRequest updateFile = new PutRequest(path) {
+            final String path = file.getParent().getUri() + "/" + newFilename;
+            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    if (newTags != null)
-                        updateMetaData(path + "?update=", newTags);
+                    if (newTags != null || finalPublished != null)
+                        updateMetaData(app.getApiPath(), app.getUsername(), path + "?update=", newTags, finalPublished);
                     else
                         app.updateFolder(file.getParent());
                 }
@@ -465,12 +466,12 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else if (newTags != null)
-            updateMetaData(app.getApiPath() + app.getUsername() + file.getUri() + "?update=", newTags);
+        else if (newTags != null || finalPublished != null)
+            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newTags, finalPublished);
 	}
 
-    private void updateMetaData(String path, String[] newTags) {
-        PostRequest updateFile = new PostRequest(path) {
+    private void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published) {
+        PostRequest updateFile = new PostRequest(api, owner, path) {
             @Override
             public void onSuccess(Resource result) {
                 app.updateFolder(file.getParent());
@@ -483,8 +484,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             }
         };
         updateFile.setHeader("X-Auth-Token", app.getToken());
-        for (String t : newTags)
-            updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
+        if (newTags != null)
+            for (String t : newTags)
+                updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
+        if (published != null)
+            updateFile.setHeader("X-Object-Public", published.toString());
         Scheduler.get().scheduleDeferred(updateFile);
     }
 

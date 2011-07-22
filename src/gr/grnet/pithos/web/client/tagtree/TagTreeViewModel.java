@@ -178,8 +178,8 @@ public class TagTreeViewModel implements TreeViewModel {
         final Pithos app = Pithos.get();
         if (iter.hasNext()) {
             Folder f = iter.next();
-            String path = app.getApiPath() + app.getUsername() + f.getUri() + "?format=json&meta=" + t.getName();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, path) {
+            String path = f.getUri() + "?format=json&meta=" + t.getName();
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Folder result) {
                     files.addAll(result.getFiles());

@@ -416,8 +416,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private void fetchFile(final Iterator<File> iter, final Set<File> files) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = getApiPath() + username + "/" + file.getContainer() + "/" + file.getPath() + "?format=json";
-            GetRequest<File> getFile = new GetRequest<File>(File.class, path, file) {
+            String path = file.getUri() + "?format=json";
+            GetRequest<File> getFile = new GetRequest<File>(File.class, getApiPath(), username, path, file) {
                 @Override
                 public void onSuccess(File result) {
                     fetchFile(iter, files);
@@ -476,9 +476,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void fetchAccount() {
-        String path = getApiPath() + username + "?format=json";
+        String path = "?format=json";
 
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), username, path) {
             @Override
             public void onSuccess(AccountResource result) {
                 account = result;
@@ -504,8 +504,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     private void createHomeContainers() {
-        String path = getApiPath() + getUsername() + "/pithos";
-        PutRequest createPithos = new PutRequest(path) {
+        String path = "/pithos";
+        PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(Resource result) {
                 fetchAccount();
@@ -924,8 +924,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             JSONObject o = array.get(i).isObject();
             if (o != null && !o.containsKey("subdir")) {
                 JSONString name = o.get("name").isString();
-                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "/" + name.stringValue();
-                DeleteRequest delete = new DeleteRequest(path) {
+                String path = "/" + folder.getContainer() + "/" + name.stringValue();
+                DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), path) {
                     @Override
                     public void onSuccess(Resource result) {
                         deleteObject(folder, i + 1, array);
@@ -975,9 +975,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
-            String prefix = folder.getPrefix();
-            String path = getApiPath() + getUsername() + "/" + folder.getContainer() + (prefix.length() == 0 ? "" : "/" + prefix);
-            DeleteRequest deleteFolder = new DeleteRequest(path) {
+            String path = folder.getUri();
+            DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     updateFolder(folder.getParent());
@@ -1005,8 +1004,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     public void copyFiles(final Iterator<File> iter, final String targetUri, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = getApiPath() + getUsername() + targetUri + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(path) {
+            String path = targetUri + "/" + file.getName();
+            PutRequest copyFile = new PutRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     copyFiles(iter, targetUri, callback);
@@ -1042,8 +1041,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void copyFolder(final Folder f, final String targetUri, final Command callback) {
-        String path = getApiPath() + getUsername() + targetUri + "/" + f.getName();
-        PutRequest createFolder = new PutRequest(path) {
+        String path = targetUri + "/" + f.getName();
+        PutRequest createFolder = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(Resource result) {
                 Iterator<File> iter = f.getFiles().iterator();

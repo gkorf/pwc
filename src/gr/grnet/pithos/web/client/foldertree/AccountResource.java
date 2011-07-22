@@ -133,7 +133,7 @@ public class AccountResource extends Resource {
         this.currentLogin = currentLogin;
     }
 
-    public void populate(Response response) {
+    public void populate(String owner, Response response) {
         String header = response.getHeader("X-Account-Container-Count");
         if (header != null)
             numberOfContainers = Long.valueOf(header);
@@ -166,16 +166,16 @@ public class AccountResource extends Resource {
                 JSONObject o = array.get(i).isObject();
                 if (o != null) {
                     Folder f = new Folder();
-                    f.populate(null, o, null);
+                    f.populate(null, o, owner, null);
                     containers.add(f);
                 }
             }
         }
     }
 
-    public static AccountResource createFromResponse(Response response) {
+    public static AccountResource createFromResponse(String owner, Response response) {
         AccountResource a = new AccountResource();
-        a.populate(response);
+        a.populate(owner, response);
         return a;
     }
 

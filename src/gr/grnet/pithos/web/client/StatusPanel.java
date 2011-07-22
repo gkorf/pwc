@@ -167,8 +167,7 @@ public class StatusPanel extends Composite {
     //TODO: This should not be done here
 	public void updateStats() {
 		final Pithos app = Pithos.get();
-        String path = app.getApiPath() + app.getUsername();
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUsername(), "") {
             @Override
             public void onSuccess(AccountResource result) {
                 displayStats(result);
