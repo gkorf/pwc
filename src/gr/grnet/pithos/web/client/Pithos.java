@@ -483,8 +483,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onSuccess(AccountResource result) {
                 account = result;
                 statusPanel.displayStats(account);
-                folderTreeViewModel.initialize(account);
                 inner.selectTab(0);
+                if (account.getContainers().isEmpty())
+                    createHomeContainers();
+                else
+                    folderTreeViewModel.initialize(account);
             }
 
             @Override
@@ -498,6 +501,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
         };
         getAccount.setHeader("X-Auth-Token", token);
         Scheduler.get().scheduleDeferred(getAccount);
+    }
+
+    private void createHomeContainers() {
+        String path = getApiPath() + getUsername() + "/pithos";
+        PutRequest createPithos = new PutRequest(path) {
+            @Override
+            public void onSuccess(Resource result) {
+                fetchAccount();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("Error creating pithos", t);
+                if (t instanceof RestException)
+                    Pithos.get().displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
+                else
+                    Pithos.get().displayError("System error Error creating pithos: " + t.getMessage());
+            }
+        };
+        createPithos.setHeader("X-Auth-Token", getToken());
+        Scheduler.get().scheduleDeferred(createPithos);
     }
 
 	/**
