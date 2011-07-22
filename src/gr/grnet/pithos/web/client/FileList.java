@@ -686,7 +686,6 @@ public class FileList extends Composite {
 		}
 	}
 	
-
 	/**
 	 *
 	 */
@@ -695,11 +694,8 @@ public class FileList extends Composite {
 		while(it.hasNext()){
 			selectionModel.setSelected(it.next(),true);
 		}
-
-
 	}
 
-	
 	private void sortFiles(final String sortingProperty, final boolean sortingType){
 		Collections.sort(files, new Comparator<File>() {
 
