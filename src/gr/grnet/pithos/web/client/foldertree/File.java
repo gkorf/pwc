@@ -80,6 +80,8 @@ public class File extends Resource {
 
     private boolean published;
 
+    private String publicUri;
+
     public String getContentType() {
         return contentType;
     }
@@ -158,7 +160,8 @@ public class File extends Resource {
         lastModified = unmarshallDate(o, "last_modified");
         modifiedBy = unmarshallString(o, "modified_by");
         versionTimestamp = unmarshallDate(o, "version_timestamp");
-        published = unmarshallBoolean(o, "x_object_public");
+        published = o.containsKey("x_object_public") ? true : false;
+        publicUri = unmarshallString(o, "x_object_public");
         this.container = container;
 
         for (String key : o.keySet())
@@ -214,5 +217,9 @@ public class File extends Resource {
 
     public boolean isPublished() {
         return published;
+    }
+
+    public String getPublicUri() {
+        return publicUri;
     }
 }

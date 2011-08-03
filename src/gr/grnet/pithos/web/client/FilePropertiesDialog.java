@@ -37,6 +37,7 @@ package gr.grnet.pithos.web.client;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -311,29 +312,31 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             permPanel.add(permForAll);
         }
 
-        final HorizontalPanel pathPanel = new HorizontalPanel();
-        pathPanel.setWidth("100%");
-        pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-        pathPanel.add(new Label("Link"));
-        pathPanel.setSpacing(8);
-        pathPanel.addStyleName("pithos-TabPanelBottom");
+        if (file.isPublished()) {
+            final HorizontalPanel pathPanel = new HorizontalPanel();
+            pathPanel.setWidth("100%");
+            pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+            pathPanel.add(new Label("Link"));
+            pathPanel.setSpacing(8);
+            pathPanel.addStyleName("pithos-TabPanelBottom");
 
-        TextBox path = new TextBox();
-        path.setWidth("100%");
-        path.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Pithos.enableIESelection();
-                ((TextBox) event.getSource()).selectAll();
-                Pithos.preventIESelection();
-            }
-        });
-        path.setText(file.getUri());
-        path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-        path.setWidth("100%");
-        path.setReadOnly(true);
-        pathPanel.add(path);
-        permPanel.add(pathPanel);
+            TextBox path = new TextBox();
+            path.setWidth("100%");
+            path.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    Pithos.enableIESelection();
+                    ((TextBox) event.getSource()).selectAll();
+                    Pithos.preventIESelection();
+                }
+            });
+            path.setText(Window.Location.getHost() + file.getPublicUri());
+            path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
+            path.setWidth("100%");
+            path.setReadOnly(true);
+            pathPanel.add(path);
+            permPanel.add(pathPanel);
+        }
 
         return permPanel;
     }
