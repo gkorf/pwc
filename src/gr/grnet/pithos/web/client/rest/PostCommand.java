@@ -45,14 +45,15 @@ public abstract class PostCommand extends RestCommand{
 	boolean complete = false;
 	String postBody=null;
 
-	public PostCommand(final String path, String data, final int okStatusCode) {
-		this(path, data, okStatusCode, true);
+	public PostCommand(Pithos _app, final String path, String data, final int okStatusCode) {
+		this(_app, path, data, okStatusCode, true);
 	}
 
-	public PostCommand(final String path, String data, final int okStatusCode, boolean showLoading) {
+	public PostCommand(Pithos app, final String path, String data, final int okStatusCode, boolean showLoading) {
+        super(app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Updating ",path);
+			app.showLoadingIndicator("Updating ",path);
 
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, path);
 
@@ -99,7 +100,7 @@ public abstract class PostCommand extends RestCommand{
 		boolean com = isComplete();
 		if (com) {
 			if (isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			return false;
 		}
 		return true;

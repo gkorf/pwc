@@ -61,15 +61,16 @@ public  abstract class HeadCommand<T extends RestResource> extends RestCommand{
 	T cached;
 	final String path;
 
-	public HeadCommand(Class<T> theclass, String pathToGet, T theCached){
-		this(theclass, pathToGet, true, theCached);
+	public HeadCommand(Pithos _app, Class<T> theclass, String pathToGet, T theCached){
+		this(_app, theclass, pathToGet, true, theCached);
 	}
 
-	public HeadCommand(Class<T> theClass, String pathToGet, boolean showLoading, T theCached){
+	public HeadCommand(Pithos _app, Class<T> theClass, String pathToGet, boolean showLoading, T theCached){
+        super(_app);
 		setShowLoadingIndicator(showLoading);
 		this.aclass = theClass;
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
+			app.showLoadingIndicator("Getting ",pathToGet);
 
 		if(theClass.equals(FileResource.class))
 			path = pathToGet;
@@ -137,7 +138,7 @@ public  abstract class HeadCommand<T extends RestResource> extends RestCommand{
 		boolean com = isComplete();
 		if(com){
 			if(isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			if(getResult() != null)
 				onComplete();
 			else

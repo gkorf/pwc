@@ -117,21 +117,20 @@ public class FileContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(Images newImages, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
+	public FileContextMenu(final Pithos app, Images newImages, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
-		Pithos gss = Pithos.get();
 		setAnimationEnabled(true);
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
 
-        if (Pithos.get().getClipboard().hasFiles()) {
-            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(Pithos.get(), this, selectedFolder));
+        if (app.getClipboard().hasFiles()) {
+            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
             contextMenu.addItem(pasteItem);
         }
 
-        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(this, selectedFolder));
+        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
         contextMenu.addItem(upload);
 
 //        MenuItem refresh = new MenuItem("<span>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
@@ -144,31 +143,31 @@ public class FileContextMenu extends PopupPanel {
 //			MenuItem delete = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, null, images));
 //			contextMenu.addItem(delete);
 //		} else {
-			cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(Pithos.get(), this, selectedFiles));
+			cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, selectedFiles));
             contextMenu.addItem(cutItem);
 
-			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(Pithos.get(), this, selectedFiles));
+			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
             contextMenu.addItem(copyItem);
 
-			trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(Pithos.get(), this, selectedFiles));
+			trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, selectedFiles));
             contextMenu.addItem(trashItem);
 
-			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(this, selectedFiles, images));
+			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, images));
             contextMenu.addItem(deleteItem);
 
 //			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));
 //            contextMenu.addItem(sharingItem);
 
-            contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(Pithos.get(), this, selectedFiles, images, 0)));
+            contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, images, 0)));
 
             if (!selectedFiles.isEmpty())
-			    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + Pithos.get().getApiPath() + Pithos.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + Pithos.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
+			    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + app.getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
 
 			MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
                 @Override
                 public void execute() {
                     hide();
-                    Pithos.get().getFileList().clearSelectedRows();
+                    app.getFileList().clearSelectedRows();
                 }
             });
 			contextMenu.addItem(unSelect);

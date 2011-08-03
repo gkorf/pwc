@@ -63,14 +63,13 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
 	private Boolean initialVersioned;
 
-
 	/**
 	 * The widget's constructor.
 	 *
 	 * @param _files
 	 */
 	public FilesPropertiesDialog(Pithos _app, final List<File> _files) {
-		super();
+		super(_app);
 
 		files = _files;
 //		int versionedNum = 0;
@@ -254,7 +253,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 //
 //			@Override
 //			public void onComplete() {
-//				Pithos.get().getTreeView().refreshCurrentNode(false);
+//				app.getTreeView().refreshCurrentNode(false);
 //			}
 //
 //			@Override
@@ -263,18 +262,18 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 //				if(t instanceof RestException){
 //					int statusCode = ((RestException)t).getHttpStatusCode();
 //					if(statusCode == 405)
-//						Pithos.get().displayError("You don't have the necessary permissions");
+//						app.displayError("You don't have the necessary permissions");
 //					else if(statusCode == 404)
-//						Pithos.get().displayError("File does not exist");
+//						app.displayError("File does not exist");
 //					else if(statusCode == 409)
-//						Pithos.get().displayError("A file with the same name already exists");
+//						app.displayError("A file with the same name already exists");
 //					else if(statusCode == 413)
-//						Pithos.get().displayError("Your quota has been exceeded");
+//						app.displayError("Your quota has been exceeded");
 //					else
-//						Pithos.get().displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
+//						app.displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
 //				}
 //				else
-//					Pithos.get().displayError("System error modifying file:"+t.getMessage());
+//					app.displayError("System error modifying file:"+t.getMessage());
 //			}
 //		};
 //		DeferredCommand.addCommand(rt);

@@ -76,7 +76,7 @@ public class ToTrashCommand implements Command{
             trashFiles(iter, new Command() {
                 @Override
                 public void execute() {
-                    app.get().updateFolder(((List<File>) resource).get(0).getParent());
+                    app.updateFolder(((List<File>) resource).get(0).getParent());
                 }
             });
         }
@@ -141,10 +141,10 @@ public class ToTrashCommand implements Command{
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
+                        app.displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             trashFile.setHeader("X-Auth-Token", app.getToken());

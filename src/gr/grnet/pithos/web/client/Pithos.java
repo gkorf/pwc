@@ -159,7 +159,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
 	 */
-	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FileMenu.Images, EditMenu.Images, SettingsMenu.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images, Search.Images, CellTreeView.Images {
+	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FileMenu.Images, EditMenu.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images, Search.Images, CellTreeView.Images {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
@@ -169,22 +169,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 		@Source("gr/grnet/pithos/resources/search.png")
 		ImageResource search();
-	}
-
-	/**
-	 * The single Pithos instance.
-	 */
-	private static Pithos singleton;
-
-	/**
-	 * Gets the singleton Pithos instance.
-	 *
-	 * @return the Pithos object
-	 */
-	public static Pithos get() {
-		if (Pithos.singleton == null)
-			Pithos.singleton = new Pithos();
-		return Pithos.singleton;
 	}
 
 	/**
@@ -212,7 +196,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	/**
 	 * The top right panel that displays the logged in user details
 	 */
-	private UserDetailsPanel userDetailsPanel = new UserDetailsPanel();
+	private UserDetailsPanel userDetailsPanel = new UserDetailsPanel(this);
 
 	/**
 	 * The file list widget.
@@ -277,15 +261,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	@Override
 	public void onModuleLoad() {
-		// Initialize the singleton before calling the constructors of the
-		// various widgets that might call Pithos.get().
-		singleton = this;
 		if (parseUserCredentials())
             initialize();
 	}
 
     private void initialize() {
-        topPanel = new TopPanel(Pithos.images);
+        topPanel = new TopPanel(this, Pithos.images);
         topPanel.setWidth("100%");
 
         messagePanel.setWidth("100%");
@@ -325,10 +306,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
 
-        folderTreeViewModel = new FolderTreeViewModel(folderTreeSelectionModel);
+        folderTreeViewModel = new FolderTreeViewModel(this, folderTreeSelectionModel);
         folderTreeView = new FolderTreeView(folderTreeViewModel);
 
-        fileList = new FileList(images, folderTreeView);
+        fileList = new FileList(this, images, folderTreeView);
         inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
 
         tagTreeSelectionModel = new SingleSelectionModel<Tag>();
@@ -342,7 +323,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
             }
         });
-        tagTreeViewModel = new TagTreeViewModel(tagTreeSelectionModel);
+        tagTreeViewModel = new TagTreeViewModel(this, tagTreeSelectionModel);
         tagTreeView = new TagTreeView(tagTreeViewModel);
 
         VerticalPanel trees = new VerticalPanel();
@@ -362,7 +343,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.add(topPanel);
         outer.add(messagePanel);
         outer.add(splitPanel);
-        statusPanel = new StatusPanel(Pithos.images);
+        statusPanel = new StatusPanel(this, Pithos.images);
         outer.add(statusPanel);
         outer.setWidth("100%");
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -427,9 +408,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 public void onError(Throwable t) {
                     GWT.log("Error getting file", t);
                     if (t instanceof RestException)
-                        Pithos.get().displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
+                        displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
                     else
-                        Pithos.get().displayError("System error fetching file: " + t.getMessage());
+                        displayError("System error fetching file: " + t.getMessage());
                 }
             };
             getFile.setHeader("X-Auth-Token", "0000");
@@ -494,9 +475,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
                 if (t instanceof RestException)
-                    Pithos.get().displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                    displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
-                    Pithos.get().displayError("System error fetching user data: " + t.getMessage());
+                    displayError("System error fetching user data: " + t.getMessage());
             }
         };
         getAccount.setHeader("X-Auth-Token", token);
@@ -515,9 +496,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onError(Throwable t) {
                 GWT.log("Error creating pithos", t);
                 if (t instanceof RestException)
-                    Pithos.get().displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
+                    displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
                 else
-                    Pithos.get().displayError("System error Error creating pithos: " + t.getMessage());
+                    displayError("System error Error creating pithos: " + t.getMessage());
             }
         };
         createPithos.setHeader("X-Auth-Token", getToken());
@@ -860,19 +841,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public String findUserFullName(String _userName){
 		return userFullNameMap.get(_userName);
 	}
-	public String getUserFullName(String _userName) {
-		
-        if (Pithos.get().findUserFullName(_userName) == null)
-                //if there is no userFullName found then the map fills with the given _userName,
-                //so userFullName = _userName
-                Pithos.get().putUserToMap(_userName, _userName);
-        else if(Pithos.get().findUserFullName(_userName).indexOf('@') != -1){
-                //if the userFullName = _userName the GetUserCommand updates the userFullName in the map
-                GetUserCommand guc = new GetUserCommand(_userName);
-                guc.execute();
-        }
-        return Pithos.get().findUserFullName(_userName);
-	}
+
 	/**
 	 * Retrieve the treeView.
 	 *
@@ -911,7 +880,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    Pithos.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                    displayError("System error unable to delete folder: " + exception.getMessage());
                 }
             });
         }
@@ -934,7 +903,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     @Override
                     public void onError(Throwable t) {
                         GWT.log("", t);
-                        Pithos.get().displayError("System error unable to delete folder: " + t.getMessage());
+                        displayError("System error unable to delete folder: " + t.getMessage());
                     }
                 };
                 delete.setHeader("X-Auth-Token", getToken());
@@ -966,7 +935,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                         @Override
                         public void onError(Request request, Throwable exception) {
-                            Pithos.get().displayError("System error unable to delete folder: " + exception.getMessage());
+                            displayError("System error unable to delete folder: " + exception.getMessage());
                         }
                     });
                 }
@@ -989,7 +958,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
                     }
                     else
-                        Pithos.get().displayError("System error unable to delete folder: " + t.getMessage());
+                        displayError("System error unable to delete folder: " + t.getMessage());
                 }
             };
             deleteFolder.setHeader("X-Auth-Token", getToken());
@@ -1015,10 +984,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
+                        displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             copyFile.setHeader("X-Auth-Token", getToken());

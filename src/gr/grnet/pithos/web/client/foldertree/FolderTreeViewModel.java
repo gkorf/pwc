@@ -58,6 +58,8 @@ import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
 
+    private Pithos app;
+    
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
@@ -76,7 +78,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
                 if (!folder.isTrash()) {
-                    FolderContextMenu menu = new FolderContextMenu(FolderTreeView.images, folder);
+                    FolderContextMenu menu = new FolderContextMenu(app, FolderTreeView.images, folder);
                     menu.setPopupPosition(event.getClientX(), event.getClientY());
                     menu.show();
                 }
@@ -90,7 +92,8 @@ public class FolderTreeViewModel implements TreeViewModel {
 
     private SingleSelectionModel<Folder> selectionModel;
 
-    public FolderTreeViewModel(SingleSelectionModel<Folder> selectionModel) {
+    public FolderTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
+        app = _app;
         this.selectionModel = selectionModel;
     }
 
@@ -122,7 +125,6 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     private void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Set<Folder> folders) {
-        final Pithos app = Pithos.get();
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -137,9 +139,9 @@ public class FolderTreeViewModel implements TreeViewModel {
                 public void onError(Throwable t) {
                     GWT.log("Error getting folder", t);
                     if (t instanceof RestException)
-                        Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                     else
-                        Pithos.get().displayError("System error fetching folder: " + t.getMessage());
+                        app.displayError("System error fetching folder: " + t.getMessage());
                 }
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());
@@ -154,7 +156,7 @@ public class FolderTreeViewModel implements TreeViewModel {
                 f.setTrash(true);
                 f.setContainer("trash");
                 dataProvider.getList().add(f);
-                Pithos.get().updateTags();
+                app.updateTags();
             }
         }
     }
@@ -176,7 +178,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (!folder.isTrash())
             fetchFolder(folder, dataProvider);
         else
-            Pithos.get().showFiles(folder);
+            app.showFiles(folder);
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider) {
@@ -184,7 +186,6 @@ public class FolderTreeViewModel implements TreeViewModel {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
-                final Pithos app = Pithos.get();
                 String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                     @Override
@@ -198,9 +199,9 @@ public class FolderTreeViewModel implements TreeViewModel {
                     public void onError(Throwable t) {
                         GWT.log("Error getting folder", t);
                         if (t instanceof RestException)
-                            Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                            app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                         else
-                            Pithos.get().displayError("System error fetching folder: " + t.getMessage());
+                            app.displayError("System error fetching folder: " + t.getMessage());
                     }
                 };
                 getFolder.setHeader("X-Auth-Token", app.getToken());

@@ -76,12 +76,14 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 
 	protected TabPanel inner = null;
 
+    protected Pithos app;
+
 	/**
 	 * The widget's constructor.
 	 *
 	 */
-	public AbstractPropertiesDialog() {
-
+	public AbstractPropertiesDialog(Pithos _app) {
+        app = _app;
 		// Enable IE selection for the dialog (must disable it upon closing it)
 		Pithos.enableIESelection();
 
@@ -92,7 +94,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	 * Retrieves all user tags from the server and updates the FlowPanel
 	 */
 	protected void updateTags() {
-		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(TagsResource.class, Pithos.get().getCurrentUserResource().getTagsPath(),null) {
+		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(app, TagsResource.class, app.getCurrentUserResource().getTagsPath(),null) {
 
 			@Override
 			public void onComplete() {
@@ -128,7 +130,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
-				Pithos.get().displayError("Unable to fetch user tags");
+				app.displayError("Unable to fetch user tags");
 			}
 		};
 		DeferredCommand.addCommand(tc);

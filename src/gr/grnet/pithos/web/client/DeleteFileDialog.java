@@ -64,12 +64,16 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class DeleteFileDialog extends DialogBox {
 
     private List<File> files;
+
+    private Pithos app;
+
 	/**
 	 * The widget's constructor.
 	 *
 	 * @param images the supplied images
 	 */
-	public DeleteFileDialog(Images images, List<File> _files) {
+	public DeleteFileDialog(Pithos _app, Images images, List<File> _files) {
+        app = _app;
         files = _files;
 		// Set the dialog's caption.
 		setText("Confirmation");
@@ -130,7 +134,7 @@ public class DeleteFileDialog extends DialogBox {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
-            DeleteRequest deleteFile = new DeleteRequest(Pithos.get().getApiPath(), Pithos.get().getUsername(), path) {
+            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     deleteFile(iter);
@@ -140,17 +144,17 @@ public class DeleteFileDialog extends DialogBox {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        Pithos.get().displayError("Unable to delete file: " + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to delete file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        Pithos.get().displayError("System error unable to delete file: "+t.getMessage());
+                        app.displayError("System error unable to delete file: "+t.getMessage());
                 }
             };
-            deleteFile.setHeader("X-Auth-Token", Pithos.get().getToken());
+            deleteFile.setHeader("X-Auth-Token", app.getToken());
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {
-            Pithos.get().updateFolder(files.get(0).getParent());
+            app.updateFolder(files.get(0).getParent());
         }
     }
 

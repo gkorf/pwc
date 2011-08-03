@@ -89,12 +89,15 @@ public class StatusPanel extends Composite {
 
 	private final Images images;
 
+    private Pithos app;
+    
 	/**
 	 * The constructor of the status panel.
 	 *
 	 * @param theImages the supplied images
 	 */
-	public StatusPanel(Images theImages) {
+	public StatusPanel(Pithos _app, Images theImages) {
+        app = _app;
 		images = theImages;
 		HorizontalPanel outer = new HorizontalPanel();
 		outer.setWidth("100%");
@@ -166,7 +169,6 @@ public class StatusPanel extends Composite {
 	 */
     //TODO: This should not be done here
 	public void updateStats() {
-		final Pithos app = Pithos.get();
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUsername(), "") {
             @Override
             public void onSuccess(AccountResource result) {

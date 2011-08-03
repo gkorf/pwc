@@ -52,10 +52,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class QuitDialog extends DialogBox {
 
+    private Pithos app;
 	/**
 	 * The widget's constructor.
 	 */
-	public QuitDialog() {
+	public QuitDialog(Pithos _app) {
+        app = _app;
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
 		String service = conf.serviceName();
 		setText("Quit " + service);
@@ -73,7 +75,7 @@ public class QuitDialog extends DialogBox {
 			@Override
 			public void onClick(ClickEvent event) {
 				hide();
-				Pithos.get().logout();
+				app.logout();
 			}
 		});
 		buttons.add(quit);
@@ -105,7 +107,7 @@ public class QuitDialog extends DialogBox {
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
 					hide();
-					Pithos.get().logout();
+					app.logout();
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();

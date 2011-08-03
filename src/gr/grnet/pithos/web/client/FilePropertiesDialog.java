@@ -112,13 +112,12 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 	private String userFullName;
 
-    private Pithos app;
 
 	/**
 	 * The widget's constructor.
 	 */
 	public FilePropertiesDialog(Pithos _app, File _file) {
-        app = _app;
+        super(_app);
         file = _file;
 
 		// Set the dialog's caption.
@@ -411,7 +410,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		//only update the read for all perm if the user is the owner
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
-			if (file.getOwner().equals(Pithos.get().getUsername()))
+			if (file.getOwner().equals(app.getUsername()))
                 published = readForAll.getValue();
         final Boolean finalPublished = published;
 //				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
@@ -496,7 +495,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		JSONObject json = new JSONObject();
 		json.put("versioned", JSONBoolean.getInstance(false));
 		GWT.log(json.toString(), null);
-		PostCommand cf = new PostCommand(file.getUri() + "?update=", json.toString(), 200) {
+		PostCommand cf = new PostCommand(app, file.getUri() + "?update=", json.toString(), 200) {
 
 			@Override
 			public void onComplete() {
@@ -509,17 +508,17 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				if (t instanceof RestException) {
 					int statusCode = ((RestException) t).getHttpStatusCode();
 					if (statusCode == 405)
-						Pithos.get().displayError("You don't have the necessary permissions");
+						app.displayError("You don't have the necessary permissions");
 					else if (statusCode == 404)
-						Pithos.get().displayError("User in permissions does not exist");
+						app.displayError("User in permissions does not exist");
 					else if (statusCode == 409)
-						Pithos.get().displayError("A folder with the same name already exists");
+						app.displayError("A folder with the same name already exists");
 					else if (statusCode == 413)
-						Pithos.get().displayError("Your quota has been exceeded");
+						app.displayError("Your quota has been exceeded");
 					else
-						Pithos.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
+						app.displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
 				} else
-					Pithos.get().displayError("System error moifying file:" + t.getMessage());
+					app.displayError("System error moifying file:" + t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(cf);
@@ -529,11 +528,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		JSONObject json = new JSONObject();
 		json.put("versioned", JSONBoolean.getInstance(versionedValue));
 		GWT.log(json.toString(), null);
-		PostCommand cf = new PostCommand(file.getUri() + "?update=", json.toString(), 200) {
+		PostCommand cf = new PostCommand(app, file.getUri() + "?update=", json.toString(), 200) {
 
 			@Override
 			public void onComplete() {
-				Pithos.get().getTreeView().refreshCurrentNode(false);
+				app.getTreeView().refreshCurrentNode(false);
 			}
 
 			@Override
@@ -542,17 +541,17 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				if (t instanceof RestException) {
 					int statusCode = ((RestException) t).getHttpStatusCode();
 					if (statusCode == 405)
-						Pithos.get().displayError("You don't have the necessary permissions");
+						app.displayError("You don't have the necessary permissions");
 					else if (statusCode == 404)
-						Pithos.get().displayError("User in permissions does not exist");
+						app.displayError("User in permissions does not exist");
 					else if (statusCode == 409)
-						Pithos.get().displayError("A folder with the same name already exists");
+						app.displayError("A folder with the same name already exists");
 					else if (statusCode == 413)
-						Pithos.get().displayError("Your quota has been exceeded");
+						app.displayError("Your quota has been exceeded");
 					else
-						Pithos.get().displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
+						app.displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
 				} else
-					Pithos.get().displayError("System error moifying file:" + t.getMessage());
+					app.displayError("System error moifying file:" + t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(cf);

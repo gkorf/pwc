@@ -41,13 +41,17 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.user.client.IncrementalCommand;
 
 public abstract class RestCommand implements IncrementalCommand {
+    protected Pithos app;
 	protected boolean showLoadingIndicator = true;
+
+    public RestCommand(Pithos _app) {
+        app = _app;
+    }
 
 	protected void handleHeaders(String username, RequestBuilder requestBuilder, String path) {
 		String date = getDate();
 		requestBuilder.setHeader("X-Pithos-Date", date);
 
-		Pithos app = Pithos.get();
 		String token = app.getToken();
 		if (token == null)
 			token = "aa";
@@ -58,11 +62,11 @@ public abstract class RestCommand implements IncrementalCommand {
 	}
 
 	protected void handleHeaders(RequestBuilder requestBuilder, String path) {
-		if (Pithos.get().getCurrentUserResource() != null) {
-			String username = Pithos.get().getCurrentUserResource().getUsername();
+		if (app.getCurrentUserResource() != null) {
+			String username = app.getCurrentUserResource().getUsername();
 			handleHeaders(username, requestBuilder, path);
 		} else
-			Pithos.get().displayError("no username");
+			app.displayError("no username");
 	}
 
 	public static native String getDate()/*-{
@@ -133,8 +137,8 @@ public abstract class RestCommand implements IncrementalCommand {
 		showLoadingIndicator = newShowLoadingIndicator;
 	}
 
-	static void sessionExpired() {
-		SessionExpiredDialog dlg = new SessionExpiredDialog();
+	void sessionExpired() {
+		SessionExpiredDialog dlg = new SessionExpiredDialog(app);
 		dlg.center();
 	}
 

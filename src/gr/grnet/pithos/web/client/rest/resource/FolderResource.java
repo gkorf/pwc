@@ -597,14 +597,6 @@ public class FolderResource extends RestResource {
 			constructedUri = constructedUri + "Files/files/" + getName();
 			return constructedUri;
 		}
-		else if(treeItem.getParentItem() == null){
-			//this is the case when the user uses the browser's forward arrow to navigate through other's
-			//shared folders and item.getParentItem is null only inside other's shared folder
-			String apiPath = Pithos.get().getApiPath();
-			String newPath = getParentURI().substring(apiPath.lastIndexOf("/"));
-			constructedUri = constructedUri + "Files"+ newPath + getName();
-			return constructedUri;
-		}
 		else{
 			String finalUri = getParentURI().substring(path.lastIndexOf("/")) + getName();
 			constructedUri = constructedUri + "Files"+ finalUri;

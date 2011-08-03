@@ -103,14 +103,14 @@ public class FileMenu extends MenuBar {
         Folder selectedFolder = _app.getFolderTreeView().getSelection();
         List<File> selectedFiles = _app.getFileList().getSelectedFiles();
         if (selectedFolder != null) {
-		    MenuItem newFolderItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(null, selectedFolder, images));
+		    MenuItem newFolderItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(_app,  null, selectedFolder, images));
 		    addItem(newFolderItem);
 
-            MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(null, selectedFolder));
+            MenuItem uploadItem = new MenuItem("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(_app, null, selectedFolder));
             addItem(uploadItem);
         }
         if (selectedFiles.size() == 1) {
-            addItem(new MenuItem("<span><a class='hidden-link' href='" + Pithos.get().getApiPath() + Pithos.get().getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + Pithos.get().getToken() + "' target='_blank'>" + AbstractImagePrototype.create(images.download()).getHTML() + " Download</a></span>", true, (Command) null));
+            addItem(new MenuItem("<span><a class='hidden-link' href='" + _app.getApiPath() + _app.getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + _app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(images.download()).getHTML() + " Download</a></span>", true, (Command) null));
         }
 
 //        MenuItem emptyTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(this));
@@ -127,7 +127,7 @@ public class FileMenu extends MenuBar {
 //                       .setVisible(propertiesVisible);
 //
         if (selectedFiles.size() > 0 || selectedFolder != null) {
-            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(Pithos.get(), null, selectedFiles.size() > 0 ? selectedFiles : selectedFolder, images, 0));
+            MenuItem propertiesItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(_app, null, selectedFiles.size() > 0 ? selectedFiles : selectedFolder, images, 0));
             addItem(propertiesItem);
         }
 	}

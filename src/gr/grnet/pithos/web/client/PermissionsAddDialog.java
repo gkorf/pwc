@@ -87,7 +87,10 @@ public class PermissionsAddDialog extends DialogBox {
 
 	boolean userAdd;
 
-	public PermissionsAddDialog(List<GroupResource> _groups, PermissionsList _permList, boolean _userAdd) {
+    private Pithos app;
+
+	public PermissionsAddDialog(Pithos _app, List<GroupResource> _groups, PermissionsList _permList, boolean _userAdd) {
+        app = _app;
 		groups = _groups;
 		userAdd = _userAdd;
 		permList = _permList;
@@ -200,7 +203,7 @@ public class PermissionsAddDialog extends DialogBox {
 			selectedUser = suggestBox.getText();
 			for(PermissionHolder p : permList.permissions)
 				if (selectedUser.equals(p.getUser())){
-					Pithos.get().displayError("User already has access to the resource");
+					app.displayError("User already has access to the resource");
 					return;
 				}
 			perm.setUser(selectedUser);
@@ -214,7 +217,7 @@ public class PermissionsAddDialog extends DialogBox {
 				return;
 			for(PermissionHolder p : permList.permissions)
 				if (selected.getName().equals(p.getGroup())){
-					Pithos.get().displayError("Group already has access to the resource");
+					app.displayError("Group already has access to the resource");
 					return;
 				}
 			perm.setGroup(selected.getName());
@@ -261,11 +264,10 @@ public class PermissionsAddDialog extends DialogBox {
 	 * Update the list of suggestions.
 	 */
 	protected void updateSuggestions() {
-		final Pithos app = Pithos.get();
 		String query = selectedUser.substring(0, selectedUser.length()-1);
 		GWT.log("Searching for " + query, null);
 
-		GetCommand<UserSearchResource> eg = new GetCommand<UserSearchResource>(UserSearchResource.class,
+		GetCommand<UserSearchResource> eg = new GetCommand<UserSearchResource>(app, UserSearchResource.class,
 					app.getApiPath() + "users/" + URL.encodeComponent(query), false, null) {
 
 			@Override

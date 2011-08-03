@@ -87,7 +87,10 @@ public class TagTreeViewModel implements TreeViewModel {
 
     private SingleSelectionModel<Tag> selectionModel;
 
-    public TagTreeViewModel(SingleSelectionModel<Tag> selectionModel) {
+    private Pithos app;
+
+    public TagTreeViewModel(Pithos _app, SingleSelectionModel<Tag> selectionModel) {
+        app = _app;
         this.selectionModel = selectionModel;
     }
 
@@ -129,7 +132,6 @@ public class TagTreeViewModel implements TreeViewModel {
     }
 
     private void fetchTags(final Iterator<Folder> iter) {
-        final Pithos app = Pithos.get();
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -144,9 +146,9 @@ public class TagTreeViewModel implements TreeViewModel {
 //                public void onError(Throwable t) {
 //                    GWT.log("Error getting folder", t);
 //                    if (t instanceof RestException)
-//                        Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+//                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
 //                    else
-//                        Pithos.get().displayError("System error fetching folder: " + t.getMessage());
+//                        app.displayError("System error fetching folder: " + t.getMessage());
 //                }
 //            };
 //            getFolder.setHeader("X-Auth-Token", app.getToken());
@@ -168,14 +170,12 @@ public class TagTreeViewModel implements TreeViewModel {
     }
 
     public void fetchTag(Tag t) {
-        Pithos app = Pithos.get();
         AccountResource account = app.getAccount();
         Iterator<Folder> iter = account.getContainers().iterator();
         fetchTag(iter, t, new LinkedHashSet<File>());
     }
 
     private void fetchTag(final Iterator<Folder> iter, final Tag t, final Set<File> files) {
-        final Pithos app = Pithos.get();
         if (iter.hasNext()) {
             Folder f = iter.next();
             String path = f.getUri() + "?format=json&meta=" + t.getName();
@@ -190,9 +190,9 @@ public class TagTreeViewModel implements TreeViewModel {
                 public void onError(Throwable t) {
                     GWT.log("Error getting folder", t);
                     if (t instanceof RestException)
-                        Pithos.get().displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                     else
-                        Pithos.get().displayError("System error fetching folder: " + t.getMessage());
+                        app.displayError("System error fetching folder: " + t.getMessage());
                 }
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());

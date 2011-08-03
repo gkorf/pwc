@@ -76,8 +76,11 @@ public class PermissionsList extends Composite {
 	private boolean hasChanges = false;
 	
 	private boolean hasAddition = false;
+
+    private Pithos app;
 	
-	public PermissionsList(final Images theImages, Set<PermissionHolder> thePermissions, String anOwner){
+	public PermissionsList(Pithos _app, final Images theImages, Set<PermissionHolder> thePermissions, String anOwner){
+        app = _app;
 		images = theImages;
 		owner = anOwner;
 		permissions =  new HashSet<PermissionHolder>();
@@ -159,7 +162,6 @@ public class PermissionsList extends Composite {
 	 * If the user's full name does not exist in the map then a request is being made
 	 * for the specific username.  
 	 * 
-	 * @param filesInput
 	 */
 	private void handleFullNames(Set<PermissionHolder> aPermissions){		
 		if(aPermissions.isEmpty()){
@@ -173,7 +175,7 @@ public class PermissionsList extends Composite {
 				aPermissions.remove(dto);				
 				handleFullNames(aPermissions);				
 			}
-		}else if(Pithos.get().findUserFullName(dto.getUser()) != null){
+		}else if(app.findUserFullName(dto.getUser()) != null){
 			if(aPermissions.size() >= 1){
 				aPermissions.remove(dto);				
 				handleFullNames(aPermissions);				
@@ -186,7 +188,6 @@ public class PermissionsList extends Composite {
 	/**
 	 * Shows the permission table 
 	 * 
-	 * @param aPermissions
 	 */
 	private void showPermissionTable(){
 		int i = 1;
@@ -209,7 +210,7 @@ public class PermissionsList extends Composite {
 					permTable.setHTML(i, 0, "<span id=permissionList.Owner>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;Owner</span>");
 					removeButton.setVisible(false);
 				}else{
-					permTable.setHTML(i, 0, "<span id=permissionList."+ Pithos.get().findUserFullName(dto.getUser())+">"+ AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;"+ Pithos.get().findUserFullName(dto.getUser()) + "</span>");
+					permTable.setHTML(i, 0, "<span id=permissionList."+ app.findUserFullName(dto.getUser())+">"+ AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;"+ app.findUserFullName(dto.getUser()) + "</span>");
 				}
 			}else if(dto.getGroup() != null){
 				permTable.setHTML(i, 0, "<span id=permissionList."+dto.getGroup()+">" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;"+ dto.getGroup() + "</span>");
@@ -252,21 +253,20 @@ public class PermissionsList extends Composite {
 	 * Makes a request to search for full name from a given username
 	 * and continues checking the next element of the Set.
 	 *  
-	 * @param filesInput
 	 */
 
 	private void findFullNameAndUpdate(final Set<PermissionHolder> aPermissions){				
 		final PermissionHolder dto = aPermissions.iterator().next();
-		String path = Pithos.get().getApiPath() + "users/" + dto.getUser();
+		String path = app.getApiPath() + "users/" + dto.getUser();
 
-		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class, path, false,null) {
+		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(app, UserSearchResource.class, path, false,null) {
 			@Override
 			public void onComplete() {
 				final UserSearchResource result = getResult();
 				for (UserResource user : result.getUsers()){
 					String username = user.getUsername();
 					String userFullName = user.getName();
-					Pithos.get().putUserToMap(username, userFullName);
+					app.putUserToMap(username, userFullName);
 					if(aPermissions.size() >= 1){
 						aPermissions.remove(dto);						
 						if(aPermissions.isEmpty()){
@@ -279,7 +279,7 @@ public class PermissionsList extends Composite {
 			}
 			@Override
 			public void onError(Throwable t) {				
-				Pithos.get().displayError("Unable to fetch user's full name from the given username " + dto.getUser());
+				app.displayError("Unable to fetch user's full name from the given username " + dto.getUser());
 				if(aPermissions.size() >= 1){
 					aPermissions.remove(dto);
 					if(aPermissions.isEmpty()){

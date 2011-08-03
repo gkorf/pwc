@@ -125,14 +125,15 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 	private static Map<RequestData, ResponseData> cache = new HashMap<RequestData, ResponseData>();
 	
 
-	public GetCommand(Class<T> theclass, String pathToGet, T theCached){
-		this(theclass, pathToGet, true, theCached);
+	public GetCommand(Pithos _app, Class<T> theclass, String pathToGet, T theCached){
+		this(_app, theclass, pathToGet, true, theCached);
 	}
 
-	public GetCommand(Class<T> theclass, String pathToGet, boolean showLoading, T theCached){
+	public GetCommand(Pithos _app, Class<T> theclass, String pathToGet, boolean showLoading, T theCached){
+        super(_app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
+			app.showLoadingIndicator("Getting ",pathToGet);
 		this.aclass = theclass;
 		if(pathToGet.indexOf("?") != -1)
 			path = pathToGet;
@@ -141,14 +142,15 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 		this.cached = theCached;
 	}
 
-	public GetCommand(Class<T> theclass, String aUsername , String pathToGet, T theCached){
-		this(theclass, aUsername, pathToGet, true, theCached);
+	public GetCommand(Pithos _app, Class<T> theclass, String aUsername , String pathToGet, T theCached){
+		this(_app, theclass, aUsername, pathToGet, true, theCached);
 	}
 
-	public GetCommand(Class<T> theclass, String aUsername , String pathToGet, boolean showLoading, T theCached){
+	public GetCommand(Pithos _app, Class<T> theclass, String aUsername , String pathToGet, boolean showLoading, T theCached){
+        super(_app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Getting ",pathToGet);
+			app.showLoadingIndicator("Getting ",pathToGet);
 		this.aclass = theclass;
 		path = fixPath(pathToGet);
 		this.username = aUsername;
@@ -227,7 +229,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 				else {
 					// Use cache data
 					if(isShowLoadingIndicator())
-						Pithos.get().hideLoadingIndicator();
+						app.hideLoadingIndicator();
 					if (resp.result instanceof Throwable) {
 						// Error to be handled
 						Throwable ex = (Throwable) resp.result;
@@ -251,7 +253,7 @@ public abstract class GetCommand<T extends RestResource> extends RestCommand{
 		
 		if(com){
 			if(isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			if(getResult() != null) {
 				// Add to cache
 				cache.put(key, new ResponseData(System.currentTimeMillis(), getResult()));

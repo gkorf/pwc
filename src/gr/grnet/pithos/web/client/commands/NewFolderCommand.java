@@ -57,11 +57,14 @@ public class NewFolderCommand implements Command{
 
 	private List<GroupResource> groups = null;
 
+    private Pithos app;
+
 	/**
 	 * @param aContainerPanel
 	 * @param newImages the images of the new folder dialog
 	 */
-	public NewFolderCommand(PopupPanel aContainerPanel, Folder folder, final Images newImages){
+	public NewFolderCommand(Pithos _app, PopupPanel aContainerPanel, Folder folder, final Images newImages){
+        app = _app;
 		containerPanel = aContainerPanel;
 		images=newImages;
         this.folder = folder;
@@ -76,7 +79,7 @@ public class NewFolderCommand implements Command{
 
 	void displayNewFolderDialog() {
         if (folder != null) {
-            FolderPropertiesDialog dlg = new FolderPropertiesDialog(Pithos.get(), true, folder);
+            FolderPropertiesDialog dlg = new FolderPropertiesDialog(app, true, folder);
             dlg.center();
         }
 	}

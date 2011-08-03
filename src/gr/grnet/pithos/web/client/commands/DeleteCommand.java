@@ -57,11 +57,13 @@ public class DeleteCommand implements Command{
 
     private Object resource;
 
+    private Pithos app;
 	/**
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 */
-	public DeleteCommand( PopupPanel _containerPanel, Object resource, final Images _newImages ){
+	public DeleteCommand(Pithos _app, PopupPanel _containerPanel, Object resource, final Images _newImages ){
+        app = _app;
 		containerPanel = _containerPanel;
 		newImages = _newImages;
         this.resource = resource;
@@ -73,10 +75,10 @@ public class DeleteCommand implements Command{
     		containerPanel.hide();
 
         if (resource instanceof Folder) {
-            DeleteFolderDialog dlg = new DeleteFolderDialog(Pithos.get(), newImages, (Folder) resource);
+            DeleteFolderDialog dlg = new DeleteFolderDialog(app, newImages, (Folder) resource);
             dlg.center();
         } else if (resource instanceof List) {
-            DeleteFileDialog dlg = new DeleteFileDialog(newImages, (List<File>) resource);
+            DeleteFileDialog dlg = new DeleteFileDialog(app, newImages, (List<File>) resource);
             dlg.center();
         }
 	}

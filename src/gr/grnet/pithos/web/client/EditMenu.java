@@ -179,7 +179,7 @@ public class EditMenu extends MenuBar {
                 MenuItem moveToTrashItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(_app, null, cutObject));
                 addItem(moveToTrashItem);
 
-                MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(null, cutObject, images));
+                MenuItem deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(_app, null, cutObject, images));
                 addItem(deleteItem);
             }
         }

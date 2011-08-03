@@ -67,14 +67,15 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 	String[] paths;
 	private boolean requestSent=false;
 
-	public MultipleGetCommand(Class<T> aNewClass, String[] pathToGet, Cached[] theCached) {
-		this(aNewClass, pathToGet, true, theCached);
+	public MultipleGetCommand(Pithos _app, Class<T> aNewClass, String[] pathToGet, Cached[] theCached) {
+		this(_app, aNewClass, pathToGet, true, theCached);
 	}
 
-	public MultipleGetCommand(Class<T> aNewClass, String[] pathToGet, boolean showLoading, Cached[] theCached) {
+	public MultipleGetCommand(Pithos _app, Class<T> aNewClass, String[] pathToGet, boolean showLoading, Cached[] theCached) {
+        super(_app);
 		setShowLoadingIndicator(showLoading);
 		if (isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Getting "+pathToGet.length+" items", null);
+			app.showLoadingIndicator("Getting "+pathToGet.length+" items", null);
 		aclass = aNewClass;
 		paths = pathToGet;
 		this.cached = theCached;
@@ -87,7 +88,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 		requestSent=true;
 		if (cached!=null)
 			for (final Cached pathg : cached)
-				DeferredCommand.addCommand(new GetCommand<T>(aclass,pathg.uri,false,(T)pathg.cache) {
+				DeferredCommand.addCommand(new GetCommand<T>(app, aclass,pathg.uri,false,(T)pathg.cache) {
 
 					@Override
 					public void onComplete() {
@@ -102,7 +103,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 				});
 		else
 			for (final String pathg : paths)
-				DeferredCommand.addCommand(new GetCommand<T>(aclass,pathg,false,null) {
+				DeferredCommand.addCommand(new GetCommand<T>(app, aclass,pathg,false,null) {
 
 					@Override
 					public void onComplete() {
@@ -156,7 +157,7 @@ public abstract class MultipleGetCommand<T extends RestResource> extends RestCom
 		boolean com = isComplete();
 		if (com) {
 			if (isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			if (hasErrors())
 				for(String p : errors.keySet())
 					onError(p, errors.get(p));

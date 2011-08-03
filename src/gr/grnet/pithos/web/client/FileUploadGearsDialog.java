@@ -120,7 +120,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 		info.addStyleName("pithos-uploadNote");
 		panel.add(info);
 		// Add an informative label with the folder name.
-		Object selection = Pithos.get().getTreeView().getSelection();
+		Object selection = app.getTreeView().getSelection();
 
 		browse = new Button("Browse...");
 
@@ -160,7 +160,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 			public void onClick(ClickEvent event) {
 				canContinue = false;				
 				cancelUpload();				
-				Pithos.get().showFileList(true);
+				app.showFileList(true);
 			}
 		});
 		buttons.add(cancel);
@@ -211,7 +211,6 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 
 	@Override
 	public void prepareAndSubmit() {
-		Pithos app = Pithos.get();
 		if (selectedFiles.size() == 0) {
 			app.displayError("You must select a file!");
 			hide();
@@ -299,7 +298,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 		for (final String name: toRename.keySet()) {
 			JSONObject json = new JSONObject();
 			json.put("name", new JSONString(name));
-			PostCommand cf = new PostCommand(toRename.get(name).getUri() + "?update=", json.toString(), 200) {
+			PostCommand cf = new PostCommand(app, toRename.get(name).getUri() + "?update=", json.toString(), 200) {
 
 				@Override
 				public void onComplete() {
@@ -309,7 +308,6 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 
 				@Override
 				public void onError(Throwable t) {
-					Pithos app = Pithos.get();
 					GWT.log("", t);
 					if (t instanceof RestException) {
 						int statusCode = ((RestException) t).getHttpStatusCode();
@@ -347,7 +345,6 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 	 * Perform the HTTP request to upload the specified file.
 	 */
 	protected void doSend(final List<File> filesRemaining) {
-		final Pithos app = Pithos.get();
 		HttpRequest request = factory.createHttpRequest();
 		requests.add(request);
 		String method = "PUT";
@@ -382,7 +379,7 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 						doSend(filesRemaining);				
 						break;
 					case 403:
-						SessionExpiredDialog dlg = new SessionExpiredDialog();
+						SessionExpiredDialog dlg = new SessionExpiredDialog(app);
 						dlg.center();
 						break;
 					case 405:
@@ -420,9 +417,9 @@ public class FileUploadGearsDialog extends FileUploadDialog {
 	 */
 	protected void finish() {
 		hide();
-		//Pithos.get().showFileList(true);
-		Pithos.get().getTreeView().updateNode(Pithos.get().getTreeView().getSelection());//showFileList(true);
-		Pithos.get().getStatusPanel().updateStats();
+		//app.showFileList(true);
+		app.getTreeView().updateNode(app.getTreeView().getSelection());//showFileList(true);
+		app.getStatusPanel().updateStats();
 	}
 
 	/**

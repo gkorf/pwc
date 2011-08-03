@@ -52,10 +52,13 @@ public class UserDetailsPanel extends Composite {
 	 */
 	private HTML userInfoLabel;
 
+    private Pithos app;
+
 	/**
 	 * The constructor of the user details panel.
 	 */
-	public UserDetailsPanel() {
+	public UserDetailsPanel(Pithos _app) {
+        app = _app;
 		final HorizontalPanel outer = new HorizontalPanel();
 		outer.setSpacing(8);
 		userInfoLabel = new HTML("&nbsp;");
@@ -80,11 +83,11 @@ public class UserDetailsPanel extends Composite {
 	 * @return true if the work has been carried out successfully
 	 */
 	protected boolean displayUserInfo() {
-		UserResource user = Pithos.get().getCurrentUserResource();
+		UserResource user = app.getCurrentUserResource();
 		if (user == null)
 			return !DONE;
 		userInfoLabel.setHTML("<b>" + user.getName() + " \u0387 " + user.getUsername() + "</b>");
-		Pithos.get().putUserToMap(user.getUsername(), user.getName());
+		app.putUserToMap(user.getUsername(), user.getName());
 		return DONE;
 	}
 

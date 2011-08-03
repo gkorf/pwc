@@ -57,14 +57,17 @@ public class GetUserCommand implements Command{
 	 */
 	private String userName;
 
-	public GetUserCommand(String _userName){
+    private Pithos app;
+
+	public GetUserCommand(Pithos _app, String _userName){
+        app = _app;
 		userName = _userName;
 	}
 
 	@Override
 	public void execute() {
-		String path = Pithos.get().getApiPath() + "users/" + userName;
-		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(UserSearchResource.class,
+		String path = app.getApiPath() + "users/" + userName;
+		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(app, UserSearchResource.class,
 					path, false ,null) {
 			@Override
 			public void onComplete() {
@@ -72,13 +75,13 @@ public class GetUserCommand implements Command{
 				for (UserResource user : result.getUsers()){
 					String username = user.getUsername();
 					String _userFullName = user.getName();
-					Pithos.get().putUserToMap(username, _userFullName);
+					app.putUserToMap(username, _userFullName);
 				}
 			}
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
-				Pithos.get().displayError("Unable to fetch user's full name from the given username " + userName);
+				app.displayError("Unable to fetch user's full name from the given username " + userName);
 			}
 		};
 		DeferredCommand.addCommand(gg);

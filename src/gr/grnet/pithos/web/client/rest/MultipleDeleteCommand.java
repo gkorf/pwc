@@ -57,14 +57,15 @@ public abstract class MultipleDeleteCommand extends RestCommand {
 
 	String[] paths;
 
-	public MultipleDeleteCommand(String[] pathToDelete){
-		this(pathToDelete, true);
+	public MultipleDeleteCommand(Pithos _app, String[] pathToDelete){
+		this(_app, pathToDelete, true);
 	}
 
-	public MultipleDeleteCommand(String[] pathToDelete, boolean showLoading){
+	public MultipleDeleteCommand(Pithos _app, String[] pathToDelete, boolean showLoading){
+        super(_app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Deleting "+pathToDelete.length+" items",null);
+			app.showLoadingIndicator("Deleting "+pathToDelete.length+" items",null);
 		paths = pathToDelete;
 		for (final String pathg : pathToDelete) {
 			GWT.log("[DEL]"+pathg, null);
@@ -111,7 +112,7 @@ public abstract class MultipleDeleteCommand extends RestCommand {
 					onError(p, errors.get(p));
 			onComplete();
 			if(isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			return false;
 		}
 		return true;

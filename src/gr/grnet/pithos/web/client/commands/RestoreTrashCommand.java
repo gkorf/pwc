@@ -59,19 +59,21 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class RestoreTrashCommand implements Command{
 	private PopupPanel containerPanel;
+    private Pithos app;
 
-	public RestoreTrashCommand(PopupPanel _containerPanel){
+	public RestoreTrashCommand(Pithos _app, PopupPanel _containerPanel){
+        app = _app;
 		containerPanel = _containerPanel;
 	}
 
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		Object selection = Pithos.get().getCurrentSelection();
+		Object selection = app.getCurrentSelection();
 		if (selection == null){
 			// Check to see if Trash Node is selected.
 			List folderList = new ArrayList();
-			TrashResource trashItem = Pithos.get().getTreeView().getTrash();
+			TrashResource trashItem = app.getTreeView().getTrash();
 			for(int i=0 ; i < trashItem.getFolders().size() ; i++)
 				folderList.add(trashItem.getFolders().get(i));
 			return;
@@ -79,14 +81,14 @@ public class RestoreTrashCommand implements Command{
 		GWT.log("selection: " + selection.toString(), null);
 		if (selection instanceof FileResource) {
 			final FileResource resource = (FileResource)selection;
-			PostCommand rt = new PostCommand(resource.getUri()+"?restore=","", 200){
+			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
 
 				@Override
 				public void onComplete() {
 					//TODO:CELLTREE
-					//Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
+					//app.getFolders().update(app.getFolders().getTrashItem());
 					
-					Pithos.get().showFileList(true);
+					app.showFileList(true);
 				}
 
 				@Override
@@ -95,18 +97,18 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							Pithos.get().displayError("You don't have the necessary permissions");
+							app.displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							Pithos.get().displayError("File does not exist");
+							app.displayError("File does not exist");
 						else if(statusCode == 409)
-							Pithos.get().displayError("A file with the same name already exists");
+							app.displayError("A file with the same name already exists");
 						else if(statusCode == 413)
-							Pithos.get().displayError("Your quota has been exceeded");
+							app.displayError("Your quota has been exceeded");
 						else
-							Pithos.get().displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
+							app.displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
 					}
 					else
-						Pithos.get().displayError("System error restoring file:"+t.getMessage());
+						app.displayError("System error restoring file:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);
@@ -116,13 +118,13 @@ public class RestoreTrashCommand implements Command{
 			final List<String> fileIds = new ArrayList<String>();
 			for(FileResource f : fdtos)
 				fileIds.add(f.getUri()+"?restore=");
-			MultiplePostCommand rt = new MultiplePostCommand(fileIds.toArray(new String[0]), 200){
+			MultiplePostCommand rt = new MultiplePostCommand(app, fileIds.toArray(new String[0]), 200){
 
 				@Override
 				public void onComplete() {
 					//TODO:CELLTREE
-					//Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
-					Pithos.get().showFileList(true);
+					//app.getFolders().update(app.getFolders().getTrashItem());
+					app.showFileList(true);
 				}
 
 				@Override
@@ -131,37 +133,37 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							Pithos.get().displayError("You don't have the necessary permissions");
+							app.displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							Pithos.get().displayError("File does not exist");
+							app.displayError("File does not exist");
 						else if(statusCode == 409)
-							Pithos.get().displayError("A file with the same name already exists");
+							app.displayError("A file with the same name already exists");
 						else if(statusCode == 413)
-							Pithos.get().displayError("Your quota has been exceeded");
+							app.displayError("Your quota has been exceeded");
 						else
-							Pithos.get().displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
+							app.displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
 					}
 					else
-						Pithos.get().displayError("System error restoring file:"+t.getMessage());
+						app.displayError("System error restoring file:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);
 		}
 		else if (selection instanceof TrashFolderResource) {
 			final FolderResource resource = ((TrashFolderResource)selection).getResource();
-			PostCommand rt = new PostCommand(resource.getUri()+"?restore=","", 200){
+			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
 
 				@Override
 				public void onComplete() {
 					//TODO:CELLTREE
 					/*
-					Pithos.get().getFolders().updateFolder((DnDTreeItem) Pithos.get().getFolders().getRootItem());
+					app.getFolders().updateFolder((DnDTreeItem) app.getFolders().getRootItem());
 
-					Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
+					app.getFolders().update(app.getFolders().getTrashItem());
 					*/
 					
-					Pithos.get().getTreeView().updateTrashNode();
-					Pithos.get().getTreeView().updateRootNode();
+					app.getTreeView().updateTrashNode();
+					app.getTreeView().updateRootNode();
 				}
 
 				@Override
@@ -170,18 +172,18 @@ public class RestoreTrashCommand implements Command{
 					if(t instanceof RestException){
 						int statusCode = ((RestException)t).getHttpStatusCode();
 						if(statusCode == 405)
-							Pithos.get().displayError("You don't have the necessary permissions");
+							app.displayError("You don't have the necessary permissions");
 						else if(statusCode == 404)
-							Pithos.get().displayError("Folder does not exist");
+							app.displayError("Folder does not exist");
 						else if(statusCode == 409)
-							Pithos.get().displayError("A folder with the same name already exists");
+							app.displayError("A folder with the same name already exists");
 						else if(statusCode == 413)
-							Pithos.get().displayError("Your quota has been exceeded");
+							app.displayError("Your quota has been exceeded");
 						else
-							Pithos.get().displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
+							app.displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
 					}
 					else
-						Pithos.get().displayError("System error restoring folder:"+t.getMessage());
+						app.displayError("System error restoring folder:"+t.getMessage());
 				}
 			};
 			DeferredCommand.addCommand(rt);

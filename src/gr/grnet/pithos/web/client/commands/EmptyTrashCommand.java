@@ -50,19 +50,22 @@ import com.google.gwt.user.client.ui.PopupPanel;
 public class EmptyTrashCommand implements Command{
 	private PopupPanel containerPanel;
 
-	public EmptyTrashCommand(PopupPanel _containerPanel){
+    private Pithos app;
+
+	public EmptyTrashCommand(Pithos _app, PopupPanel _containerPanel){
+        app = _app;
 		containerPanel = _containerPanel;
 	}
 
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		DeleteCommand df = new DeleteCommand(Pithos.get().getTreeView().getTrash().getUri()){
+		DeleteCommand df = new DeleteCommand(app, app.getTreeView().getTrash().getUri()){
 
 			@Override
 			public void onComplete() {
-				Pithos.get().getTreeView().updateTrashNode();
-				Pithos.get().showFileList(true);
+				app.getTreeView().updateTrashNode();
+				app.showFileList(true);
 			}
 
 			@Override
@@ -71,14 +74,14 @@ public class EmptyTrashCommand implements Command{
 				if(t instanceof RestException){
 					int statusCode = ((RestException)t).getHttpStatusCode();
 					if(statusCode == 405)
-						Pithos.get().displayError("You don't have the necessary permissions");
+						app.displayError("You don't have the necessary permissions");
 					else if(statusCode == 404)
-						Pithos.get().displayError("Resource does not exist");
+						app.displayError("Resource does not exist");
 					else
-						Pithos.get().displayError("Unable to empty trash:"+((RestException)t).getHttpStatusText());
+						app.displayError("Unable to empty trash:"+((RestException)t).getHttpStatusText());
 				}
 				else
-					Pithos.get().displayError("System error emptying trash:"+t.getMessage());
+					app.displayError("System error emptying trash:"+t.getMessage());
 			}
 		};
 		DeferredCommand.addCommand(df);

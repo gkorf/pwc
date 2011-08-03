@@ -54,10 +54,13 @@ import com.google.gwt.user.client.ui.PopupPanel;
 
 public class DnDFolderPopupMenu extends PopupPanel {
 
-    public DnDFolderPopupMenu(final CellTreeView.Images newImages, final Folder target, final Object toCopy) {
+    private Pithos app;
+
+    public DnDFolderPopupMenu(Pithos _app, final CellTreeView.Images newImages, final Folder target, final Object toCopy) {
         // The popup's constructor's argument is a boolean specifying that it
         // auto-close itself when the user clicks outside of it.
         super(true);
+        app = _app;
         setAnimationEnabled(true);
         // A dummy command that we will execute from unimplemented leaves.
         final Command cancelCmd = new Command() {
@@ -69,7 +72,7 @@ public class DnDFolderPopupMenu extends PopupPanel {
         };
 
         final MenuBar contextMenu = new MenuBar(true);
-        final CellTreeView folders = Pithos.get().getTreeView();
+        final CellTreeView folders = app.getTreeView();
 
         contextMenu.addItem("<span>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Move</span>", true, new Command() {
 
@@ -79,7 +82,7 @@ public class DnDFolderPopupMenu extends PopupPanel {
                     moveFolder(target, (Folder) toCopy);
                 }
                 else if (toCopy instanceof List) {
-                    List<File> files = Pithos.get().getFileList().getSelectedFiles();
+                    List<File> files = app.getFileList().getSelectedFiles();
                     moveFiles(target, files);
                 }
                 hide();
@@ -93,7 +96,7 @@ public class DnDFolderPopupMenu extends PopupPanel {
                 if (toCopy instanceof Folder)
                     copyFolder(target, (Folder) toCopy);
                 else if (toCopy instanceof List) {
-                    List<File> files = Pithos.get().getFileList().getSelectedFiles();
+                    List<File> files = app.getFileList().getSelectedFiles();
                     copyFiles(target, files);
                 }
                 hide();
@@ -109,7 +112,7 @@ public class DnDFolderPopupMenu extends PopupPanel {
                     trashFolder(((RestResourceWrapper) toCopy).getResource());
                 }
                 else if (toCopy instanceof List) {
-                    List<File> files = Pithos.get().getFileList().getSelectedFiles();
+                    List<File> files = app.getFileList().getSelectedFiles();
                     trashFiles(files);
                 }
                 hide();
@@ -128,8 +131,8 @@ public class DnDFolderPopupMenu extends PopupPanel {
 //
 //            @Override
 //            public void onComplete() {
-//                Pithos.get().getTreeView().updateNodeChildren(new RestResourceWrapper(target));
-//                Pithos.get().getStatusPanel().updateStats();
+//                app.getTreeView().updateNodeChildren(new RestResourceWrapper(target));
+//                app.getStatusPanel().updateStats();
 //            }
 //
 //            @Override
@@ -138,17 +141,17 @@ public class DnDFolderPopupMenu extends PopupPanel {
 //                if (t instanceof RestException) {
 //                    int statusCode = ((RestException) t).getHttpStatusCode();
 //                    if (statusCode == 405)
-//                        Pithos.get().displayError("You don't have the necessary permissions");
+//                        app.displayError("You don't have the necessary permissions");
 //
 //                    else if (statusCode == 409)
-//                        Pithos.get().displayError("A folder with the same name already exists");
+//                        app.displayError("A folder with the same name already exists");
 //                    else if (statusCode == 413)
-//                        Pithos.get().displayError("Your quota has been exceeded");
+//                        app.displayError("Your quota has been exceeded");
 //                    else
-//                        Pithos.get().displayError("Unable to copy folder:" + ((RestException) t).getHttpStatusText());
+//                        app.displayError("Unable to copy folder:" + ((RestException) t).getHttpStatusText());
 //                }
 //                else
-//                    Pithos.get().displayError("System error copying folder:" + t.getMessage());
+//                    app.displayError("System error copying folder:" + t.getMessage());
 //            }
 //        };
 //        DeferredCommand.addCommand(cf);
@@ -164,9 +167,9 @@ public class DnDFolderPopupMenu extends PopupPanel {
 //            @Override
 //            public void onComplete() {
 //                GWT.log("[MOVE]" + target.getUri() + "   " + toCopy.getParentURI());
-//                Pithos.get().getTreeView().updateNodeChildren(new RestResourceWrapper(target));
-//                Pithos.get().getTreeView().updateNodeChildrenForRemove(toCopy.getParentURI());
-//                Pithos.get().getStatusPanel().updateStats();
+//                app.getTreeView().updateNodeChildren(new RestResourceWrapper(target));
+//                app.getTreeView().updateNodeChildrenForRemove(toCopy.getParentURI());
+//                app.getStatusPanel().updateStats();
 //            }
 //
 //            @Override
@@ -175,17 +178,17 @@ public class DnDFolderPopupMenu extends PopupPanel {
 //                if (t instanceof RestException) {
 //                    int statusCode = ((RestException) t).getHttpStatusCode();
 //                    if (statusCode == 405)
-//                        Pithos.get().displayError("You don't have the necessary permissions");
+//                        app.displayError("You don't have the necessary permissions");
 //
 //                    else if (statusCode == 409)
-//                        Pithos.get().displayError("A folder with the same name already exists");
+//                        app.displayError("A folder with the same name already exists");
 //                    else if (statusCode == 413)
-//                        Pithos.get().displayError("Your quota has been exceeded");
+//                        app.displayError("Your quota has been exceeded");
 //                    else
-//                        Pithos.get().displayError("Unable to copy folder:" + ((RestException) t).getHttpStatusText());
+//                        app.displayError("Unable to copy folder:" + ((RestException) t).getHttpStatusText());
 //                }
 //                else
-//                    Pithos.get().displayError("System error copying folder:" + t.getMessage());
+//                    app.displayError("System error copying folder:" + t.getMessage());
 //            }
 //        };
 //        DeferredCommand.addCommand(cf);
@@ -216,17 +219,17 @@ public class DnDFolderPopupMenu extends PopupPanel {
     }
 
     private void trashFolder(final FolderResource folder) {
-        PostCommand tot = new PostCommand(folder.getUri() + "?trash=", "", 200) {
+        PostCommand tot = new PostCommand(app, folder.getUri() + "?trash=", "", 200) {
 
             @Override
             public void onComplete() {
-                Pithos.get().getTreeView().updateNodeChildrenForRemove(folder.getParentURI());
-                Pithos.get().getTreeView().updateTrashNode();
+                app.getTreeView().updateNodeChildrenForRemove(folder.getParentURI());
+                app.getTreeView().updateTrashNode();
                 /*for(TreeItem item : items)
-                        Pithos.get().getFolders().updateFolder((DnDTreeItem) item);
-                Pithos.get().getFolders().update(Pithos.get().getFolders().getTrashItem());
+                        app.getFolders().updateFolder((DnDTreeItem) item);
+                app.getFolders().update(app.getFolders().getTrashItem());
 
-                Pithos.get().showFileList(true);
+                app.showFileList(true);
                 */
             }
 
@@ -236,14 +239,14 @@ public class DnDFolderPopupMenu extends PopupPanel {
                 if (t instanceof RestException) {
                     int statusCode = ((RestException) t).getHttpStatusCode();
                     if (statusCode == 405)
-                        Pithos.get().displayError("You don't have the necessary permissions");
+                        app.displayError("You don't have the necessary permissions");
                     else if (statusCode == 404)
-                        Pithos.get().displayError("Folder does not exist");
+                        app.displayError("Folder does not exist");
                     else
-                        Pithos.get().displayError("Unable to trash folder:" + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to trash folder:" + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    Pithos.get().displayError("System error trashing folder:" + t.getMessage());
+                    app.displayError("System error trashing folder:" + t.getMessage());
             }
         };
         DeferredCommand.addCommand(tot);
@@ -253,11 +256,11 @@ public class DnDFolderPopupMenu extends PopupPanel {
         final List<String> fileIds = new ArrayList<String>();
         for (File f : files)
             fileIds.add(f.getUri() + "?trash=");
-        MultiplePostCommand tot = new MultiplePostCommand(fileIds.toArray(new String[0]), 200) {
+        MultiplePostCommand tot = new MultiplePostCommand(app, fileIds.toArray(new String[0]), 200) {
 
             @Override
             public void onComplete() {
-                Pithos.get().showFileList(true);
+                app.showFileList(true);
             }
 
             @Override
@@ -266,14 +269,14 @@ public class DnDFolderPopupMenu extends PopupPanel {
                 if (t instanceof RestException) {
                     int statusCode = ((RestException) t).getHttpStatusCode();
                     if (statusCode == 405)
-                        Pithos.get().displayError("You don't have the necessary permissions");
+                        app.displayError("You don't have the necessary permissions");
                     else if (statusCode == 404)
-                        Pithos.get().displayError("File does not exist");
+                        app.displayError("File does not exist");
                     else
-                        Pithos.get().displayError("Unable to trash file:" + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to trash file:" + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    Pithos.get().displayError("System error trashing file:" + t.getMessage());
+                    app.displayError("System error trashing file:" + t.getMessage());
             }
         };
         DeferredCommand.addCommand(tot);
@@ -281,11 +284,11 @@ public class DnDFolderPopupMenu extends PopupPanel {
 
     private void executeCopyOrMoveFiles(final int index, final List<String> paths) {
         if (index >= paths.size()) {
-            Pithos.get().showFileList(true);
-            Pithos.get().getStatusPanel().updateStats();
+            app.showFileList(true);
+            app.getStatusPanel().updateStats();
             return;
         }
-        PostCommand cf = new PostCommand(paths.get(index), "", 200) {
+        PostCommand cf = new PostCommand(app, paths.get(index), "", 200) {
 
             @Override
             public void onComplete() {
@@ -298,18 +301,18 @@ public class DnDFolderPopupMenu extends PopupPanel {
                 if (t instanceof RestException) {
                     int statusCode = ((RestException) t).getHttpStatusCode();
                     if (statusCode == 405)
-                        Pithos.get().displayError("You don't have the necessary permissions");
+                        app.displayError("You don't have the necessary permissions");
                     else if (statusCode == 404)
-                        Pithos.get().displayError("File not found");
+                        app.displayError("File not found");
                     else if (statusCode == 409)
-                        Pithos.get().displayError("A file with the same name already exists");
+                        app.displayError("A file with the same name already exists");
                     else if (statusCode == 413)
-                        Pithos.get().displayError("Your quota has been exceeded");
+                        app.displayError("Your quota has been exceeded");
                     else
-                        Pithos.get().displayError("Unable to copy file:" + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to copy file:" + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    Pithos.get().displayError("System error copying file:" + t.getMessage());
+                    app.displayError("System error copying file:" + t.getMessage());
             }
         };
         DeferredCommand.addCommand(cf);

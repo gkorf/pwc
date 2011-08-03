@@ -55,7 +55,6 @@ public class FileUploadGearsIEDialog extends FileUploadGearsDialog {
 	 */	
 	@Override
 	protected void doSend(final List<File> filesRemaining) {
-		final Pithos app = Pithos.get();
 		HttpRequest request = factory.createHttpRequest();
 		requests.add(request);
 		String method = "POST";

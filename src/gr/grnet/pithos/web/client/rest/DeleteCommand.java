@@ -46,15 +46,16 @@ public abstract class DeleteCommand extends RestCommand{
 
 	boolean complete = false;
 
-	public DeleteCommand(String pathToDelete){
-		this(pathToDelete, true);
+	public DeleteCommand(Pithos app, String pathToDelete){
+		this(app, pathToDelete, true);
 	}
 
 
-	public DeleteCommand(String pathToDelete, boolean showLoading){
+	public DeleteCommand(Pithos app, String pathToDelete, boolean showLoading){
+        super(app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Deleting ",pathToDelete);
+			app.showLoadingIndicator("Deleting ",pathToDelete);
 		final String path;
 		if(pathToDelete.endsWith("/"))
 			path = pathToDelete;
@@ -101,7 +102,7 @@ public abstract class DeleteCommand extends RestCommand{
 		boolean com = isComplete();
 		if(com){
 			if(isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			return false;
 		}
 		return true;

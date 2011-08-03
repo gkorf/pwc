@@ -131,10 +131,10 @@ public class PasteCommand implements Command {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        Pithos.get().displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                        app.displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
                     else
-                        Pithos.get().displayError("System error unable to copy file: "+t.getMessage());
+                        app.displayError("System error unable to copy file: "+t.getMessage());
                 }
             };
             copyFile.setHeader("X-Auth-Token", app.getToken());

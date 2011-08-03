@@ -56,11 +56,13 @@ public class TopPanel extends Composite {
 	 */
 	public static final boolean DONE = false;
 
+    private Pithos app;
+
 	/**
 	 * An image bundle for this widgets images.
 	 */
 	public interface Images extends ClientBundle, FileMenu.Images, EditMenu.Images,
-			SettingsMenu.Images, FilePropertiesDialog.Images,
+			FilePropertiesDialog.Images,
 			HelpMenu.Images, LoadingIndicator.Images {
 
 		@Source("gr/grnet/pithos/resources/exit.png")
@@ -99,7 +101,8 @@ public class TopPanel extends Composite {
 	 *
 	 * @param images the supplied images
 	 */
-	public TopPanel(final Images images) {
+	public TopPanel(Pithos _app, final Images images) {
+        this.app = _app;
 		loading = new LoadingIndicator(images);
         loading.hide();
 		HorizontalPanel outer = new HorizontalPanel();
@@ -115,7 +118,7 @@ public class TopPanel extends Composite {
 		Command quitCommand = new Command(){
 			@Override
 			public void execute() {
-				QuitDialog dlg = new QuitDialog();
+				QuitDialog dlg = new QuitDialog(app);
 				dlg.center();
 			}
 		};
@@ -126,7 +129,7 @@ public class TopPanel extends Composite {
 					AbstractImagePrototype.create(images.folder()).getHTML() + "</td><td>File</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return new FileMenu(Pithos.get(), images);
+				return new FileMenu(app, images);
 			}
 		};
 
@@ -134,7 +137,7 @@ public class TopPanel extends Composite {
 					AbstractImagePrototype.create(images.edit()).getHTML() + "</td><td>Edit</td></tr></table>", true, new MenuBar(true)){
 			@Override
 			public MenuBar getSubMenu() {
-				return new EditMenu(Pithos.get(), images);
+				return new EditMenu(app, images);
 			}
 		};
 

@@ -51,29 +51,29 @@ import com.google.gwt.http.client.Response;
 
 public abstract class MultiplePostCommand extends RestCommand {
 
-
 	Map<String, Throwable> errors = new HashMap<String, Throwable>();
 
 	List<String> successPaths = new ArrayList<String>();
 
 	String[] paths;
 
-	public MultiplePostCommand(String[] pathToDelete, final int okStatusCode){
-		this(pathToDelete, okStatusCode, true);
+	public MultiplePostCommand(Pithos app, String[] pathToDelete, final int okStatusCode){
+		this(app, pathToDelete, okStatusCode, true);
 	}
 
-	public MultiplePostCommand(String[] pathToDelete, String data, final int okStatusCode){
-		this(pathToDelete, data, okStatusCode, true);
+	public MultiplePostCommand(Pithos app, String[] pathToDelete, String data, final int okStatusCode){
+		this(app, pathToDelete, data, okStatusCode, true);
 	}
 
-	public MultiplePostCommand(String[] pathToDelete, final int okStatusCode, boolean showLoading){
-		this(pathToDelete, "", okStatusCode, showLoading);
+	public MultiplePostCommand(Pithos app, String[] pathToDelete, final int okStatusCode, boolean showLoading){
+		this(app, pathToDelete, "", okStatusCode, showLoading);
 	}
 
-	public MultiplePostCommand(String[] pathToDelete, String data, final int okStatusCode, boolean showLoading){
+	public MultiplePostCommand(Pithos app, String[] pathToDelete, String data, final int okStatusCode, boolean showLoading){
+        super(app);
 		setShowLoadingIndicator(showLoading);
 		if(isShowLoadingIndicator())
-			Pithos.get().showLoadingIndicator("Updating "+pathToDelete.length+" items", null);
+			app.showLoadingIndicator("Updating "+pathToDelete.length+" items", null);
 		paths = pathToDelete;
 		for (final String pathg : pathToDelete) {
 			GWT.log("[DEL]"+pathg, null);
@@ -120,7 +120,7 @@ public abstract class MultiplePostCommand extends RestCommand {
 					onError(p, errors.get(p));
 			onComplete();
 			if(isShowLoadingIndicator())
-				Pithos.get().hideLoadingIndicator();
+				app.hideLoadingIndicator();
 			return false;
 		}
 		return true;

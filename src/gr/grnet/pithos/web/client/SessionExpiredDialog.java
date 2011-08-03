@@ -47,10 +47,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 public class SessionExpiredDialog extends DialogBox {
+    private Pithos app;
 	/**
 	 * The widget constructor.
 	 */
-	public SessionExpiredDialog() {
+	public SessionExpiredDialog(Pithos _app) {
+        app = _app;
 		// Set the dialog's caption.
 		setText("Session Expired");
 		setAnimationEnabled(true);
@@ -66,7 +68,7 @@ public class SessionExpiredDialog extends DialogBox {
 		Button confirm = new Button("Proceed", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				Pithos.get().authenticateUser();
+				app.authenticateUser();
 				hide();
 			}
 		});
@@ -86,7 +88,7 @@ public class SessionExpiredDialog extends DialogBox {
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
-					Pithos.get().authenticateUser();
+					app.authenticateUser();
 					hide();
 					break;
 				case KeyCodes.KEY_ESCAPE:

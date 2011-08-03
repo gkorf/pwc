@@ -50,12 +50,15 @@ public class UploadFileCommand implements Command {
 
 	private PopupPanel containerPanel;
 
+    private Pithos app;
+
     /*
      * The folder that is the target of the upload
      */
     private Folder folder;
 
-	public UploadFileCommand(PopupPanel _containerPanel, Folder _folder) {
+	public UploadFileCommand(Pithos _app, PopupPanel _containerPanel, Folder _folder) {
+        app = _app;
 		containerPanel = _containerPanel;
         folder = _folder;
 	}
@@ -72,7 +75,7 @@ public class UploadFileCommand implements Command {
 	 */
 	private void displayNewFile() {
         FileUploadDialog dlg = GWT.create(FileUploadDialog.class);
-        dlg.setApp(Pithos.get());
+        dlg.setApp(app);
         dlg.setFolder(folder);
 		dlg.center();
 	}

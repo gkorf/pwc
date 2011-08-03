@@ -51,11 +51,14 @@ public class RefreshCommand implements Command {
 
 	private PopupPanel containerPanel;
 
+    private Pithos app;
+
 	/**
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 */
-	public RefreshCommand(PopupPanel _containerPanel, final FileMenu.Images _newImages) {
+	public RefreshCommand(Pithos _app, PopupPanel _containerPanel, final FileMenu.Images _newImages) {
+        app = _app;
 		containerPanel = _containerPanel;
 		newImages = _newImages;
 	}
@@ -63,17 +66,17 @@ public class RefreshCommand implements Command {
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		if (Pithos.get().getCurrentSelection() instanceof FileResource || Pithos.get().getCurrentSelection() instanceof List)
-			Pithos.get().showFileList(true);
-		else if (Pithos.get().getCurrentSelection() instanceof GroupUserResource)
+		if (app.getCurrentSelection() instanceof FileResource || app.getCurrentSelection() instanceof List)
+			app.showFileList(true);
+		else if (app.getCurrentSelection() instanceof GroupUserResource)
 			return;
 		else{
 			//TODO:CELLTREE
-			//DnDTreeItem selectedTreeItem = (DnDTreeItem) Pithos.get().getFolders().getCurrent();
+			//DnDTreeItem selectedTreeItem = (DnDTreeItem) app.getFolders().getCurrent();
 			//if(selectedTreeItem != null){
-				//Pithos.get().getFolders().updateFolder(selectedTreeItem);
-			Pithos.get().getTreeView().updateNode(Pithos.get().getTreeView().getSelection());
-				Pithos.get().showFileList(true);
+				//app.getFolders().updateFolder(selectedTreeItem);
+			app.getTreeView().updateNode(app.getTreeView().getSelection());
+				app.showFileList(true);
 			//}
 		}
 	}

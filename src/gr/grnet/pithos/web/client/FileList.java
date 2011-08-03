@@ -256,6 +256,8 @@ public class FileList extends Composite {
 
     FolderTreeView treeView;
 
+    private Pithos app;
+
     /**
 	 * Construct the file list widget. This entails setting up the widget
 	 * layout, fetching the number of files in the current folder from the
@@ -264,7 +266,8 @@ public class FileList extends Composite {
 	 *
 	 * @param _images
 	 */
-	public FileList(Images _images, FolderTreeView _treeView) {
+	public FileList(final Pithos _app, Images _images, FolderTreeView _treeView) {
+        app = _app;
 		images = _images;
         this.treeView = _treeView;
 
@@ -417,7 +420,7 @@ public class FileList extends Composite {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				new UploadFileCommand(null, treeView.getSelection()).execute();
+				new UploadFileCommand(app, null, treeView.getSelection()).execute();
 			}
 		});
 		HorizontalPanel topPanel = new HorizontalPanel();
@@ -435,7 +438,7 @@ public class FileList extends Composite {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				new UploadFileCommand(null, treeView.getSelection()).execute();
+				new UploadFileCommand(app, null, treeView.getSelection()).execute();
 			}
 		});
         HorizontalPanel bottomPanel = new HorizontalPanel();
@@ -449,7 +452,7 @@ public class FileList extends Composite {
             public void onContextMenu(ContextMenuEvent event) {
                 Folder selectedFolder = treeView.getSelection();
                 if (!selectedFolder.isTrash()) {
-                    FileContextMenu contextMenu = new FileContextMenu(images, selectedFolder, getSelectedFiles(), false);
+                    FileContextMenu contextMenu = new FileContextMenu(app, images, selectedFolder, getSelectedFiles(), false);
                     int x = event.getNativeEvent().getClientX();
                     int y = event.getNativeEvent().getClientY();
                     contextMenu.setPopupPosition(x, y);
@@ -465,9 +468,9 @@ public class FileList extends Composite {
              @Override 
              public void onSelectionChange(SelectionChangeEvent event) {
             	 if(getSelectedFiles().size() == 1)
-            		 Pithos.get().setCurrentSelection(getSelectedFiles().get(0));
+            		 app.setCurrentSelection(getSelectedFiles().get(0));
             	 else
-            		 Pithos.get().setCurrentSelection(getSelectedFiles());
+            		 app.setCurrentSelection(getSelectedFiles());
              }
          };
          selectionModel.addSelectionChangeHandler(selectionHandler);
@@ -541,7 +544,7 @@ public class FileList extends Composite {
 //			event.preventDefault();
 //		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 //			if (getSelectedFiles().size() == 1) {
-//				Pithos app = Pithos.get();
+//				Pithos app = app;
 //				File file = getSelectedFiles().get(0);
 //				Window.open(file.getUri(), "_blank", "");
 //				event.preventDefault();
@@ -622,7 +625,7 @@ public class FileList extends Composite {
 	 * Update status panel with currently showing file stats.
 	 */
 	public void updateCurrentlyShowingStats() {
-		Pithos.get().getStatusPanel().updateCurrentlyShowing(showingStats);
+		app.getStatusPanel().updateCurrentlyShowing(showingStats);
 	}
 	
 	/**
