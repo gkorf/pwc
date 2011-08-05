@@ -37,16 +37,12 @@ package gr.grnet.pithos.web.client.foldertree;
 
 import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
-import java.io.StringWriter;
-import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class File extends Resource {
@@ -81,6 +77,10 @@ public class File extends Resource {
     private boolean published;
 
     private String publicUri;
+
+    private Map<String, Boolean[]> permissions = new HashMap<String, Boolean[]>();
+
+    private String inheritedPermissionsFrom;
 
     public String getContentType() {
         return contentType;
@@ -164,11 +164,39 @@ public class File extends Resource {
         publicUri = unmarshallString(o, "x_object_public");
         this.container = container;
 
+        inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
+        String rawPermissions = unmarshallString(o, "x_object_sharing");
+        if (rawPermissions != null)
+            parsePermissions(rawPermissions);
+
         for (String key : o.keySet())
             if (key.startsWith("x_object_meta_") && !key.equals("x_object_meta_trash"))
                 tags.add(key.substring("x_object_meta_".length()).trim().toLowerCase());
 
         
+    }
+
+    private void parsePermissions(String rawPermissions) {
+        String[] readwrite = rawPermissions.split(";");
+        for (String s : readwrite) {
+            String[] part = s.split("=");
+            String perm = part[0].trim();
+            String[] users = part[1].split(",");
+            for (String u : users) {
+                String user = u.trim();
+                Boolean[] userPerm = permissions.get(u);
+                if (userPerm == null) {
+                    userPerm = new Boolean[2];
+                    permissions.put(user, userPerm);
+                }
+                if (perm.equals("read")) {
+                    userPerm[0] = Boolean.TRUE;
+                }
+                else if (perm.equals("write")) {
+                    userPerm[1] = Boolean.TRUE;
+                }
+            }
+        }
     }
 
     public boolean equals(Object other) {
@@ -198,7 +226,13 @@ public class File extends Resource {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-") && !header.equals("X-Object-Meta-Trash"))
                 tags.add(header.substring("X-Object-Meta-".length()).trim().toLowerCase());
-
+            else if (header.equals("X-Object-Sharing")) {
+                String rawPermissions = h.getValue();
+                parsePermissions(rawPermissions);
+            }
+            else if (header.equals("X-Object-Shared-By")) {
+                inheritedPermissionsFrom = h.getValue().trim();
+            }
         }
         String header = response.getHeader("X-Object-Meta-Trash");
         if (header != null)
@@ -221,5 +255,9 @@ public class File extends Resource {
 
     public String getPublicUri() {
         return publicUri;
+    }
+
+    public Map<String, Boolean[]> getPermissions() {
+        return permissions;
     }
 }

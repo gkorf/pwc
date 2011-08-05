@@ -44,9 +44,11 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -87,6 +89,10 @@ public class Folder extends Resource {
     private Set<String> tags = new LinkedHashSet<String>();
 
     private String owner;
+
+    private Map<String, Boolean[]> permissions = new HashMap<String, Boolean[]>();
+
+    private String inheritedPermissionsFrom;
 
     public Folder() {};
 
@@ -130,6 +136,29 @@ public class Folder extends Resource {
         this.prefix = prefix;
     }
 
+    private void parsePermissions(String rawPermissions) {
+        String[] readwrite = rawPermissions.split(";");
+        for (String s : readwrite) {
+            String[] part = s.split("=");
+            String perm = part[0].trim();
+            String[] users = part[1].split(",");
+            for (String u : users) {
+                String user = u.trim();
+                Boolean[] userPerm = permissions.get(u);
+                if (userPerm == null) {
+                    userPerm = new Boolean[2];
+                    permissions.put(user, userPerm);
+                }
+                if (perm.equals("read")) {
+                    userPerm[0] = Boolean.TRUE;
+                }
+                else if (perm.equals("write")) {
+                    userPerm[1] = Boolean.TRUE;
+                }
+            }
+        }
+    }
+
     public void populate(String owner, Response response) {
         this.owner = owner;
         String header = response.getHeader("Last-Modified");
@@ -150,6 +179,11 @@ public class Folder extends Resource {
                 tags.add(t.toLowerCase().trim());
             }
         }
+
+        inheritedPermissionsFrom = response.getHeader("X-Object-Shared-By");
+        String rawPermissions = response.getHeader("X-Object-Sharing");
+        if (rawPermissions != null)
+            parsePermissions(rawPermissions);
 
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         files.clear();
@@ -210,6 +244,11 @@ public class Folder extends Resource {
         this.owner = owner;
         if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
             inTrash = true;
+
+        inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
+        String rawPermissions = unmarshallString(o, "x_object_sharing");
+        if (rawPermissions != null)
+            parsePermissions(rawPermissions);
     }
 
     public static Folder createFromResponse(String owner, Response response, Folder result) {

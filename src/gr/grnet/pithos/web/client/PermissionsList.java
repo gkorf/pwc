@@ -40,7 +40,9 @@ import gr.grnet.pithos.web.client.rest.resource.PermissionHolder;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
 import gr.grnet.pithos.web.client.rest.resource.UserSearchResource;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -61,7 +63,7 @@ public class PermissionsList extends Composite {
 	
 	int permissionCount = -1;
 	
-	Set<PermissionHolder> permissions = null;
+	Map<String, Boolean[]> permissions = null;
 	
 	final Images images;
 	
@@ -71,25 +73,21 @@ public class PermissionsList extends Composite {
 	
 	final String owner;
 	
-	PermissionHolder toRemove = null;
-	
 	private boolean hasChanges = false;
 	
 	private boolean hasAddition = false;
 
     private Pithos app;
 	
-	public PermissionsList(Pithos _app, final Images theImages, Set<PermissionHolder> thePermissions, String anOwner){
+	public PermissionsList(Pithos _app, final Images theImages, Map<String, Boolean[]> thePermissions, String anOwner){
         app = _app;
 		images = theImages;
 		owner = anOwner;
-		permissions =  new HashSet<PermissionHolder>();
-		permissions.addAll(thePermissions);
+		permissions =  new HashMap<String, Boolean[]>(thePermissions);
 		permTable.setText(0, 0, "Users/Groups");
 		permTable.setText(0, 1, "Read");
 		permTable.setText(0, 2, "Write");
-		permTable.setText(0, 3, "Modify Access");
-		permTable.setText(0, 4, "");
+		permTable.setText(0, 3, "");
 		permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
 		permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
 		permTable.getFlexCellFormatter().setStyleName(0, 2, "props-toplabels");
@@ -97,38 +95,29 @@ public class PermissionsList extends Composite {
 		permPanel.add(permTable);
 		permPanel.addStyleName("pithos-TabPanelBottom");
 		initWidget(permPanel);
-		updateTable();
+		updatePermissionTable();
 	}
 
 	public boolean hasChanges(){
 		return hasChanges || hasAddition;
 	}
 
-
-	public void updateTable(){
-		copySetAndContinue(permissions);
-	}
-
 	public void updatePermissionsAccordingToInput(){
-		int i=1;
-		for(PermissionHolder dto : permissions){
-			/*if(dto.getId() == null)
-				hasChanges =true;*/
-			CheckBox r = (CheckBox) permTable.getWidget(i, 1);
-			CheckBox w = (CheckBox) permTable.getWidget(i, 2);
-			CheckBox m = (CheckBox) permTable.getWidget(i, 3);
-			
-			r.getElement().setId("permissionList.read");
-			w.getElement().setId("permissionList.write");
-			m.getElement().setId("permissionList.modify");
-			
-			if(dto.isRead() != r.getValue() || dto.isWrite() != w.getValue() || dto.isModifyACL() != m.getValue())
-				hasChanges = true;
-			dto.setRead(r.getValue());
-			dto.setWrite(w.getValue());
-			dto.setModifyACL(m.getValue());
-			i++;
-		}		
+//		int i=1;
+//		for(PermissionHolder dto : permissions){
+//			/*if(dto.getId() == null)
+//				hasChanges =true;*/
+//			CheckBox r = (CheckBox) permTable.getWidget(i, 1);
+//			CheckBox w = (CheckBox) permTable.getWidget(i, 2);
+//
+//
+//			if(dto.isRead() != r.getValue() || dto.isWrite() != w.getValue() || dto.isModifyACL() != m.getValue())
+//				hasChanges = true;
+//			dto.setRead(r.getValue());
+//			dto.setWrite(w.getValue());
+//			dto.setModifyACL(m.getValue());
+//			i++;
+//		}
 	}
 
 	/**
@@ -136,162 +125,61 @@ public class PermissionsList extends Composite {
 	 *
 	 * @return the permissions
 	 */
-	public Set<PermissionHolder> getPermissions() {
+	public Map<String, Boolean[]> getPermissions() {
 		return permissions;
 	}
 
-	public void addPermission(PermissionHolder permission){
-		permissions.add(permission);
+	public void addPermission(String user, boolean read, boolean write){
+		permissions.put(user, new Boolean[] {Boolean.valueOf(read), Boolean.valueOf(write)});
 		hasAddition = true;
+        updatePermissionTable();
 	}
-	/**
-	 * Copies the input Set to a new Set
-	 * @param input
-	 */
-	private void copySetAndContinue(Set<PermissionHolder> input){
-		Set<PermissionHolder> copiedInput = new HashSet<PermissionHolder>();		
-		for(PermissionHolder dto : input) {
-			copiedInput.add(dto);
-		}
-		handleFullNames(copiedInput);
-	}
-	
-	/**
-	 * Examines whether or not the user's full name exists in the 
-	 * userFullNameMap in the Pithos.java for every element of the input list.
-	 * If the user's full name does not exist in the map then a request is being made
-	 * for the specific username.  
-	 * 
-	 */
-	private void handleFullNames(Set<PermissionHolder> aPermissions){		
-		if(aPermissions.isEmpty()){
-			showPermissionTable();
-			return;
-		}
-		
-		final PermissionHolder dto = aPermissions.iterator().next();
-		if(dto.getGroup() != null){
-			if(aPermissions.size() >= 1){
-				aPermissions.remove(dto);				
-				handleFullNames(aPermissions);				
-			}
-		}else if(app.findUserFullName(dto.getUser()) != null){
-			if(aPermissions.size() >= 1){
-				aPermissions.remove(dto);				
-				handleFullNames(aPermissions);				
-			}
-		}else{
-			findFullNameAndUpdate(aPermissions);
-		}
-	}
-	
+
 	/**
 	 * Shows the permission table 
 	 * 
 	 */
-	private void showPermissionTable(){
+	void updatePermissionTable(){
 		int i = 1;
-		if(toRemove != null){
-			permissions.remove(toRemove);
-			toRemove = null;
-		}
-		for(final PermissionHolder dto : permissions){
+        for (int j=1; j<permTable.getRowCount(); j++)
+            permTable.removeRow(j);
+		for(final String user : permissions.keySet()) {
 			PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					toRemove = dto;
-					updateTable();
+                    permissions.remove(user);
+					updatePermissionTable();
 					hasChanges = true;
 				}
 			});
-						
-			if(dto.getUser() != null){
-				if(dto.getUser() != null && dto.getUser().equals(owner)){
-					permTable.setHTML(i, 0, "<span id=permissionList.Owner>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;Owner</span>");
-					removeButton.setVisible(false);
-				}else{
-					permTable.setHTML(i, 0, "<span id=permissionList."+ app.findUserFullName(dto.getUser())+">"+ AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;"+ app.findUserFullName(dto.getUser()) + "</span>");
-				}
-			}else if(dto.getGroup() != null){
-				permTable.setHTML(i, 0, "<span id=permissionList."+dto.getGroup()+">" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;"+ dto.getGroup() + "</span>");
-			}
-			
+            if (user.equals(owner)) {
+                permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;Owner</span>");
+                removeButton.setVisible(false);
+            }
+            else if (!user.contains(":")) //not a group
+                permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;" + user + "</span>");
+            else
+                permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;" + user.split(":")[1].trim() + "</span>");
+
+            Boolean[] userPerms = permissions.get(user);
+            Boolean readP = userPerms[0];
+            Boolean writeP = userPerms[1];
+
 			CheckBox read = new CheckBox();
-			read.setValue(dto.isRead());
-			read.getElement().setId("permissionList.read");
-			
+			read.setValue(readP != null ? readP : false);
+
 			CheckBox write = new CheckBox();
-			write.setValue(dto.isWrite());
-			write.getElement().setId("permissionList.write");
-			
-			CheckBox modify = new CheckBox();
-			modify.setValue(dto.isModifyACL());
-			modify.getElement().setId("permissionList.modify");
-			
-			if (dto.getUser()!=null && dto.getUser().equals(owner)) {
-				read.setEnabled(false);
-				write.setEnabled(false);
-				modify.setEnabled(false);
-			}
-			
+			write.setValue(writeP != null ? writeP : false);
+
 			permTable.setWidget(i, 1, read);
 			permTable.setWidget(i, 2, write);
-			permTable.setWidget(i, 3, modify);
-			permTable.setWidget(i, 4, removeButton);
+			permTable.setWidget(i, 3, removeButton);
 			permTable.getFlexCellFormatter().setStyleName(i, 0, "props-labels");
 			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
 			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
 			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 3, HasHorizontalAlignment.ALIGN_CENTER);
-			i++;		
+			i++;
 		}
-		for(; i<permTable.getRowCount(); i++)
-			permTable.removeRow(i);
 		hasChanges = false;
 	}
-	
-	/**
-	 * Makes a request to search for full name from a given username
-	 * and continues checking the next element of the Set.
-	 *  
-	 */
-
-	private void findFullNameAndUpdate(final Set<PermissionHolder> aPermissions){				
-		final PermissionHolder dto = aPermissions.iterator().next();
-		String path = app.getApiPath() + "users/" + dto.getUser();
-
-		GetCommand<UserSearchResource> gg = new GetCommand<UserSearchResource>(app, UserSearchResource.class, path, false,null) {
-			@Override
-			public void onComplete() {
-				final UserSearchResource result = getResult();
-				for (UserResource user : result.getUsers()){
-					String username = user.getUsername();
-					String userFullName = user.getName();
-					app.putUserToMap(username, userFullName);
-					if(aPermissions.size() >= 1){
-						aPermissions.remove(dto);						
-						if(aPermissions.isEmpty()){
-							showPermissionTable();
-							return;
-						}
-						handleFullNames(aPermissions);										
-					}									
-				}
-			}
-			@Override
-			public void onError(Throwable t) {				
-				app.displayError("Unable to fetch user's full name from the given username " + dto.getUser());
-				if(aPermissions.size() >= 1){
-					aPermissions.remove(dto);
-					if(aPermissions.isEmpty()){
-						showPermissionTable();
-						return;
-					}
-					handleFullNames(aPermissions);
-				}
-			}
-		};
-		DeferredCommand.addCommand(gg);
-	
-	}
-
 }

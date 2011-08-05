@@ -73,6 +73,8 @@ public class AccountResource extends Resource {
 
     private Date currentLogin = null;
 
+    private List<Group> groups = new ArrayList<Group>();
+
     public long getBytesRemaining() {
         return bytesRemaining;
     }
@@ -134,30 +136,36 @@ public class AccountResource extends Resource {
     }
 
     public void populate(String owner, Response response) {
-        String header = response.getHeader("X-Account-Container-Count");
-        if (header != null)
-            numberOfContainers = Long.valueOf(header);
-
-        header = response.getHeader("X-Account-Object-Count");
-        if (header != null)
-            numberOfObjects = Long.valueOf(header);
-
-        header = response.getHeader("X-Account-Bytes-Used");
-        if (header != null)
-            bytesUsed = Long.valueOf(header);
-
-        header = response.getHeader("X-Account-Bytes-Remaining");
-        if (header != null)
-            bytesRemaining = Long.valueOf(header);
-
         DateTimeFormat df = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822);
-        header = response.getHeader("X-Account-Last-Login");
-        if (header != null)
-            lastLogin = df.parse(header);
-
-        header = response.getHeader("Last-Modified");
-        if (header != null)
-            lastModified = df.parse(header);
+        for (Header h : response.getHeaders()) {
+            String name = h.getName();
+            if (name.startsWith("X-Account-Group-")) {
+                String groupName = name.substring("X-Account-Group-".length()).trim().toLowerCase();
+                Group g = new Group(groupName);
+                String[] members = h.getValue().split(",");
+                for (String s : members)
+                    g.addMember(s.trim());
+                groups.add(g);
+            }
+            else if (name.equals("X-Account-Container-Count")) {
+                numberOfContainers = Long.valueOf(h.getValue());
+            }
+            else if (name.equals("X-Account-Object-Count")) {
+                numberOfObjects = Long.valueOf(h.getValue());
+            }
+            else if (name.equals("X-Account-Bytes-Used")) {
+                bytesUsed = Long.valueOf(h.getValue());
+            }
+            else if (name.equals("X-Account-Bytes-Remaining")) {
+                bytesRemaining = Long.valueOf(h.getValue());
+            }
+            else if (name.equals("X-Account-Last-Login")) {
+                lastLogin = df.parse(h.getValue());
+            }
+            else if (name.equals("Last-Modified")) {
+                lastModified = df.parse(h.getValue());
+            }
+        }
 
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONArray array = json.isArray();
@@ -203,5 +211,9 @@ public class AccountResource extends Resource {
         else if (bytesRemaining < 1024 * 1024 * 1024)
             return getSize(bytesRemaining,(1024D * 1024D)) + " MB";
         return getSize(bytesRemaining , (1024D * 1024D * 1024D)) + " GB";
+    }
+
+    public List<Group> getGroups() {
+        return groups;
     }
 }

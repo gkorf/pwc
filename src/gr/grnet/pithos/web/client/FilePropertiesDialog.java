@@ -113,6 +113,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 	private String userFullName;
 
+    Images images = GWT.create(Images.class);
 
 	/**
 	 * The widget's constructor.
@@ -123,9 +124,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 		// Set the dialog's caption.
 		setText("File properties");
-
-
-//		permList = new PermissionsList(images, file.getPermissions(), file.getOwner());
 
 		// Outer contains inner and buttons.
 		final VerticalPanel outer = new VerticalPanel();
@@ -257,35 +255,37 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
-//
-//        permList = new PermissionsList(images, file.getPermissions(), file.getOwner());
-//        permPanel.add(permList);
-//
-//        HorizontalPanel permButtons = new HorizontalPanel();
-//        Button add = new Button("Add Group", new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, false);
-//                dlg.center();
-//            }
-//        });
-//        permButtons.add(add);
-//        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-//
-//        final Button addUser = new Button("Add User", new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                PermissionsAddDialog dlg = new PermissionsAddDialog(groups, permList, true);
-//                dlg.center();
-//            }
-//        });
-//        permButtons.add(addUser);
-//        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-//
-//        permButtons.setSpacing(8);
-//        permButtons.addStyleName("pithos-TabPanelBottom");
-//        permPanel.add(permButtons);
-//
+
+        permList = new PermissionsList(app, images, file.getPermissions(), file.getOwner());
+        permPanel.add(permList);
+
+        HorizontalPanel permButtons = new HorizontalPanel();
+        Button add = new Button("Add Group", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                dlg.center();
+                permList.updatePermissionTable();
+            }
+        });
+        permButtons.add(add);
+        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+
+        final Button addUser = new Button("Add User", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                dlg.center();
+                permList.updatePermissionTable();
+            }
+        });
+        permButtons.add(addUser);
+        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+
+        permButtons.setSpacing(8);
+        permButtons.addStyleName("pithos-TabPanelBottom");
+        permPanel.add(permButtons);
+
         final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
                     " by everyone. By checking this option, you are certifying that you have the right to " +
                     "distribute this file and that it does not violate the Terms of Use.", true);
