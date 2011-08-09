@@ -35,8 +35,6 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
@@ -55,7 +53,6 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -69,7 +66,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import gr.grnet.pithos.web.client.tagtree.Tag;
-import java.util.Iterator;
+import java.util.Map;
 
 /**
  * The 'File properties' dialog box implementation.
@@ -107,11 +104,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 	 */
 	private TextBox name = new TextBox();
 
-	private final CheckBox versioned = new CheckBox();
-
 	final File file;
-
-	private String userFullName;
 
     Images images = GWT.create(Images.class);
 
@@ -256,35 +249,37 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(app, images, file.getPermissions(), file.getOwner());
+        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), file.getInheritedPermissionsFrom() != null);
         permPanel.add(permList);
 
-        HorizontalPanel permButtons = new HorizontalPanel();
-        Button add = new Button("Add Group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        permButtons.add(add);
-        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+        if (file.getInheritedPermissionsFrom() == null) {
+            HorizontalPanel permButtons = new HorizontalPanel();
+            Button add = new Button("Add Group", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                    dlg.center();
+                    permList.updatePermissionTable();
+                }
+            });
+            permButtons.add(add);
+            permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
-        final Button addUser = new Button("Add User", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        permButtons.add(addUser);
-        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+            final Button addUser = new Button("Add User", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                    dlg.center();
+                    permList.updatePermissionTable();
+                }
+            });
+            permButtons.add(addUser);
+            permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
 
-        permButtons.setSpacing(8);
-        permButtons.addStyleName("pithos-TabPanelBottom");
-        permPanel.add(permButtons);
+            permButtons.setSpacing(8);
+            permButtons.addStyleName("pithos-TabPanelBottom");
+            permPanel.add(permButtons);
+        }
 
         final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
                     " by everyone. By checking this option, you are certifying that you have the right to " +
@@ -401,49 +396,22 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 	@Override
 	protected void accept() {
 		String newFilename = null;
-//		permList.updatePermissionsAccordingToInput();
-//		Set<PermissionHolder> perms = permList.getPermissions();
-//		JSONObject json = new JSONObject();
+
+		final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
 		if (!name.getText().trim().equals(file.getName())) {
 			newFilename = name.getText().trim();
-//			json.put("name", new JSONString(newFilename));
 		}
-//		if (versioned.getValue() != file.isVersioned())
-//			json.put("versioned", JSONBoolean.getInstance(versioned.getValue()));
+
 		//only update the read for all perm if the user is the owner
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
 			if (file.getOwner().equals(app.getUsername()))
                 published = readForAll.getValue();
         final Boolean finalPublished = published;
-//				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
-//		int i = 0;
-//		if (permList.hasChanges()) {
-//			GWT.log("Permissions change", null);
-//			JSONArray perma = new JSONArray();
-//
-//			for (PermissionHolder p : perms) {
-//				JSONObject po = new JSONObject();
-//				if (p.getUser() != null)
-//					po.put("user", new JSONString(p.getUser()));
-//				if (p.getGroup() != null)
-//					po.put("group", new JSONString(p.getGroup()));
-//				po.put("read", JSONBoolean.getInstance(p.isRead()));
-//				po.put("write", JSONBoolean.getInstance(p.isWrite()));
-//				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
-//				perma.set(i, po);
-//				i++;
-//			}
-//			json.put("permissions", perma);
-//		}
+
         String[] tagset = null;
 		if (!tags.getText().equals(initialTagText))
 			tagset = tags.getText().split(",");
-//		String jsonString = json.toString();
-//		if(jsonString.equals("{}")){
-//			GWT.log("NO CHANGES", null);
-//			return;
-//		}
         final String[] newTags = tagset;
 
         if (newFilename != null) {
@@ -451,10 +419,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    if (newTags != null || finalPublished != null)
-                        updateMetaData(app.getApiPath(), app.getUsername(), path + "?update=", newTags, finalPublished);
-                    else
-                        app.updateFolder(file.getParent());
+                    updateMetaData(app.getApiPath(), app.getUsername(), path + "?update=", newTags, finalPublished, perms);
                 }
 
                 @Override
@@ -468,96 +433,53 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else if (newTags != null || finalPublished != null)
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newTags, finalPublished);
+        else
+            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newTags, finalPublished, perms);
 	}
 
-    private void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published) {
-        PostRequest updateFile = new PostRequest(api, owner, path) {
-            @Override
-            public void onSuccess(Resource result) {
-                app.updateFolder(file.getParent());
-            }
+    private void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published, Map<String, Boolean[]> newPermissions) {
+        if (newTags != null || published != null || newPermissions != null) {
+            PostRequest updateFile = new PostRequest(api, owner, path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    app.updateFolder(file.getParent());
+                }
 
-            @Override
-            public void onError(Throwable t) {
-                GWT.log("", t);
-                app.displayError("System error modifying file:" + t.getMessage());
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    app.displayError("System error modifying file:" + t.getMessage());
+                }
+            };
+            updateFile.setHeader("X-Auth-Token", app.getToken());
+            if (newTags != null)
+                for (String t : newTags)
+                    updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
+            if (published != null)
+                updateFile.setHeader("X-Object-Public", published.toString());
+            if (newPermissions != null) {
+                String readPermHeader = "read=" + app.getUsername() + ",";
+                String writePermHeader = "write=" + app.getUsername() + ",";
+                for (String u : newPermissions.keySet()) {
+                    Boolean[] p = newPermissions.get(u);
+                    if (p[0] != null && p[0])
+                        readPermHeader += u + ",";
+                    if (p[1] != null && p[1])
+                        writePermHeader += u + ",";
+                }
+                if (readPermHeader.endsWith(","))
+                    readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
+                if (writePermHeader.endsWith(","))
+                    writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
+                String permHeader = readPermHeader +  ";" + writePermHeader;
+                updateFile.setHeader("X-Object-Sharing", permHeader);
             }
-        };
-        updateFile.setHeader("X-Auth-Token", app.getToken());
-        if (newTags != null)
-            for (String t : newTags)
-                updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
-        if (published != null)
-            updateFile.setHeader("X-Object-Public", published.toString());
-        Scheduler.get().scheduleDeferred(updateFile);
+            Scheduler.get().scheduleDeferred(updateFile);
+        }
+        else
+            app.updateFolder(file.getParent());
     }
 
 	private void removeAllOldVersions() {
-		JSONObject json = new JSONObject();
-		json.put("versioned", JSONBoolean.getInstance(false));
-		GWT.log(json.toString(), null);
-		PostCommand cf = new PostCommand(app, file.getUri() + "?update=", json.toString(), 200) {
-
-			@Override
-			public void onComplete() {
-				toggleVersioned(true);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if (t instanceof RestException) {
-					int statusCode = ((RestException) t).getHttpStatusCode();
-					if (statusCode == 405)
-						app.displayError("You don't have the necessary permissions");
-					else if (statusCode == 404)
-						app.displayError("User in permissions does not exist");
-					else if (statusCode == 409)
-						app.displayError("A folder with the same name already exists");
-					else if (statusCode == 413)
-						app.displayError("Your quota has been exceeded");
-					else
-						app.displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
-				} else
-					app.displayError("System error moifying file:" + t.getMessage());
-			}
-		};
-		DeferredCommand.addCommand(cf);
 	}
-
-	private void toggleVersioned(boolean versionedValue) {
-		JSONObject json = new JSONObject();
-		json.put("versioned", JSONBoolean.getInstance(versionedValue));
-		GWT.log(json.toString(), null);
-		PostCommand cf = new PostCommand(app, file.getUri() + "?update=", json.toString(), 200) {
-
-			@Override
-			public void onComplete() {
-				app.getTreeView().refreshCurrentNode(false);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if (t instanceof RestException) {
-					int statusCode = ((RestException) t).getHttpStatusCode();
-					if (statusCode == 405)
-						app.displayError("You don't have the necessary permissions");
-					else if (statusCode == 404)
-						app.displayError("User in permissions does not exist");
-					else if (statusCode == 409)
-						app.displayError("A folder with the same name already exists");
-					else if (statusCode == 413)
-						app.displayError("Your quota has been exceeded");
-					else
-						app.displayError("Unable to modify file:" + ((RestException) t).getHttpStatusText());
-				} else
-					app.displayError("System error moifying file:" + t.getMessage());
-			}
-		};
-		DeferredCommand.addCommand(cf);
-	}
-
 }

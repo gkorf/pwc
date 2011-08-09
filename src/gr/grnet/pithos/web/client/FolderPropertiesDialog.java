@@ -37,6 +37,7 @@ package gr.grnet.pithos.web.client;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Command;
+import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
@@ -82,6 +83,8 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private final boolean create;
 
+    private PermissionsList permList;
+
 	final Folder folder;
 
 	final TabPanel inner;
@@ -89,7 +92,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	/**
 	 * The widget's constructor.
 	 */
-	public FolderPropertiesDialog(Pithos app, boolean _create,  Folder selected) {
+	public FolderPropertiesDialog(final Pithos app, boolean _create,  Folder selected) {
         this.app = app;
 		setAnimationEnabled(true);
 
@@ -111,45 +114,79 @@ public class FolderPropertiesDialog extends DialogBox {
 		// Inner contains generalPanel and permPanel
 		inner = new DecoratedTabPanel();
 		inner.setAnimationEnabled(true);
+
 		VerticalPanel generalPanel = new VerticalPanel();
-		VerticalPanel permPanel = new VerticalPanel();
-		final HorizontalPanel permForAll = new HorizontalPanel();
-		final HorizontalPanel pathPanel = new HorizontalPanel();
-		HorizontalPanel buttons = new HorizontalPanel();
-		HorizontalPanel permButtons = new HorizontalPanel();
-
-		inner.add(generalPanel, "General");
-		if (!create)
-			inner.add(permPanel, "Sharing");
-		inner.selectTab(0);
-
-		FlexTable generalTable = new FlexTable();
-		generalTable.setText(0, 0, "Name");
-		generalTable.setText(1, 0, "Parent");
-		generalTable.setText(2, 0, "Creator");
-		generalTable.setText(3, 0, "Last modified");
-		folderName.setText(create ? "" : folder.getName());
+        FlexTable generalTable = new FlexTable();
+        generalTable.setText(0, 0, "Name");
+        generalTable.setText(1, 0, "Parent");
+        generalTable.setText(2, 0, "Creator");
+        generalTable.setText(3, 0, "Last modified");
+        folderName.setText(create ? "" : folder.getName());
         folderName.setReadOnly(folder.isContainer() && !create);
-		generalTable.setWidget(0, 1, folderName);
+        generalTable.setWidget(0, 1, folderName);
 
-		if (create)
-			generalTable.setText(1, 1, folder.getName());
-		else
-			generalTable.setText(1, 1, folder.getPrefix());
-		generalTable.setText(2, 1, "");
-		DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-		if(folder.getLastModified() != null)
-			generalTable.setText(3, 1, formatter.format(folder.getLastModified()));
-		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(3, 0, "props-labels");
-		generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
-		generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
-		generalTable.setCellSpacing(4);
+        if (create)
+            generalTable.setText(1, 1, folder.getName());
+        else
+            generalTable.setText(1, 1, folder.getPrefix());
+        generalTable.setText(2, 1, "");
+        DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
+        if(folder.getLastModified() != null)
+            generalTable.setText(3, 1, formatter.format(folder.getLastModified()));
+        generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(3, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
+        generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
+        generalTable.setCellSpacing(4);
+        generalPanel.add(generalTable);
+        inner.add(generalPanel, "General");
 
+        VerticalPanel permPanel = new VerticalPanel();
+        FilePropertiesDialog.Images images = GWT.create(FilePropertiesDialog.Images.class);
+        boolean permsReadonly = folder.getInheritedPermissionsFrom() != null || folder.existChildrenPermissions();
+        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), permsReadonly);
+        permPanel.add(permList);
+        final HorizontalPanel permForAll = new HorizontalPanel();
+        final HorizontalPanel pathPanel = new HorizontalPanel();
+
+        if (!permsReadonly) {
+            HorizontalPanel permButtons = new HorizontalPanel();
+            Button add = new Button("Add Group", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                    dlg.center();
+                }
+            });
+            permButtons.add(add);
+            permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+
+            Button addUser = new Button("Add User", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                    dlg.center();
+                }
+            });
+            addUser.getElement().setId("folderPropertiesDialog.button.addUser");
+            permButtons.add(addUser);
+            permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+            permButtons.setSpacing(8);
+            permButtons.addStyleName("gss-TabPanelBottom");
+            permPanel.add(permButtons);
+        }
+
+        if (!create)
+            inner.add(permPanel, "Sharing");
+        inner.selectTab(0);
+
+        outer.add(inner);
+
+        HorizontalPanel buttons = new HorizontalPanel();
 		// Create the 'Create/Update' button, along with a listener that hides the dialog
 		// when the button is clicked and quits the application.
 		String okLabel;
@@ -179,21 +216,11 @@ public class FolderPropertiesDialog extends DialogBox {
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
 		buttons.addStyleName("pithos-TabPanelBottom");
+        outer.add(buttons);
+        outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
+        outer.addStyleName("pithos-TabPanelBottom");
 
-		generalPanel.add(generalTable);
-
-
-		outer.add(inner);
-		outer.add(buttons);
-		outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
-		outer.addStyleName("pithos-TabPanelBottom");
-
-		setWidget(outer);
-
-		/*if (create)
-			folderName.setFocus(true);
-		else
-			ok.setFocus(true);*/
+        setWidget(outer);
 	}
 
 	@Override
@@ -212,8 +239,8 @@ public class FolderPropertiesDialog extends DialogBox {
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
-					closeDialog();
 					createOrUpdateFolder();
+                    closeDialog();
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					closeDialog();

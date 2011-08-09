@@ -34,7 +34,10 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.rest.GetCommand;
 import gr.grnet.pithos.web.client.rest.resource.PermissionHolder;
 import gr.grnet.pithos.web.client.rest.resource.UserResource;
@@ -59,10 +62,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class PermissionsList extends Composite {
 
-	int selectedRow = -1;
-	
-	int permissionCount = -1;
-	
 	Map<String, Boolean[]> permissions = null;
 	
 	final Images images;
@@ -74,16 +73,14 @@ public class PermissionsList extends Composite {
 	final String owner;
 	
 	private boolean hasChanges = false;
-	
-	private boolean hasAddition = false;
 
-    private Pithos app;
+    private boolean readonly = false;
 	
-	public PermissionsList(Pithos _app, final Images theImages, Map<String, Boolean[]> thePermissions, String anOwner){
-        app = _app;
+	public PermissionsList(final Images theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions){
 		images = theImages;
-		owner = anOwner;
+		owner = theOwner;
 		permissions =  new HashMap<String, Boolean[]>(thePermissions);
+        readonly = inheritsPermissions;
 		permTable.setText(0, 0, "Users/Groups");
 		permTable.setText(0, 1, "Read");
 		permTable.setText(0, 2, "Write");
@@ -99,25 +96,7 @@ public class PermissionsList extends Composite {
 	}
 
 	public boolean hasChanges(){
-		return hasChanges || hasAddition;
-	}
-
-	public void updatePermissionsAccordingToInput(){
-//		int i=1;
-//		for(PermissionHolder dto : permissions){
-//			/*if(dto.getId() == null)
-//				hasChanges =true;*/
-//			CheckBox r = (CheckBox) permTable.getWidget(i, 1);
-//			CheckBox w = (CheckBox) permTable.getWidget(i, 2);
-//
-//
-//			if(dto.isRead() != r.getValue() || dto.isWrite() != w.getValue() || dto.isModifyACL() != m.getValue())
-//				hasChanges = true;
-//			dto.setRead(r.getValue());
-//			dto.setWrite(w.getValue());
-//			dto.setModifyACL(m.getValue());
-//			i++;
-//		}
+		return hasChanges;
 	}
 
 	/**
@@ -131,7 +110,7 @@ public class PermissionsList extends Composite {
 
 	public void addPermission(String user, boolean read, boolean write){
 		permissions.put(user, new Boolean[] {Boolean.valueOf(read), Boolean.valueOf(write)});
-		hasAddition = true;
+		hasChanges = true;
         updatePermissionTable();
 	}
 
@@ -144,22 +123,11 @@ public class PermissionsList extends Composite {
         for (int j=1; j<permTable.getRowCount(); j++)
             permTable.removeRow(j);
 		for(final String user : permissions.keySet()) {
-			PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-                    permissions.remove(user);
-					updatePermissionTable();
-					hasChanges = true;
-				}
-			});
-            if (user.equals(owner)) {
-                permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;Owner</span>");
-                removeButton.setVisible(false);
-            }
-            else if (!user.contains(":")) //not a group
+            if (!user.contains(":")) //not a group
                 permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;" + user + "</span>");
             else
                 permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;" + user.split(":")[1].trim() + "</span>");
+            permTable.getFlexCellFormatter().setStyleName(i, 0, "props-labels");
 
             Boolean[] userPerms = permissions.get(user);
             Boolean readP = userPerms[0];
@@ -167,19 +135,45 @@ public class PermissionsList extends Composite {
 
 			CheckBox read = new CheckBox();
 			read.setValue(readP != null ? readP : false);
+            permTable.setWidget(i, 1, read);
+            permTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
 
-			CheckBox write = new CheckBox();
-			write.setValue(writeP != null ? writeP : false);
+            CheckBox write = new CheckBox();
+            write.setValue(writeP != null ? writeP : false);
+            permTable.setWidget(i, 2, write);
+            permTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
 
-			permTable.setWidget(i, 1, read);
-			permTable.setWidget(i, 2, write);
-			permTable.setWidget(i, 3, removeButton);
-			permTable.getFlexCellFormatter().setStyleName(i, 0, "props-labels");
-			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
-			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
-			permTable.getFlexCellFormatter().setHorizontalAlignment(i, 3, HasHorizontalAlignment.ALIGN_CENTER);
+            if (!readonly) {
+                read.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
+                    public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+                        Boolean[] ps = permissions.get(user);
+                        ps[0] = booleanValueChangeEvent.getValue();
+                    }
+                });
+                write.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
+                    public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+                        Boolean[] ps = permissions.get(user);
+                        ps[1] = booleanValueChangeEvent.getValue();
+                    }
+                });
+                PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        permissions.remove(user);
+                        updatePermissionTable();
+                        hasChanges = true;
+                    }
+                });
+                permTable.setWidget(i, 3, removeButton);
+                permTable.getFlexCellFormatter().setHorizontalAlignment(i, 3, HasHorizontalAlignment.ALIGN_CENTER);
+            }
+            else {
+                read.setEnabled(false);
+                write.setEnabled(false);
+            }
 			i++;
 		}
-		hasChanges = false;
 	}
 }

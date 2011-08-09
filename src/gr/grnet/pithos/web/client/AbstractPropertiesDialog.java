@@ -144,7 +144,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 	protected abstract void accept();
 
 	@Override
-	@SuppressWarnings("fallthrough")
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
 	    super.onPreviewNativeEvent(preview);
 
@@ -156,8 +155,8 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			    case KeyCodes.KEY_ENTER:
 			    	accept();
 			    case KeyCodes.KEY_ESCAPE:
-			      closeDialog();
-			      break;
+			        closeDialog();
+			        break;
 			  }
 	  }
 

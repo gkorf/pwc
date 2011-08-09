@@ -260,4 +260,8 @@ public class File extends Resource {
     public Map<String, Boolean[]> getPermissions() {
         return permissions;
     }
+
+    public String getInheritedPermissionsFrom() {
+        return inheritedPermissionsFrom;
+    }
 }

@@ -311,4 +311,27 @@ public class Folder extends Resource {
     public Set<String> getTags() {
         return tags;
     }
+
+    public String getInheritedPermissionsFrom() {
+        return inheritedPermissionsFrom;
+    }
+
+    public Map<String, Boolean[]> getPermissions() {
+        return permissions;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public boolean existChildrenPermissions() {
+        for (File f : files)
+            if (!f.getPermissions().isEmpty() && f.getInheritedPermissionsFrom() == null)
+                return true;
+
+        for (Folder fo : subfolders)
+            if ((!fo.getPermissions().isEmpty() && fo.getInheritedPermissionsFrom() == null) || fo.existChildrenPermissions())
+                return true;
+        return false;
+    }
 }

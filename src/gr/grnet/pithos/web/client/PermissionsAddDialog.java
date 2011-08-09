@@ -140,8 +140,7 @@ public class PermissionsAddDialog extends DialogBox {
             selected = app.getUsername() + ":" + groupName;
 		}
         if (permList.getPermissions().get(selected) != null) {
-                app.displayError((userAdd ? "User " : "Group ") + "already has access to the resource");
-                return;
+            return;
         }
 		boolean readValue = read.getValue();
 		boolean writeValue = write.getValue();
