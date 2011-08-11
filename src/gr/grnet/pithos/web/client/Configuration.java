@@ -44,27 +44,15 @@ import com.google.gwt.i18n.client.Constants;
  */
 public interface Configuration extends Constants {
 	/**
-	 * @return the name of the service
-	 */
-	@DefaultStringValue("pithos")
-	String serviceName();
-
-	/**
 	 * @return the login URL
 	 */
-	@DefaultStringValue("pithos/login")
+	@DefaultStringValue("/login")
 	String loginUrl();
-
-	/**
-	 * @return the logout URL
-	 */
-	@DefaultStringValue("/pithos/login")
-	String logoutUrl();
 
 	/**
 	 * @return the authentication cookie name
 	 */
-	@DefaultStringValue("_gss_a")
+	@DefaultStringValue("_pithos2_a")
 	String authCookie();
 
 	/**
@@ -85,5 +73,4 @@ public interface Configuration extends Constants {
 	 */
 	@DefaultStringValue("")
 	String version();
-
 }

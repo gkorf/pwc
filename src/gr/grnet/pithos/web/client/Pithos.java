@@ -149,7 +149,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
 	 */
-	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images {
+	public interface Images extends ClientBundle, TopPanel.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
@@ -266,7 +266,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 int tabIndex = event.getSelectedItem();
                 switch (tabIndex) {
                     case 0:
-                        fileList.updateCurrentlyShowingStats();
                         break;
                 }
             }
@@ -321,7 +320,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.add(topPanel);
         outer.add(messagePanel);
         outer.add(splitPanel);
-        statusPanel = new StatusPanel(this, Pithos.images);
+        statusPanel = new StatusPanel();
         outer.add(statusPanel);
         outer.setWidth("100%");
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -402,36 +401,41 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
 	private boolean parseUserCredentials() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
-		String cookie = conf.authCookie();
-		String auth = Cookies.getCookie(cookie);
-		if (auth == null) {
-			authenticateUser();
-            return false;
-        }
-        else {
-            String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
-            if (authSplit.length != 2) {
+        username = Window.Location.getParameter("user");
+        token = Window.Location.getParameter("token");
+        Configuration conf = (Configuration) GWT.create(Configuration.class);
+        if (username == null || username.length() == 0 || token == null || token.length() == 0) {
+            String cookie = conf.authCookie();
+            String auth = Cookies.getCookie(cookie);
+            if (auth == null) {
                 authenticateUser();
                 return false;
             }
             else {
-                username = authSplit[0];
-                token = authSplit[1];
-                return true;
+                String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+                if (authSplit.length != 2) {
+                    authenticateUser();
+                    return false;
+                }
+                else {
+                    username = authSplit[0];
+                    token = authSplit[1];
+                    return true;
+                }
             }
         }
-	}
+        else {
+            Cookies.setCookie(conf.authCookie(), username + conf.cookieSeparator() + token);
+            return true;
+        }
+    }
 
     /**
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
-
-//        Window.Location.assign(GWT.getModuleBaseURL() + conf.loginUrl() + "?next=" + Window.Location.getHref());
-        Cookies.setCookie(conf.authCookie(), "test" + conf.cookieSeparator() + "0000");
-        Window.Location.assign(GWT.getModuleBaseURL() + "pithos.html");
+        Window.Location.assign(Window.Location.getHost() + conf.loginUrl() + "?next=" + Window.Location.getHref());
 	}
 
     private void fetchAccount() {
@@ -441,7 +445,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSuccess(AccountResource result) {
                 account = result;
-                statusPanel.displayStats(account);
                 inner.selectTab(0);
                 if (account.getContainers().isEmpty())
                     createHomeContainers();
@@ -484,20 +487,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
 	/**
-	 * Clear the cookie and redirect the user to the logout page.
-	 */
-	void logout() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
-		String cookie = conf.authCookie();
-		String domain = Window.Location.getHostName();
-		String path = Window.Location.getPath();
-		Cookies.setCookie(cookie, "", null, domain, path, false);
-        String baseUrl = GWT.getModuleBaseURL();
-        String homeUrl = baseUrl.substring(0, baseUrl.indexOf(path));
-		Window.Location.assign(homeUrl + conf.logoutUrl());
-	}
-
-	/**
 	 * Creates an HTML fragment that places an image & caption together, for use
 	 * in a group header.
 	 *
@@ -515,7 +504,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	private void onWindowResized(int height) {
 		// Adjust the split panel to take up the available room in the window.
-		int newHeight = height - splitPanel.getAbsoluteTop() - 44;
+		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
 		if (newHeight < 1)
 			newHeight = 1;
 		splitPanel.setHeight("" + newHeight);
@@ -527,31 +516,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		int height = event.getHeight();
 		onWindowResized(height);
 	}
-
-	public boolean isFileListShowing() {
-		int tab = inner.getTabBar().getSelectedTab();
-		if (tab == 0)
-			return true;
-		return false;
-	}
-
-	public boolean isSearchResultsShowing() {
-		int tab = inner.getTabBar().getSelectedTab();
-		if (tab == 2)
-			return true;
-		return false;
-	}
-
-	/**
-	 * A native JavaScript method to reach out to the browser's window and
-	 * invoke its resizeTo() method.
-	 *
-	 * @param x the new width
-	 * @param y the new height
-	 */
-	public static native void resizeTo(int x, int y) /*-{
-		$wnd.resizeTo(x,y);
-	}-*/;
 
 	/**
 	 * Display an error message.
@@ -578,33 +542,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayInformation(String msg) {
 		messagePanel.displayInformation(msg);
-	}
-
-	/**
-	 * Retrieve the folders.
-	 *
-	 * @return the folders
-	 
-	public Folders getFolders() {
-		return folders;
-	}*/
-
-	/**
-	 * Retrieve the currentSelection.
-	 *
-	 * @return the currentSelection
-	 */
-	public Object getCurrentSelection() {
-		return currentSelection;
-	}
-
-	/**
-	 * Modify the currentSelection.
-	 *
-	 * @param newCurrentSelection the currentSelection to set
-	 */
-	public void setCurrentSelection(Object newCurrentSelection) {
-		currentSelection = newCurrentSelection;
 	}
 
 	/**
@@ -664,25 +601,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	/**
-	 * Convert server date to local time according to browser timezone
-	 * and format it according to localized pattern.
-	 * Time is always formatted to 24hr format.
-	 * NB: This assumes that server runs in UTC timezone. Otherwise
-	 * we would need to adjust for server time offset as well.
-	 *
-	 * @param date
-	 * @return String
-	 */
-	public static String formatLocalDateTime(Date date) {
-		Date convertedDate = new Date(date.getTime() - date.getTimezoneOffset());
-		final DateTimeFormat dateFormatter = DateTimeFormat.getShortDateFormat();
-		final DateTimeFormat timeFormatter = DateTimeFormat.getFormat("HH:mm");
-		String datePart = dateFormatter.format(convertedDate);
-		String timePart = timeFormatter.format(convertedDate);
-		return datePart + " " + timePart;
-	}
-	
-	/**
 	 * History support for folder navigation
 	 * adds a new browser history entry
 	 *
@@ -694,39 +612,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 //		Add a new browser history entry.
 //		History.newItem(result);
 		History.newItem(key);
-	}
-
-	/**
-	 * This method examines the token input and add a "/" at the end in case it's omitted.
-	 * This happens only in Files/trash/, Files/shared/, Files/others.
-	 *
-	 * @param tokenInput
-	 * @return the formated token with a "/" at the end or the same tokenInput parameter
-	 */
-
-	private String handleSpecialFolderNames(String tokenInput){
-		List<String> pathsToCheck = Arrays.asList("Files/trash", "Files/shared", "Files/others");
-		if(pathsToCheck.contains(tokenInput))
-			return tokenInput + "/";
-		return tokenInput;
-
-	}
-
-	/**
-	 * Reject illegal resource names, like '.' or '..' or slashes '/'.
-	 */
-	static boolean isValidResourceName(String name) {
-		if (".".equals(name) ||	"..".equals(name) || name.contains("/"))
-			return false;
-		return true;
-	}
-
-	public void putUserToMap(String _userName, String _userFullName){
-		userFullNameMap.put(_userName, _userFullName);
-	}
-
-	public String findUserFullName(String _userName){
-		return userFullNameMap.get(_userName);
 	}
 
     public void deleteFolder(final Folder folder) {

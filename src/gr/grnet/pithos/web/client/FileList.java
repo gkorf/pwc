@@ -421,17 +421,6 @@ public class FileList extends Composite {
 
 		selectionModel = new MultiSelectionModel<File>(keyProvider);
 
-		 Handler selectionHandler = new SelectionChangeEvent.Handler() {
-             @Override 
-             public void onSelectionChange(SelectionChangeEvent event) {
-            	 if(getSelectedFiles().size() == 1)
-            		 app.setCurrentSelection(getSelectedFiles().get(0));
-            	 else
-            		 app.setCurrentSelection(getSelectedFiles());
-             }
-         };
-         selectionModel.addSelectionChangeHandler(selectionHandler);
-         
 		celltable.setSelectionModel(selectionModel, GSSSelectionEventManager.<File> createDefaultManager());
 		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
@@ -507,8 +496,6 @@ public class FileList extends Composite {
 //			showingStats = "" + (startIndex + 1) + " - " + max + " of " + count + " files" + " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
 		}
 		showCellTable();
-		updateCurrentlyShowingStats();
-
 	}
 
 	/**
@@ -550,13 +537,6 @@ public class FileList extends Composite {
 		return shared ? images.documentShared() : images.document();
 	}
 
-	/**
-	 * Update status panel with currently showing file stats.
-	 */
-	public void updateCurrentlyShowingStats() {
-		app.getStatusPanel().updateCurrentlyShowing(showingStats);
-	}
-	
 	/**
 	 * Fill the file cache with data.
 	 */
