@@ -398,6 +398,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		String newFilename = null;
 
 		final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
+
 		if (!name.getText().trim().equals(file.getName())) {
 			newFilename = name.getText().trim();
 		}
@@ -442,7 +443,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    app.updateFolder(file.getParent());
+                    app.updateFolder(file.getParent(), true);
                 }
 
                 @Override
@@ -458,8 +459,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             if (published != null)
                 updateFile.setHeader("X-Object-Public", published.toString());
             if (newPermissions != null) {
-                String readPermHeader = "read=" + app.getUsername() + ",";
-                String writePermHeader = "write=" + app.getUsername() + ",";
+                String readPermHeader = "read=" + owner + ",";
+                String writePermHeader = "write=" + owner + ",";
                 for (String u : newPermissions.keySet()) {
                     Boolean[] p = newPermissions.get(u);
                     if (p[0] != null && p[0])
@@ -477,7 +478,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            app.updateFolder(file.getParent());
+            app.updateFolder(file.getParent(), true);
     }
 
 	private void removeAllOldVersions() {

@@ -37,13 +37,18 @@ package gr.grnet.pithos.web.client.foldertree;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.CellPreviewEvent.Handler;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 import gr.grnet.pithos.web.client.FolderContextMenu;
@@ -107,10 +112,15 @@ public class FolderTreeViewModel implements TreeViewModel {
         else {
             final Folder f = (Folder) value;
             if (dataProviderMap.get(f) == null) {
-                dataProviderMap.put(f, new ListDataProvider<Folder>());
+                dataProviderMap.put(f, new ListDataProvider<Folder>(new ProvidesKey<Folder>() {
+                    @Override
+                    public Object getKey(Folder item) {
+                        return item;
+                    }
+                }));
             }
             final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-            fetchFolder(f, dataProvider);
+            fetchFolder(f, dataProvider, false);
             return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
     }
@@ -124,7 +134,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         return false;
     }
 
-    private void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Set<Folder> folders) {
+    private void fetchFolder(final Iterator<Folder> iter, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -132,7 +142,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                 @Override
                 public void onSuccess(Folder result) {
-                    fetchFolder(iter, dataProvider, folders);
+                    fetchFolder(iter, callback);
                 }
 
                 @Override
@@ -147,52 +157,61 @@ public class FolderTreeViewModel implements TreeViewModel {
             getFolder.setHeader("X-Auth-Token", app.getToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
-        else {
-            dataProvider.getList().clear();
-            dataProvider.getList().addAll(folders);
-            if (dataProvider.equals(rootDataProvider)) {
-                selectionModel.setSelected(dataProvider.getList().get(0), true);
+        else if (callback != null)
+            callback.execute();
+    }
+
+    public void initialize(final AccountResource account) {
+        Iterator<Folder> iter = account.getContainers().iterator();
+        fetchFolder(iter, new Command() {
+            @Override
+            public void execute() {
+                rootDataProvider.getList().clear();
+                rootDataProvider.getList().addAll(account.getContainers());
+                selectionModel.setSelected(rootDataProvider.getList().get(0), true);
                 Folder f = new Folder("Trash");
                 f.setTrash(true);
                 f.setContainer("trash");
-                dataProvider.getList().add(f);
+                rootDataProvider.getList().add(f);
                 app.updateTags();
             }
-        }
-    }
-
-    public void initialize(AccountResource account) {
-        Iterator<Folder> iter = account.getContainers().iterator();
-        fetchFolder(iter, rootDataProvider, account.getContainers());
+        });
     }
 
     public Folder getSelection() {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(Folder folder) {
+    public void updateFolder(Folder folder, boolean showfiles) {
         if (dataProviderMap.get(folder) == null) {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
         final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
         if (!folder.isTrash())
-            fetchFolder(folder, dataProvider);
+            fetchFolder(folder, dataProvider, showfiles);
         else
             app.showFiles(folder);
     }
 
-    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider) {
-        dataProvider.flush();
+    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
                 String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                     @Override
-                    public void onSuccess(Folder result) {
-                        app.showFiles(result);
+                    public void onSuccess(final Folder result) {
+                        if (showfiles)
+                            app.showFiles(result);
                         Iterator<Folder> iter = result.getSubfolders().iterator();
-                        fetchFolder(iter, dataProvider, result.getSubfolders());
+                        fetchFolder(iter, new Command() {
+                            @Override
+                            public void execute() {
+                                dataProvider.getList().clear();
+                                dataProvider.getList().addAll(result.getSubfolders());
+                                app.getFolderTreeView().updateChildren(f);
+                            }
+                        });
                     }
 
                     @Override

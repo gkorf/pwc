@@ -76,7 +76,7 @@ public class ToTrashCommand implements Command{
             trashFiles(iter, new Command() {
                 @Override
                 public void execute() {
-                    app.updateFolder(((List<File>) resource).get(0).getParent());
+                    app.updateFolder(((List<File>) resource).get(0).getParent(), true);
                 }
             });
         }
@@ -85,7 +85,7 @@ public class ToTrashCommand implements Command{
             trashFolder(toBeTrashed, new Command() {
                 @Override
                 public void execute() {
-                    app.updateFolder(toBeTrashed.getParent());
+                    app.updateFolder(toBeTrashed.getParent(), true);
                 }
             });
 

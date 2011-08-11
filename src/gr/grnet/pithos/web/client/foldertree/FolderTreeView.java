@@ -43,11 +43,32 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 
 public class FolderTreeView extends Composite {
+
+    public void updateChildren(Folder folder) {
+        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        updateChildren(root, folder);
+    }
+
+    private void updateChildren(TreeNode node, Folder folder) {
+        for (int i=0; i<node.getChildCount(); i++) {
+            if (node.isChildOpen(i)) {
+                if (folder.equals(node.getChildValue(i))) {
+                    node.setChildOpen(i, false, true);
+                    node.setChildOpen(i, true, true);
+                }
+                else {
+                    TreeNode n = node.setChildOpen(i, true);
+                    updateChildren(n, folder);
+                }
+            }
+        }
+    }
 
     static interface BasicResources extends CellTree.Resources {
 
@@ -96,7 +117,6 @@ public class FolderTreeView extends Composite {
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
         CellTree tree = new CellTree(model, null, res);
-
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
         initWidget(tree);
@@ -107,7 +127,7 @@ public class FolderTreeView extends Composite {
        return model.getSelection();
     }
 
-    public void updateFolder(Folder folder) {
-        model.updateFolder(folder);
+    public void updateFolder(Folder folder, boolean showfiles) {
+        model.updateFolder(folder, showfiles);
     }
 }

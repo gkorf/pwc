@@ -133,8 +133,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return account;
     }
 
-    public void updateFolder(Folder f) {
-        folderTreeView.updateFolder(f);
+    public void updateFolder(Folder f, boolean showfiles) {
+        folderTreeView.updateFolder(f, showfiles);
     }
 
     public void updateTag(Tag t) {
@@ -301,7 +301,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     tagTreeSelectionModel.setSelected(tagTreeSelectionModel.getSelectedObject(), false);
                     Folder f = folderTreeSelectionModel.getSelectedObject();
-                    updateFolder(f);
+                    updateFolder(f, true);
                 }
             }
         });
@@ -948,7 +948,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    updateFolder(folder.getParent());
+                    updateFolder(folder.getParent(), true);
                 }
 
                 @Override

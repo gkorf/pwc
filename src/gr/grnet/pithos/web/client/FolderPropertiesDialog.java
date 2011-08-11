@@ -37,10 +37,10 @@ package gr.grnet.pithos.web.client;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Command;
-import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -52,7 +52,6 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -62,6 +61,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * The 'Folder properties' dialog box implementation.
@@ -69,8 +69,6 @@ import java.util.Iterator;
 public class FolderPropertiesDialog extends DialogBox {
 
     private Pithos app;
-
-	private CheckBox readForAll;
 
 	/**
 	 * The widget that holds the folderName of the folder.
@@ -150,8 +148,6 @@ public class FolderPropertiesDialog extends DialogBox {
         boolean permsReadonly = folder.getInheritedPermissionsFrom() != null || folder.existChildrenPermissions();
         permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), permsReadonly);
         permPanel.add(permList);
-        final HorizontalPanel permForAll = new HorizontalPanel();
-        final HorizontalPanel pathPanel = new HorizontalPanel();
 
         if (!permsReadonly) {
             HorizontalPanel permButtons = new HorizontalPanel();
@@ -267,7 +263,7 @@ public class FolderPropertiesDialog extends DialogBox {
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(Resource result) {
-                app.updateFolder(folder);
+                app.updateFolder(folder, true);
             }
 
             @Override
@@ -301,84 +297,8 @@ public class FolderPropertiesDialog extends DialogBox {
 	}
 
 	private void updateFolder() {
-//		permList.updatePermissionsAccordingToInput();
-//		Set<PermissionHolder> perms = permList.getPermissions();
-//		JSONObject json = new JSONObject();
-//		if(!folder.getName().equals(folderName.getText()))
-//			json.put("name", new JSONString(folderName.getText()));
-//		//only update the read for all perm if the user is the owner
-//		if (readForAll.getValue() != folder.isReadForAll())
-//			if (folder.getOwner().equals(app.getCurrentUserResource().getUsername()))
-//				json.put("readForAll", JSONBoolean.getInstance(readForAll.getValue()));
-//		if (permList.hasChanges()) {
-//			JSONArray perma = new JSONArray();
-//			int i=0;
-//			for(PermissionHolder p : perms){
-//				JSONObject po = new JSONObject();
-//				if(p.getUser() != null)
-//					po.put("user", new JSONString(p.getUser()));
-//				if(p.getGroup() != null)
-//					po.put("group", new JSONString(p.getGroup()));
-//				po.put("read", JSONBoolean.getInstance(p.isRead()));
-//				po.put("write", JSONBoolean.getInstance(p.isWrite()));
-//				po.put("modifyACL", JSONBoolean.getInstance(p.isModifyACL()));
-//				perma.set(i,po);
-//				i++;
-//			}
-//			json.put("permissions", perma);
-//			GWT.log(json.toString(), null);
-//		}
-//		PostCommand ep = new PostCommand(folder.getUri()+"?update=", json.toString(), 200){
-//
-//			@Override
-//			public void onComplete() {
-//				//TODO:CELLTREE
-//
-//				if(getPostBody() != null && !"".equals(getPostBody().trim())){
-//
-//
-//					FolderResource fres = ((RestResourceWrapper) app.getTreeView().getSelection()).getResource();
-//					String initialPath = fres.getUri();
-//					String newPath =  getPostBody().trim();
-//					fres.setUri(newPath);
-//					((RestResourceWrapper) app.getTreeView().getSelection()).getResource().setUri(newPath);
-//					((RestResourceWrapper) app.getTreeView().getSelection()).setUri(newPath);
-//					app.getTreeView().updateNodeChildren(fres.getParentURI());
-//					if (permList.hasChanges()) {
-//						app.getTreeView().updateMySharedNode();
-//					}
-//					/*
-//					if(folderItem.getParentItem() != null && ((DnDTreeItem)folderItem.getParentItem()).getFolderResource() != null){
-//						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().removeSubfolderPath(initialPath);
-//						((DnDTreeItem)folderItem.getParentItem()).getFolderResource().getSubfolderPaths().add(newPath);
-//					}*/
-//				}
-//				//app.getFolders().updateFolder( (DnDTreeItem) app.getFolders().getCurrent());
-//
-//				app.get().showFileList(true);
-//			}
-//
-//			@Override
-//			public void onError(Throwable t) {
-//				GWT.log("", t);
-//				if(t instanceof RestException){
-//					int statusCode = ((RestException)t).getHttpStatusCode();
-//					if(statusCode == 405)
-//						app.displayError("You don't have the necessary permissions or" +
-//								" a folder with same name already exists");
-//					else if(statusCode == 404)
-//						app.displayError("Resource not found, or user specified in sharing does not exist");
-//					else
-//						app.displayError("Unable to update folder: "+((RestException)t).getHttpStatusText());
-//				}
-//				else
-//					app.displayError("System error moifying file: "+t.getMessage());
-//				//TODO:CELLTREE
-//				//app.getFolders().updateFolder( (DnDTreeItem) app.getFolders().getCurrent());
-//			}
-//		};
-//		DeferredCommand.addCommand(ep);
-        final String newName = folderName.getText();
+        final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
+        final String newName = folderName.getText().trim();
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
@@ -393,7 +313,7 @@ public class FolderPropertiesDialog extends DialogBox {
                                 @Override
                                 public void execute() {
                                     app.deleteFolder(folder);
-                                    app.updateFolder(folder.getParent());
+                                    updateMetadata(path + "?update=", perms);
                                 }
                             });
                         }
@@ -416,7 +336,47 @@ public class FolderPropertiesDialog extends DialogBox {
             newFolder.setHeader("Content-Length", "0");
             Scheduler.get().scheduleDeferred(newFolder);
         }
+        else
+            updateMetadata(folder.getUri() + "?update=", perms);
 	}
+
+    private void updateMetadata(String path, Map<String, Boolean[]> newPermissions) {
+        if (newPermissions != null) {
+            PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
+                @Override
+                public void onSuccess(Resource result) {
+                    app.updateFolder(folder.getParent(), false);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    app.displayError("System error modifying folder: " + t.getMessage());
+                }
+            };
+            updateFolder.setHeader("X-Auth-Token", app.getToken());
+            if (newPermissions != null) {
+                String readPermHeader = "read=" + folder.getOwner() + ",";
+                String writePermHeader = "write=" + folder.getOwner() + ",";
+                for (String u : newPermissions.keySet()) {
+                    Boolean[] p = newPermissions.get(u);
+                    if (p[0] != null && p[0])
+                        readPermHeader += u + ",";
+                    if (p[1] != null && p[1])
+                        writePermHeader += u + ",";
+                }
+                if (readPermHeader.endsWith(","))
+                    readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
+                if (writePermHeader.endsWith(","))
+                    writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
+                String permHeader = readPermHeader +  ";" + writePermHeader;
+                updateFolder.setHeader("X-Object-Sharing", permHeader);
+            }
+            Scheduler.get().scheduleDeferred(updateFolder);
+        }
+        else
+            app.updateFolder(folder.getParent(), false);
+    }
 
 	public void selectTab(int _tab) {
 		inner.selectTab(_tab);

@@ -266,14 +266,14 @@ public class Folder extends Resource {
     public boolean equals(Object other) {
         if (other instanceof Folder) {
             Folder o = (Folder) other;
-            return (container + prefix).equals(o.getContainer() + o.getPrefix());
+            return getUri().equals(o.getUri());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return (container + prefix).hashCode();
+        return getUri().hashCode();
     }
 
     public Set<File> getFiles() {

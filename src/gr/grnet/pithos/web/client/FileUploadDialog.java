@@ -178,7 +178,7 @@ public class FileUploadDialog extends DialogBox {
 					GWT.log(results, null);
 					app.displayError(results);
 				}
-                app.updateFolder(folder);
+                app.updateFolder(folder, true);
 				hide();
 			}
 		});
