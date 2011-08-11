@@ -356,8 +356,8 @@ public class FolderPropertiesDialog extends DialogBox {
             };
             updateFolder.setHeader("X-Auth-Token", app.getToken());
             if (newPermissions != null) {
-                String readPermHeader = "read=" + folder.getOwner() + ",";
-                String writePermHeader = "write=" + folder.getOwner() + ",";
+                String readPermHeader = "read=";
+                String writePermHeader = "write=";
                 for (String u : newPermissions.keySet()) {
                     Boolean[] p = newPermissions.get(u);
                     if (p[0] != null && p[0])
@@ -365,11 +365,17 @@ public class FolderPropertiesDialog extends DialogBox {
                     if (p[1] != null && p[1])
                         writePermHeader += u + ",";
                 }
-                if (readPermHeader.endsWith(","))
+                if (readPermHeader.endsWith("="))
+                    readPermHeader = "";
+                else if (readPermHeader.endsWith(","))
                     readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-                if (writePermHeader.endsWith(","))
+                if (writePermHeader.endsWith("="))
+                    writePermHeader = "";
+                else if (writePermHeader.endsWith(","))
                     writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-                String permHeader = readPermHeader +  ";" + writePermHeader;
+                String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
+                if (permHeader.length() == 0)
+                    permHeader="~";
                 updateFolder.setHeader("X-Object-Sharing", permHeader);
             }
             Scheduler.get().scheduleDeferred(updateFolder);
