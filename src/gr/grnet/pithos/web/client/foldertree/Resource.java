@@ -37,13 +37,9 @@ package gr.grnet.pithos.web.client.foldertree;
 
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
 import java.util.Date;
 
 public class Resource {

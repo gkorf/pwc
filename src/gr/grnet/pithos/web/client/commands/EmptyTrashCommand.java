@@ -35,7 +35,6 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.rest.DeleteCommand;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import com.google.gwt.core.client.GWT;
@@ -60,31 +59,31 @@ public class EmptyTrashCommand implements Command{
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		DeleteCommand df = new DeleteCommand(app, app.getTreeView().getTrash().getUri()){
-
-			@Override
-			public void onComplete() {
-				app.getTreeView().updateTrashNode();
-				app.showFileList(true);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				if(t instanceof RestException){
-					int statusCode = ((RestException)t).getHttpStatusCode();
-					if(statusCode == 405)
-						app.displayError("You don't have the necessary permissions");
-					else if(statusCode == 404)
-						app.displayError("Resource does not exist");
-					else
-						app.displayError("Unable to empty trash:"+((RestException)t).getHttpStatusText());
-				}
-				else
-					app.displayError("System error emptying trash:"+t.getMessage());
-			}
-		};
-		DeferredCommand.addCommand(df);
+//		DeleteCommand df = new DeleteCommand(app, app.getTreeView().getTrash().getUri()){
+//
+//			@Override
+//			public void onComplete() {
+//				app.getTreeView().updateTrashNode();
+//				app.showFileList(true);
+//			}
+//
+//			@Override
+//			public void onError(Throwable t) {
+//				GWT.log("", t);
+//				if(t instanceof RestException){
+//					int statusCode = ((RestException)t).getHttpStatusCode();
+//					if(statusCode == 405)
+//						app.displayError("You don't have the necessary permissions");
+//					else if(statusCode == 404)
+//						app.displayError("Resource does not exist");
+//					else
+//						app.displayError("Unable to empty trash:"+((RestException)t).getHttpStatusText());
+//				}
+//				else
+//					app.displayError("System error emptying trash:"+t.getMessage());
+//			}
+//		};
+//		DeferredCommand.addCommand(df);
 	}
 
 }

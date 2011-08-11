@@ -35,20 +35,8 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.rest.MultiplePostCommand;
-import gr.grnet.pithos.web.client.rest.PostCommand;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.FolderResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashFolderResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashResource;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 
@@ -69,125 +57,125 @@ public class RestoreTrashCommand implements Command{
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		Object selection = app.getCurrentSelection();
-		if (selection == null){
-			// Check to see if Trash Node is selected.
-			List folderList = new ArrayList();
-			TrashResource trashItem = app.getTreeView().getTrash();
-			for(int i=0 ; i < trashItem.getFolders().size() ; i++)
-				folderList.add(trashItem.getFolders().get(i));
-			return;
-		}
-		GWT.log("selection: " + selection.toString(), null);
-		if (selection instanceof FileResource) {
-			final FileResource resource = (FileResource)selection;
-			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
-
-				@Override
-				public void onComplete() {
-					//TODO:CELLTREE
-					//app.getFolders().update(app.getFolders().getTrashItem());
-					
-					app.showFileList(true);
-				}
-
-				@Override
-				public void onError(Throwable t) {
-					GWT.log("", t);
-					if(t instanceof RestException){
-						int statusCode = ((RestException)t).getHttpStatusCode();
-						if(statusCode == 405)
-							app.displayError("You don't have the necessary permissions");
-						else if(statusCode == 404)
-							app.displayError("File does not exist");
-						else if(statusCode == 409)
-							app.displayError("A file with the same name already exists");
-						else if(statusCode == 413)
-							app.displayError("Your quota has been exceeded");
-						else
-							app.displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
-					}
-					else
-						app.displayError("System error restoring file:"+t.getMessage());
-				}
-			};
-			DeferredCommand.addCommand(rt);
-		}
-		else if (selection instanceof List) {
-			final List<FileResource> fdtos = (List<FileResource>) selection;
-			final List<String> fileIds = new ArrayList<String>();
-			for(FileResource f : fdtos)
-				fileIds.add(f.getUri()+"?restore=");
-			MultiplePostCommand rt = new MultiplePostCommand(app, fileIds.toArray(new String[0]), 200){
-
-				@Override
-				public void onComplete() {
-					//TODO:CELLTREE
-					//app.getFolders().update(app.getFolders().getTrashItem());
-					app.showFileList(true);
-				}
-
-				@Override
-				public void onError(String p, Throwable t) {
-					GWT.log("", t);
-					if(t instanceof RestException){
-						int statusCode = ((RestException)t).getHttpStatusCode();
-						if(statusCode == 405)
-							app.displayError("You don't have the necessary permissions");
-						else if(statusCode == 404)
-							app.displayError("File does not exist");
-						else if(statusCode == 409)
-							app.displayError("A file with the same name already exists");
-						else if(statusCode == 413)
-							app.displayError("Your quota has been exceeded");
-						else
-							app.displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
-					}
-					else
-						app.displayError("System error restoring file:"+t.getMessage());
-				}
-			};
-			DeferredCommand.addCommand(rt);
-		}
-		else if (selection instanceof TrashFolderResource) {
-			final FolderResource resource = ((TrashFolderResource)selection).getResource();
-			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
-
-				@Override
-				public void onComplete() {
-					//TODO:CELLTREE
-					/*
-					app.getFolders().updateFolder((DnDTreeItem) app.getFolders().getRootItem());
-
-					app.getFolders().update(app.getFolders().getTrashItem());
-					*/
-					
-					app.getTreeView().updateTrashNode();
-					app.getTreeView().updateRootNode();
-				}
-
-				@Override
-				public void onError(Throwable t) {
-					GWT.log("", t);
-					if(t instanceof RestException){
-						int statusCode = ((RestException)t).getHttpStatusCode();
-						if(statusCode == 405)
-							app.displayError("You don't have the necessary permissions");
-						else if(statusCode == 404)
-							app.displayError("Folder does not exist");
-						else if(statusCode == 409)
-							app.displayError("A folder with the same name already exists");
-						else if(statusCode == 413)
-							app.displayError("Your quota has been exceeded");
-						else
-							app.displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
-					}
-					else
-						app.displayError("System error restoring folder:"+t.getMessage());
-				}
-			};
-			DeferredCommand.addCommand(rt);
-		}
+//		Object selection = app.getCurrentSelection();
+//		if (selection == null){
+//			// Check to see if Trash Node is selected.
+//			List folderList = new ArrayList();
+//			TrashResource trashItem = app.getTreeView().getTrash();
+//			for(int i=0 ; i < trashItem.getFolders().size() ; i++)
+//				folderList.add(trashItem.getFolders().get(i));
+//			return;
+//		}
+//		GWT.log("selection: " + selection.toString(), null);
+//		if (selection instanceof FileResource) {
+//			final FileResource resource = (FileResource)selection;
+//			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
+//
+//				@Override
+//				public void onComplete() {
+//					//TODO:CELLTREE
+//					//app.getFolders().update(app.getFolders().getTrashItem());
+//
+//					app.showFileList(true);
+//				}
+//
+//				@Override
+//				public void onError(Throwable t) {
+//					GWT.log("", t);
+//					if(t instanceof RestException){
+//						int statusCode = ((RestException)t).getHttpStatusCode();
+//						if(statusCode == 405)
+//							app.displayError("You don't have the necessary permissions");
+//						else if(statusCode == 404)
+//							app.displayError("File does not exist");
+//						else if(statusCode == 409)
+//							app.displayError("A file with the same name already exists");
+//						else if(statusCode == 413)
+//							app.displayError("Your quota has been exceeded");
+//						else
+//							app.displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
+//					}
+//					else
+//						app.displayError("System error restoring file:"+t.getMessage());
+//				}
+//			};
+//			DeferredCommand.addCommand(rt);
+//		}
+//		else if (selection instanceof List) {
+//			final List<FileResource> fdtos = (List<FileResource>) selection;
+//			final List<String> fileIds = new ArrayList<String>();
+//			for(FileResource f : fdtos)
+//				fileIds.add(f.getUri()+"?restore=");
+//			MultiplePostCommand rt = new MultiplePostCommand(app, fileIds.toArray(new String[0]), 200){
+//
+//				@Override
+//				public void onComplete() {
+//					//TODO:CELLTREE
+//					//app.getFolders().update(app.getFolders().getTrashItem());
+//					app.showFileList(true);
+//				}
+//
+//				@Override
+//				public void onError(String p, Throwable t) {
+//					GWT.log("", t);
+//					if(t instanceof RestException){
+//						int statusCode = ((RestException)t).getHttpStatusCode();
+//						if(statusCode == 405)
+//							app.displayError("You don't have the necessary permissions");
+//						else if(statusCode == 404)
+//							app.displayError("File does not exist");
+//						else if(statusCode == 409)
+//							app.displayError("A file with the same name already exists");
+//						else if(statusCode == 413)
+//							app.displayError("Your quota has been exceeded");
+//						else
+//							app.displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
+//					}
+//					else
+//						app.displayError("System error restoring file:"+t.getMessage());
+//				}
+//			};
+//			DeferredCommand.addCommand(rt);
+//		}
+//		else if (selection instanceof TrashFolderResource) {
+//			final FolderResource resource = ((TrashFolderResource)selection).getResource();
+//			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
+//
+//				@Override
+//				public void onComplete() {
+//					//TODO:CELLTREE
+//					/*
+//					app.getFolders().updateFolder((DnDTreeItem) app.getFolders().getRootItem());
+//
+//					app.getFolders().update(app.getFolders().getTrashItem());
+//					*/
+//
+//					app.getTreeView().updateTrashNode();
+//					app.getTreeView().updateRootNode();
+//				}
+//
+//				@Override
+//				public void onError(Throwable t) {
+//					GWT.log("", t);
+//					if(t instanceof RestException){
+//						int statusCode = ((RestException)t).getHttpStatusCode();
+//						if(statusCode == 405)
+//							app.displayError("You don't have the necessary permissions");
+//						else if(statusCode == 404)
+//							app.displayError("Folder does not exist");
+//						else if(statusCode == 409)
+//							app.displayError("A folder with the same name already exists");
+//						else if(statusCode == 413)
+//							app.displayError("Your quota has been exceeded");
+//						else
+//							app.displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
+//					}
+//					else
+//						app.displayError("System error restoring folder:"+t.getMessage());
+//				}
+//			};
+//			DeferredCommand.addCommand(rt);
+//		}
 
 	}
 

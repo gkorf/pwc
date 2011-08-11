@@ -34,22 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.resource.TagsResource;
-
-import java.util.List;
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -88,52 +77,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 		Pithos.enableIESelection();
 
 		setAnimationEnabled(true);
-
-	}
-	/**
-	 * Retrieves all user tags from the server and updates the FlowPanel
-	 */
-	protected void updateTags() {
-		GetCommand<TagsResource> tc = new GetCommand<TagsResource>(app, TagsResource.class, app.getCurrentUserResource().getTagsPath(),null) {
-
-			@Override
-			public void onComplete() {
-				allTagsContent.clear();
-				TagsResource tagr = getResult();
-				List<String> userTags = tagr.getTags();
-				Anchor tag = null;
-				for(String usrTag : userTags){
-					tag = new Anchor(usrTag.toString(), false);
-					tag.addStyleName("pithos-tag");
-					allTagsContent.add(tag);
-					Label separator = new Label(", ");
-					separator.addStyleName("pithos-tag");
-					allTagsContent.add(separator);
-					tag.addClickHandler( new ClickHandler() {
-
-						@Override
-						public void onClick(ClickEvent event) {
-							String existing = tags.getText();
-							if (MULTIPLE_VALUES_TEXT.equals(existing)) existing = "";
-							String newTag = ((Anchor) event.getSource()).getText().trim();
-							// insert the new tag only if it is not in the list
-							// already
-							if (existing.indexOf(newTag) == -1 && !existing.trim().endsWith(newTag))
-								tags.setText(existing.trim()
-											+ (existing.length() > 0 ? ", " : "")
-											+ newTag);
-						}
-					});
-				}
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				app.displayError("Unable to fetch user tags");
-			}
-		};
-		DeferredCommand.addCommand(tc);
 
 	}
 

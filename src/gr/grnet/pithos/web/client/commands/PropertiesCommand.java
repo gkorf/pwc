@@ -34,15 +34,13 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FileMenu;
+import gr.grnet.pithos.web.client.FileContextMenu;
 import gr.grnet.pithos.web.client.FilePropertiesDialog;
 import gr.grnet.pithos.web.client.FilesPropertiesDialog;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupResource;
 
 import java.util.List;
 
@@ -56,13 +54,9 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class PropertiesCommand implements Command {
 
-	final FileMenu.Images newImages;
+	final FileContextMenu.Images newImages;
 
 	private PopupPanel containerPanel;
-
-	private List<GroupResource> groups = null;
-
-	private List<FileResource> versions = null;
 
 	private int tabToShow = 0;
 
@@ -77,7 +71,7 @@ public class PropertiesCommand implements Command {
 	 * @param _newImages the images of all the possible delete dialogs
 	 * @param _tab the tab to switch to
 	 */
-	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, final FileMenu.Images _newImages, int _tab) {
+	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, final FileContextMenu.Images _newImages, int _tab) {
 		containerPanel = _containerPanel;
 		newImages = _newImages;
 		tabToShow = _tab;

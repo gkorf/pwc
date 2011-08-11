@@ -34,12 +34,8 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FileMenu;
+import gr.grnet.pithos.web.client.FileContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.GroupUserResource;
-
-import java.util.List;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -47,7 +43,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 
 public class RefreshCommand implements Command {
 
-	final FileMenu.Images newImages;
+	final FileContextMenu.Images newImages;
 
 	private PopupPanel containerPanel;
 
@@ -57,7 +53,7 @@ public class RefreshCommand implements Command {
 	 * @param _containerPanel
 	 * @param _newImages the images of all the possible delete dialogs
 	 */
-	public RefreshCommand(Pithos _app, PopupPanel _containerPanel, final FileMenu.Images _newImages) {
+	public RefreshCommand(Pithos _app, PopupPanel _containerPanel, final FileContextMenu.Images _newImages) {
         app = _app;
 		containerPanel = _containerPanel;
 		newImages = _newImages;
@@ -66,18 +62,18 @@ public class RefreshCommand implements Command {
 	@Override
 	public void execute() {
 		containerPanel.hide();
-		if (app.getCurrentSelection() instanceof FileResource || app.getCurrentSelection() instanceof List)
-			app.showFileList(true);
-		else if (app.getCurrentSelection() instanceof GroupUserResource)
-			return;
-		else{
-			//TODO:CELLTREE
-			//DnDTreeItem selectedTreeItem = (DnDTreeItem) app.getFolders().getCurrent();
-			//if(selectedTreeItem != null){
-				//app.getFolders().updateFolder(selectedTreeItem);
-			app.getTreeView().updateNode(app.getTreeView().getSelection());
-				app.showFileList(true);
-			//}
-		}
+//		if (app.getCurrentSelection() instanceof FileResource || app.getCurrentSelection() instanceof List)
+//			app.showFileList(true);
+//		else if (app.getCurrentSelection() instanceof GroupUserResource)
+//			return;
+//		else{
+//			//TODO:CELLTREE
+//			//DnDTreeItem selectedTreeItem = (DnDTreeItem) app.getFolders().getCurrent();
+//			//if(selectedTreeItem != null){
+//				//app.getFolders().updateFolder(selectedTreeItem);
+//			app.getTreeView().updateNode(app.getTreeView().getSelection());
+//				app.showFileList(true);
+//			//}
+//		}
 	}
 }

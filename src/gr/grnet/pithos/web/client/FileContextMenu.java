@@ -88,7 +88,7 @@ public class FileContextMenu extends PopupPanel {
 	 * The image bundle for this widget's images that reuses images defined in
 	 * other menus.
 	 */
-	public interface Images extends ClientBundle,FileMenu.Images, EditMenu.Images {
+	public interface Images extends ClientBundle {
 
 		@Source("gr/grnet/pithos/resources/mimetypes/document.png")
 		ImageResource fileContextMenu();
@@ -96,17 +96,78 @@ public class FileContextMenu extends PopupPanel {
 		@Source("gr/grnet/pithos/resources/doc_versions.png")
 		ImageResource versions();
 
-		@Override
 		@Source("gr/grnet/pithos/resources/group.png")
 		ImageResource sharing();
 
-		@Override
 		@Source("gr/grnet/pithos/resources/border_remove.png")
 		ImageResource unselectAll();
 
 		@Source("gr/grnet/pithos/resources/demo.png")
 		ImageResource viewImage();
-}
+
+        @Source("gr/grnet/pithos/resources/folder_new.png")
+        ImageResource folderNew();
+
+        @Source("gr/grnet/pithos/resources/folder_outbox.png")
+        ImageResource fileUpdate();
+
+        @Source("gr/grnet/pithos/resources/view_text.png")
+        ImageResource viewText();
+
+        @Source("gr/grnet/pithos/resources/folder_inbox.png")
+        ImageResource download();
+
+        @Source("gr/grnet/pithos/resources/trashcan_empty.png")
+        ImageResource emptyTrash();
+
+        @Source("gr/grnet/pithos/resources/refresh.png")
+        ImageResource refresh();
+
+        /**
+         * Will bundle the file 'editcut.png' residing in the package
+         * 'gr.grnet.pithos.web.resources'.
+         *
+         * @return the image prototype
+         */
+        @Source("gr/grnet/pithos/resources/editcut.png")
+        ImageResource cut();
+
+        /**
+         * Will bundle the file 'editcopy.png' residing in the package
+         * 'gr.grnet.pithos.web.resources'.
+         *
+         * @return the image prototype
+         */
+        @Source("gr/grnet/pithos/resources/editcopy.png")
+        ImageResource copy();
+
+        /**
+         * Will bundle the file 'editpaste.png' residing in the package
+         * 'gr.grnet.pithos.web.resources'.
+         *
+         * @return the image prototype
+         */
+        @Source("gr/grnet/pithos/resources/editpaste.png")
+        ImageResource paste();
+
+        /**
+         * Will bundle the file 'editdelete.png' residing in the package
+         * 'gr.grnet.pithos.web.resources'.
+         *
+         * @return the image prototype
+         */
+        @Source("gr/grnet/pithos/resources/editdelete.png")
+        ImageResource delete();
+
+        /**
+         * Will bundle the file 'translate.png' residing in the package
+         * 'gr.grnet.pithos.web.resources'.
+         *
+         * @return the image prototype
+         */
+        @Source("gr/grnet/pithos/resources/translate.png")
+        ImageResource selectAll();
+    }
 
 	public static native String getDate()/*-{
 		return (new Date()).toUTCString();
@@ -152,7 +213,7 @@ public class FileContextMenu extends PopupPanel {
 			trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, selectedFiles));
             contextMenu.addItem(trashItem);
 
-			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, images));
+			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
             contextMenu.addItem(deleteItem);
 
 //			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));

@@ -37,20 +37,12 @@ package gr.grnet.pithos.web.client;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.rest.GetCommand;
-import gr.grnet.pithos.web.client.rest.resource.PermissionHolder;
-import gr.grnet.pithos.web.client.rest.resource.UserResource;
-import gr.grnet.pithos.web.client.rest.resource.UserSearchResource;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;

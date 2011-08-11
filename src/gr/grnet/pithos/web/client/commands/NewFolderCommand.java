@@ -34,13 +34,10 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FileMenu.Images;
+import gr.grnet.pithos.web.client.FileContextMenu.Images;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.resource.GroupResource;
-
-import java.util.List;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -54,8 +51,6 @@ public class NewFolderCommand implements Command{
 
     private Folder folder;
 	final Images images;
-
-	private List<GroupResource> groups = null;
 
     private Pithos app;
 

@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.FileContextMenu.Images;
 import gr.grnet.pithos.web.client.commands.CopyCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
@@ -63,7 +64,7 @@ public class FolderContextMenu extends PopupPanel {
 	 * The image bundle for this widget's images that reuses images defined in
 	 * other menus.
 	 */
-	public interface Images extends ClientBundle,FileMenu.Images, EditMenu.Images {
+	public interface Images extends ClientBundle, FileContextMenu.Images {
 	}
 
 	private MenuItem pasteItem;
@@ -101,7 +102,7 @@ public class FolderContextMenu extends PopupPanel {
             MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
             contextMenu.addItem(moveToTrash);
 
-            MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, newImages));
+            MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
             contextMenu.addItem(delete);
 
             MenuItem properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, newImages, 0));

@@ -36,7 +36,7 @@ package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.DeleteFileDialog;
 import gr.grnet.pithos.web.client.DeleteFolderDialog;
-import gr.grnet.pithos.web.client.EditMenu.Images;
+import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;

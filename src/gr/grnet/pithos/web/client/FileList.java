@@ -37,24 +37,12 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
-import static com.google.gwt.query.client.GQuery.$;
 
+import com.google.gwt.user.cellview.client.Column;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gwtquery.plugins.draggable.client.DraggableOptions;
-import gwtquery.plugins.draggable.client.StopDragException;
-import gwtquery.plugins.draggable.client.DraggableOptions.DragFunction;
-import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
-import gwtquery.plugins.draggable.client.events.DragContext;
-import gwtquery.plugins.draggable.client.events.DragStartEvent;
-import gwtquery.plugins.draggable.client.events.DragStopEvent;
-import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
-import gwtquery.plugins.draggable.client.events.DragStopEvent.DragStopEventHandler;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,7 +91,7 @@ public class FileList extends Composite {
     interface TableStyle extends CellTable.Style {
     }
 
-	interface TableResources extends DragAndDropCellTable.Resources {
+	interface TableResources extends CellTable.Resources {
 	    @Source({CellTable.Style.DEFAULT_CSS, "GssCellTable.css"})
 	    TableStyle cellTableStyle();
 	}
@@ -142,7 +130,7 @@ public class FileList extends Composite {
 	 * Specifies that the images available for this composite will be the ones
 	 * available in FileContextMenu.
 	 */
-	public interface Images extends ClientBundle,FileContextMenu.Images, CellTreeView.Images {
+	public interface Images extends ClientBundle,FileContextMenu.Images, FolderTreeView.Images {
 
 		@Source("gr/grnet/pithos/resources/blank.gif")
 		ImageResource blank();
@@ -238,7 +226,7 @@ public class FileList extends Composite {
 	 */
 	private final Images images;
 	
-	private DragAndDropCellTable<File> celltable;
+	private CellTable<File> celltable;
 
 	private final MultiSelectionModel<File> selectionModel;
 
@@ -271,7 +259,7 @@ public class FileList extends Composite {
 		images = _images;
         this.treeView = _treeView;
 
-        DragAndDropCellTable.Resources resources = GWT.create(TableResources.class);
+        CellTable.Resources resources = GWT.create(TableResources.class);
 
         ProvidesKey<File> keyProvider = new ProvidesKey<File>(){
 
@@ -281,11 +269,11 @@ public class FileList extends Composite {
 			}
 		};
 
-		celltable = new DragAndDropCellTable<File>(Pithos.VISIBLE_FILE_COUNT, resources, keyProvider);
+		celltable = new CellTable<File>(Pithos.VISIBLE_FILE_COUNT, resources, keyProvider);
         celltable.setWidth("100%");
         celltable.setStyleName("pithos-List");
 
-		DragAndDropColumn<File, ImageResource> status = new DragAndDropColumn<File, ImageResource>(new ImageResourceCell() {
+		Column<File, ImageResource> status = new Column<File, ImageResource>(new ImageResourceCell() {
 		    @Override
 	        public boolean handlesSelection() {
 	            return false;
@@ -298,9 +286,8 @@ public class FileList extends Composite {
 	         }
 	    };
 	    celltable.addColumn(status,"");
-	    initDragOperation(status);
 
-        final DragAndDropColumn<File,SafeHtml> nameColumn = new DragAndDropColumn<File,SafeHtml>(new SafeHtmlCell()) {
+        final Column<File,SafeHtml> nameColumn = new Column<File,SafeHtml>(new SafeHtmlCell()) {
 
 			@Override
 			public SafeHtml getValue(File object) {
@@ -315,14 +302,13 @@ public class FileList extends Composite {
 			}
 			
 		};
-        initDragOperation(nameColumn);
         celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name"));
 		allHeaders.add(nameHeader);
 		nameHeader.setUpdater(new FileValueUpdater(nameHeader, "name"));
 
 		celltable.redrawHeaders();
 		
-	    DragAndDropColumn<File,String> aColumn = new DragAndDropColumn<File, String>(new TextCell()) {
+	    Column<File,String> aColumn = new Column<File, String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
 				return object.getOwner();
@@ -330,11 +316,10 @@ public class FileList extends Composite {
 		};
         SortableHeader aheader = new SortableHeader("Owner");
 		celltable.addColumn(aColumn, aheader);
-		initDragOperation(aColumn);
 		allHeaders.add(aheader);
         aheader.setUpdater(new FileValueUpdater(aheader, "owner"));
 
-        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
+        aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
 				return object.getPath();
@@ -342,11 +327,10 @@ public class FileList extends Composite {
 		};
         aheader = new SortableHeader("Path");
 		celltable.addColumn(aColumn, aheader);
-		initDragOperation(aColumn);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "path"));
 
-        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
+        aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
     			return String.valueOf(object.getVersion());
@@ -354,11 +338,10 @@ public class FileList extends Composite {
 		};
         aheader = new SortableHeader("Version");
 		celltable.addColumn(aColumn, aheader);
-		initDragOperation(aColumn);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "version"));
 
-        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
+        aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
 				// TODO Auto-generated method stub
@@ -367,11 +350,10 @@ public class FileList extends Composite {
 		};
         aheader = new SortableHeader("Size");
         celltable.addColumn(aColumn, aheader);
-		initDragOperation(aColumn);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "size"));
 
-        aColumn = new DragAndDropColumn<File,String>(new TextCell()) {
+        aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
 				return formatter.format(object.getLastModified());
@@ -383,31 +365,6 @@ public class FileList extends Composite {
 		aheader.setUpdater(new FileValueUpdater(aheader, "date"));
 	       
 		provider.addDataDisplay(celltable);
-
-		celltable.addDragStopHandler(new DragStopEventHandler() {
-
-	    	@Override
-		    public void onDragStop(DragStopEvent event) {
-			    GWT.log("DRAG STOPPED");
-		    }
-	    });
-		celltable.addDragStartHandler(new DragStartEventHandler() {
-
-		    public void onDragStart(DragStartEvent event) {
-		        FileResource value = event.getDraggableData();
-		        
-		        com.google.gwt.dom.client.Element helper = event.getHelper();
-		        SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		        sb.appendHtmlConstant("<b>");
-		        DisplayHelper.log(value.getName());
-		        if(getSelectedFiles().size()==1)
-		        	sb.appendEscaped(value.getName());
-		        else
-		        	sb.appendEscaped(getSelectedFiles().size()+" files");
-		        sb.appendHtmlConstant("</b>");
-		        helper.setInnerHTML(sb.toSafeHtml().asString());
-		    }
-		});
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
@@ -491,34 +448,6 @@ public class FileList extends Composite {
         return new ArrayList<File>(selectionModel.getSelectedSet());
 	}
 	
-	private void initDragOperation(DragAndDropColumn<?, ?> column) {
-        // retrieve draggableOptions on the column
-		DraggableOptions draggableOptions = column.getDraggableOptions();
-		// use template to construct the helper. The content of the div will be set
-		// after
-		draggableOptions.setHelper($(Templates.INSTANCE.outerHelper().asString()));
-		//draggableOptions.setZIndex(100);
-		// opacity of the helper
-		draggableOptions.setAppendTo("body");
-		//draggableOptions.setOpacity((float) 0.8);
-		draggableOptions.setContainment("document");
-		// cursor to use during the drag operation
-		draggableOptions.setCursor(Cursor.MOVE);
-		// set the revert option
-		draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
-		// prevents dragging when user click on the category drop-down list
-		draggableOptions.setCancel("select");
-	    draggableOptions.setOnBeforeDragStart(new DragFunction() {
-			@Override
-			public void f(DragContext context) {
-		        File value = context.getDraggableData();
-				if (!selectionModel.isSelected(value)) {
-    		       	throw new StopDragException();
-	    	    }
-			}
-		});
-    }
-	
 //	@Override
 //	public void onBrowserEvent(Event event) {
 //
@@ -573,9 +502,9 @@ public class FileList extends Composite {
 				showingStats = "1 file";
 			else
 				showingStats = folderFileCount + " files";
-			showingStats += " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
+//			showingStats += " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
 		} else {
-			showingStats = "" + (startIndex + 1) + " - " + max + " of " + count + " files" + " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
+//			showingStats = "" + (startIndex + 1) + " - " + max + " of " + count + " files" + " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
 		}
 		showCellTable();
 		updateCurrentlyShowingStats();

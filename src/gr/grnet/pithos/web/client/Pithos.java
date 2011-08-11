@@ -50,7 +50,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import gr.grnet.pithos.web.client.commands.GetUserCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -61,20 +60,12 @@ import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.rest.resource.FileResource;
-import gr.grnet.pithos.web.client.rest.resource.OtherUserResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResource;
-import gr.grnet.pithos.web.client.rest.resource.RestResourceWrapper;
-import gr.grnet.pithos.web.client.rest.resource.SharedResource;
-import gr.grnet.pithos.web.client.rest.resource.TrashResource;
-import gr.grnet.pithos.web.client.rest.resource.UserResource;
 
 import gr.grnet.pithos.web.client.tagtree.Tag;
 import gr.grnet.pithos.web.client.tagtree.TagTreeView;
 import gr.grnet.pithos.web.client.tagtree.TagTreeViewModel;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -86,7 +77,6 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
@@ -159,7 +149,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
 	 */
-	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FileMenu.Images, EditMenu.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images, Search.Images, CellTreeView.Images {
+	public interface Images extends ClientBundle, TopPanel.Images, StatusPanel.Images, FilePropertiesDialog.Images, MessagePanel.Images, FileList.Images {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
@@ -176,8 +166,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	private Clipboard clipboard = new Clipboard();
 
-	private UserResource currentUserResource;
-
 	/**
 	 * The top panel that contains the menu bar.
 	 */
@@ -192,11 +180,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * The bottom panel that contains the status bar.
 	 */
 	private StatusPanel statusPanel = null;
-
-	/**
-	 * The top right panel that displays the logged in user details
-	 */
-	private UserDetailsPanel userDetailsPanel = new UserDetailsPanel(this);
 
 	/**
 	 * The file list widget.
@@ -223,11 +206,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	private HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
 
-	/**
-	 * The widget that displays the tree of folders.
-	 */
-	
-	private CellTreeView treeView = null;
 	/**
 	 * The currently selected item in the application, for use by the Edit menu
 	 * commands. Potential types are Folder, File, User and Group.
@@ -565,58 +543,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	/**
-	 * Make the file list visible.
-	 *
-	 * @param update
-	 */
-	public void showFileList(boolean update) {
-		if(update){
-			getTreeView().refreshCurrentNode(true);
-		}
-		else{
-			RestResource currentFolder = getTreeView().getSelection();
-			if(currentFolder!=null){
-				showFileList(currentFolder);
-		}
-		}
-
-	}
-	
-	public void showFileList(RestResource r) {
-		showFileList(r,true);
-	}
-	
-	public void showFileList(RestResource r, boolean clearSelection) {
-		RestResource currentFolder = r;
-		if(currentFolder!=null){
-			List<FileResource> files = null;
-			if (currentFolder instanceof RestResourceWrapper) {
-				RestResourceWrapper folder = (RestResourceWrapper) currentFolder;
-				files = folder.getResource().getFiles();
-			}
-		}
-		inner.selectTab(0);
-	}
-
-	/**
-	 * Display the 'loading' indicator.
-	 */
-	public void showLoadingIndicator(String message, String path) {
-		if(path!=null){
-			String[] split = path.split("/");
-			message = message +" "+URL.decode(split[split.length-1]);
-		}
-		topPanel.getLoading().show(message);
-	}
-
-	/**
-	 * Hide the 'loading' indicator.
-	 */
-	public void hideLoadingIndicator() {
-		topPanel.getLoading().hide();
-	}
-
-	/**
 	 * A native JavaScript method to reach out to the browser's window and
 	 * invoke its resizeTo() method.
 	 *
@@ -626,16 +552,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public static native void resizeTo(int x, int y) /*-{
 		$wnd.resizeTo(x,y);
 	}-*/;
-
-	/**
-	 * A helper method that returns true if the user's list is currently visible
-	 * and false if it is hidden.
-	 *
-	 * @return true if the user list is visible
-	 */
-	public boolean isUserListVisible() {
-		return inner.getTabBar().getSelectedTab() == 1;
-	}
 
 	/**
 	 * Display an error message.
@@ -722,41 +638,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return statusPanel;
 	}
 
-	/**
-	 * Retrieve the userDetailsPanel.
-	 *
-	 * @return the userDetailsPanel
-	 */
-	public UserDetailsPanel getUserDetailsPanel() {
-		return userDetailsPanel;
-	}
-
-	
-
 	public String getToken() {
 		return token;
 	}
 
 	public String getWebDAVPassword() {
 		return webDAVPassword;
-	}
-
-	/**
-	 * Retrieve the currentUserResource.
-	 *
-	 * @return the currentUserResource
-	 */
-	public UserResource getCurrentUserResource() {
-		return currentUserResource;
-	}
-
-	/**
-	 * Modify the currentUserResource.
-	 *
-	 * @param newUser the new currentUserResource
-	 */
-	public void setCurrentUserResource(UserResource newUser) {
-		currentUserResource = newUser;
 	}
 
 	public static native void preventIESelection() /*-{
@@ -840,23 +727,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public String findUserFullName(String _userName){
 		return userFullNameMap.get(_userName);
-	}
-
-	/**
-	 * Retrieve the treeView.
-	 *
-	 * @return the treeView
-	 */
-	public CellTreeView getTreeView() {
-		return treeView;
-	}
-	
-	public void onResourceUpdate(RestResource resource,boolean clearSelection){
-		if(resource instanceof RestResourceWrapper || resource instanceof OtherUserResource || resource instanceof TrashResource || resource instanceof SharedResource){
-			if(getTreeView().getSelection()!=null&&getTreeView().getSelection().getUri().equals(resource.getUri()))
-				showFileList(resource,clearSelection);
-		}
-		
 	}
 
     public void deleteFolder(final Folder folder) {

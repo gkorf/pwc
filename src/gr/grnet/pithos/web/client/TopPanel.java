@@ -36,15 +36,12 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 
 /**
  * The top panel, which contains the menu bar icons and the user name.
@@ -61,40 +58,11 @@ public class TopPanel extends Composite {
 	/**
 	 * An image bundle for this widgets images.
 	 */
-	public interface Images extends ClientBundle, FileMenu.Images, EditMenu.Images,
-			FilePropertiesDialog.Images,
-			HelpMenu.Images, LoadingIndicator.Images {
+	public interface Images extends ClientBundle, FilePropertiesDialog.Images {
 
-		@Source("gr/grnet/pithos/resources/exit.png")
-		ImageResource exit();
-
-		@Source("gr/grnet/pithos/resources/folder_blue.png")
-		ImageResource folder();
-
-		@Source("gr/grnet/pithos/resources/edit.png")
-		ImageResource edit();
-
-		@Source("gr/grnet/pithos/resources/edit_group.png")
-		ImageResource group();
-
-		@Source("gr/grnet/pithos/resources/configure.png")
-		ImageResource configure();
-
-		@Source("gr/grnet/pithos/resources/help.png")
-		ImageResource help();
-
-		@Source("gr/grnet/pithos/resources/pithos-logo.png")
-		ImageResource gssLogo();
-
-		@Source("gr/grnet/pithos/resources/grnet-logo.png")
-		ImageResource grnetLogo();
+		@Source("gr/grnet/pithos/resources/pithos2-logo.png")
+		ImageResource pithosLogo();
 	}
-
-	/**
-	 * A widget that displays a message indicating that communication with the
-	 * server is underway.
-	 */
-	private LoadingIndicator loading;
 
 	/**
 	 * The constructor for the top panel.
@@ -103,73 +71,18 @@ public class TopPanel extends Composite {
 	 */
 	public TopPanel(Pithos _app, final Images images) {
         this.app = _app;
-		loading = new LoadingIndicator(images);
-        loading.hide();
 		HorizontalPanel outer = new HorizontalPanel();
-
 		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
-		MenuBar menu = new MenuBar();
-		menu.setWidth("100%");
-		menu.setAutoOpen(false);
-		menu.setAnimationEnabled(true);
-		menu.setStyleName("toolbarmenu");
-
-		Command quitCommand = new Command(){
-			@Override
-			public void execute() {
-				QuitDialog dlg = new QuitDialog(app);
-				dlg.center();
-			}
-		};
-		MenuItem quitItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.exit()).getHTML() + "</td><td>Quit</td></tr></table>", true, quitCommand);
-
-		MenuItem fileItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.folder()).getHTML() + "</td><td>File</td></tr></table>", true, new MenuBar(true)){
-			@Override
-			public MenuBar getSubMenu() {
-				return new FileMenu(app, images);
-			}
-		};
-
-		MenuItem editItem = new MenuItem("<table style='font-size: 100%'><tr><td>" +
-					AbstractImagePrototype.create(images.edit()).getHTML() + "</td><td>Edit</td></tr></table>", true, new MenuBar(true)){
-			@Override
-			public MenuBar getSubMenu() {
-				return new EditMenu(app, images);
-			}
-		};
-
-		menu.addItem(quitItem);
-		menu.addItem(fileItem);
-		menu.addItem(editItem);
-
-		outer.setSpacing(2);
+//		outer.setSpacing(2);
 		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		outer.setCellVerticalAlignment(menu, HasVerticalAlignment.ALIGN_MIDDLE);
-		outer.add(menu);
 		outer.setStyleName("toolbar");
 
-		outer.add(loading);
-
-		HTML logos = new HTML("<table><tr><td><a href='http://pithos.grnet.gr/pithos' target='pithos'>" +	AbstractImagePrototype.create(images.gssLogo()).getHTML() +
-					"</a><a href='http://www.grnet.gr/' " +	"target='grnet'>" +
-					AbstractImagePrototype.create(images.grnetLogo()).getHTML()+"</a></td></tr></table>");
+		HTML logos = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</td></tr></table>");
 		outer.add(logos);
 
-		outer.setCellHorizontalAlignment(logos, HasHorizontalAlignment.ALIGN_RIGHT);
+//		outer.setCellHorizontalAlignment(logos, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		initWidget(outer);
-	}
-
-
-	/**
-	 * Retrieve the loading.
-	 *
-	 * @return the loading
-	 */
-	public LoadingIndicator getLoading() {
-		return loading;
 	}
 }

@@ -88,13 +88,28 @@ public class FolderTreeView extends Composite {
         CellTree.Style cellTreeStyle();
     }
 
-    static interface Images extends ClientBundle,Tree.Resources, FolderContextMenu.Images {
+    public static interface Images extends ClientBundle,Tree.Resources, FolderContextMenu.Images {
 
         @Source("gr/grnet/pithos/resources/folder_home.png")
         ImageResource home();
 
         @Source("gr/grnet/pithos/resources/folder_yellow.png")
         public ImageResource folderYellow();
+
+        @Source("gr/grnet/pithos/resources/mimetypes/document.png")
+        ImageResource document();
+
+        @Source("gr/grnet/pithos/resources/internet.png")
+        ImageResource othersShared();
+
+        @Source("gr/grnet/pithos/resources/edit_user.png")
+        ImageResource myShared();
+
+        @Source("gr/grnet/pithos/resources/folder_user.png")
+        ImageResource sharedFolder();
+
+        @Source("gr/grnet/pithos/resources/trashcan_empty.png")
+        ImageResource trash();
     }
 
     static Images images = GWT.create(Images.class);
