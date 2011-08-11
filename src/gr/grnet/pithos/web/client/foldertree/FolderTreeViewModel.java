@@ -112,12 +112,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         else {
             final Folder f = (Folder) value;
             if (dataProviderMap.get(f) == null) {
-                dataProviderMap.put(f, new ListDataProvider<Folder>(new ProvidesKey<Folder>() {
-                    @Override
-                    public Object getKey(Folder item) {
-                        return item;
-                    }
-                }));
+                dataProviderMap.put(f, new ListDataProvider<Folder>());
             }
             final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
             fetchFolder(f, dataProvider, false);
