@@ -325,8 +325,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.setWidth("100%");
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
 
-        outer.setSpacing(4);
-
         // Hook the window resize event, so that we can adjust the UI.
         Window.addResizeHandler(this);
         // Clear out the window's built-in margin, because we want to take
