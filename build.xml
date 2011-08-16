@@ -103,7 +103,7 @@
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=55555"/>
             <arg value="-war"/>
-            <arg value="${gwt.www.dir}/${gwt.module}"/>
+            <arg value="${gwt.www.dir}"/>
             <arg value="-noserver"/>
             <arg value="-startupUrl"/>
             <arg value="http://127.0.0.1:8080/client/pithos.html"/>
