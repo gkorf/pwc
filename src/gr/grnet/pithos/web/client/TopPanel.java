@@ -42,6 +42,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 
 /**
  * The top panel, which contains the menu bar icons and the user name.
@@ -76,12 +78,18 @@ public class TopPanel extends Composite {
 
 //		outer.setSpacing(2);
 		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		outer.setStyleName("toolbar");
+		outer.setStyleName("pithos-topPanel");
 
 		HTML logos = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</td></tr></table>");
 		outer.add(logos);
 
-//		outer.setCellHorizontalAlignment(logos, HasHorizontalAlignment.ALIGN_RIGHT);
+        MenuBar username = new MenuBar();
+        username.setStyleName("pithos-usernameMenu");
+        MenuItem userItem = new MenuItem(_app.getUsername(), new MenuBar(true));
+        userItem.addStyleName("pithos-usernameMenu");
+        username.addItem(userItem);
+        outer.add(username);
+		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		initWidget(outer);
 	}

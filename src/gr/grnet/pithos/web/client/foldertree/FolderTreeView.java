@@ -93,22 +93,22 @@ public class FolderTreeView extends Composite {
         @Source("gr/grnet/pithos/resources/folder_home.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder_yellow.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
 
-        @Source("gr/grnet/pithos/resources/internet.png")
+        @Source("gr/grnet/pithos/resources/othersshared.png")
         ImageResource othersShared();
 
-        @Source("gr/grnet/pithos/resources/edit_user.png")
+        @Source("gr/grnet/pithos/resources/myshared22.png")
         ImageResource myShared();
 
         @Source("gr/grnet/pithos/resources/folder_user.png")
         ImageResource sharedFolder();
 
-        @Source("gr/grnet/pithos/resources/trashcan_empty.png")
+        @Source("gr/grnet/pithos/resources/trash.png")
         ImageResource trash();
     }
 

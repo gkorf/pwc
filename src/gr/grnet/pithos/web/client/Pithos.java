@@ -36,6 +36,8 @@ package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -47,9 +49,17 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
+import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -189,16 +199,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	/**
 	 * The tab panel that occupies the right side of the screen.
 	 */
-	private TabPanel inner = new DecoratedTabPanel(){
-		
-//		public void onBrowserEvent(com.google.gwt.user.client.Event event) {
-//			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU){
-//				if(isFileListShowing()){
-//					getFileList().showContextMenu(event);
-//				}
-//			}
-//		};
-	};
+	private VerticalPanel inner = new VerticalPanel();
 
 
 	/**
@@ -244,32 +245,43 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void initialize() {
+        VerticalPanel outer = new VerticalPanel();
+        outer.setWidth("100%");
+
         topPanel = new TopPanel(this, Pithos.images);
         topPanel.setWidth("100%");
+        outer.add(topPanel);
 
         messagePanel.setWidth("100%");
         messagePanel.setVisible(false);
+        outer.add(messagePanel);
+        outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
 
 
         // Inner contains the various lists.
         inner.sinkEvents(Event.ONCONTEXTMENU);
-        inner.setAnimationEnabled(true);
-        inner.getTabBar().addStyleName("pithos-MainTabBar");
-        inner.getDeckPanel().addStyleName("pithos-MainTabPanelBottom");
-
         inner.setWidth("100%");
 
-        inner.addSelectionHandler(new SelectionHandler<Integer>() {
+        HorizontalPanel rightside = new HorizontalPanel();
+        rightside.addStyleName("pithos-rightSide");
+        rightside.setSpacing(5);
 
+        PushButton parentButton = new PushButton(new Image(images.asc()), new ClickHandler() {
             @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                int tabIndex = event.getSelectedItem();
-                switch (tabIndex) {
-                    case 0:
-                        break;
-                }
+            public void onClick(ClickEvent event) {
+
             }
         });
+        parentButton.addStyleName("pithos-parentButton");
+        rightside.add(parentButton);
+
+        HTML folderStatistics = new HTML("5 Files (size: 1.1GB)");
+        folderStatistics.addStyleName("pithos-folderStatistics");
+        rightside.add(folderStatistics);
+        inner.add(rightside);
+        inner.setCellHorizontalAlignment(rightside, HasHorizontalAlignment.ALIGN_RIGHT);
+        inner.setCellVerticalAlignment(rightside, HasVerticalAlignment.ALIGN_MIDDLE);
+        inner.setCellHeight(rightside, "60px");
 
         folderTreeSelectionModel = new SingleSelectionModel<Folder>();
         folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -287,7 +299,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeView = new FolderTreeView(folderTreeViewModel);
 
         fileList = new FileList(this, images, folderTreeView);
-        inner.add(fileList, createHeaderHTML(AbstractImagePrototype.create(images.folders()), "Files"), true);
+        inner.add(fileList);
 
         tagTreeSelectionModel = new SingleSelectionModel<Tag>();
         tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
@@ -304,6 +316,21 @@ public class Pithos implements EntryPoint, ResizeHandler {
         tagTreeView = new TagTreeView(tagTreeViewModel);
 
         VerticalPanel trees = new VerticalPanel();
+
+        Button upload = new Button("Upload File", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                new UploadFileCommand(Pithos.this, null, folderTreeView.getSelection()).execute();
+            }
+        });
+        upload.addStyleName("pithos-uploadButton");
+        trees.add(upload);
+        
+        HorizontalPanel treeHeader = new HorizontalPanel();
+        treeHeader.addStyleName("pithos-treeHeader");
+        treeHeader.add(new HTML("Total Files: 6 | Used: 2.1 of 50 GB (4.2%)"));
+        trees.add(treeHeader);
+
         trees.add(folderTreeView);
         trees.add(tagTreeView);
         // Add the left and right panels to the split panel.
@@ -312,18 +339,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         splitPanel.setSplitPosition("25%");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
-
-        // Create a dock panel that will contain the menu bar at the top,
-        // the shortcuts to the left, the status bar at the bottom and the
-        // right panel taking the rest.
-        VerticalPanel outer = new VerticalPanel();
-        outer.add(topPanel);
-        outer.add(messagePanel);
         outer.add(splitPanel);
+
         statusPanel = new StatusPanel();
         outer.add(statusPanel);
-        outer.setWidth("100%");
-        outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
+
 
         // Hook the window resize event, so that we can adjust the UI.
         Window.addResizeHandler(this);
@@ -353,12 +373,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void showFiles(Folder f) {
-        inner.selectTab(0);
-        if (f.isTrash()) {
-            fileList.showTrash();
-        }
-        else
-            fileList.showFiles();
         Set<File> files = f.getFiles();
         showFiles(files);
     }
@@ -443,7 +457,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSuccess(AccountResource result) {
                 account = result;
-                inner.selectTab(0);
                 if (account.getContainers().isEmpty())
                     createHomeContainers();
                 else

@@ -71,7 +71,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html;
             if (folder.isTrash())
-                html = AbstractImagePrototype.create(FolderTreeView.images.emptyTrash()).getHTML();
+                html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
             else
                 html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);

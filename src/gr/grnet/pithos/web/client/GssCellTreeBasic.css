@@ -61,13 +61,11 @@
 }
 
 .cellTreeKeyboardSelectedItem {
-  background-color: #ffc;
   outline: none;
 }
 
 .cellTreeSelectedItem {
-  background-color: #628cd5;
-  color: white;
+  color: #d45500;
   height: auto;
   overflow: visible;
 }

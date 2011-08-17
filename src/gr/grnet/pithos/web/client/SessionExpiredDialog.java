@@ -60,7 +60,7 @@ public class SessionExpiredDialog extends DialogBox {
 
 		// Create the text and set a style name so we can style it with CSS.
 		HTML text = new HTML("<p>Your session has expired. You will have to reauthenticate with your Identity Provider.</p> ");
-		text.setStyleName("pithos-AboutText");
+		text.setStyleName("pithos-sessionExpired");
 		outer.add(text);
 
 		// Create the 'OK' button, along with a listener that hides the dialog

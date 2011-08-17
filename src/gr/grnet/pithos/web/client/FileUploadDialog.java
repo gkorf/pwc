@@ -98,11 +98,6 @@ public class FileUploadDialog extends DialogBox {
 		// Create a panel to hold all of the form widgets.
 		VerticalPanel panel = new VerticalPanel();
 		form.setWidget(panel);
-		final HTML info = new HTML("You may select a file to upload. Install" +
-				" <a href='http://gears.google.com/' target='_blank'>Google " +
-				"Gears</a><br> for uploading multiple files simultaneously.");
-		info.addStyleName("pithos-uploadNote");
-		panel.add(info);
 
         final Hidden auth = new Hidden("X-Auth-Token", "");
         panel.add(auth);
@@ -150,7 +145,6 @@ public class FileUploadDialog extends DialogBox {
 		buttons.add(cancel);
 		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
 		buttons.setSpacing(8);
-		buttons.addStyleName("pithos-DialogBox");
         panel.add(buttons);
         panel.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -183,9 +177,6 @@ public class FileUploadDialog extends DialogBox {
 			}
 		});
 
-
-		panel.addStyleName("pithos-DialogBox");
-		addStyleName("pithos-DialogBox");
 		setWidget(form);
 	}
 

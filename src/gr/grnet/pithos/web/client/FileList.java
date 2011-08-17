@@ -115,15 +115,6 @@ public class FileList extends Composite {
         public SafeHtml spanWithIdAndClass(String id, String cssClass, String content);
 	}
 
-    private String showingStats = "";
-
-	private int startIndex = 0;
-
-	/**
-	 * A constant that denotes the completion of an IncrementalCommand.
-	 */
-	public static final boolean DONE = false;
-
 	private final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
 
 	/**
@@ -234,14 +225,6 @@ public class FileList extends Composite {
 
 	SortableHeader nameHeader;
 
-	GssSimplePager pagerBottom;
-
-	GssSimplePager pagerTop;
-
-	Button uploadButtonBottom;
-
-	Button uploadButtonTop;
-
     FolderTreeView treeView;
 
     private Pithos app;
@@ -308,47 +291,14 @@ public class FileList extends Composite {
 
 		celltable.redrawHeaders();
 		
-	    Column<File,String> aColumn = new Column<File, String>(new TextCell()) {
-			@Override
-			public String getValue(File object) {
-				return object.getOwner();
-			}
-		};
-        SortableHeader aheader = new SortableHeader("Owner");
-		celltable.addColumn(aColumn, aheader);
-		allHeaders.add(aheader);
-        aheader.setUpdater(new FileValueUpdater(aheader, "owner"));
-
-        aColumn = new Column<File,String>(new TextCell()) {
-			@Override
-			public String getValue(File object) {
-				return object.getPath();
-			}
-		};
-        aheader = new SortableHeader("Path");
-		celltable.addColumn(aColumn, aheader);
-		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "path"));
-
-        aColumn = new Column<File,String>(new TextCell()) {
-			@Override
-			public String getValue(File object) {
-    			return String.valueOf(object.getVersion());
-			}
-		};
-        aheader = new SortableHeader("Version");
-		celltable.addColumn(aColumn, aheader);
-		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "version"));
-
-        aColumn = new Column<File,String>(new TextCell()) {
+        Column<File,String> aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
 				// TODO Auto-generated method stub
 				return object.getSizeAsString();
 			}
 		};
-        aheader = new SortableHeader("Size");
+        SortableHeader aheader = new SortableHeader("Size");
         celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
 		aheader.setUpdater(new FileValueUpdater(aheader, "size"));
@@ -369,40 +319,8 @@ public class FileList extends Composite {
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
 
-		pagerTop = new GssSimplePager(GssSimplePager.TextLocation.CENTER);
-        pagerTop.setVisible(false);
-		pagerTop.setDisplay(celltable);
-		uploadButtonTop = new Button("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>");
-		uploadButtonTop.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				new UploadFileCommand(app, null, treeView.getSelection()).execute();
-			}
-		});
-		HorizontalPanel topPanel = new HorizontalPanel();
-		topPanel.add(pagerTop);
-		topPanel.add(uploadButtonTop);
-		vp.add(topPanel);
-
         vp.add(celltable);
 
-		pagerBottom = new GssSimplePager(GssSimplePager.TextLocation.CENTER);
-        pagerBottom.setVisible(false);
-		pagerBottom.setDisplay(celltable);
-		uploadButtonBottom=new Button("<span id='topMenu.file.upload'>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>");
-		uploadButtonBottom.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				new UploadFileCommand(app, null, treeView.getSelection()).execute();
-			}
-		});
-        HorizontalPanel bottomPanel = new HorizontalPanel();
-        bottomPanel.add(pagerBottom);
-		bottomPanel.add(uploadButtonBottom);
-
-		vp.add(bottomPanel);
 		vp.setCellWidth(celltable, "100%");
         vp.addHandler(new ContextMenuHandler() {
             @Override
@@ -475,26 +393,6 @@ public class FileList extends Composite {
 	 * Update the display of the file list.
 	 */
 	void update(boolean sort) {
-		int count = folderFileCount;
-		int max = startIndex + Pithos.VISIBLE_FILE_COUNT;
-		if (max > count)
-			max = count;
-		folderTotalSize = 0;
-		
-		for(File f : files){
-			folderTotalSize += f.getBytes();
-		}
-		if (folderFileCount == 0) {
-			showingStats = "no files";
-		} else if (folderFileCount < Pithos.VISIBLE_FILE_COUNT) {
-			if (folderFileCount == 1)
-				showingStats = "1 file";
-			else
-				showingStats = folderFileCount + " files";
-//			showingStats += " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
-		} else {
-//			showingStats = "" + (startIndex + 1) + " - " + max + " of " + count + " files" + " (" + FileResource.getFileSizeAsString(folderTotalSize) + ")";
-		}
 		showCellTable();
 	}
 
@@ -563,16 +461,6 @@ public class FileList extends Composite {
 	            otherHeader.setReverseSort(true);
 	        }
 	    }
-
-        if(files.size() > Pithos.VISIBLE_FILE_COUNT){
-            pagerBottom.setVisible(true);
-            pagerTop.setVisible(true);
-        }
-        else{
-            pagerTop.setVisible(false);
-            pagerBottom.setVisible(false);
-        }
-        Folder selectedItem = treeView.getSelection();
 
         provider.setList(files);
         selectionModel.clear();
@@ -690,14 +578,6 @@ public class FileList extends Composite {
 	 * Shows the files in the cellTable 
      */
 	private void showCellTable(){
-		if(files.size()> Pithos.VISIBLE_FILE_COUNT){
-			pagerBottom.setVisible(true);
-			pagerTop.setVisible(true);
-		}
-		else{
-			pagerTop.setVisible(false);
-			pagerBottom.setVisible(false);
-		}
 		provider.setList(files);
 		
 		provider.refresh();
@@ -705,14 +585,4 @@ public class FileList extends Composite {
 		//celltable.redraw();
 		celltable.redrawHeaders();		
 	}
-
-    public void showTrash() {
-        uploadButtonBottom.setVisible(false);
-        uploadButtonTop.setVisible(false);
-    }
-
-    public void showFiles() {
-        uploadButtonBottom.setVisible(true);
-        uploadButtonTop.setVisible(true);
-    }
 }

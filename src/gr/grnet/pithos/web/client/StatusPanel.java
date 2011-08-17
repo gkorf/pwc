@@ -70,8 +70,9 @@ public class StatusPanel extends Composite {
         HorizontalPanel secondLine = new HorizontalPanel();
         secondLine.add(new HTML("Copyright (C) 2011 Greek Research and Technology Network"));
         inner.add(secondLine);
-        
         outer.add(inner);
+        outer.addStyleName("pithos-statusbar");
+
 		initWidget(outer);
 	}
 }

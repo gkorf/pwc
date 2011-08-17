@@ -19,11 +19,10 @@
 }
 
 .cellTableHeader {
-  /*padding: 3px 9px;*/
-  border:none;
-	background-color: #E0EDFE;
+    border:none;
 	font-weight: bold;
 	cursor: pointer;
+	color: white;
 }
 
 .cellTableCell {
@@ -62,24 +61,21 @@
 .cellTableEvenRow {
   cursor: hand;
   cursor: pointer;
+  background: none;
 }
 
 .cellTableOddRow {
   cursor: hand;
   cursor: pointer;
+  background: none;
 }
 
 .cellTableSelectedRow {
-  background: #628cd5;
-  color: white;
+  color: #d45500;
   height: auto;
   overflow: auto;
 }
 
- .cellTableHoveredRow {
-  
-  /*background-color: #E0EDFE;
-  color: white;
-  height: auto;
-  overflow: auto;*/
+.cellTableHoveredRow {
+    background: none;
 }
