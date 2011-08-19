@@ -65,7 +65,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.GssSimplePager;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
@@ -252,7 +251,7 @@ public class FileList extends Composite {
 			}
 		};
 
-		celltable = new CellTable<File>(Pithos.VISIBLE_FILE_COUNT, resources, keyProvider);
+		celltable = new CellTable<File>(10, resources, keyProvider);
         celltable.setWidth("100%");
         celltable.setStyleName("pithos-List");
 
@@ -340,7 +339,7 @@ public class FileList extends Composite {
 		selectionModel = new MultiSelectionModel<File>(keyProvider);
 
 		celltable.setSelectionModel(selectionModel, GSSSelectionEventManager.<File> createDefaultManager());
-		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
+//		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
 		sinkEvents(Event.ONCONTEXTMENU);
 //		sinkEvents(Event.ONMOUSEUP);

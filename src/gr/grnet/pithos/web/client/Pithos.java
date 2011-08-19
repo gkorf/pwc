@@ -58,7 +58,9 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.view.client.TreeViewModel;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -66,6 +68,8 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
+import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
@@ -108,13 +112,8 @@ import java.util.Set;
  */
 public class Pithos implements EntryPoint, ResizeHandler {
 
-	/**
-	 * A constant that denotes the completion of an IncrementalCommand.
-	 */
-	public static final boolean DONE = false;
-
-	public static final int VISIBLE_FILE_COUNT = 25;
-
+	public static final String HOME_CONTAINER = "pithos";
+	
 	/**
 	 * Instantiate an application-level image bundle. This object will provide
 	 * programmatic access to all the images needed by widgets.
@@ -137,6 +136,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeView.updateFolder(f, showfiles);
     }
 
+    public void updateSharedFolder(Folder f, boolean showfiles) {
+    	mysharedTreeView.updateFolder(f, showfiles);
+    }
+    
     public void updateTag(Tag t) {
         tagTreeView.updateTag(t);
     }
@@ -153,6 +156,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         return tagList;
+    }
+
+    public MysharedTreeView getMySharedTreeView() {
+        return mysharedTreeView;
     }
 
     /**
@@ -232,11 +239,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private FolderTreeViewModel folderTreeViewModel;
     private FolderTreeView folderTreeView;
 
+    private SingleSelectionModel<Folder> mysharedTreeSelectionModel;
+    private MysharedTreeViewModel mysharedTreeViewModel;
+    private MysharedTreeView mysharedTreeView;
+
     private SingleSelectionModel<Tag> tagTreeSelectionModel;
     private TagTreeViewModel tagTreeViewModel;
     private TagTreeView tagTreeView;
 
     private AccountResource account;
+
+    private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
 
 	@Override
 	public void onModuleLoad() {
@@ -288,12 +301,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
-                    tagTreeSelectionModel.setSelected(tagTreeSelectionModel.getSelectedObject(), false);
+                    deselectOthers(folderTreeSelectionModel);
                     Folder f = folderTreeSelectionModel.getSelectedObject();
                     updateFolder(f, true);
                 }
             }
         });
+        selectionModels.add(folderTreeSelectionModel);
 
         folderTreeViewModel = new FolderTreeViewModel(this, folderTreeSelectionModel);
         folderTreeView = new FolderTreeView(folderTreeViewModel);
@@ -301,17 +315,32 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList = new FileList(this, images, folderTreeView);
         inner.add(fileList);
 
+        mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
+        mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                if (mysharedTreeSelectionModel.getSelectedObject() != null) {
+                    deselectOthers(mysharedTreeSelectionModel);
+                    updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+                }
+            }
+        });
+        selectionModels.add(mysharedTreeSelectionModel);
+        mysharedTreeViewModel = new MysharedTreeViewModel(this, mysharedTreeSelectionModel);
+        mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
+
         tagTreeSelectionModel = new SingleSelectionModel<Tag>();
         tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 if (tagTreeSelectionModel.getSelectedObject() != null) {
-                    folderTreeSelectionModel.setSelected(folderTreeSelectionModel.getSelectedObject(), false);
+                    deselectOthers(tagTreeSelectionModel);
                     Tag t = tagTreeSelectionModel.getSelectedObject();
                     updateTag(t);
                 }
             }
         });
+        selectionModels.add(tagTreeSelectionModel);
         tagTreeViewModel = new TagTreeViewModel(this, tagTreeSelectionModel);
         tagTreeView = new TagTreeView(tagTreeViewModel);
 
@@ -332,7 +361,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         trees.add(treeHeader);
 
         trees.add(folderTreeView);
-        trees.add(tagTreeView);
+        trees.add(mysharedTreeView);
+//        trees.add(tagTreeView);
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
@@ -370,6 +400,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 fetchAccount();
             }
         });
+    }
+
+    public void deselectOthers(SingleSelectionModel model) {
+        for (SingleSelectionModel s : selectionModels)
+            if (!s.equals(model))
+                s.setSelected(s.getSelectedObject(), false);
     }
 
     public void showFiles(Folder f) {
@@ -459,8 +495,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 account = result;
                 if (account.getContainers().isEmpty())
                     createHomeContainers();
-                else
+                else {
                     folderTreeViewModel.initialize(account);
+                }
             }
 
             @Override
@@ -810,5 +847,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         createFolder.setHeader("Content-Length", "0");
         createFolder.setHeader("Content-Type", "application/folder");
         Scheduler.get().scheduleDeferred(createFolder);
+    }
+    
+    public void addSelectionModel(SingleSelectionModel model) {
+    	selectionModels.add(model);
     }
 }

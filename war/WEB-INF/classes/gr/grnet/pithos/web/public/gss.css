@@ -1,0 +1,217 @@
+body {
+	color: black;
+	font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+	margin: 8px;
+	margin-top: 3px;
+}
+
+a {
+	color: darkblue;
+}
+
+a:visited {
+	color: darkblue;
+}
+
+a.info {
+	position: relative; /*this is the key*/
+	z-index: 24;
+	color: black;
+	text-decoration: none
+}
+
+a.info:hover {
+	z-index: 25;
+	background-color: yellow;
+}
+
+a.info div {
+	display: none
+}
+
+a.info:hover span {
+	cursor: pointer;
+}
+
+/* The span will only display on :hover state. */
+a.info:hover div {
+	display: block;
+	position: absolute;
+	bottom: 2em;
+	right: 1em;
+	width: 10em;
+	border: 1px solid lightblue;
+	background-color: #D0E4F6;
+	color: black;
+	text-align: center
+}
+
+/*
+ * Remove the padding inside the dialog boxes so that our background color
+ * appears uniform in warnings and errors.
+ */
+.gwt-DialogBox .dialogMiddleCenter {
+	background:none repeat scroll 0 0 white;
+	padding: 0;
+}
+
+table.pithos-permList {
+	border-spacing: 3px;
+	border-collapse: collapse;
+
+}
+
+table.pithos-permList td {
+	padding: 5px 5px 5px 5px;
+	font-size:80%;
+}
+
+table.pithos-permList.props-labels {
+	font-weight: bold;
+}
+
+.props-labels {
+	font-size: 80%;
+	font-weight: bold;
+}
+
+.props-toplabels {
+	font-size: 80%;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.props-values {
+	font-size: 80%;
+}
+
+.hidden-link {
+	text-decoration: none !important;
+	color: black !important;
+}
+
+.hidden-link:visited {
+	text-decoration: none !important;
+	color: black !important;
+}
+
+.pithos-topPanel {
+	background-color: #4085a5;
+	font-size: 80%;
+}
+
+.pithos-usernameMenu {
+    cursor: pointer;
+    color: white;
+}
+
+.pithos-usernameMenuItem {
+    cursor: pointer;
+}
+
+.pithos-sessionExpired {
+	width: 24em;
+	/* Restore the padding we remove when overriding the gwt-DialogBox style */
+	padding: 3px;
+}
+
+.pithos-statusbar {
+	background-color: #4085a5;
+	border: none;
+	font-size: 90%;
+	vertical-align: middle;
+	font-weight: normal;
+}
+
+.pithos-List {
+	cursor: default;
+	border-collapse: collapse;
+	/* prevents selecting text in table with shift and ctrl*/
+	-moz-user-select: none;
+}
+
+.pithos-errorMessage {
+	font-size: 90%;
+	background-color: #ff9999;
+	cursor: pointer;
+}
+
+.pithos-warnMessage {
+	font-size: 90%;
+	background-color: #eeee99;
+	cursor: pointer;
+}
+
+.pithos-infoMessage {
+	font-size: 90%;
+	background-color: #ccffcc;
+	cursor: pointer;
+}
+
+.pithos-clearMessage {
+	font-size: 90%;
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+.pithos-clearMessage:visited {
+	font-size: 90%;
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+.pithos-readForAllNote {
+	width: 240px;
+	text-align: justify;
+	font-style: italic;
+	font-size: 12px;
+	padding-left: 4;
+}
+
+.pithos-TabPanelBottom {
+	border-color: darkgrey;
+	border-width: 1px 1px 1px;
+	overflow: hidden;
+	padding: 6px;
+}
+
+.pithos-splitPanel {
+	border: 1px solid white;
+	background: url(images/background.png) repeat-x;
+}
+
+/* Use the background color for the splitter. */
+.gwt-HorizontalSplitPanel .hsplitter {
+	cursor: move;
+	border: 0px;
+	background: #bec8e6;
+}
+
+.pithos-tag {
+	display:inline;
+}
+
+.pithos-uploadButton {
+    background: none;
+    background-color: #ff6600;
+    font-size: 120%;
+    text-align: center;
+    height: 40px;
+    width: 100%;
+}
+
+.pithos-rightSide {
+    vertical-align: middle;
+}
+.pithos-parentButton {
+    background: none;
+    background-color: #a1c8da;
+}
+
+.pithos-folderStatistics {
+    background-color: #a1c8da;
+    text-align: center;
+    color: white;
+}

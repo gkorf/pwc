@@ -68,7 +68,7 @@ public class AccountResource extends Resource {
 
     private Date lastModified = null;
     
-    private Set<Folder> containers = new LinkedHashSet<Folder>();
+    private List<Folder> containers = new ArrayList<Folder>();
 
     private Date currentLogin = null;
 
@@ -122,7 +122,7 @@ public class AccountResource extends Resource {
         this.numberOfObjects = numberOfObjects;
     }
 
-    public Set<Folder> getContainers() {
+    public List<Folder> getContainers() {
         return containers;
     }
 
