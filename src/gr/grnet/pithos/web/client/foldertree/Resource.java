@@ -40,6 +40,9 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+
+import gr.grnet.pithos.web.client.SharingUsers;
+
 import java.util.Date;
 
 public class Resource {
@@ -98,6 +101,9 @@ public class Resource {
         }
         else if (aClass.equals(File.class)) {
             result = (T) File.createFromResponse(owner, response, (File) result);
+        }
+        else if (aClass.equals(SharingUsers.class)) {
+        	result = (T) SharingUsers.createFromResponse(response, (SharingUsers) result);
         }
         return result;
     }

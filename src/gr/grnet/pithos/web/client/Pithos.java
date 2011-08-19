@@ -70,6 +70,8 @@ import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeViewModel;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
@@ -140,6 +142,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	mysharedTreeView.updateFolder(f, showfiles);
     }
     
+    public void updateOtherSharedFolder(Folder f, boolean showfiles) {
+    	otherSharedTreeView.updateFolder(f, showfiles);
+    }
+
     public void updateTag(Tag t) {
         tagTreeView.updateTag(t);
     }
@@ -243,6 +249,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private MysharedTreeViewModel mysharedTreeViewModel;
     private MysharedTreeView mysharedTreeView;
 
+    private SingleSelectionModel<Folder> otherSharedTreeSelectionModel;
+    private OtherSharedTreeViewModel otherSharedTreeViewModel;
+    private OtherSharedTreeView otherSharedTreeView;
+
     private SingleSelectionModel<Tag> tagTreeSelectionModel;
     private TagTreeViewModel tagTreeViewModel;
     private TagTreeView tagTreeView;
@@ -329,6 +339,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
         mysharedTreeViewModel = new MysharedTreeViewModel(this, mysharedTreeSelectionModel);
         mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
 
+        otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
+        otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
+                    deselectOthers(otherSharedTreeSelectionModel);
+                    updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+                }
+            }
+        });
+        selectionModels.add(otherSharedTreeSelectionModel);
+        otherSharedTreeViewModel = new OtherSharedTreeViewModel(this, otherSharedTreeSelectionModel);
+        otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
+
         tagTreeSelectionModel = new SingleSelectionModel<Tag>();
         tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
@@ -362,6 +386,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         trees.add(folderTreeView);
         trees.add(mysharedTreeView);
+        trees.add(otherSharedTreeView);
 //        trees.add(tagTreeView);
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
@@ -852,4 +877,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     public void addSelectionModel(SingleSelectionModel model) {
     	selectionModels.add(model);
     }
+
+	public OtherSharedTreeView getOtherSharedTreeView() {
+		return otherSharedTreeView;
+	}
 }
