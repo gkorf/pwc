@@ -5,3 +5,4 @@ bin
 dependencies
 war
 .gwt
+.project

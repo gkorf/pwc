@@ -38,16 +38,18 @@ package gr.grnet.pithos.web.client.othersharedtree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SharingUsers;
+import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -92,12 +94,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     };
 
     private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-    private ListDataProvider<String> firstLevelDataProvider = new ListDataProvider<String>();
+    protected ListDataProvider<String> userLevelDataProvider = new ListDataProvider<String>();
 
-    private Map<String, ListDataProvider<Folder>> userDataProviderMap = new HashMap<String, ListDataProvider<Folder>>();
+    protected Map<String, ListDataProvider<Folder>> userDataProviderMap = new HashMap<String, ListDataProvider<Folder>>();
     private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
+    
+    protected Map<String, Set<File>> sharedFiles = new HashMap<String, Set<File>>();
 
-    private SingleSelectionModel<Folder> selectionModel;
+    protected SingleSelectionModel<Folder> selectionModel;
 
     public OtherSharedTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
         app = _app;
@@ -115,6 +119,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 public void onSelectionChange(SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(selectionModel2);
+                    	app.showFiles(new HashSet<File>());
                     }
                 }
             });
@@ -137,7 +142,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
         else if (value instanceof String) {
         	if (value.equals("Other 's Shared")) {
-	        	fetchSharingUsers(firstLevelDataProvider);
+	        	fetchSharingUsers();
 	            final SingleSelectionModel<String> selectionModel3 = new SingleSelectionModel<String>();
 	            selectionModel3.addSelectionChangeHandler(new Handler() {
 
@@ -145,11 +150,13 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	                public void onSelectionChange(SelectionChangeEvent event) {
 	                    if (selectionModel3.getSelectedObject() != null) {
 	                    	app.deselectOthers(selectionModel3);
+	                    	String username = selectionModel3.getSelectedObject();
+	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
 	                    }
 	                }
 	            });
 	            app.addSelectionModel(selectionModel3);
-	            return new DefaultNodeInfo<String>(firstLevelDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
+	            return new DefaultNodeInfo<String>(userLevelDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
 
 					@Override
 					public SafeHtml render(String object) {
@@ -160,15 +167,19 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 
 					@Override
 					public void render(String object, SafeHtmlBuilder builder) {
-	                    String html = AbstractImagePrototype.create(OtherSharedTreeView.images.folderYellow()).getHTML();
+	                    String html = AbstractImagePrototype.create(OtherSharedTreeView.images.user()).getHTML();
 	                    builder.appendHtmlConstant(html);
 	                    builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
 					}
 				}), selectionModel3, null);
         	}
-        	else {
-        		return new DefaultNodeInfo<Folder>(new ListDataProvider<Folder>(), folderCell, selectionModel, null);
-        	}
+			String username = (String) value;
+			if (userDataProviderMap.get(username) == null) {
+				userDataProviderMap.put(username, new ListDataProvider<Folder>());
+			}
+			final ListDataProvider<Folder> dataProvider = userDataProviderMap.get(username);
+			fetchSharedContainers(username, dataProvider);
+			return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
         else {
             final Folder f = (Folder) value;
@@ -181,20 +192,15 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
     }
 
-    private void fetchSharingUsers(final ListDataProvider<String> dataProvider) {
+    private void fetchSharingUsers() {
         GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(SharingUsers.class, app.getApiPath(), "", "?format=json") {
             @Override
             public void onSuccess(final SharingUsers result) {
-                dataProvider.getList().clear();
-                dataProvider.getList().addAll(result.getUsers());
-//                Iterator<Folder> iter = result.getSubfolders().iterator();
-//                fetchFolder(iter, new Command() {
-//                    @Override
-//                    public void execute() {
-//                        dataProvider.getList().clear();
-//                        dataProvider.getList().addAll(result.getSubfolders());
-//                    }
-//                });
+                userLevelDataProvider.getList().clear();
+                userLevelDataProvider.getList().addAll(result.getUsers());
+                for (String name : result.getUsers()) {
+                	sharedFiles.put(name, new HashSet<File>());
+                }
             }
 
             @Override
@@ -210,39 +216,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         Scheduler.get().scheduleDeferred(getSharingUsers);
 	}
 
-    private void fetchSharedFolders(final ListDataProvider<Folder> dataProvider) {
-    	Folder pithos = new Folder(Pithos.HOME_CONTAINER);
-    	pithos.setContainer(Pithos.HOME_CONTAINER);
-        String path = "/" + pithos.getContainer()  + "?format=json&shared=";
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, pithos) {
-            @Override
-            public void onSuccess(final Folder result) {
-//                if (showfiles)
-//                    app.showFiles(result);
-                Iterator<Folder> iter = result.getSubfolders().iterator();
-                fetchFolder(iter, new Command() {
-                    @Override
-                    public void execute() {
-                        dataProvider.getList().clear();
-                        dataProvider.getList().addAll(result.getSubfolders());
-//                        app.getMySharedTreeView().updateChildren(f);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                GWT.log("Error getting folder", t);
-                if (t instanceof RestException)
-                    app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                else
-                    app.displayError("System error fetching folder: " + t.getMessage());
-            }
-        };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
-        Scheduler.get().scheduleDeferred(getFolder);
-	}
-
 	@Override
     public boolean isLeaf(Object o) {
         if (o instanceof Folder) {
@@ -252,15 +225,93 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         return false;
     }
 
-    protected void fetchFolder(final Iterator<Folder> iter, final Command callback) {
+	private void fetchSharedContainers(final String username, final ListDataProvider<Folder> dataProvider) {
+		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
+
+			@Override
+			public void onSuccess(AccountResource result) {
+		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
+				Iterator<Folder> iter = result.getContainers().iterator();
+				fetchFolder(username, iter, tempProvider, new Command() {
+					
+					@Override
+					public void execute() {
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(tempProvider.getList());
+					}
+				});
+			}
+
+			@Override
+			public void onError(Throwable t) {
+                GWT.log("Error getting account", t);
+                if (t instanceof RestException)
+                    app.displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                else
+                    app.displayError("System error fetching user data: " + t.getMessage());
+			}
+		};
+		getUserSharedContainers.setHeader("X-Auth-Token", app.getToken());
+		Scheduler.get().scheduleDeferred(getUserSharedContainers);
+	}
+
+	protected void fetchSharedFiles(final String username, final ListDataProvider<Folder> dataProvider) {
+		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
+
+			@Override
+			public void onSuccess(AccountResource result) {
+		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
+				Iterator<Folder> iter = result.getContainers().iterator();
+				fetchFolder(username, iter, tempProvider, new Command() {
+					
+					@Override
+					public void execute() {
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(tempProvider.getList());
+						app.showFiles(sharedFiles.get(username));
+					}
+				});
+			}
+
+			@Override
+			public void onError(Throwable t) {
+                GWT.log("Error getting account", t);
+                if (t instanceof RestException)
+                    app.displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                else
+                    app.displayError("System error fetching user data: " + t.getMessage());
+			}
+		};
+		getUserSharedContainers.setHeader("X-Auth-Token", app.getToken());
+		Scheduler.get().scheduleDeferred(getUserSharedContainers);
+	}
+
+	protected void fetchFolder(final String username, final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), username, path, f) {
                 @Override
                 public void onSuccess(Folder result) {
-                    fetchFolder(iter, callback);
+                	if (!result.isShared()) {
+                		for (File file : result.getFiles()) {
+                			if (file.isShared())
+                				sharedFiles.get(username).add(file);
+                		}
+	                	Iterator<Folder> iter2 = result.getSubfolders().iterator();
+	                	fetchFolder(username, iter2, dataProvider, new Command() {
+							
+							@Override
+							public void execute() {
+			                    fetchFolder(username, iter, dataProvider, callback);
+							}
+						});
+                	}
+                	else {
+                		dataProvider.getList().add(result);
+	                    fetchFolder(username, iter, dataProvider, callback);
+                	}
                 }
 
                 @Override
@@ -293,13 +344,13 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder result) {
                 if (showfiles)
                     app.showFiles(result);
                 Iterator<Folder> iter = result.getSubfolders().iterator();
-                fetchFolder(iter, new Command() {
+                fetchFolder(result.getOwner(), iter, dataProvider, new Command() {
                     @Override
                     public void execute() {
                         dataProvider.getList().clear();

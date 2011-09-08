@@ -98,7 +98,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     
     protected Set<File> sharedFiles = new HashSet<File>();
 
-    private SingleSelectionModel<Folder> selectionModel;
+    protected SingleSelectionModel<Folder> selectionModel;
 
     public MysharedTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
         app = _app;
@@ -118,7 +118,6 @@ public class MysharedTreeViewModel implements TreeViewModel {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(selectionModel2);
                     	fetchSharedFiles();
-                    	app.showFiles(sharedFiles);
                     }
                 }
             });
