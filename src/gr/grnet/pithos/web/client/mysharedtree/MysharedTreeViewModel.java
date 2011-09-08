@@ -37,15 +37,18 @@ package gr.grnet.pithos.web.client.mysharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -89,10 +92,11 @@ public class MysharedTreeViewModel implements TreeViewModel {
         }
     };
 
-    private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-    private ListDataProvider<Folder> firstLevelDataProvider = new ListDataProvider<Folder>();
+    protected ListDataProvider<Folder> firstLevelDataProvider = new ListDataProvider<Folder>();
 
     private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
+    
+    protected Set<File> sharedFiles = new HashSet<File>();
 
     private SingleSelectionModel<Folder> selectionModel;
 
@@ -104,6 +108,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
+            ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
             rootDataProvider.getList().add("My Shared");
             final SingleSelectionModel<String> selectionModel2 = new SingleSelectionModel<String>();
             selectionModel2.addSelectionChangeHandler(new Handler() {
@@ -112,6 +117,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 public void onSelectionChange(SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(selectionModel2);
+                    	fetchSharedFiles();
+                    	app.showFiles(sharedFiles);
                     }
                 }
             });
@@ -133,7 +140,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
             }),  selectionModel2, null);
         }
         else if (value instanceof String) {
-        	fetchSharedFolders(firstLevelDataProvider);
+        	fetchSharedContainers();
             return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, selectionModel, null);
         }
         else {
@@ -147,37 +154,33 @@ public class MysharedTreeViewModel implements TreeViewModel {
         }
     }
 
-    private void fetchSharedFolders(final ListDataProvider<Folder> dataProvider) {
-    	Folder pithos = new Folder(Pithos.HOME_CONTAINER);
-    	pithos.setContainer(Pithos.HOME_CONTAINER);
-        String path = "/" + pithos.getContainer()  + "?format=json&shared=";
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, pithos) {
-            @Override
-            public void onSuccess(final Folder result) {
-//                if (showfiles)
-//                    app.showFiles(result);
-                Iterator<Folder> iter = result.getSubfolders().iterator();
-                fetchFolder(iter, new Command() {
-                    @Override
-                    public void execute() {
-                        dataProvider.getList().clear();
-                        dataProvider.getList().addAll(result.getSubfolders());
-//                        app.getMySharedTreeView().updateChildren(f);
-                    }
-                });
-            }
+	protected void fetchSharedFiles() {
+    	final List<Folder> containers = app.getAccount().getContainers();
+    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
+    	Iterator<Folder> iter = containers.iterator();
+    	fetchFolder(iter, tempProvider, new Command() {
+			
+			@Override
+			public void execute() {
+				firstLevelDataProvider.getList().clear();
+				firstLevelDataProvider.getList().addAll(tempProvider.getList());
+				app.showFiles(sharedFiles);
+			}
+		});
+	}
 
-            @Override
-            public void onError(Throwable t) {
-                GWT.log("Error getting folder", t);
-                if (t instanceof RestException)
-                    app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                else
-                    app.displayError("System error fetching folder: " + t.getMessage());
-            }
-        };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
-        Scheduler.get().scheduleDeferred(getFolder);
+	private void fetchSharedContainers() {
+    	final List<Folder> containers = app.getAccount().getContainers();
+    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
+    	Iterator<Folder> iter = containers.iterator();
+    	fetchFolder(iter, tempProvider, new Command() {
+			
+			@Override
+			public void execute() {
+				firstLevelDataProvider.getList().clear();
+				firstLevelDataProvider.getList().addAll(tempProvider.getList());
+			}
+		});
 	}
 
 	@Override
@@ -189,7 +192,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
         return false;
     }
 
-    protected void fetchFolder(final Iterator<Folder> iter, final Command callback) {
+    protected void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -197,7 +200,24 @@ public class MysharedTreeViewModel implements TreeViewModel {
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                 @Override
                 public void onSuccess(Folder result) {
-                    fetchFolder(iter, callback);
+                	if (!result.isShared()) {
+                		for (File file : result.getFiles()) {
+                			if (file.isShared())
+                				sharedFiles.add(file);
+                		}
+	                	Iterator<Folder> iter2 = result.getSubfolders().iterator();
+	                	fetchFolder(iter2, dataProvider, new Command() {
+							
+							@Override
+							public void execute() {
+			                    fetchFolder(iter, dataProvider, callback);
+							}
+						});
+                	}
+                	else {
+                		dataProvider.getList().add(result);
+	                    fetchFolder(iter, dataProvider, callback);
+                	}
                 }
 
                 @Override
@@ -236,11 +256,11 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 if (showfiles)
                     app.showFiles(result);
                 Iterator<Folder> iter = result.getSubfolders().iterator();
-                fetchFolder(iter, new Command() {
+                fetchFolder(iter, dataProvider, new Command() {
                     @Override
                     public void execute() {
                         dataProvider.getList().clear();
-                        dataProvider.getList().addAll(result.getSubfolders());
+                   		dataProvider.getList().addAll(result.getSubfolders());
                         app.getMySharedTreeView().updateChildren(f);
                     }
                 });

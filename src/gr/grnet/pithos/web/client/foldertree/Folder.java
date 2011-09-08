@@ -334,4 +334,8 @@ public class Folder extends Resource {
                 return true;
         return false;
     }
+
+	public boolean isShared() {
+		return !permissions.isEmpty();
+	}
 }

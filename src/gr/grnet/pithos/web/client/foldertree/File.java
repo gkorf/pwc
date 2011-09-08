@@ -138,7 +138,7 @@ public class File extends Resource {
     }
 
     public boolean isShared() {
-        return false;
+        return !permissions.isEmpty();
     }
 
     public boolean isInTrash() {
