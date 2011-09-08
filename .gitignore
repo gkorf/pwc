@@ -3,4 +3,5 @@ build.properties
 *.iml
 bin
 dependencies
-
+war
+.gwt
