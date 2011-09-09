@@ -58,8 +58,8 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class ToTrashCommand implements Command{
 	private PopupPanel containerPanel;
-    private Pithos app;
-    private Object resource;
+	protected Pithos app;
+	protected Object resource;
 
 	public ToTrashCommand(Pithos _app, PopupPanel _containerPanel, Object _resource){
 		containerPanel = _containerPanel;
@@ -72,9 +72,11 @@ public class ToTrashCommand implements Command{
         if (containerPanel != null)
     		containerPanel.hide();
         if (resource instanceof List) {
-            Iterator<File> iter = ((List<File>) resource).iterator();
+            @SuppressWarnings("unchecked")
+			Iterator<File> iter = ((List<File>) resource).iterator();
             trashFiles(iter, new Command() {
-                @Override
+                @SuppressWarnings("unchecked")
+				@Override
                 public void execute() {
                     app.updateFolder(((List<File>) resource).get(0).getParent(), true);
                 }
@@ -96,7 +98,7 @@ public class ToTrashCommand implements Command{
         String path = f.getUri() + "?update=";
         PostRequest trashFolder = new PostRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
-            public void onSuccess(Resource result) {
+            public void onSuccess(@SuppressWarnings("unused") Resource result) {
                 Iterator<File> iter = f.getFiles().iterator();
                 trashFiles(iter, new Command() {
                     @Override
@@ -127,13 +129,13 @@ public class ToTrashCommand implements Command{
         Scheduler.get().scheduleDeferred(trashFolder);
     }
 
-    private void trashFiles(final Iterator<File> iter, final Command callback) {
+    protected void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = file.getUri() + "?update=";
             PostRequest trashFile = new PostRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     trashFiles(iter, callback);
                 }
 
@@ -156,7 +158,7 @@ public class ToTrashCommand implements Command{
         }
     }
 
-    private void trashSubfolders(final Iterator<Folder> iter, final Command callback) {
+    protected void trashSubfolders(final Iterator<Folder> iter, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
             trashFolder(f, callback);

@@ -1,7 +1,8 @@
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.foldertree.Resource;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.http.client.Response;
@@ -9,8 +10,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-
-import gr.grnet.pithos.web.client.foldertree.Resource;
 
 public class SharingUsers extends Resource {
 	private List<String> users;

@@ -64,7 +64,7 @@ public class PermissionsList extends Composite {
 	
 	final String owner;
 	
-	private boolean hasChanges = false;
+	protected boolean hasChanges = false;
 
     private boolean readonly = false;
 	
@@ -152,7 +152,7 @@ public class PermissionsList extends Composite {
                 });
                 PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent event) {
+                    public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                         permissions.remove(user);
                         updatePermissionTable();
                         hasChanges = true;

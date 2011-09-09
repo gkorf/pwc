@@ -145,14 +145,14 @@ public class File extends Resource {
         return inTrash;
     }
 
-    public void populate(Folder parent, JSONObject o, String owner, String container) {
-        this.parent = parent;
+    public void populate(Folder _parent, JSONObject o, String _owner, String _container) {
+        this.parent = _parent;
         path = unmarshallString(o, "name");
         if (path.contains("/"))
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
         else
             name = path;
-        this.owner = owner;
+        this.owner = _owner;
         hash = unmarshallString(o, "hash");
         bytes = unmarshallLong(o, "bytes");
         version = unmarshallInt(o, "version");
@@ -162,7 +162,7 @@ public class File extends Resource {
         versionTimestamp = unmarshallDate(o, "version_timestamp");
         published = o.containsKey("x_object_public") ? true : false;
         publicUri = unmarshallString(o, "x_object_public");
-        this.container = container;
+        this.container = _container;
 
         inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
         String rawPermissions = unmarshallString(o, "x_object_sharing");
@@ -199,7 +199,8 @@ public class File extends Resource {
         }
     }
 
-    public boolean equals(Object other) {
+    @Override
+	public boolean equals(Object other) {
         if (other instanceof File) {
             File o = (File) other;
             return name.equals(o.getName());
@@ -207,7 +208,8 @@ public class File extends Resource {
         return false;
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         return name.hashCode();
     }
 
@@ -220,8 +222,8 @@ public class File extends Resource {
         return result;
     }
 
-    private void populate(String owner, Response response) {
-        this.owner = owner;
+    private void populate(String _owner, Response response) {
+        this.owner = _owner;
         for (Header h : response.getHeaders()) {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-") && !header.equals("X-Object-Meta-Trash"))

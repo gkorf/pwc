@@ -78,7 +78,8 @@ public class DeleteCommand implements Command{
             DeleteFolderDialog dlg = new DeleteFolderDialog(app, newImages, (Folder) resource);
             dlg.center();
         } else if (resource instanceof List) {
-            DeleteFileDialog dlg = new DeleteFileDialog(app, newImages, (List<File>) resource);
+            @SuppressWarnings("unchecked")
+			DeleteFileDialog dlg = new DeleteFileDialog(app, newImages, (List<File>) resource);
             dlg.center();
         }
 	}

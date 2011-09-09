@@ -35,36 +35,37 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.foldertree.Resource;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class GetRequest<T extends Resource> implements ScheduledCommand {
 
-    private Class<T> aClass;
+	protected Class<T> aClass;
 
     private String api;
 
-    private String owner;
+    protected String owner;
     
     private String path;
 
     private int okCode;
     
-    private T cached;
+    protected T cached;
 
-    private T result;
+    protected T result;
 
     private Map<String, String> headers = new HashMap<String, String>();
 
-    public abstract void onSuccess(T result);
+    public abstract void onSuccess(T _result);
 
     public abstract void onError(Throwable t);
 
@@ -105,7 +106,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
                 }
 
                 @Override
-                public void onError(Request request, Throwable throwable) {
+                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     if (throwable instanceof RestException) {
                         if (((RestException) throwable).getHttpStatusCode() == 304 && cached != null){
                             GWT.log("Using cache: " + cached.toString(), null);

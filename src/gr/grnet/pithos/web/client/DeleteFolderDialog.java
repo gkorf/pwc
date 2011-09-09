@@ -56,8 +56,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class DeleteFolderDialog extends DialogBox {
 
-    private Pithos app;
-    private Folder folder;
+	protected Pithos app;
+	protected Folder folder;
     
 	/**
 	 * The widget's constructor.
@@ -83,7 +83,7 @@ public class DeleteFolderDialog extends DialogBox {
 		// when the button is clicked and deletes the folder.
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				app.deleteFolder(folder);
 				hide();
 			}
@@ -94,7 +94,7 @@ public class DeleteFolderDialog extends DialogBox {
 		// dialog when the button is clicked.
 		Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				hide();
 			}
 		});

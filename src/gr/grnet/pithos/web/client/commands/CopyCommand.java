@@ -59,6 +59,7 @@ public class CopyCommand implements Command{
         resource = _resource;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void execute() {
         if (containerPanel != null)

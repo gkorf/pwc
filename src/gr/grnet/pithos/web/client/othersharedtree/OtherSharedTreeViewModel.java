@@ -76,14 +76,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(OtherSharedTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
         @Override
-        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 OtherSharedTreeViewModel.this.selectionModel.setSelected(folder, true);
                 FolderContextMenu menu = new FolderContextMenu(app, OtherSharedTreeView.images, folder);
@@ -116,7 +116,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
                 @Override
-                public void onSelectionChange(SelectionChangeEvent event) {
+                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(selectionModel2);
                     	app.showFiles(new HashSet<File>());
@@ -147,7 +147,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	            selectionModel3.addSelectionChangeHandler(new Handler() {
 
 	                @Override
-	                public void onSelectionChange(SelectionChangeEvent event) {
+	                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
 	                    if (selectionModel3.getSelectedObject() != null) {
 	                    	app.deselectOthers(selectionModel3);
 	                    	String username = selectionModel3.getSelectedObject();
@@ -195,10 +195,10 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     private void fetchSharingUsers() {
         GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(SharingUsers.class, app.getApiPath(), "", "?format=json") {
             @Override
-            public void onSuccess(final SharingUsers result) {
+            public void onSuccess(final SharingUsers _result) {
                 userLevelDataProvider.getList().clear();
-                userLevelDataProvider.getList().addAll(result.getUsers());
-                for (String name : result.getUsers()) {
+                userLevelDataProvider.getList().addAll(_result.getUsers());
+                for (String name : _result.getUsers()) {
                 	sharedFiles.put(name, new HashSet<File>());
                 }
             }
@@ -229,9 +229,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
 
 			@Override
-			public void onSuccess(AccountResource result) {
+			public void onSuccess(AccountResource _result) {
 		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
-				Iterator<Folder> iter = result.getContainers().iterator();
+				Iterator<Folder> iter = _result.getContainers().iterator();
 				fetchFolder(username, iter, tempProvider, new Command() {
 					
 					@Override
@@ -259,9 +259,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
 
 			@Override
-			public void onSuccess(AccountResource result) {
+			public void onSuccess(AccountResource _result) {
 		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
-				Iterator<Folder> iter = result.getContainers().iterator();
+				Iterator<Folder> iter = _result.getContainers().iterator();
 				fetchFolder(username, iter, tempProvider, new Command() {
 					
 					@Override
@@ -293,13 +293,13 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), username, path, f) {
                 @Override
-                public void onSuccess(Folder result) {
-                	if (!result.isShared()) {
-                		for (File file : result.getFiles()) {
+                public void onSuccess(Folder _result) {
+                	if (!_result.isShared()) {
+                		for (File file : _result.getFiles()) {
                 			if (file.isShared())
                 				sharedFiles.get(username).add(file);
                 		}
-	                	Iterator<Folder> iter2 = result.getSubfolders().iterator();
+	                	Iterator<Folder> iter2 = _result.getSubfolders().iterator();
 	                	fetchFolder(username, iter2, dataProvider, new Command() {
 							
 							@Override
@@ -309,7 +309,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 						});
                 	}
                 	else {
-                		dataProvider.getList().add(result);
+                		dataProvider.getList().add(_result);
 	                    fetchFolder(username, iter, dataProvider, callback);
                 	}
                 }
@@ -346,15 +346,15 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
-            public void onSuccess(final Folder result) {
+            public void onSuccess(final Folder _result) {
                 if (showfiles)
-                    app.showFiles(result);
-                Iterator<Folder> iter = result.getSubfolders().iterator();
-                fetchFolder(result.getOwner(), iter, dataProvider, new Command() {
+                    app.showFiles(_result);
+                Iterator<Folder> iter = _result.getSubfolders().iterator();
+                fetchFolder(_result.getOwner(), iter, dataProvider, new Command() {
                     @Override
                     public void execute() {
                         dataProvider.getList().clear();
-                        dataProvider.getList().addAll(result.getSubfolders());
+                        dataProvider.getList().addAll(_result.getSubfolders());
                         app.getOtherSharedTreeView().updateChildren(f);
                     }
                 });

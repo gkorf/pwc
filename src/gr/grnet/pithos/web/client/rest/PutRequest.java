@@ -83,7 +83,7 @@ public abstract class PutRequest implements ScheduledCommand {
 
     private String api;
 
-    private String owner;
+    protected String owner;
 
     private String path;
 
@@ -106,7 +106,7 @@ public abstract class PutRequest implements ScheduledCommand {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback(api + owner + path, Response.SC_CREATED) {
+            builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_CREATED) {
                 @Override
                 public void onSuccess(Resource object) {
                     PutRequest.this.onSuccess(object);
@@ -118,7 +118,7 @@ public abstract class PutRequest implements ScheduledCommand {
                 }
 
                 @Override
-                public void onError(Request request, Throwable throwable) {
+                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     PutRequest.this.onError(throwable);
                 }
             });

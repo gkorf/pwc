@@ -61,8 +61,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
 	private final List<File> files;
 
-	private Boolean initialVersioned;
-
 	/**
 	 * The widget's constructor.
 	 *
@@ -115,7 +113,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -126,7 +124,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		// dialog when the button is clicked.
 		final Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				closeDialog();
 			}
 		});

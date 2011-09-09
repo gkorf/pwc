@@ -78,7 +78,7 @@ public abstract class ConfirmationDialog extends DialogBox {
 		Button ok = new Button(buttonLabel, new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				confirm();
 				hide();
 			}
@@ -91,7 +91,7 @@ public abstract class ConfirmationDialog extends DialogBox {
 		Button cancel = new Button("Cancel", new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				hide();
 				cancel();
 			}

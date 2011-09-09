@@ -52,9 +52,9 @@ import com.google.gwt.user.client.ui.PopupPanel;
 
 public class PasteCommand implements Command {
 
-    private Pithos app;
+	protected Pithos app;
 	private PopupPanel containerPanel;
-    private Folder folder;
+	protected Folder folder;
 
 	public PasteCommand(Pithos _app, PopupPanel _containerPanel, Folder _folder) {
         app = _app;
@@ -94,7 +94,8 @@ public class PasteCommand implements Command {
             }
         }
         else {
-            List<File> tobeCopied = (List<File>) clipboardItem;
+            @SuppressWarnings("unchecked")
+			List<File> tobeCopied = (List<File>) clipboardItem;
             Iterator<File> iter = tobeCopied.iterator();
             if (operation == Clipboard.COPY) {
                 app.copyFiles(iter, folder.getUri(), new Command() {
@@ -117,13 +118,13 @@ public class PasteCommand implements Command {
         }
 	}
 
-    private void moveFiles(final Iterator<File> iter, final Command callback) {
+	protected void moveFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = folder.getUri() + "/" + file.getName();
             PutRequest copyFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     moveFiles(iter, callback);
                 }
 

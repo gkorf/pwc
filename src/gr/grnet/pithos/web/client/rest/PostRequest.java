@@ -48,7 +48,7 @@ public abstract class PostRequest implements ScheduledCommand {
 
     private String api;
 
-    private String owner;
+    protected String owner;
 
     private String path;
 
@@ -71,7 +71,7 @@ public abstract class PostRequest implements ScheduledCommand {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback(api + owner + path, Response.SC_ACCEPTED) {
+            builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_ACCEPTED) {
                 @Override
                 public void onSuccess(Resource object) {
                     PostRequest.this.onSuccess(object);
@@ -83,7 +83,7 @@ public abstract class PostRequest implements ScheduledCommand {
                 }
 
                 @Override
-                public void onError(Request request, Throwable throwable) {
+                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     PostRequest.this.onError(throwable);
                 }
             });

@@ -51,7 +51,7 @@ import java.util.Map;
 public abstract class DeleteRequest implements ScheduledCommand {
     private String api;
 
-    private String owner;
+    protected String owner;
 
     private String path;
 
@@ -74,7 +74,7 @@ public abstract class DeleteRequest implements ScheduledCommand {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback(api + owner + path, Response.SC_NO_CONTENT) {
+            builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_NO_CONTENT) {
                 @Override
                 public void onSuccess(Resource object) {
                     DeleteRequest.this.onSuccess(object);
@@ -86,7 +86,7 @@ public abstract class DeleteRequest implements ScheduledCommand {
                 }
 
                 @Override
-                public void onError(Request request, Throwable throwable) {
+                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     DeleteRequest.this.onError(throwable);
                 }
             });

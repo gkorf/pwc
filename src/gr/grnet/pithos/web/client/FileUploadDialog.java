@@ -52,7 +52,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -69,7 +68,7 @@ public class FileUploadDialog extends DialogBox {
 	/**
 	 * The Form element that performs the file upload.
 	 */
-	private final FormPanel form = new FormPanel();
+    protected final FormPanel form = new FormPanel();
 
 	private final FileUpload upload = new FileUpload();
 
@@ -128,7 +127,7 @@ public class FileUploadDialog extends DialogBox {
 		// form.
 		submit = new Button("Upload", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				prepareAndSubmit();
 			}
 		});
@@ -138,7 +137,7 @@ public class FileUploadDialog extends DialogBox {
 		// dialog when the button is clicked.
 		final Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				hide();
 			}
 		});
@@ -152,7 +151,7 @@ public class FileUploadDialog extends DialogBox {
 		form.addSubmitHandler(new SubmitHandler() {
 
 			@Override
-			public void onSubmit(SubmitEvent event) {
+			public void onSubmit(@SuppressWarnings("unused") SubmitEvent event) {
                 auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
 			}
 		});

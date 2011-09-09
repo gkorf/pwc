@@ -36,7 +36,6 @@
 package gr.grnet.pithos.web.client.tagtree;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -51,23 +50,27 @@ public class TagTreeView extends Composite {
 
     static interface BasicResources extends CellTree.Resources {
 
-        @ImageOptions(flipRtl = true)
+        @Override
+		@ImageOptions(flipRtl = true)
         @Source("gr/grnet/pithos/web/client/cellTreeClosedItem.gif")
         ImageResource cellTreeClosedItem();
 
-        @ImageOptions(flipRtl = true)
+        @Override
+		@ImageOptions(flipRtl = true)
         @Source("gr/grnet/pithos/web/client/cellTreeLoadingBasic.gif")
         ImageResource cellTreeLoading();
 
-        @ImageOptions(flipRtl = true)
+        @Override
+		@ImageOptions(flipRtl = true)
         @Source("gr/grnet/pithos/web/client/cellTreeOpenItem.gif")
         ImageResource cellTreeOpenItem();
 
-        @Source({"gr/grnet/pithos/web/client/GssCellTreeBasic.css"})
+        @Override
+		@Source({"gr/grnet/pithos/web/client/GssCellTreeBasic.css"})
         CellTree.Style cellTreeStyle();
     }
 
-    static interface Images extends ClientBundle,Tree.Resources, FolderContextMenu.Images {
+    static interface Images extends Tree.Resources, FolderContextMenu.Images {
 
         @Source("gr/grnet/pithos/resources/folder_home.png")
         ImageResource home();

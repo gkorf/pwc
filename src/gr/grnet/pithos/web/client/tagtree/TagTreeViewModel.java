@@ -35,12 +35,24 @@
 
 package gr.grnet.pithos.web.client.tagtree;
 
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.AccountResource;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+import gr.grnet.pithos.web.client.tagtree.TagTreeView.Templates;
+
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -49,33 +61,20 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.AccountResource;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.tagtree.TagTreeView.Templates;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 public class TagTreeViewModel implements TreeViewModel {
 
     private Cell<Tag> tagCell = new AbstractCell<Tag>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(Context context, Tag tag, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(@SuppressWarnings("unused") Context context, Tag tag, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(TagTreeView.images.tag()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(tag.getName()));
         }
 
         @Override
-        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Tag tag, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Tag> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Tag tag, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Tag> valueUpdater) {
             if (event.getType().equals(com.google.gwt.event.dom.client.ContextMenuEvent.getType().getName())) {
                 TagTreeViewModel.this.selectionModel.setSelected(tag, true);
             }
@@ -85,9 +84,9 @@ public class TagTreeViewModel implements TreeViewModel {
     private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
     private ListDataProvider<Tag> tagDataProvider = new ListDataProvider<Tag>();
 
-    private SingleSelectionModel<Tag> selectionModel;
+    protected SingleSelectionModel<Tag> selectionModel;
 
-    private Pithos app;
+    protected Pithos app;
 
     public TagTreeViewModel(Pithos _app, SingleSelectionModel<Tag> selectionModel) {
         app = _app;
@@ -127,40 +126,9 @@ public class TagTreeViewModel implements TreeViewModel {
             return false;
         if (o instanceof String)
             return tagDataProvider.getList().isEmpty();
-        else
-            return true;
+		return true;
     }
 
-    private void fetchTags(final Iterator<Folder> iter) {
-        if (iter.hasNext()) {
-            final Folder f = iter.next();
-
-            String path = app.getApiPath() + app.getUsername() + "/" + f.getUri() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-//            GetRequest<Tag> getFolder = new GetRequest<Tag>(Tag.class, path, f) {
-//                @Override
-//                public void onSuccess(Tag result) {
-//                    fetchFolder(iter, dataProvider, tags);
-//                }
-//
-//                @Override
-//                public void onError(Throwable t) {
-//                    GWT.log("Error getting folder", t);
-//                    if (t instanceof RestException)
-//                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-//                    else
-//                        app.displayError("System error fetching folder: " + t.getMessage());
-//                }
-//            };
-//            getFolder.setHeader("X-Auth-Token", app.getToken());
-//            Scheduler.get().scheduleDeferred(getFolder);
-        }
-    }
-//
-//    public void initialize(AccountResource account) {
-//        Iterator<Tag> iter = account.getContainers().iterator();
-//        fetchFolder(iter, rootDataProvider, account.getContainers());
-//    }
-//
     public Tag getSelection() {
         return selectionModel.getSelectedObject();
     }
@@ -175,24 +143,24 @@ public class TagTreeViewModel implements TreeViewModel {
         fetchTag(iter, t, new LinkedHashSet<File>());
     }
 
-    private void fetchTag(final Iterator<Folder> iter, final Tag t, final Set<File> files) {
+    protected void fetchTag(final Iterator<Folder> iter, final Tag t, final Set<File> files) {
         if (iter.hasNext()) {
             Folder f = iter.next();
             String path = f.getUri() + "?format=json&meta=" + t.getName();
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Folder result) {
-                    files.addAll(result.getFiles());
+                public void onSuccess(Folder _result) {
+                    files.addAll(_result.getFiles());
                     fetchTag(iter, t, files);
                 }
 
                 @Override
-                public void onError(Throwable t) {
-                    GWT.log("Error getting folder", t);
-                    if (t instanceof RestException)
-                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                public void onError(Throwable th) {
+                    GWT.log("Error getting folder", th);
+                    if (th instanceof RestException)
+                        app.displayError("Error getting folder: " + ((RestException) th).getHttpStatusText());
                     else
-                        app.displayError("System error fetching folder: " + t.getMessage());
+                        app.displayError("System error fetching folder: " + th.getMessage());
                 }
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());

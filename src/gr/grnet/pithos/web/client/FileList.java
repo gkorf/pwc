@@ -35,11 +35,6 @@
 
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-
-import com.google.gwt.user.cellview.client.Column;
-import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
@@ -55,27 +50,21 @@ import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Cursor;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 /**
  * A composite that displays the list of files in a particular folder.
@@ -91,7 +80,8 @@ public class FileList extends Composite {
     }
 
 	interface TableResources extends CellTable.Resources {
-	    @Source({CellTable.Style.DEFAULT_CSS, "GssCellTable.css"})
+	    @Override
+		@Source({CellTable.Style.DEFAULT_CSS, "GssCellTable.css"})
 	    TableStyle cellTableStyle();
 	}
 	
@@ -114,13 +104,13 @@ public class FileList extends Composite {
         public SafeHtml spanWithIdAndClass(String id, String cssClass, String content);
 	}
 
-	private final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
+	protected final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
 
 	/**
 	 * Specifies that the images available for this composite will be the ones
 	 * available in FileContextMenu.
 	 */
-	public interface Images extends ClientBundle,FileContextMenu.Images, FolderTreeView.Images {
+	public interface Images extends FolderTreeView.Images {
 
 		@Source("gr/grnet/pithos/resources/blank.gif")
 		ImageResource blank();
@@ -214,19 +204,19 @@ public class FileList extends Composite {
 	/**
 	 * The widget's image bundle.
 	 */
-	private final Images images;
+	protected final Images images;
 	
-	private CellTable<File> celltable;
+	protected CellTable<File> celltable;
 
 	private final MultiSelectionModel<File> selectionModel;
 
-	private final List<SortableHeader> allHeaders = new ArrayList<SortableHeader>();
+	protected final List<SortableHeader> allHeaders = new ArrayList<SortableHeader>();
 
 	SortableHeader nameHeader;
 
     FolderTreeView treeView;
 
-    private Pithos app;
+    protected Pithos app;
 
     /**
 	 * Construct the file list widget. This entails setting up the widget
@@ -391,7 +381,7 @@ public class FileList extends Composite {
 	/**
 	 * Update the display of the file list.
 	 */
-	void update(boolean sort) {
+	void update(@SuppressWarnings("unused") boolean sort) {
 		showCellTable();
 	}
 
@@ -401,7 +391,7 @@ public class FileList extends Composite {
 	 * @param file
 	 * @return the icon
 	 */
-	private ImageResource getFileIcon(File file) {
+	protected ImageResource getFileIcon(File file) {
 		String mimetype = file.getContentType();
 		boolean shared = file.isShared();
 		if (mimetype == null)
@@ -495,13 +485,11 @@ public class FileList extends Composite {
 		}
 	}
 
-	private void sortFiles(final String sortingProperty, final boolean sortingType){
+	protected void sortFiles(final String sortingProperty, final boolean sortingType){
 		Collections.sort(files, new Comparator<File>() {
 
             @Override
             public int compare(File arg0, File arg1) {
-                    AbstractImagePrototype descPrototype = AbstractImagePrototype.create(images.desc());
-                    AbstractImagePrototype ascPrototype = AbstractImagePrototype.create(images.asc());
                     if (sortingType){
                             if (sortingProperty.equals("version")) {
                                     return arg0.getVersion() - arg1.getVersion();
@@ -556,7 +544,7 @@ public class FileList extends Composite {
 			this.header=header;
 		}
 		@Override
-		public void update(String value) {
+		public void update(@SuppressWarnings("unused") String value) {
 			header.setSorted(true);
 			header.toggleReverseSort();
 

@@ -47,7 +47,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 public class SessionExpiredDialog extends DialogBox {
-    private Pithos app;
+	protected Pithos app;
 	/**
 	 * The widget constructor.
 	 */
@@ -67,7 +67,7 @@ public class SessionExpiredDialog extends DialogBox {
 		// when the button is clicked.
 		Button confirm = new Button("Proceed", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				app.authenticateUser();
 				hide();
 			}

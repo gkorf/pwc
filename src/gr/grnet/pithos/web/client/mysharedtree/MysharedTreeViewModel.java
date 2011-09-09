@@ -75,14 +75,14 @@ public class MysharedTreeViewModel implements TreeViewModel {
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
         @Override
-        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
                 FolderContextMenu menu = new FolderContextMenu(app, MysharedTreeView.images, folder);
@@ -114,7 +114,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
                 @Override
-                public void onSelectionChange(SelectionChangeEvent event) {
+                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(selectionModel2);
                     	fetchSharedFiles();
@@ -198,13 +198,13 @@ public class MysharedTreeViewModel implements TreeViewModel {
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                 @Override
-                public void onSuccess(Folder result) {
-                	if (!result.isShared()) {
-                		for (File file : result.getFiles()) {
+                public void onSuccess(Folder _result) {
+                	if (!_result.isShared()) {
+                		for (File file : _result.getFiles()) {
                 			if (file.isShared())
                 				sharedFiles.add(file);
                 		}
-	                	Iterator<Folder> iter2 = result.getSubfolders().iterator();
+	                	Iterator<Folder> iter2 = _result.getSubfolders().iterator();
 	                	fetchFolder(iter2, dataProvider, new Command() {
 							
 							@Override
@@ -214,7 +214,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 						});
                 	}
                 	else {
-                		dataProvider.getList().add(result);
+                		dataProvider.getList().add(_result);
 	                    fetchFolder(iter, dataProvider, callback);
                 	}
                 }
@@ -251,15 +251,15 @@ public class MysharedTreeViewModel implements TreeViewModel {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
             @Override
-            public void onSuccess(final Folder result) {
+            public void onSuccess(final Folder _result) {
                 if (showfiles)
-                    app.showFiles(result);
-                Iterator<Folder> iter = result.getSubfolders().iterator();
+                    app.showFiles(_result);
+                Iterator<Folder> iter = _result.getSubfolders().iterator();
                 fetchFolder(iter, dataProvider, new Command() {
                     @Override
                     public void execute() {
                         dataProvider.getList().clear();
-                   		dataProvider.getList().addAll(result.getSubfolders());
+                   		dataProvider.getList().addAll(_result.getSubfolders());
                         app.getMySharedTreeView().updateChildren(f);
                     }
                 });

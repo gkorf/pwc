@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
@@ -60,7 +59,7 @@ public class TopPanel extends Composite {
 	/**
 	 * An image bundle for this widgets images.
 	 */
-	public interface Images extends ClientBundle, FilePropertiesDialog.Images {
+	public interface Images extends FilePropertiesDialog.Images {
 
 		@Source("gr/grnet/pithos/resources/pithos2-logo.png")
 		ImageResource pithosLogo();

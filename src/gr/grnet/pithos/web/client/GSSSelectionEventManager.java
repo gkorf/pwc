@@ -49,7 +49,7 @@ import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionModel;
 
 /**
- * An implementation of {@link CellPreviewEvent.Handler} that adds selection
+ * An implementation of {@link com.google.gwt.view.client.CellPreviewEvent.Handler} that adds selection
  * support via the spacebar and mouse clicks and handles the control key.
  * 
  * <p>
@@ -65,7 +65,7 @@ public class GSSSelectionEventManager<T> implements
     CellPreviewEvent.Handler<T> {
 
   /**
-   * Implementation of {@link EventTranslator} that only triggers selection when
+   * Implementation of {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.EventTranslator} that only triggers selection when
    * any checkbox is selected.
    * 
    * @param <T> the data type
@@ -78,7 +78,7 @@ public class GSSSelectionEventManager<T> implements
     private final int column;
 
     /**
-     * Construct a new {@link CheckboxEventTranslator} that will trigger
+     * Construct a new {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.CheckboxEventTranslator} that will trigger
      * selection when any checkbox in any column is selected.
      */
     public CheckboxEventTranslator() {
@@ -86,7 +86,7 @@ public class GSSSelectionEventManager<T> implements
     }
 
     /**
-     * Construct a new {@link CheckboxEventTranslator} that will trigger
+     * Construct a new {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.CheckboxEventTranslator} that will trigger
      * selection when a checkbox in the specified column is selected.
      * 
      * @param column the column index, or -1 for all columns
@@ -95,11 +95,13 @@ public class GSSSelectionEventManager<T> implements
       this.column = column;
     }
 
-    public boolean clearCurrentSelection(CellPreviewEvent<T> event) {
+    @Override
+	public boolean clearCurrentSelection(@SuppressWarnings("unused") CellPreviewEvent<T> event) {
       return false;
     }
 
-    public SelectAction translateSelectionEvent(CellPreviewEvent<T> event) {
+    @Override
+	public SelectAction translateSelectionEvent(CellPreviewEvent<T> event) {
       // Handle the event.
       NativeEvent nativeEvent = event.getNativeEvent();
       if ("click".equals(nativeEvent.getType())) {
@@ -279,6 +281,8 @@ public class GSSSelectionEventManager<T> implements
         case TOGGLE:
           addToSelection = !selectionModel.isSelected(rowValue);
           break;
+        case DEFAULT:
+          break;
       }
     }
 
@@ -325,7 +329,8 @@ public class GSSSelectionEventManager<T> implements
     }
   }
 
-  public void onCellPreview(CellPreviewEvent<T> event) {
+  @Override
+public void onCellPreview(CellPreviewEvent<T> event) {
     // Early exit if selection is already handled or we are editing.
     if (event.isCellEditing() || event.isSelectionHandled()) {
       return;
@@ -377,20 +382,21 @@ public class GSSSelectionEventManager<T> implements
     NativeEvent nativeEvent = event.getNativeEvent();
     String type = nativeEvent.getType();
     boolean rightclick = "mousedown".equals(type) && nativeEvent.getButton()==NativeEvent.BUTTON_RIGHT;
+    SelectAction action1 = action;
     if(rightclick){
     	boolean shift = nativeEvent.getShiftKey();
         boolean ctrlOrMeta = nativeEvent.getCtrlKey() || nativeEvent.getMetaKey();
         boolean clearOthers = (translator == null) ? !ctrlOrMeta
             : translator.clearCurrentSelection(event);
         if (action == null || action == SelectAction.DEFAULT) {
-          action = ctrlOrMeta ? SelectAction.TOGGLE : SelectAction.SELECT;
+          action1 = ctrlOrMeta ? SelectAction.TOGGLE : SelectAction.SELECT;
         }
         //if the row is selected then do nothing
         if(selectionModel.isSelected(event.getValue())){
         	return;
         }
         doMultiSelection(selectionModel, event.getDisplay(), event.getIndex(),
-            event.getValue(), action, shift, clearOthers);
+            event.getValue(), action1, shift, clearOthers);
     }
     else if ("click".equals(type)) {
       /*
@@ -403,10 +409,10 @@ public class GSSSelectionEventManager<T> implements
       boolean clearOthers = (translator == null) ? !ctrlOrMeta
           : translator.clearCurrentSelection(event);
       if (action == null || action == SelectAction.DEFAULT) {
-        action = ctrlOrMeta ? SelectAction.TOGGLE : SelectAction.SELECT;
+        action1 = ctrlOrMeta ? SelectAction.TOGGLE : SelectAction.SELECT;
       }
       doMultiSelection(selectionModel, event.getDisplay(), event.getIndex(),
-          event.getValue(), action, shift, clearOthers);
+          event.getValue(), action1, shift, clearOthers);
       if(ctrlOrMeta){
     	  event.setCanceled(true);
       }
@@ -421,10 +427,10 @@ public class GSSSelectionEventManager<T> implements
         boolean clearOthers = (translator == null) ? false
             : translator.clearCurrentSelection(event);
         if (action == null || action == SelectAction.DEFAULT) {
-          action = SelectAction.TOGGLE;
+          action1 = SelectAction.TOGGLE;
         }
         doMultiSelection(selectionModel, event.getDisplay(), event.getIndex(),
-            event.getValue(), action, shift, clearOthers);
+            event.getValue(), action1, shift, clearOthers);
       }
     }
   }
@@ -455,6 +461,8 @@ public class GSSSelectionEventManager<T> implements
         case TOGGLE:
           selectionModel.setSelected(value, !selectionModel.isSelected(value));
           return;
+		case DEFAULT:
+			break;
       }
     }
 
@@ -509,7 +517,6 @@ public class GSSSelectionEventManager<T> implements
       Range range, boolean addToSelection, boolean clearOthers) {
     // Get the list of values to select.
     List<T> toUpdate = new ArrayList<T>();
-    int itemCount = display.getVisibleItemCount();
     int start = range.getStart();
     int end = start + range.getLength();
     for (int i = start; i < end ; i++) {

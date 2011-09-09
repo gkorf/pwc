@@ -68,7 +68,7 @@ import java.util.Map;
  */
 public class FolderPropertiesDialog extends DialogBox {
 
-    private Pithos app;
+    protected Pithos app;
 
 	/**
 	 * The widget that holds the folderName of the folder.
@@ -81,7 +81,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private final boolean create;
 
-    private PermissionsList permList;
+	protected PermissionsList permList;
 
 	final Folder folder;
 
@@ -95,7 +95,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		setAnimationEnabled(true);
 
 		// Enable IE selection for the dialog (must disable it upon closing it)
-		app.enableIESelection();
+		Pithos.enableIESelection();
 
 		create = _create;
 		
@@ -153,7 +153,7 @@ public class FolderPropertiesDialog extends DialogBox {
             HorizontalPanel permButtons = new HorizontalPanel();
             Button add = new Button("Add Group", new ClickHandler() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
                 }
@@ -163,7 +163,7 @@ public class FolderPropertiesDialog extends DialogBox {
 
             Button addUser = new Button("Add User", new ClickHandler() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                     dlg.center();
                 }
@@ -192,7 +192,7 @@ public class FolderPropertiesDialog extends DialogBox {
 			okLabel = "Update";
 		Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				createOrUpdateFolder();
 				closeDialog();
 			}
@@ -204,7 +204,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		// when the button is clicked.
 		Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				closeDialog();
 			}
 		});
@@ -250,7 +250,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 * (we disable the prevention on creation of the dialog)
 	 */
 	public void closeDialog() {
-		app.preventIESelection();
+		Pithos.preventIESelection();
 		hide();
 	}
 
@@ -262,7 +262,7 @@ public class FolderPropertiesDialog extends DialogBox {
         String path = folder.getUri() + "/" + name;
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
-            public void onSuccess(Resource result) {
+            public void onSuccess(@SuppressWarnings("unused") Resource result) {
                 app.updateFolder(folder, true);
             }
 
@@ -288,7 +288,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 * the actual work of modifying folder properties or creating a new Folder
 	 * depending on the value of the create field
 	 */
-	private void createOrUpdateFolder() {
+	protected void createOrUpdateFolder() {
 		if (create)
 			createFolder();
 		else
@@ -303,7 +303,7 @@ public class FolderPropertiesDialog extends DialogBox {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     Iterator<File> iter = folder.getFiles().iterator();
                     app.copyFiles(iter, folder.getParent().getUri() + "/" + newName, new Command() {
                         @Override
@@ -340,11 +340,11 @@ public class FolderPropertiesDialog extends DialogBox {
             updateMetadata(folder.getUri() + "?update=", perms);
 	}
 
-    private void updateMetadata(String path, Map<String, Boolean[]> newPermissions) {
+	protected void updateMetadata(String path, Map<String, Boolean[]> newPermissions) {
         if (newPermissions != null) {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     app.updateFolder(folder.getParent(), false);
                 }
 
@@ -355,29 +355,27 @@ public class FolderPropertiesDialog extends DialogBox {
                 }
             };
             updateFolder.setHeader("X-Auth-Token", app.getToken());
-            if (newPermissions != null) {
-                String readPermHeader = "read=";
-                String writePermHeader = "write=";
-                for (String u : newPermissions.keySet()) {
-                    Boolean[] p = newPermissions.get(u);
-                    if (p[0] != null && p[0])
-                        readPermHeader += u + ",";
-                    if (p[1] != null && p[1])
-                        writePermHeader += u + ",";
-                }
-                if (readPermHeader.endsWith("="))
-                    readPermHeader = "";
-                else if (readPermHeader.endsWith(","))
-                    readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-                if (writePermHeader.endsWith("="))
-                    writePermHeader = "";
-                else if (writePermHeader.endsWith(","))
-                    writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-                String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
-                if (permHeader.length() == 0)
-                    permHeader="~";
-                updateFolder.setHeader("X-Object-Sharing", permHeader);
+            String readPermHeader = "read=";
+            String writePermHeader = "write=";
+            for (String u : newPermissions.keySet()) {
+                Boolean[] p = newPermissions.get(u);
+                if (p[0] != null && p[0])
+                    readPermHeader += u + ",";
+                if (p[1] != null && p[1])
+                    writePermHeader += u + ",";
             }
+            if (readPermHeader.endsWith("="))
+                readPermHeader = "";
+            else if (readPermHeader.endsWith(","))
+                readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
+            if (writePermHeader.endsWith("="))
+                writePermHeader = "";
+            else if (writePermHeader.endsWith(","))
+                writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
+            String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
+            if (permHeader.length() == 0)
+                permHeader="~";
+            updateFolder.setHeader("X-Object-Sharing", permHeader);
             Scheduler.get().scheduleDeferred(updateFolder);
         }
         else

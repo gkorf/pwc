@@ -35,17 +35,9 @@
 
 package gr.grnet.pithos.web.client.tagtree;
 
-import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
-import java.util.Date;
-import java.util.Iterator;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 

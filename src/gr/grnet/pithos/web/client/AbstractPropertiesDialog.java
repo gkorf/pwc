@@ -97,7 +97,8 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			  switch (evt.getKeyCode()) {
 			    case KeyCodes.KEY_ENTER:
 			    	accept();
-			    case KeyCodes.KEY_ESCAPE:
+			    //$FALL-THROUGH$
+			case KeyCodes.KEY_ESCAPE:
 			        closeDialog();
 			        break;
 			  }

@@ -34,21 +34,22 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Label;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
+import gr.grnet.pithos.web.client.tagtree.Tag;
+
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
@@ -58,10 +59,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import gr.grnet.pithos.web.client.tagtree.Tag;
-import java.util.Map;
 
 /**
  * The 'File properties' dialog box implementation.
@@ -69,14 +69,14 @@ import java.util.Map;
  */
 public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
-	private PermissionsList permList;
+	protected PermissionsList permList;
 
-	private CheckBox readForAll;
+	protected CheckBox readForAll;
 
 	/**
 	 * An image bundle for this widgets images.
 	 */
-	public interface Images extends ClientBundle,MessagePanel.Images {
+	public interface Images extends MessagePanel.Images {
 
 		@Source("gr/grnet/pithos/resources/edit_user.png")
 		ImageResource permUser();
@@ -136,7 +136,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -148,7 +148,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		// dialog when the button is clicked.
 		final Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				closeDialog();
 			}
 		});
@@ -223,7 +223,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             tagAnchor.addClickHandler(new ClickHandler() {
 
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                     String existing = tags.getText().trim();
                     if (MULTIPLE_VALUES_TEXT.equals(existing))
                         existing = "";
@@ -251,7 +251,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             HorizontalPanel permButtons = new HorizontalPanel();
             Button add = new Button("Add Group", new ClickHandler() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
                     permList.updatePermissionTable();
@@ -262,7 +262,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
             final Button addUser = new Button("Add User", new ClickHandler() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                     dlg.center();
                     permList.updatePermissionTable();
@@ -286,7 +286,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         readForAll.setValue(file.isPublished());
         readForAll.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(ClickEvent event) {
+            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                 readForAllNote.setVisible(readForAll.getValue());
             }
         });
@@ -414,7 +414,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             final String path = file.getParent().getUri() + "/" + newFilename;
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     updateMetaData(app.getApiPath(), app.getUsername(), path + "?update=", newTags, finalPublished, perms);
                 }
 
@@ -433,11 +433,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newTags, finalPublished, perms);
 	}
 
-    private void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published, Map<String, Boolean[]> newPermissions) {
+	protected void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published, Map<String, Boolean[]> newPermissions) {
         if (newTags != null || published != null || newPermissions != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     app.updateFolder(file.getParent(), true);
                 }
 

@@ -35,6 +35,13 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -42,15 +49,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 public class Folder extends Resource {
     /*
@@ -159,8 +157,8 @@ public class Folder extends Resource {
         }
     }
 
-    public void populate(String owner, Response response) {
-        this.owner = owner;
+    public void populate(String _owner, Response response) {
+        this.owner = _owner;
         String header = response.getHeader("Last-Modified");
         if (header != null)
             lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(header);
@@ -196,12 +194,12 @@ public class Folder extends Resource {
                     String contentType = unmarshallString(o, "content_type");
                     if (o.containsKey("subdir") || (contentType != null && (contentType.startsWith("application/directory") || contentType.startsWith("application/folder")))) {
                         Folder f = new Folder();
-                        f.populate(this, o, owner, container);
+                        f.populate(this, o, _owner, container);
                         subfolders.add(f);
                     }
                     else if (!(o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))) {
                         File file = new File();
-                        file.populate(this, o, owner, container);
+                        file.populate(this, o, _owner, container);
                         files.add(file);
                     }
                 }
@@ -217,8 +215,8 @@ public class Folder extends Resource {
         }
     }
 
-    public void populate(Folder parent, JSONObject o, String owner, String aContainer) {
-        this.parent = parent;
+    public void populate(Folder _parent, JSONObject o, String _owner, String aContainer) {
+        this.parent = _parent;
         String path = null;
         if (o.containsKey("subdir")) {
             path = unmarshallString(o, "subdir");
@@ -241,7 +239,7 @@ public class Folder extends Resource {
             container = name;
             prefix = "";
         }
-        this.owner = owner;
+        this.owner = _owner;
         if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
             inTrash = true;
 

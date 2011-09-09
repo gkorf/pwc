@@ -35,9 +35,18 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
+import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -45,30 +54,18 @@ import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.view.client.CellPreviewEvent;
-import com.google.gwt.view.client.CellPreviewEvent.Handler;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
-import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
-import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 public class FolderTreeViewModel implements TreeViewModel {
 
-    private Pithos app;
+	protected Pithos app;
     
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html;
             if (folder.isTrash())
                 html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
@@ -79,7 +76,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
 
         @Override
-        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
                 if (!folder.isTrash()) {
@@ -91,11 +88,11 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
     };
 
-    private ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
+    protected ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
 
     private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
 
-    private SingleSelectionModel<Folder> selectionModel;
+    protected SingleSelectionModel<Folder> selectionModel;
 
     public FolderTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
         app = _app;
@@ -109,15 +106,13 @@ public class FolderTreeViewModel implements TreeViewModel {
             rootDataProvider.getList().add(f);
             return new DefaultNodeInfo<Folder>(rootDataProvider, folderCell, selectionModel, null);
         }
-        else {
-            final Folder f = (Folder) value;
-            if (dataProviderMap.get(f) == null) {
-                dataProviderMap.put(f, new ListDataProvider<Folder>());
-            }
-            final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-            fetchFolder(f, dataProvider, false);
-            return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
-        }
+		final Folder f = (Folder) value;
+		if (dataProviderMap.get(f) == null) {
+		    dataProviderMap.put(f, new ListDataProvider<Folder>());
+		}
+		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
+		fetchFolder(f, dataProvider, false);
+		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }
 
     @Override
@@ -129,14 +124,14 @@ public class FolderTreeViewModel implements TreeViewModel {
         return false;
     }
 
-    private void fetchFolder(final Iterator<Folder> iter, final Command callback) {
+    protected void fetchFolder(final Iterator<Folder> iter, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                 @Override
-                public void onSuccess(Folder result) {
+                public void onSuccess(@SuppressWarnings("unused") Folder _result) {
                     fetchFolder(iter, callback);
                 }
 
@@ -195,15 +190,15 @@ public class FolderTreeViewModel implements TreeViewModel {
                 String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
                 GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
                     @Override
-                    public void onSuccess(final Folder result) {
+                    public void onSuccess(final Folder _result) {
                         if (showfiles)
-                            app.showFiles(result);
-                        Iterator<Folder> iter = result.getSubfolders().iterator();
+                            app.showFiles(_result);
+                        Iterator<Folder> iter = _result.getSubfolders().iterator();
                         fetchFolder(iter, new Command() {
                             @Override
                             public void execute() {
                                 dataProvider.getList().clear();
-                                dataProvider.getList().addAll(result.getSubfolders());
+                                dataProvider.getList().addAll(_result.getSubfolders());
                                 app.getFolderTreeView().updateChildren(f);
                             }
                         });

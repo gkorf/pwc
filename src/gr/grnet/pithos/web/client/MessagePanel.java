@@ -92,7 +92,7 @@ public class MessagePanel extends Composite {
 	/**
 	 * The panel that enables special effects for this widget.
 	 */
-	private SimplePanel simplePanel = new SimplePanel();
+	protected SimplePanel simplePanel = new SimplePanel();
 
 	/**
 	 * The widget's constructor.
@@ -122,7 +122,7 @@ public class MessagePanel extends Composite {
 		clearMessageLink.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 					@Override
 					protected void onComplete() {
@@ -146,7 +146,7 @@ public class MessagePanel extends Composite {
 		message.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 
 					@Override
@@ -174,7 +174,7 @@ public class MessagePanel extends Composite {
 		message.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 
 					@Override
@@ -203,7 +203,7 @@ public class MessagePanel extends Composite {
 		message.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 
 					@Override

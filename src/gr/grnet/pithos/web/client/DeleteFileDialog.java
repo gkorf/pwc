@@ -65,7 +65,7 @@ public class DeleteFileDialog extends DialogBox {
 
     private List<File> files;
 
-    private Pithos app;
+    protected Pithos app;
 
 	/**
 	 * The widget's constructor.
@@ -94,7 +94,7 @@ public class DeleteFileDialog extends DialogBox {
 		// when the button is clicked and deletes the file.
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				deleteFiles();
 				hide();
 			}
@@ -106,7 +106,7 @@ public class DeleteFileDialog extends DialogBox {
 		// dialog when the button is clicked.
 		Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				hide();
 			}
 		});
@@ -125,18 +125,18 @@ public class DeleteFileDialog extends DialogBox {
 	/**
 	 * Generate an RPC request to delete a file.
 	 */
-	private void deleteFiles() {
+	protected void deleteFiles() {
         Iterator<File> iter = files.iterator();
         deleteFile(iter);
     }
 
-    private void deleteFile(final Iterator<File> iter) {
+	protected void deleteFile(final Iterator<File> iter) {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
             DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(Resource result) {
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     deleteFile(iter);
                 }
 

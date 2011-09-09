@@ -59,7 +59,7 @@ public class Resource {
     protected static int unmarshallInt(JSONObject obj, String key){
         if(obj.get(key) != null)
             if(obj.get(key).isNumber() != null)
-                return (int) obj.get(key).isNumber().getValue();
+                return (int) obj.get(key).isNumber().doubleValue();
         return -1;
     }
 
@@ -92,19 +92,21 @@ public class Resource {
         return (new Date(ms)).toUTCString();
     }-*/;
 
-    public static <T> T createFromResponse(Class<T> aClass, String owner, Response response, T result) {
+    @SuppressWarnings("unchecked")
+	public static <T> T createFromResponse(Class<T> aClass, String owner, Response response, T result) {
+    	T result1 = null;
         if (aClass.equals(AccountResource.class)) {
-            result = (T) AccountResource.createFromResponse(owner, response);
+            result1 = (T) AccountResource.createFromResponse(owner, response);
         }
         else if (aClass.equals(Folder.class)) {
-            result = (T) Folder.createFromResponse(owner, response, (Folder) result);
+            result1 = (T) Folder.createFromResponse(owner, response, (Folder) result);
         }
         else if (aClass.equals(File.class)) {
-            result = (T) File.createFromResponse(owner, response, (File) result);
+            result1 = (T) File.createFromResponse(owner, response, (File) result);
         }
         else if (aClass.equals(SharingUsers.class)) {
-        	result = (T) SharingUsers.createFromResponse(response, (SharingUsers) result);
+        	result1 = (T) SharingUsers.createFromResponse(response, (SharingUsers) result);
         }
-        return result;
+        return result1;
     }
 }

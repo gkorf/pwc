@@ -51,8 +51,8 @@ public class FadeIn extends Animation {
 	@Override
 	protected void onUpdate(double progress) {
 		if(currOpacity > 0.0){
-			progress = 1.0 - progress;
-			currOpacity = initialOpacity * progress;
+			double progress1 = 1.0 - progress;
+			currOpacity = initialOpacity * progress1;
 			DOM.setStyleAttribute(widget.getElement(), "opacity", ""+new Double(1d - currOpacity / 100d));
 			//required for ie to work
 			//Disabled because IE has bugs rendering non-opaque objects

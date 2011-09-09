@@ -60,8 +60,6 @@ public class PropertiesCommand implements Command {
 
 	private int tabToShow = 0;
 
-	private String userName;
-
     private Object resource;
 
     private Pithos app;
@@ -91,7 +89,8 @@ public class PropertiesCommand implements Command {
             dlg.center();
         }
         else if (resource instanceof List) {
-            List<File> files = (List<File>) resource;
+            @SuppressWarnings("unchecked")
+			List<File> files = (List<File>) resource;
             if (files.size() > 1) {
                 FilesPropertiesDialog dlg = new FilesPropertiesDialog(app, files);
                 dlg.selectTab(tabToShow);

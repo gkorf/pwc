@@ -104,7 +104,7 @@ public class PermissionsAddDialog extends DialogBox {
         final HorizontalPanel buttons = new HorizontalPanel();
         final Button ok = new Button("OK", new ClickHandler() {
             @Override
-            public void onClick(ClickEvent event) {
+            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                 addPermission();
                 hide();
             }
@@ -116,7 +116,7 @@ public class PermissionsAddDialog extends DialogBox {
         // when the button is clicked.
         final Button cancel = new Button("Cancel", new ClickHandler() {
             @Override
-            public void onClick(ClickEvent event) {
+            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                 hide();
             }
         });
@@ -131,7 +131,7 @@ public class PermissionsAddDialog extends DialogBox {
         setWidget(panel);
 	}
 
-	private void addPermission() {
+	protected void addPermission() {
         String selected = null;
 		if (userAdd) {
 			selected = userBox.getText();
