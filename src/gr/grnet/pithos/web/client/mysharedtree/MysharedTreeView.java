@@ -112,9 +112,6 @@ public class MysharedTreeView extends Composite {
 
         @Source("gr/grnet/pithos/resources/folder_user.png")
         ImageResource sharedFolder();
-
-        @Source("gr/grnet/pithos/resources/trash.png")
-        ImageResource trash();
     }
 
     static Images images = GWT.create(Images.class);

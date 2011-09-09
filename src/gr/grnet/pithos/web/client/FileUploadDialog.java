@@ -257,7 +257,7 @@ public class FileUploadDialog extends DialogBox {
 
 	protected File getFileForName(String name){
 		for (File f : folder.getFiles())
-			if (!f.isInTrash() && f.getName().equals(name))
+			if (f.getName().equals(name))
 				return f;
 		return null;
 	}

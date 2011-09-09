@@ -430,8 +430,7 @@ public class FileList extends Composite {
 	public void setFiles(final List<File> _files) {
 		files = new ArrayList<File>();
     	for (File fres : _files)
-	    	if (!fres.isInTrash())
-				files.add(fres);
+			files.add(fres);
 		Collections.sort(files, new Comparator<File>() {
 
 			@Override

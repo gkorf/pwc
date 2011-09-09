@@ -39,6 +39,9 @@ import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
+
+import gr.grnet.pithos.web.client.Pithos;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,8 +68,6 @@ public class File extends Resource {
     private String path;
 
     private String owner;
-
-    private boolean inTrash;
 
     private String container;
 
@@ -141,10 +142,6 @@ public class File extends Resource {
         return !permissions.isEmpty();
     }
 
-    public boolean isInTrash() {
-        return inTrash;
-    }
-
     public void populate(Folder _parent, JSONObject o, String _owner, String _container) {
         this.parent = _parent;
         path = unmarshallString(o, "name");
@@ -170,7 +167,7 @@ public class File extends Resource {
             parsePermissions(rawPermissions);
 
         for (String key : o.keySet())
-            if (key.startsWith("x_object_meta_") && !key.equals("x_object_meta_trash"))
+            if (key.startsWith("x_object_meta_"))
                 tags.add(key.substring("x_object_meta_".length()).trim().toLowerCase());
 
         
@@ -226,7 +223,7 @@ public class File extends Resource {
         this.owner = _owner;
         for (Header h : response.getHeaders()) {
             String header = h.getName();
-            if (header.startsWith("X-Object-Meta-") && !header.equals("X-Object-Meta-Trash"))
+            if (header.startsWith("X-Object-Meta-"))
                 tags.add(header.substring("X-Object-Meta-".length()).trim().toLowerCase());
             else if (header.equals("X-Object-Sharing")) {
                 String rawPermissions = h.getValue();
@@ -236,11 +233,6 @@ public class File extends Resource {
                 inheritedPermissionsFrom = h.getValue().trim();
             }
         }
-        String header = response.getHeader("X-Object-Meta-Trash");
-        if (header != null)
-            inTrash = Boolean.valueOf(header);
-        else
-            inTrash = false;
     }
 
     public Folder getParent() {

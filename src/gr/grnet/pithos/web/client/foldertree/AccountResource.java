@@ -35,6 +35,8 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import gr.grnet.pithos.web.client.Pithos;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -213,5 +215,19 @@ public class AccountResource extends Resource {
 
     public List<Group> getGroups() {
         return groups;
+    }
+    
+    public boolean hasHomeContainer() {
+    	for (Folder f : containers)
+    		if (f.getName().equals(Pithos.HOME_CONTAINER))
+    			return true;
+    	return false;
+    }
+
+    public boolean hasTrashContainer() {
+    	for (Folder f : containers)
+    		if (f.getName().equals(Pithos.TRASH_CONTAINER))
+    			return true;
+    	return false;
     }
 }

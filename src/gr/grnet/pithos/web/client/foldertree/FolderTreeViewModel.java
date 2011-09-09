@@ -51,6 +51,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -67,12 +68,21 @@ public class FolderTreeViewModel implements TreeViewModel {
        @Override
         public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html;
-            if (folder.isTrash())
-                html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
-            else
-                html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
+            SafeHtml name;
+        	if (folder.isHome()) {
+        		html = AbstractImagePrototype.create(FolderTreeView.images.home()).getHTML();
+        		name = Templates.INSTANCE.nameSpan("Home");
+        	}
+        	else if (folder.isTrash()) {
+        		html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
+        		name = Templates.INSTANCE.nameSpan("Trash");
+        	}
+            else {
+            	html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
+        		name = Templates.INSTANCE.nameSpan(folder.getName());
+            }
             safeHtmlBuilder.appendHtmlConstant(html);
-            safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
+            safeHtmlBuilder.append(name);
         }
 
         @Override
@@ -159,11 +169,6 @@ public class FolderTreeViewModel implements TreeViewModel {
                 rootDataProvider.getList().clear();
                 rootDataProvider.getList().addAll(account.getContainers());
                 selectionModel.setSelected(rootDataProvider.getList().get(0), true);
-                Folder f = new Folder("Trash");
-                f.setTrash(true);
-                f.setContainer("trash");
-                rootDataProvider.getList().add(f);
-                app.updateTags();
             }
         });
     }

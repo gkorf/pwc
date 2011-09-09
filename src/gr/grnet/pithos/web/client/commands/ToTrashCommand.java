@@ -40,6 +40,7 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.Iterator;
@@ -95,8 +96,8 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-        String path = f.getUri() + "?update=";
-        PostRequest trashFolder = new PostRequest(app.getApiPath(), app.getUsername(), path) {
+        String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix() + "/" + f.getName();
+        PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
                 Iterator<File> iter = f.getFiles().iterator();
@@ -104,12 +105,7 @@ public class ToTrashCommand implements Command{
                     @Override
                     public void execute() {
                         Iterator<Folder> iterf = f.getSubfolders().iterator();
-                        trashSubfolders(iterf, new Command() {
-                            @Override
-                            public void execute() {
-                                callback.execute();
-                            }
-                        });
+                        trashSubfolders(iterf, callback);
                     }
                 });
             }
@@ -124,16 +120,18 @@ public class ToTrashCommand implements Command{
                     app.displayError("System error creating folder:" + t.getMessage());
             }
         };
-        trashFolder.setHeader("X-Auth-Token", app.getToken());
-        trashFolder.setHeader("X-Object-Meta-Trash", "true");
-        Scheduler.get().scheduleDeferred(trashFolder);
+        createFolder.setHeader("X-Auth-Token", app.getToken());
+        createFolder.setHeader("Accept", "*/*");
+        createFolder.setHeader("Content-Length", "0");
+        createFolder.setHeader("Content-Type", "application/folder");
+        Scheduler.get().scheduleDeferred(createFolder);
     }
 
     protected void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = file.getUri() + "?update=";
-            PostRequest trashFile = new PostRequest(app.getApiPath(), app.getUsername(), path) {
+            String path = "/" + Pithos.TRASH_CONTAINER + "/" + file.getPath();
+            PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     trashFiles(iter, callback);
@@ -150,10 +148,10 @@ public class ToTrashCommand implements Command{
                 }
             };
             trashFile.setHeader("X-Auth-Token", app.getToken());
-            trashFile.setHeader("X-Object-Meta-Trash", "true");
+            trashFile.setHeader("X-Move-From", file.getUri());
             Scheduler.get().scheduleDeferred(trashFile);
         }
-        else  if (callback != null) {
+        else if (callback != null) {
             callback.execute();
         }
     }

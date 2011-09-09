@@ -35,6 +35,8 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import gr.grnet.pithos.web.client.Pithos;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,13 +78,6 @@ public class Folder extends Resource {
     private String prefix = "";
 
     private Set<File> files = new LinkedHashSet<File>();
-
-    private boolean inTrash = false;
-
-    /*
-     * Flag that indicates that this folder is the Trash
-     */
-    private boolean trash = false;
 
     private Set<String> tags = new LinkedHashSet<String>();
 
@@ -167,10 +162,6 @@ public class Folder extends Resource {
         if (header != null)
             bytesUsed = Long.valueOf(header);
 
-        header = response.getHeader("X-Object-Meta-Trash");
-        if (header != null && header.equals("true"))
-            inTrash = true;
-
         header = response.getHeader("X-Container-Object-Meta");
         if (header != null && header.length() > 0) {
             for (String t : header.split(",")) {
@@ -197,20 +188,12 @@ public class Folder extends Resource {
                         f.populate(this, o, _owner, container);
                         subfolders.add(f);
                     }
-                    else if (!(o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))) {
+                    else {
                         File file = new File();
                         file.populate(this, o, _owner, container);
                         files.add(file);
                     }
                 }
-            }
-            //This step is necessary to remove the trashed folders. Trashed folders are added initially because we need to
-            //avoid having in the list the virtual folders of the form {"subdir":"folder1"} which have no indication of thrash
-            Iterator<Folder> iter = subfolders.iterator();
-            while (iter.hasNext()) {
-                Folder f = iter.next();
-                if (f.isInTrash())
-                    iter.remove();
             }
         }
     }
@@ -240,8 +223,6 @@ public class Folder extends Resource {
             prefix = "";
         }
         this.owner = _owner;
-        if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
-            inTrash = true;
 
         inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
         String rawPermissions = unmarshallString(o, "x_object_sharing");
@@ -286,20 +267,8 @@ public class Folder extends Resource {
         return "/" + container + (prefix.length() == 0 ? "" : "/" + prefix);
     }
 
-    public boolean isInTrash() {
-        return inTrash;
-    }
-
     public boolean isContainer() {
         return parent == null;
-    }
-
-    public boolean isTrash() {
-        return trash;
-    }
-
-    public void setTrash(boolean trash) {
-        this.trash = trash;
     }
 
     public void setContainer(String container) {
@@ -335,5 +304,13 @@ public class Folder extends Resource {
 
 	public boolean isShared() {
 		return !permissions.isEmpty();
+	}
+
+	public boolean isTrash() {
+		return isContainer() && name.equals(Pithos.TRASH_CONTAINER);
+	}
+
+	public boolean isHome() {
+		return isContainer() && name.equals(Pithos.HOME_CONTAINER);
 	}
 }

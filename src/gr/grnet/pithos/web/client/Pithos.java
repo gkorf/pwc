@@ -104,6 +104,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 public class Pithos implements EntryPoint, ResizeHandler {
 
 	public static final String HOME_CONTAINER = "pithos";
+
+	public static final String TRASH_CONTAINER = "trash";
 	
 	/**
 	 * Instantiate an application-level image bundle. This object will provide
@@ -503,8 +505,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSuccess(AccountResource _result) {
                 account = _result;
-                if (account.getContainers().isEmpty())
-                    createHomeContainers();
+                if (!account.hasHomeContainer())
+                    createHomeContainer(account);
+                else if (!account.hasTrashContainer())
+                	createTrashContainer();
                 else {
                     folderTreeViewModel.initialize(account);
                 }
@@ -523,12 +527,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
-    protected void createHomeContainers() {
-        String path = "/pithos";
+    protected void createHomeContainer(final AccountResource account) {
+        String path = "/" + Pithos.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                fetchAccount();
+            	if (!account.hasTrashContainer())
+            		createTrashContainer();
+            	else
+            		fetchAccount();
             }
 
             @Override
@@ -544,7 +551,28 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
-	/**
+    protected void createTrashContainer() {
+        String path = "/" + Pithos.TRASH_CONTAINER;
+        PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
+            @Override
+            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+           		fetchAccount();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("Error creating pithos", t);
+                if (t instanceof RestException)
+                    displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
+                else
+                    displayError("System error Error creating pithos: " + t.getMessage());
+            }
+        };
+        createPithos.setHeader("X-Auth-Token", getToken());
+        Scheduler.get().scheduleDeferred(createPithos);
+    }
+
+    /**
 	 * Creates an HTML fragment that places an image & caption together, for use
 	 * in a group header.
 	 *
@@ -768,7 +796,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 public void onError(Throwable t) {
                     GWT.log("", t);
                     if (t instanceof RestException) {
-                        displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
+                    	if (((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND)
+                    		displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
+                    	else
+                    		onSuccess(null);
                     }
                     else
                         displayError("System error unable to delete folder: " + t.getMessage());

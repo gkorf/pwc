@@ -68,10 +68,6 @@ public class Tag extends Resource {
 //        if (header != null)
 //            bytesUsed = Long.valueOf(header);
 //
-//        header = response.getHeader("X-Object-Meta-Trash");
-//        if (header != null && header.equals("true"))
-//            inTrash = true;
-//
 //        subfolders.clear(); //This is necessary in case we update a pre-existing Tag so that stale subfolders won't show up
 //        files.clear();
 //        JSONValue json = JSONParser.parseStrict(response.getText());
@@ -86,20 +82,12 @@ public class Tag extends Resource {
 //                        f.populate(this, o, container);
 //                        subfolders.add(f);
 //                    }
-//                    else if (!(o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))) {
+//                    else {
 //                        File file = new File();
 //                        file.populate(this, o, container);
 //                        files.add(file);
 //                    }
 //                }
-//            }
-//            //This step is necessary to remove the trashed folders. Trashed folders are added initially because we need to
-//            //avoid having in the list the virtual folders of the form {"subdir":"folder1"} which have no indication of thrash
-//            Iterator<Tag> iter = subfolders.iterator();
-//            while (iter.hasNext()) {
-//                Tag f = iter.next();
-//                if (f.isInTrash())
-//                    iter.remove();
 //            }
 //        }
 //    }
@@ -128,8 +116,6 @@ public class Tag extends Resource {
 //            container = name;
 //            prefix = "";
 //        }
-//        if (o.containsKey("x_object_meta_trash") && o.get("x_object_meta_trash").isString().stringValue().equals("true"))
-//            inTrash = true;
 //    }
 //
 //    public static Tag createFromResponse(Response response, Tag result) {
