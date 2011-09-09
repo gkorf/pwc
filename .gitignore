@@ -6,3 +6,5 @@ dependencies
 war
 .gwt
 .project
+.classpath
+.settings
