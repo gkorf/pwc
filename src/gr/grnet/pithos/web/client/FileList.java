@@ -315,13 +315,11 @@ public class FileList extends Composite {
             @Override
             public void onContextMenu(ContextMenuEvent event) {
                 Folder selectedFolder = treeView.getSelection();
-                if (!selectedFolder.isTrash()) {
-                    FileContextMenu contextMenu = new FileContextMenu(app, images, selectedFolder, getSelectedFiles(), false);
-                    int x = event.getNativeEvent().getClientX();
-                    int y = event.getNativeEvent().getClientY();
-                    contextMenu.setPopupPosition(x, y);
-                    contextMenu.show();
-                }
+                FileContextMenu contextMenu = new FileContextMenu(app, images, selectedFolder, getSelectedFiles(), false);
+                int x = event.getNativeEvent().getClientX();
+                int y = event.getNativeEvent().getClientY();
+                contextMenu.setPopupPosition(x, y);
+                contextMenu.show();
             }
         }, ContextMenuEvent.getType());
 		initWidget(vp);

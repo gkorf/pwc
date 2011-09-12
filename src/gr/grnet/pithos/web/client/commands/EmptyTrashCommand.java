@@ -55,32 +55,7 @@ public class EmptyTrashCommand implements Command{
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
-//		DeleteCommand df = new DeleteCommand(app, app.getTreeView().getTrash().getUri()){
-//
-//			@Override
-//			public void onComplete() {
-//				app.getTreeView().updateTrashNode();
-//				app.showFileList(true);
-//			}
-//
-//			@Override
-//			public void onError(Throwable t) {
-//				GWT.log("", t);
-//				if(t instanceof RestException){
-//					int statusCode = ((RestException)t).getHttpStatusCode();
-//					if(statusCode == 405)
-//						app.displayError("You don't have the necessary permissions");
-//					else if(statusCode == 404)
-//						app.displayError("Resource does not exist");
-//					else
-//						app.displayError("Unable to empty trash:"+((RestException)t).getHttpStatusText());
-//				}
-//				else
-//					app.displayError("System error emptying trash:"+t.getMessage());
-//			}
-//		};
-//		DeferredCommand.addCommand(df);
+		if (containerPanel != null)
+			containerPanel.hide();
 	}
-
 }

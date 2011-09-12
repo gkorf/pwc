@@ -34,8 +34,19 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.Pithos;
+import java.util.Iterator;
+import java.util.List;
 
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -45,138 +56,138 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * Restore trashed files and folders.
  *
  */
-public class RestoreTrashCommand implements Command{
+public class RestoreTrashCommand implements Command {
 	private PopupPanel containerPanel;
-    private Pithos app;
+	protected Pithos app;
+	protected Object resource;
 
-	public RestoreTrashCommand(Pithos _app, PopupPanel _containerPanel){
-        app = _app;
+	public RestoreTrashCommand(Pithos _app, PopupPanel _containerPanel, Object _resource){
 		containerPanel = _containerPanel;
+        app = _app;
+        resource = _resource;
 	}
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
-//		Object selection = app.getCurrentSelection();
-//		if (selection == null){
-//			// Check to see if Trash Node is selected.
-//			List folderList = new ArrayList();
-//			TrashResource trashItem = app.getTreeView().getTrash();
-//			for(int i=0 ; i < trashItem.getFolders().size() ; i++)
-//				folderList.add(trashItem.getFolders().get(i));
-//			return;
-//		}
-//		GWT.log("selection: " + selection.toString(), null);
-//		if (selection instanceof FileResource) {
-//			final FileResource resource = (FileResource)selection;
-//			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
-//
-//				@Override
-//				public void onComplete() {
-//					//TODO:CELLTREE
-//					//app.getFolders().update(app.getFolders().getTrashItem());
-//
-//					app.showFileList(true);
-//				}
-//
-//				@Override
-//				public void onError(Throwable t) {
-//					GWT.log("", t);
-//					if(t instanceof RestException){
-//						int statusCode = ((RestException)t).getHttpStatusCode();
-//						if(statusCode == 405)
-//							app.displayError("You don't have the necessary permissions");
-//						else if(statusCode == 404)
-//							app.displayError("File does not exist");
-//						else if(statusCode == 409)
-//							app.displayError("A file with the same name already exists");
-//						else if(statusCode == 413)
-//							app.displayError("Your quota has been exceeded");
-//						else
-//							app.displayError("Unable to restore file:"+((RestException)t).getHttpStatusText());
-//					}
-//					else
-//						app.displayError("System error restoring file:"+t.getMessage());
-//				}
-//			};
-//			DeferredCommand.addCommand(rt);
-//		}
-//		else if (selection instanceof List) {
-//			final List<FileResource> fdtos = (List<FileResource>) selection;
-//			final List<String> fileIds = new ArrayList<String>();
-//			for(FileResource f : fdtos)
-//				fileIds.add(f.getUri()+"?restore=");
-//			MultiplePostCommand rt = new MultiplePostCommand(app, fileIds.toArray(new String[0]), 200){
-//
-//				@Override
-//				public void onComplete() {
-//					//TODO:CELLTREE
-//					//app.getFolders().update(app.getFolders().getTrashItem());
-//					app.showFileList(true);
-//				}
-//
-//				@Override
-//				public void onError(String p, Throwable t) {
-//					GWT.log("", t);
-//					if(t instanceof RestException){
-//						int statusCode = ((RestException)t).getHttpStatusCode();
-//						if(statusCode == 405)
-//							app.displayError("You don't have the necessary permissions");
-//						else if(statusCode == 404)
-//							app.displayError("File does not exist");
-//						else if(statusCode == 409)
-//							app.displayError("A file with the same name already exists");
-//						else if(statusCode == 413)
-//							app.displayError("Your quota has been exceeded");
-//						else
-//							app.displayError("Unable to restore file::"+((RestException)t).getHttpStatusText());
-//					}
-//					else
-//						app.displayError("System error restoring file:"+t.getMessage());
-//				}
-//			};
-//			DeferredCommand.addCommand(rt);
-//		}
-//		else if (selection instanceof TrashFolderResource) {
-//			final FolderResource resource = ((TrashFolderResource)selection).getResource();
-//			PostCommand rt = new PostCommand(app, resource.getUri()+"?restore=","", 200){
-//
-//				@Override
-//				public void onComplete() {
-//					//TODO:CELLTREE
-//					/*
-//					app.getFolders().updateFolder((DnDTreeItem) app.getFolders().getRootItem());
-//
-//					app.getFolders().update(app.getFolders().getTrashItem());
-//					*/
-//
-//					app.getTreeView().updateTrashNode();
-//					app.getTreeView().updateRootNode();
-//				}
-//
-//				@Override
-//				public void onError(Throwable t) {
-//					GWT.log("", t);
-//					if(t instanceof RestException){
-//						int statusCode = ((RestException)t).getHttpStatusCode();
-//						if(statusCode == 405)
-//							app.displayError("You don't have the necessary permissions");
-//						else if(statusCode == 404)
-//							app.displayError("Folder does not exist");
-//						else if(statusCode == 409)
-//							app.displayError("A folder with the same name already exists");
-//						else if(statusCode == 413)
-//							app.displayError("Your quota has been exceeded");
-//						else
-//							app.displayError("Unable to restore folder::"+((RestException)t).getHttpStatusText());
-//					}
-//					else
-//						app.displayError("System error restoring folder:"+t.getMessage());
-//				}
-//			};
-//			DeferredCommand.addCommand(rt);
-//		}
+        if (containerPanel != null)
+    		containerPanel.hide();
+        if (resource instanceof List) {
+            @SuppressWarnings("unchecked")
+			Iterator<File> iter = ((List<File>) resource).iterator();
+            untrashFiles(iter, new Command() {
+                @SuppressWarnings("unchecked")
+				@Override
+                public void execute() {
+                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, null);
+                }
+            });
+        }
+        else if (resource instanceof Folder) {
+            final Folder toBeUnTrashed = (Folder) resource;
+            untrashFolder(toBeUnTrashed, new Command() {
+                @Override
+                public void execute() {
+                    app.updateFolder(toBeUnTrashed.getParent(), true, null);
+                }
+            });
 
+        }
 	}
 
+    private void untrashFolder(final Folder f, final Command callback) {
+        String path = "/" + Pithos.HOME_CONTAINER + "/" + f.getPrefix();
+        PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            @Override
+            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                Iterator<File> iter = f.getFiles().iterator();
+                untrashFiles(iter, new Command() {
+                    @Override
+                    public void execute() {
+                        Iterator<Folder> iterf = f.getSubfolders().iterator();
+                        untrashSubfolders(iterf, new Command() {
+							
+							@Override
+							public void execute() {
+								DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), f.getOwner(), f.getUri()) {
+									
+									@Override
+									public void onSuccess(Resource result) {
+										if (callback != null)
+											callback.execute();
+									}
+									
+									@Override
+									public void onError(Throwable t) {
+					                    GWT.log("", t);
+					                    if (t instanceof RestException) {
+					                        app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
+					                    }
+					                    else
+					                        app.displayError("System error unable to delete folder: "+t.getMessage());
+									}
+								};
+								deleteFolder.setHeader("X-Auth-Token", app.getToken());
+								Scheduler.get().scheduleDeferred(deleteFolder);
+							}
+						});
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                if (t instanceof RestException) {
+                    app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    app.displayError("System error creating folder:" + t.getMessage());
+            }
+        };
+        createFolder.setHeader("X-Auth-Token", app.getToken());
+        createFolder.setHeader("Accept", "*/*");
+        createFolder.setHeader("Content-Length", "0");
+        createFolder.setHeader("Content-Type", "application/folder");
+        Scheduler.get().scheduleDeferred(createFolder);
+    }
+
+    protected void untrashFiles(final Iterator<File> iter, final Command callback) {
+        if (iter.hasNext()) {
+            File file = iter.next();
+            String path = "/" + Pithos.HOME_CONTAINER + "/" + file.getPath();
+            PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+                @Override
+                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                    untrashFiles(iter, callback);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    GWT.log("", t);
+                    if (t instanceof RestException) {
+                        app.displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
+                    }
+                    else
+                        app.displayError("System error unable to copy file: "+t.getMessage());
+                }
+            };
+            untrashFile.setHeader("X-Auth-Token", app.getToken());
+            untrashFile.setHeader("X-Move-From", file.getUri());
+            Scheduler.get().scheduleDeferred(untrashFile);
+        }
+        else if (callback != null) {
+            callback.execute();
+        }
+    }
+
+    protected void untrashSubfolders(final Iterator<Folder> iter, final Command callback) {
+        if (iter.hasNext()) {
+            final Folder f = iter.next();
+            untrashFolder(f, callback);
+        }
+        else  {
+        	if (callback != null)
+        		callback.execute();
+        }
+    }
 }

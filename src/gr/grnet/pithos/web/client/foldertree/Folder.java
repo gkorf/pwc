@@ -306,8 +306,22 @@ public class Folder extends Resource {
 		return !permissions.isEmpty();
 	}
 
+	/**
+	 * I am THE trash
+	 * 
+	 * @return
+	 */
 	public boolean isTrash() {
 		return isContainer() && name.equals(Pithos.TRASH_CONTAINER);
+	}
+	
+	/**
+	 * I am IN THE trash
+	 * 
+	 * @return
+	 */
+	public boolean isInTrash() {
+		return container.equals(Pithos.TRASH_CONTAINER);
 	}
 
 	public boolean isHome() {
