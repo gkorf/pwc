@@ -132,10 +132,11 @@ public class GroupTreeView extends Composite {
 
 
     public Folder getSelection() {
-       return model.getSelection();
+//       return model.getSelection();
+    	return null;
     }
 
     public void updateFolder(Folder folder, boolean showfiles) {
-        model.updateFolder(folder, showfiles);
+//        model.updateFolder(folder, showfiles);
     }
 }
