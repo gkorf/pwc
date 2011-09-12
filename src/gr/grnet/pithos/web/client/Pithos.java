@@ -41,6 +41,8 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeViewModel;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeViewModel;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
@@ -248,6 +250,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private TagTreeViewModel tagTreeViewModel;
     private TagTreeView tagTreeView;
 
+    protected SingleSelectionModel<String> groupTreeSelectionModel;
+    private GroupTreeViewModel groupTreeViewModel;
+    private GroupTreeView groupTreeView;
+
     protected AccountResource account;
     
     private Folder trash;
@@ -362,6 +368,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
         tagTreeViewModel = new TagTreeViewModel(this, tagTreeSelectionModel);
         tagTreeView = new TagTreeView(tagTreeViewModel);
 
+        groupTreeSelectionModel = new SingleSelectionModel<String>();
+        groupTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+            @Override
+            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+                if (groupTreeSelectionModel.getSelectedObject() != null) {
+                    deselectOthers(groupTreeSelectionModel);
+                }
+            }
+        });
+        selectionModels.add(groupTreeSelectionModel);
+        groupTreeViewModel = new GroupTreeViewModel(this, groupTreeSelectionModel);
+        groupTreeView = new GroupTreeView(groupTreeViewModel);
+
         VerticalPanel trees = new VerticalPanel();
 
         Button upload = new Button("Upload File", new ClickHandler() {
@@ -382,6 +401,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         trees.add(mysharedTreeView);
         trees.add(otherSharedTreeView);
 //        trees.add(tagTreeView);
+        trees.add(groupTreeView);
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
