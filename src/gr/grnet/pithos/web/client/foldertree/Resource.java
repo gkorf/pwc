@@ -107,6 +107,9 @@ public class Resource {
         else if (aClass.equals(SharingUsers.class)) {
         	result1 = (T) SharingUsers.createFromResponse(response, (SharingUsers) result);
         }
+        else if (aClass.equals(FileVersions.class)) {
+        	result1 = (T) FileVersions.createFromResponse(response);
+        }
         return result1;
     }
 }

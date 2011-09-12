@@ -35,17 +35,24 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.FileVersions;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.foldertree.Version;
+import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.tagtree.Tag;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
@@ -125,8 +132,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         inner.add(createSharingPanel(), "Sharing");
 
-        inner.add(createVersionPanel(), "Versions");
-
+		fetchVersions();
+			
         inner.selectTab(0);
 
         outer.add(inner);
@@ -165,7 +172,29 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         setWidget(outer);
 	}
 
-    private VerticalPanel createGeneralPanel() {
+    protected void fetchVersions() {
+    	String path = file.getUri() + "?format=json&version=list";
+    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(FileVersions.class, app.getApiPath(), file.getOwner(), path) {
+
+			@Override
+			public void onSuccess(FileVersions _result) {
+		        inner.add(createVersionPanel(_result.getVersions()), "Versions");
+			}
+
+			@Override
+			public void onError(Throwable t) {
+                if (t instanceof RestException) {
+                    app.displayError("Unable to fetch versions: " + ((RestException) t).getHttpStatusText());
+                }
+                else
+                    app.displayError("System error unable to fetch versions: "+t.getMessage());
+			}
+		};
+		getVersions.setHeader("X-Auth-Token", app.getToken());
+		Scheduler.get().scheduleDeferred(getVersions);
+	}
+
+	private VerticalPanel createGeneralPanel() {
         final VerticalPanel generalPanel = new VerticalPanel();
         final FlexTable generalTable = new FlexTable();
         generalTable.setText(0, 0, "Name");
@@ -331,56 +360,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         return permPanel;
     }
 
-    private VerticalPanel createVersionPanel() {
+    private VerticalPanel createVersionPanel(List<Version> versions) {
         VerticalPanel versionPanel = new VerticalPanel();
-
-//        VersionsList verList = new VersionsList(this, images, bodies);
-//        versionPanel.add(verList);
-//
-//        HorizontalPanel vPanel = new HorizontalPanel();
-//
-//		vPanel.setSpacing(8);
-//		vPanel.addStyleName("pithos-TabPanelBottom");
-//		vPanel.add(new Label("Versioned"));
-//
-//		versioned.setValue(file.isVersioned());
-//		vPanel.add(versioned);
-//		versionPanel.add(vPanel);
-//
-//        HorizontalPanel vPanel2 = new HorizontalPanel();
-//		vPanel2.setSpacing(8);
-//		vPanel2.addStyleName("pithos-TabPanelBottom");
-//
-//        HTML removeAllVersion = new HTML("<span>Remove all previous versions?</span>");
-//        vPanel2.add(removeAllVersion);
-//
-//		Button removeVersionsButton = new Button(AbstractImagePrototype.create(images.delete()).getHTML(), new ClickHandler() {
-//			@Override
-//			public void onClick(ClickEvent event) {
-//				ConfirmationDialog confirm = new ConfirmationDialog("Really " +
-//						"remove all previous versions?", "Remove") {
-//
-//					@Override
-//					public void cancel() {
-//					}
-//
-//					@Override
-//					public void confirm() {
-//						FilePropertiesDialog.this.closeDialog();
-//						removeAllOldVersions();
-//					}
-//
-//				};
-//				confirm.center();
-//			}
-//
-//		});
-//		vPanel2.add(removeVersionsButton);
-//        if(!file.isVersioned())
-//            vPanel2.setVisible(false);
-//
-//        versionPanel.add(vPanel2);
-
+        VersionsList verList = new VersionsList(app, this, images, file, versions);
+        versionPanel.add(verList);
         return versionPanel;
     }
 

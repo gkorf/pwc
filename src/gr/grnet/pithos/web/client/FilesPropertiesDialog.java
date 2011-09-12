@@ -70,17 +70,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		super(_app);
 
 		files = _files;
-//		int versionedNum = 0;
-//		for (File fr : files)
-//			if (fr.isVersioned()) versionedNum++;
-//		Boolean versioned = null;
-//		if (versionedNum == 0)
-//            versioned = false;
-//		if (versionedNum == files.size())
-//            versioned = true;
-
-//		initialVersioned = versioned;
-//		versionedCheck = new TristateCheckBox(versioned);
 
 		// Set the dialog's caption.
 		setText("Files properties");
@@ -94,17 +83,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
 		inner.add(createGeneralPanel(), "General");
 
-        final VerticalPanel verPanel = new VerticalPanel();
-
-//        final HorizontalPanel vPanel = new HorizontalPanel();
-//        vPanel.setSpacing(8);
-//        vPanel.addStyleName("pithos-TabPanelBottom");
-//        vPanel.add(new Label("Versioned"));
-//        vPanel.add(versionedCheck);
-//
-//        verPanel.add(vPanel);
-
-		inner.add(verPanel, "Versions");
 		inner.selectTab(0);
         outer.add(inner);
 
@@ -153,41 +131,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
         else
             generalTable.setText(1, 1, "-");
 
-		// Find if tags are identical
-//		List<String> tagsList = files.get(0).getTags();
-//		List<String> tagss;
-//		for (int i=1; i<files.size(); i++) {
-//			tagss = files.get(i).getTags();
-//			if (tagsList.size() != tagss.size() || !tagsList.containsAll(tagss)) {
-//				tagsList = null;
-//				break;
-//			}
-//		}
-//		// Get the tags.
-//		StringBuffer tagsBuffer = new StringBuffer();
-//		if (tagsList==null)
-//			tagsBuffer.append(MULTIPLE_VALUES_TEXT);
-//		else {
-//			Iterator i = tagsList.iterator();
-//			while (i.hasNext()) {
-//				String tag = (String) i.next();
-//				tagsBuffer.append(tag).append(", ");
-//			}
-//			if (tagsBuffer.length() > 1)
-//				tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
-//		}
-//		initialTagText = tagsBuffer.toString();
-//		tags.setText(initialTagText);
-//		tags.addFocusHandler(new FocusHandler() {
-//			@Override
-//			public void onFocus(FocusEvent event) {
-//				if (MULTIPLE_VALUES_TEXT.equals(tags.getText()))
-//					tags.setText("");
-//			}
-//		}
-//		);
-//
-//		generalTable.setWidget(2, 1, tags);
 		generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
 		generalTable.getFlexCellFormatter().setColSpan(0, 0, 2);
 		generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
@@ -198,15 +141,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		generalTable.setCellSpacing(4);
 
         generalPanel.add(generalTable);
-
-		// Asynchronously retrieve the tags defined by this user.
-//		DeferredCommand.addCommand(new Command() {
-//
-//			@Override
-//			public void execute() {
-//				updateTags();
-//			}
-//		});
 
 		DisclosurePanel allTags = new DisclosurePanel("All tags");
 		allTagsContent = new FlowPanel();
@@ -223,57 +157,5 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected void accept() {
-//		JSONObject json = new JSONObject();
-//		if ( versionedCheck.getState()!=null && !versionedCheck.getState().equals(initialVersioned) )
-//				json.put("versioned", JSONBoolean.getInstance(versionedCheck.getState()));
-//
-//		JSONArray taga = new JSONArray();
-//		int i = 0;
-//		String tagText = tags.getText();
-//		if (!MULTIPLE_VALUES_TEXT.equals(tagText) && !initialTagText.equals(tagText)) {
-//			String[] tagset = tagText.split(",");
-//			for (String t : tagset) {
-//				JSONString to = new JSONString(t);
-//				taga.set(i, to);
-//				i++;
-//			}
-//			json.put("tags", taga);
-//		}
-//		String jsonString = json.toString();
-//		if(jsonString.equals("{}")){
-//			GWT.log("NO CHANGES", null);
-//			return;
-//		}
-//		final List<String> fileIds = new ArrayList<String>();
-//		for(FileResource f : files)
-//			fileIds.add(f.getUri()+"?update=");
-//		MultiplePostCommand rt = new MultiplePostCommand(fileIds.toArray(new String[0]), jsonString, 200){
-//
-//			@Override
-//			public void onComplete() {
-//				app.getTreeView().refreshCurrentNode(false);
-//			}
-//
-//			@Override
-//			public void onError(String p, Throwable t) {
-//				GWT.log("", t);
-//				if(t instanceof RestException){
-//					int statusCode = ((RestException)t).getHttpStatusCode();
-//					if(statusCode == 405)
-//						app.displayError("You don't have the necessary permissions");
-//					else if(statusCode == 404)
-//						app.displayError("File does not exist");
-//					else if(statusCode == 409)
-//						app.displayError("A file with the same name already exists");
-//					else if(statusCode == 413)
-//						app.displayError("Your quota has been exceeded");
-//					else
-//						app.displayError("Unable to modify file::"+((RestException)t).getHttpStatusText());
-//				}
-//				else
-//					app.displayError("System error modifying file:"+t.getMessage());
-//			}
-//		};
-//		DeferredCommand.addCommand(rt);
 	}
 }
