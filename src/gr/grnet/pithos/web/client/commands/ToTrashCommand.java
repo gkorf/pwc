@@ -35,10 +35,13 @@
 package gr.grnet.pithos.web.client.commands;
 
 import com.google.gwt.core.client.Scheduler;
+
+import gr.grnet.pithos.web.client.DeleteFolderDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -79,7 +82,7 @@ public class ToTrashCommand implements Command{
                 @SuppressWarnings("unchecked")
 				@Override
                 public void execute() {
-                    app.updateFolder(((List<File>) resource).get(0).getParent(), true);
+                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, null);
                 }
             });
         }
@@ -88,7 +91,7 @@ public class ToTrashCommand implements Command{
             trashFolder(toBeTrashed, new Command() {
                 @Override
                 public void execute() {
-                    app.updateFolder(toBeTrashed.getParent(), true);
+                    app.updateFolder(toBeTrashed.getParent(), true, null);
                 }
             });
 
@@ -96,7 +99,7 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-        String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix() + "/" + f.getName();
+        String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
@@ -105,7 +108,32 @@ public class ToTrashCommand implements Command{
                     @Override
                     public void execute() {
                         Iterator<Folder> iterf = f.getSubfolders().iterator();
-                        trashSubfolders(iterf, callback);
+                        trashSubfolders(iterf, new Command() {
+							
+							@Override
+							public void execute() {
+								DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), f.getOwner(), f.getUri()) {
+									
+									@Override
+									public void onSuccess(Resource result) {
+										if (callback != null)
+											callback.execute();
+									}
+									
+									@Override
+									public void onError(Throwable t) {
+					                    GWT.log("", t);
+					                    if (t instanceof RestException) {
+					                        app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
+					                    }
+					                    else
+					                        app.displayError("System error unable to delete folder: "+t.getMessage());
+									}
+								};
+								deleteFolder.setHeader("X-Auth-Token", app.getToken());
+								Scheduler.get().scheduleDeferred(deleteFolder);
+							}
+						});
                     }
                 });
             }
@@ -161,8 +189,8 @@ public class ToTrashCommand implements Command{
             final Folder f = iter.next();
             trashFolder(f, callback);
         }
-        else  if (callback != null) {
-            callback.execute();
+        else  {
+        	app.updateTrash(false, callback);
         }
     }
 }

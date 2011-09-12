@@ -263,7 +263,7 @@ public class FolderPropertiesDialog extends DialogBox {
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                app.updateFolder(folder, true);
+                app.updateFolder(folder, true, null);
             }
 
             @Override
@@ -345,7 +345,7 @@ public class FolderPropertiesDialog extends DialogBox {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    app.updateFolder(folder.getParent(), false);
+                    app.updateFolder(folder.getParent(), false, null);
                 }
 
                 @Override
@@ -379,7 +379,7 @@ public class FolderPropertiesDialog extends DialogBox {
             Scheduler.get().scheduleDeferred(updateFolder);
         }
         else
-            app.updateFolder(folder.getParent(), false);
+            app.updateFolder(folder.getParent(), false, null);
     }
 
 	public void selectTab(int _tab) {

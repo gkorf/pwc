@@ -438,7 +438,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    app.updateFolder(file.getParent(), true);
+                    app.updateFolder(file.getParent(), true, null);
                 }
 
                 @Override
@@ -479,7 +479,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            app.updateFolder(file.getParent(), true);
+            app.updateFolder(file.getParent(), true, null);
     }
 
 	private void removeAllOldVersions() {

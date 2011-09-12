@@ -125,8 +125,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return account;
     }
 
-    public void updateFolder(Folder f, boolean showfiles) {
-        folderTreeView.updateFolder(f, showfiles);
+    public void updateFolder(Folder f, boolean showfiles, Command callback) {
+        folderTreeView.updateFolder(f, showfiles, callback);
     }
 
     public void updateSharedFolder(Folder f, boolean showfiles) {
@@ -249,6 +249,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private TagTreeView tagTreeView;
 
     protected AccountResource account;
+    
+    private Folder trash;
 
     @SuppressWarnings("rawtypes")
 	private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
@@ -305,7 +307,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(folderTreeSelectionModel);
                     Folder f = folderTreeSelectionModel.getSelectedObject();
-                    updateFolder(f, true);
+                    updateFolder(f, true, null);
                 }
             }
         });
@@ -510,6 +512,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 else if (!account.hasTrashContainer())
                 	createTrashContainer();
                 else {
+                	for (Folder f : account.getContainers())
+                		if (f.getName().equals(Pithos.TRASH_CONTAINER)) {
+                			trash = f;
+                			break;
+                		}
                     folderTreeViewModel.initialize(account);
                 }
             }
@@ -789,7 +796,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    updateFolder(folder.getParent(), true);
+                    updateFolder(folder.getParent(), true, null);
                 }
 
                 @Override
@@ -896,5 +903,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public OtherSharedTreeView getOtherSharedTreeView() {
 		return otherSharedTreeView;
+	}
+
+	public void updateTrash(boolean showFiles, Command callback) {
+		updateFolder(trash, showFiles, callback);
 	}
 }

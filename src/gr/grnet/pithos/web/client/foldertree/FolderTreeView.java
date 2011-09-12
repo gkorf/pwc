@@ -43,6 +43,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
@@ -145,7 +146,7 @@ public class FolderTreeView extends Composite {
        return model.getSelection();
     }
 
-    public void updateFolder(Folder folder, boolean showfiles) {
-        model.updateFolder(folder, showfiles);
+    public void updateFolder(Folder folder, boolean showfiles, Command callback) {
+        model.updateFolder(folder, showfiles, callback);
     }
 }

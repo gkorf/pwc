@@ -154,7 +154,7 @@ public class DeleteFileDialog extends DialogBox {
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {
-            app.updateFolder(files.get(0).getParent(), true);
+            app.updateFolder(files.get(0).getParent(), true, null);
         }
     }
 

@@ -121,7 +121,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 		    dataProviderMap.put(f, new ListDataProvider<Folder>());
 		}
 		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-		fetchFolder(f, dataProvider, false);
+		fetchFolder(f, dataProvider, false, null);
 		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }
 
@@ -177,18 +177,15 @@ public class FolderTreeViewModel implements TreeViewModel {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(Folder folder, boolean showfiles) {
+    public void updateFolder(Folder folder, boolean showfiles, Command callback) {
         if (dataProviderMap.get(folder) == null) {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
         final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
-        if (!folder.isTrash())
-            fetchFolder(folder, dataProvider, showfiles);
-        else
-            app.showFiles(folder);
+        fetchFolder(folder, dataProvider, showfiles, callback);
     }
 
-    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
+    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
@@ -205,6 +202,8 @@ public class FolderTreeViewModel implements TreeViewModel {
                                 dataProvider.getList().clear();
                                 dataProvider.getList().addAll(_result.getSubfolders());
                                 app.getFolderTreeView().updateChildren(f);
+                                if (callback != null)
+                                	callback.execute();
                             }
                         });
                     }
