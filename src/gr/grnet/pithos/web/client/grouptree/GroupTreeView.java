@@ -63,15 +63,15 @@ public class GroupTreeView extends Composite {
 
     private void updateChildren(TreeNode node, Group group) {
         for (int i=0; i<node.getChildCount(); i++) {
-            if (node.isChildOpen(i)) {
-                if (group.equals(node.getChildValue(i))) {
-                    node.setChildOpen(i, false, true);
-                    node.setChildOpen(i, true, true);
-                }
-                else {
-                    TreeNode n = node.setChildOpen(i, true);
-                    updateChildren(n, group);
-                }
+            if (group.equals(node.getChildValue(i))) {
+                node.setChildOpen(i, false, true);
+                node.setChildOpen(i, true, true);
+            }
+            else {
+                if (node.isChildOpen(i)) {
+                	TreeNode n = node.setChildOpen(i, true);
+                	updateChildren(n, group);
+                }	
             }
         }
     }
@@ -136,6 +136,7 @@ public class GroupTreeView extends Composite {
     }
 
     public void updateGroupNode(Group group) {
+    	model.updateGroupNode(group);
     	updateChildren(group);
     }
 }

@@ -131,6 +131,7 @@ public class GroupTreeViewModel implements TreeViewModel {
             return new DefaultNodeInfo<String>(rootDataProvider, rootCell,  null, null);
         }
         else if (value instanceof String) {
+        	groupsDataProvider.getList().clear();
         	groupsDataProvider.getList().addAll(app.getAccount().getGroups());
             return new DefaultNodeInfo<Group>(groupsDataProvider, groupCell, null, null);
         }
@@ -154,12 +155,29 @@ public class GroupTreeViewModel implements TreeViewModel {
         }
         else if (o instanceof Group)
         	return ((Group) o).getMembers().isEmpty();
-        else
+        else if (o != null)
         	return true;
+        return false;
     }
 	
 	public void initialize() {
     	rootDataProvider.getList().clear();
     	rootDataProvider.getList().add("Groups");
+	}
+
+	public void updateGroupNode(Group group) {
+		if (group == null) {
+			groupsDataProvider.getList().clear();
+			groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+		}
+		else {
+			if (userDataProviderMap.get(group) == null) {
+				userDataProviderMap.put(group, new ListDataProvider<User>());
+			}
+			final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
+			dataProvider.getList().clear();
+			for (String u : group.getMembers())
+				dataProvider.getList().add(new User(u, group));
+		}
 	}
 }

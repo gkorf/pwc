@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -78,7 +77,7 @@ public class DeleteGroupCommand implements Command {
 				
 				@Override
 				public void onSuccess(Resource result) {
-					app.updateGroupsNode();
+					app.removeGroup(group);
 				}
 				
 				@Override

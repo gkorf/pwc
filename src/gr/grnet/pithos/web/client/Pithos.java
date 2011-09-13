@@ -44,6 +44,7 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeViewModel;
+import gr.grnet.pithos.web.client.grouptree.User;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeViewModel;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
@@ -932,5 +933,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		Group newGroup = new Group(groupname);
 		account.addGroup(newGroup);
 		groupTreeView.updateGroupNode(null);
+	}
+
+	public void removeGroup(Group group) {
+		account.removeGroup(group);
+		updateGroupsNode();
 	}
 }

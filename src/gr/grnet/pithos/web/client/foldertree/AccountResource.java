@@ -235,4 +235,8 @@ public class AccountResource extends Resource {
 	public void addGroup(Group newGroup) {
 		groups.add(newGroup);
 	}
+
+	public void removeGroup(Group group) {
+		groups.remove(group);
+	}
 }

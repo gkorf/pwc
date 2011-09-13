@@ -93,8 +93,12 @@ public class RemoveUserCommand implements Command {
 		};
 		updateGroup.setHeader("X-Auth-Token", app.getToken());
 		String groupMembers = "";
-		for (String u : group.getMembers())
-			groupMembers += (u + ",");
+		if (!group.getMembers().isEmpty()) {
+			for (String u : group.getMembers())
+				groupMembers += (u + ",");
+		}
+		else
+			groupMembers = "~";
 		updateGroup.setHeader("X-Account-Group-" + group.getName(), groupMembers);
 		Scheduler.get().scheduleDeferred(updateGroup);
 	}
