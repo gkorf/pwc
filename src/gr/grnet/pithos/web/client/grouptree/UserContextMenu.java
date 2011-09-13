@@ -32,30 +32,46 @@
  * interpreted as representing official policies, either expressed
  * or implied, of GRNET S.A.
  */
+package gr.grnet.pithos.web.client.grouptree;
 
-package gr.grnet.pithos.web.client.foldertree;
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.commands.AddUserCommand;
+import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
+import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
+import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Images;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.PopupPanel;
 
-public class Group {
-    private String name;
+/**
+ * The 'Folder Context' menu implementation.
+ */
+public class UserContextMenu extends PopupPanel {
 
-    private List<String> members = new ArrayList<String>();
+	/**
+	 * The widget's images.
+	 */
+	private final GroupTreeView.Images images;
 
-    public Group(String _name) {
-        name = _name;
-    }
+	/**
+	 * The widget's constructor.
+	 *
+	 * @param newImages the image bundle passed on by the parent object
+	 */
+	public UserContextMenu(Pithos app, final Images newImages, User user) {
+		// The popup's constructor's argument is a boolean specifying that it
+		// auto-close itself when the user clicks outside of it.
+		super(true);
+		setAnimationEnabled(true);
+		images = newImages;
+        MenuBar contextMenu = new MenuBar(true);
+        
+        MenuItem removeUser = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Remove User</span>", true, new RemoveUserCommand(app, this, user));
+        contextMenu.addItem(removeUser);
 
-    public List<String> getMembers() {
-        return members;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void addMember(String user) {
-        members.add(user);
-    }
+        add(contextMenu);
+	}
 }

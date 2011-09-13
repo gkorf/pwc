@@ -51,21 +51,26 @@ import com.google.gwt.user.client.ui.Tree;
 
 public class GroupTreeView extends Composite {
 
-    public void updateChildren(Folder folder) {
+    public void updateChildren(Group group) {
         TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
-        updateChildren(root, folder);
+        if (group != null)
+        	updateChildren(root, group);
+        else {
+        	root.setChildOpen(0, false, true);
+        	root.setChildOpen(0, true, true);
+        }
     }
 
-    private void updateChildren(TreeNode node, Folder folder) {
+    private void updateChildren(TreeNode node, Group group) {
         for (int i=0; i<node.getChildCount(); i++) {
             if (node.isChildOpen(i)) {
-                if (folder.equals(node.getChildValue(i))) {
+                if (group.equals(node.getChildValue(i))) {
                     node.setChildOpen(i, false, true);
                     node.setChildOpen(i, true, true);
                 }
                 else {
                     TreeNode n = node.setChildOpen(i, true);
-                    updateChildren(n, folder);
+                    updateChildren(n, group);
                 }
             }
         }
@@ -130,13 +135,7 @@ public class GroupTreeView extends Composite {
         initWidget(tree);
     }
 
-
-    public Folder getSelection() {
-//       return model.getSelection();
-    	return null;
-    }
-
-    public void updateFolder(Folder folder, boolean showfiles) {
-//        model.updateFolder(folder, showfiles);
+    public void updateGroupNode(Group group) {
+    	updateChildren(group);
     }
 }

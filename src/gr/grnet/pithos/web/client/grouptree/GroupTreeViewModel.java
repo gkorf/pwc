@@ -36,94 +36,99 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.SharingUsers;
-import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Group;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
-import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.text.shared.SafeHtmlRenderer;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 
 public class GroupTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
-    private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
+    private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
+    
+    private Cell<String> rootCell = new AbstractCell<String>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(Context context,	Group value, SafeHtmlBuilder sb) {
+		public void render(@SuppressWarnings("unused") Context context,	String value, SafeHtmlBuilder sb) {
+            String html = AbstractImagePrototype.create(GroupTreeView.images.groups()).getHTML();
+            sb.appendHtmlConstant(html);
+            sb.append(Templates.INSTANCE.nameSpan(value));
+		}
+		
+        @Override
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
+            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, null);
+                menu.setPopupPosition(event.getClientX(), event.getClientY());
+                menu.show();
+            }
+        }
+	};
+
+	private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
+
+		@Override
+		public void render(@SuppressWarnings("unused") Context context,	Group value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.group()).getHTML();
             sb.appendHtmlConstant(html);
             sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
+		
+        @Override
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Group group, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Group> valueUpdater) {
+            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
+                menu.setPopupPosition(event.getClientX(), event.getClientY());
+                menu.show();
+            }
+        }
 	};
 
-    private Cell<String> userCell = new AbstractCell<String>(ContextMenuEvent.getType().getName()) {
+    private Cell<User> userCell = new AbstractCell<User>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(Context context,	String value, SafeHtmlBuilder sb) {
+		public void render(@SuppressWarnings("unused") Context context,	User value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
             sb.appendHtmlConstant(html);
-            sb.append(Templates.INSTANCE.nameSpan(value));
+            sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
-	};
 
-	private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
+        @Override
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, User user, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<User> valueUpdater) {
+            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+                UserContextMenu menu = new UserContextMenu(app, GroupTreeView.images, user);
+                menu.setPopupPosition(event.getClientX(), event.getClientY());
+                menu.show();
+            }
+        }
+    };
+
     protected ListDataProvider<Group> groupsDataProvider = new ListDataProvider<Group>();
 
-    protected Map<Group, ListDataProvider<String>> userDataProviderMap = new HashMap<Group, ListDataProvider<String>>();
+    protected Map<Group, ListDataProvider<User>> userDataProviderMap = new HashMap<Group, ListDataProvider<User>>();
     
     protected Map<String, Set<File>> sharedFiles = new HashMap<String, Set<File>>();
 
-    private SingleSelectionModel<String> selectionModel;
-
-    public GroupTreeViewModel(Pithos _app, SingleSelectionModel<String> selectionModel) {
+    public GroupTreeViewModel(Pithos _app) {
         app = _app;
-        this.selectionModel = selectionModel;
     }
 
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            rootDataProvider.getList().add("Groups");
-            return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
-                @Override
-                public SafeHtml render(String object) {
-                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                    render(object, builder);
-                    return builder.toSafeHtml();
-                }
-
-                @Override
-                public void render(String object, SafeHtmlBuilder builder) {
-                    String html = AbstractImagePrototype.create(GroupTreeView.images.groups()).getHTML();
-                    builder.appendHtmlConstant(html);
-                    builder.append(GroupTreeView.Templates.INSTANCE.nameSpan(object));
-                }
-                
-            }),  null, null);
+        	rootDataProvider.getList().add("");
+            return new DefaultNodeInfo<String>(rootDataProvider, rootCell,  null, null);
         }
         else if (value instanceof String) {
         	groupsDataProvider.getList().addAll(app.getAccount().getGroups());
@@ -132,17 +137,29 @@ public class GroupTreeViewModel implements TreeViewModel {
         else { //Group
         	Group g = (Group) value;
 			if (userDataProviderMap.get(g) == null) {
-				userDataProviderMap.put(g, new ListDataProvider<String>());
+				userDataProviderMap.put(g, new ListDataProvider<User>());
 			}
-			final ListDataProvider<String> dataProvider = userDataProviderMap.get(g);
-        	return new DefaultNodeInfo(dataProvider, userCell, null, null);
+			final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
+			dataProvider.getList().clear();
+			for (String u : g.getMembers())
+				dataProvider.getList().add(new User(u, g));
+        	return new DefaultNodeInfo<User>(dataProvider, userCell, null, null);
         }
     }
 
 	@Override
     public boolean isLeaf(Object o) {
-        if (o instanceof String && !o.equals("Groups"))
+        if (o instanceof String) {
+       		return ((String) o).length() == 0 || app.getAccount().getGroups().isEmpty();
+        }
+        else if (o instanceof Group)
+        	return ((Group) o).getMembers().isEmpty();
+        else
         	return true;
-        return false;
     }
+	
+	public void initialize() {
+    	rootDataProvider.getList().clear();
+    	rootDataProvider.getList().add("Groups");
+	}
 }

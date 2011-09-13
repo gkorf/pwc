@@ -41,6 +41,7 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeViewModel;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
@@ -129,6 +130,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void updateFolder(Folder f, boolean showfiles, Command callback) {
         folderTreeView.updateFolder(f, showfiles, callback);
+    }
+
+    public void updateGroupNode(Group group) {
+        groupTreeView.updateGroupNode(group);
     }
 
     public void updateSharedFolder(Folder f, boolean showfiles) {
@@ -250,7 +255,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private TagTreeViewModel tagTreeViewModel;
     private TagTreeView tagTreeView;
 
-    protected SingleSelectionModel<String> groupTreeSelectionModel;
     private GroupTreeViewModel groupTreeViewModel;
     private GroupTreeView groupTreeView;
 
@@ -368,17 +372,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         tagTreeViewModel = new TagTreeViewModel(this, tagTreeSelectionModel);
         tagTreeView = new TagTreeView(tagTreeViewModel);
 
-        groupTreeSelectionModel = new SingleSelectionModel<String>();
-        groupTreeSelectionModel.addSelectionChangeHandler(new Handler() {
-            @Override
-            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
-                if (groupTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(groupTreeSelectionModel);
-                }
-            }
-        });
-        selectionModels.add(groupTreeSelectionModel);
-        groupTreeViewModel = new GroupTreeViewModel(this, groupTreeSelectionModel);
+        groupTreeViewModel = new GroupTreeViewModel(this);
         groupTreeView = new GroupTreeView(groupTreeViewModel);
 
         VerticalPanel trees = new VerticalPanel();
@@ -538,6 +532,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 			break;
                 		}
                     folderTreeViewModel.initialize(account);
+                    groupTreeViewModel.initialize();
                 }
             }
 
@@ -927,5 +922,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public void updateTrash(boolean showFiles, Command callback) {
 		updateFolder(trash, showFiles, callback);
+	}
+
+	public void updateGroupsNode() {
+		groupTreeView.updateGroupNode(null);
+	}
+
+	public void addGroup(String groupname) {
+		Group newGroup = new Group(groupname);
+		account.addGroup(newGroup);
+		groupTreeView.updateGroupNode(null);
 	}
 }

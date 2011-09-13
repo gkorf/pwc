@@ -35,7 +35,8 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.user.client.ui.TextBox;
-import gr.grnet.pithos.web.client.foldertree.Group;
+
+import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.List;
 

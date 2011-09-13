@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -230,4 +231,8 @@ public class AccountResource extends Resource {
     			return true;
     	return false;
     }
+
+	public void addGroup(Group newGroup) {
+		groups.add(newGroup);
+	}
 }
