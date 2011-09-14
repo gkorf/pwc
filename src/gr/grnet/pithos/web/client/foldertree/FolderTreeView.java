@@ -47,8 +47,9 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.TreeView;
 
-public class FolderTreeView extends Composite {
+public class FolderTreeView extends Composite implements TreeView {
 
     public void updateChildren(Folder folder) {
         TreeNode root = ((CellTree) getWidget()).getRootTreeNode();

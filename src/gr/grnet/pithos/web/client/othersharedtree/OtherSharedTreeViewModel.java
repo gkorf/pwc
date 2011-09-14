@@ -118,7 +118,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 @Override
                 public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
-                    	app.deselectOthers(selectionModel2);
+                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel2);
                     	app.showFiles(new HashSet<File>());
                     }
                 }
@@ -149,7 +149,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	                @Override
 	                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
 	                    if (selectionModel3.getSelectedObject() != null) {
-	                    	app.deselectOthers(selectionModel3);
+	                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel3);
 	                    	String username = selectionModel3.getSelectedObject();
 	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
 	                    }

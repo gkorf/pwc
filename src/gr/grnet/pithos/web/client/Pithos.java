@@ -240,17 +240,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
      */
     private String token;
 
-    protected SingleSelectionModel<Folder> folderTreeSelectionModel;
-    protected FolderTreeViewModel folderTreeViewModel;
-    protected FolderTreeView folderTreeView;
+    SingleSelectionModel<Folder> folderTreeSelectionModel;
+    FolderTreeViewModel folderTreeViewModel;
+    FolderTreeView folderTreeView;
 
-    protected SingleSelectionModel<Folder> mysharedTreeSelectionModel;
+    SingleSelectionModel<Folder> mysharedTreeSelectionModel;
     private MysharedTreeViewModel mysharedTreeViewModel;
-    private MysharedTreeView mysharedTreeView;
+    MysharedTreeView mysharedTreeView;
 
     protected SingleSelectionModel<Folder> otherSharedTreeSelectionModel;
     private OtherSharedTreeViewModel otherSharedTreeViewModel;
-    private OtherSharedTreeView otherSharedTreeView;
+    OtherSharedTreeView otherSharedTreeView;
 
     protected SingleSelectionModel<Tag> tagTreeSelectionModel;
     private TagTreeViewModel tagTreeViewModel;
@@ -259,6 +259,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private GroupTreeViewModel groupTreeViewModel;
     private GroupTreeView groupTreeView;
 
+    private TreeView selectedTree;
     protected AccountResource account;
     
     private Folder trash;
@@ -316,7 +317,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(folderTreeSelectionModel);
+                    deselectOthers(folderTreeView, folderTreeSelectionModel);
                     Folder f = folderTreeSelectionModel.getSelectedObject();
                     updateFolder(f, true, null);
                 }
@@ -335,7 +336,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (mysharedTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(mysharedTreeSelectionModel);
+                    deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
                     updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
                 }
             }
@@ -349,7 +350,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(otherSharedTreeSelectionModel);
+                    deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
                     updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
                 }
             }
@@ -357,21 +358,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         selectionModels.add(otherSharedTreeSelectionModel);
         otherSharedTreeViewModel = new OtherSharedTreeViewModel(this, otherSharedTreeSelectionModel);
         otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-
-        tagTreeSelectionModel = new SingleSelectionModel<Tag>();
-        tagTreeSelectionModel.addSelectionChangeHandler(new Handler() {
-            @Override
-            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
-                if (tagTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(tagTreeSelectionModel);
-                    Tag t = tagTreeSelectionModel.getSelectedObject();
-                    updateTag(t);
-                }
-            }
-        });
-        selectionModels.add(tagTreeSelectionModel);
-        tagTreeViewModel = new TagTreeViewModel(this, tagTreeSelectionModel);
-        tagTreeView = new TagTreeView(tagTreeViewModel);
 
         groupTreeViewModel = new GroupTreeViewModel(this);
         groupTreeView = new GroupTreeView(groupTreeViewModel);
@@ -437,7 +423,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	public void deselectOthers(SingleSelectionModel model) {
+	public void deselectOthers(TreeView _selectedTree, SingleSelectionModel model) {
+    	selectedTree = _selectedTree;
         for (SingleSelectionModel s : selectionModels)
             if (!s.equals(model))
                 s.setSelected(s.getSelectedObject(), false);
@@ -938,5 +925,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public void removeGroup(Group group) {
 		account.removeGroup(group);
 		updateGroupsNode();
+	}
+
+	public TreeView getSelectedTree() {
+		return selectedTree;
+	}
+	
+	public Folder getSelection() {
+		return selectedTree.getSelection();
 	}
 }

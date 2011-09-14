@@ -49,6 +49,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Button;
@@ -340,7 +341,7 @@ public class FolderPropertiesDialog extends DialogBox {
             updateMetadata(folder.getUri() + "?update=", perms);
 	}
 
-	protected void updateMetadata(String path, Map<String, Boolean[]> newPermissions) {
+	protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
         if (newPermissions != null) {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
@@ -351,7 +352,34 @@ public class FolderPropertiesDialog extends DialogBox {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
-                    app.displayError("System error modifying folder: " + t.getMessage());
+                    if (t instanceof RestException) {
+                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
+                            final String path1 = folder.getUri();
+                            PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path1) {
+                                @Override
+                                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                                	updateMetadata(path, newPermissions);
+                                }
+
+                                @Override
+                                public void onError(Throwable t) {
+                                    GWT.log("", t);
+                                    if(t instanceof RestException){
+                                        app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
+                                    }
+                                    else
+                                        app.displayError("System error modifying folder: " + t.getMessage());
+                                }
+                            };
+                            newFolder.setHeader("X-Auth-Token", app.getToken());
+                            newFolder.setHeader("Content-Type", "application/folder");
+                            newFolder.setHeader("Accept", "*/*");
+                            newFolder.setHeader("Content-Length", "0");
+                            Scheduler.get().scheduleDeferred(newFolder);
+                    	}
+                    }
+                    else
+                    	app.displayError("System error modifying folder: " + t.getMessage());
                 }
             };
             updateFolder.setHeader("X-Auth-Token", app.getToken());

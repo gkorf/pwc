@@ -72,7 +72,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
-    private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
+    private Cell<Folder> folderCell = new AbstractCell<Folder>() {
 
        @Override
         public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
@@ -116,7 +116,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 @Override
                 public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
-                    	app.deselectOthers(selectionModel2);
+                    	app.deselectOthers(app.getMySharedTreeView(), selectionModel2);
                     	fetchSharedFiles();
                     }
                 }

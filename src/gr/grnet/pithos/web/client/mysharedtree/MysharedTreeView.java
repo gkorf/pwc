@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.mysharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
@@ -49,7 +50,7 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 
-public class MysharedTreeView extends Composite {
+public class MysharedTreeView extends Composite implements TreeView {
 
     public void updateChildren(Folder folder) {
         TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
