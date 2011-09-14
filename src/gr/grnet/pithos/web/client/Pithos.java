@@ -512,7 +512,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	protected void authenticateUser() {
 		Configuration conf = (Configuration) GWT.create(Configuration.class);
-        Window.Location.assign(Window.Location.getHost() + conf.loginUrl() + "?next=" + Window.Location.getHref());
+        Window.Location.assign(conf.loginUrl() + "?next=" + Window.Location.getHref());
 	}
 
 	protected void fetchAccount() {
