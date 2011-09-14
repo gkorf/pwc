@@ -57,17 +57,17 @@ public class FolderTreeView extends Composite {
 
     private void updateChildren(TreeNode node, Folder folder) {
         for (int i=0; i<node.getChildCount(); i++) {
-            if (node.isChildOpen(i)) {
-                if (folder.equals(node.getChildValue(i))) {
-                    node.setChildOpen(i, false, true);
-                    node.setChildOpen(i, true, true);
-                }
-                else {
+            if (folder.equals(node.getChildValue(i))) {
+                node.setChildOpen(i, false, true);
+                node.setChildOpen(i, true, true);
+            }
+            else {
+                if (node.isChildOpen(i)) {
                     TreeNode n = node.setChildOpen(i, true);
                     updateChildren(n, folder);
                 }
             }
-        }
+    	}
     }
 
     static interface BasicResources extends CellTree.Resources {

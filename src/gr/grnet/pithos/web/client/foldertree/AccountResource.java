@@ -239,4 +239,12 @@ public class AccountResource extends Resource {
 	public void removeGroup(Group group) {
 		groups.remove(group);
 	}
+
+	public Folder getTrash() {
+		for (Folder c : containers) {
+			if (c.getName().equals(Pithos.TRASH_CONTAINER))
+				return c;
+		}
+		return null;
+	}
 }
