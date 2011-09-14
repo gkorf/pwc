@@ -141,6 +141,7 @@ public class PermissionsList extends Composite {
                     public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
                         Boolean[] ps = permissions.get(user);
                         ps[0] = booleanValueChangeEvent.getValue();
+                        hasChanges = true;
                     }
                 });
                 write.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -148,6 +149,7 @@ public class PermissionsList extends Composite {
                     public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
                         Boolean[] ps = permissions.get(user);
                         ps[1] = booleanValueChangeEvent.getValue();
+                        hasChanges = true;
                     }
                 });
                 PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {

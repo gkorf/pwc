@@ -117,6 +117,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(app.getMySharedTreeView(), selectionModel2);
+                    	app.applyPermissions(null);
                     	fetchSharedFiles();
                     }
                 }

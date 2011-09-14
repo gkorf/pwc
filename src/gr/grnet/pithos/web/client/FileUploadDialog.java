@@ -171,7 +171,10 @@ public class FileUploadDialog extends DialogBox {
 					GWT.log(results, null);
 					app.displayError(results);
 				}
-                app.updateFolder(folder, true, null);
+				if (app.getSelectedTree().equals(app.getFolderTreeView()))
+					app.updateFolder(folder, true, null);
+				else
+					app.updateOtherSharedFolder(folder, true);
 				hide();
 			}
 		});
@@ -206,7 +209,7 @@ public class FileUploadDialog extends DialogBox {
             return;
         }
         final String fname = getFilename(upload.getFilename());
-        String apath = app.getApiPath() + app.getUsername() + folder.getUri() + "/" + fname;
+        String apath = app.getApiPath() + folder.getOwner() + folder.getUri() + "/" + fname;
         form.setAction(apath);
         submit.setEnabled(false);
         upload.setVisible(false);

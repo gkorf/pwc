@@ -82,33 +82,40 @@ public class FolderContextMenu extends PopupPanel {
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
 
-        if (!folder.isInTrash()) {
-	        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
-	        contextMenu.addItem(newFolder);
+        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
+    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
 
-	        if (!folder.isContainer()) {
-	            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, folder));
-	            contextMenu.addItem(cut);
-	        }
+        if (!folder.isInTrash()) {
+        	if (canWrite) {
+		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
+		        contextMenu.addItem(newFolder);
+
+		        if (!folder.isContainer()) {
+		            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, folder));
+		            contextMenu.addItem(cut);
+		        }
+        	}
 
 	        MenuItem copy = new MenuItem("<span id = 'folderContextMenu.copy'>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, folder));
 	        contextMenu.addItem(copy);
 	
-	        if (!app.getClipboard().isEmpty()) {
-	            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
-	            contextMenu.addItem(pasteItem);
-	        }
+        	if (canWrite) {
+		        if (!app.getClipboard().isEmpty()) {
+		            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
+		            contextMenu.addItem(pasteItem);
+		        }
 
-		    if (!folder.isContainer()) {
-		        MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
-		        contextMenu.addItem(moveToTrash);
-		
-		        MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-		        contextMenu.addItem(delete);
-		
-		        MenuItem properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, newImages, 0));
-		        contextMenu.addItem(properties);
-		    }
+			    if (!folder.isContainer()) {
+			        MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
+			        contextMenu.addItem(moveToTrash);
+			
+			        MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
+			        contextMenu.addItem(delete);
+			
+			        MenuItem properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, newImages, 0));
+			        contextMenu.addItem(properties);
+			    }
+        	}
         }
         else {
         	if (!folder.isTrash()) {

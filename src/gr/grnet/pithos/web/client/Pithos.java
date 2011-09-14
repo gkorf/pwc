@@ -266,6 +266,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     @SuppressWarnings("rawtypes")
 	private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
+    
+    Button upload;
 
 	@Override
 	public void onModuleLoad() {
@@ -295,15 +297,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         rightside.addStyleName("pithos-rightSide");
         rightside.setSpacing(5);
 
-        PushButton parentButton = new PushButton(new Image(images.asc()), new ClickHandler() {
-            @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-
-            }
-        });
-        parentButton.addStyleName("pithos-parentButton");
-        rightside.add(parentButton);
-
         HTML folderStatistics = new HTML("5 Files (size: 1.1GB)");
         folderStatistics.addStyleName("pithos-folderStatistics");
         rightside.add(folderStatistics);
@@ -318,6 +311,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
+                    applyPermissions(folderTreeSelectionModel.getSelectedObject());
                     Folder f = folderTreeSelectionModel.getSelectedObject();
                     updateFolder(f, true, null);
                 }
@@ -337,6 +331,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (mysharedTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
+                    upload.setEnabled(false);
                     updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
                 }
             }
@@ -351,6 +346,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                 if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
+                    applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
                     updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
                 }
             }
@@ -364,10 +360,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         VerticalPanel trees = new VerticalPanel();
 
-        Button upload = new Button("Upload File", new ClickHandler() {
+        upload = new Button("Upload File", new ClickHandler() {
             @Override
             public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                new UploadFileCommand(Pithos.this, null, folderTreeView.getSelection()).execute();
+                new UploadFileCommand(Pithos.this, null, getSelection()).execute();
             }
         });
         upload.addStyleName("pithos-uploadButton");
@@ -422,7 +418,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void applyPermissions(Folder f) {
+    	if (f != null) {
+    		if (f.isInTrash())
+    			upload.setEnabled(false);
+    		else {
+		    	Boolean[] perms = f.getPermissions().get(username);
+		    	if (f.getOwner().equals(username) || (perms != null && perms[1] != null && perms[1])) {
+		    		upload.setEnabled(true);
+		    	}
+		    	else
+		    		upload.setEnabled(false);
+    		}
+    	}
+    	else
+    		upload.setEnabled(false);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void deselectOthers(TreeView _selectedTree, SingleSelectionModel model) {
     	selectedTree = _selectedTree;
         for (SingleSelectionModel s : selectionModels)

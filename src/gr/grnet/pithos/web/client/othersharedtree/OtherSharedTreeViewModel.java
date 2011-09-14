@@ -119,6 +119,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel2);
+                    	app.applyPermissions(null);
                     	app.showFiles(new HashSet<File>());
                     }
                 }
@@ -150,6 +151,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
 	                    if (selectionModel3.getSelectedObject() != null) {
 	                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel3);
+	                    	app.applyPermissions(null);
 	                    	String username = selectionModel3.getSelectedObject();
 	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
 	                    }
