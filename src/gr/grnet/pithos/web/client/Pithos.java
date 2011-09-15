@@ -268,6 +268,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
     
     Button upload;
+    
+    private HTML totalFiles;
+    
+    private HTML usedBytes;
+    
+    private HTML totalBytes;
+    
+    private HTML usedPercent;
 
 	@Override
 	public void onModuleLoad() {
@@ -371,7 +379,21 @@ public class Pithos implements EntryPoint, ResizeHandler {
         
         HorizontalPanel treeHeader = new HorizontalPanel();
         treeHeader.addStyleName("pithos-treeHeader");
-        treeHeader.add(new HTML("Total Files: 6 | Used: 2.1 of 50 GB (4.2%)"));
+        HorizontalPanel statistics = new HorizontalPanel();
+        statistics.add(new HTML("Total Files:&nbsp;"));
+        totalFiles = new HTML();
+        statistics.add(totalFiles);
+        statistics.add(new HTML("&nbsp;|&nbsp;Used:&nbsp;"));
+        usedBytes = new HTML();
+        statistics.add(usedBytes);
+        statistics.add(new HTML("&nbsp;of&nbsp;"));
+        totalBytes = new HTML();
+        statistics.add(totalBytes);
+        statistics.add(new HTML("&nbsp;("));
+        usedPercent = new HTML();
+        statistics.add(usedPercent);
+        statistics.add(new HTML("%)"));
+        treeHeader.add(statistics);
         trees.add(treeHeader);
 
         trees.add(folderTreeView);
@@ -534,6 +556,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 		}
                     folderTreeViewModel.initialize(account);
                     groupTreeViewModel.initialize();
+                    updateStatistics();
                 }
             }
 
@@ -550,7 +573,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
-    protected void createHomeContainer(final AccountResource account) {
+    protected void updateStatistics() {
+    	totalFiles.setHTML(String.valueOf(account.getNumberOfObjects()));
+    	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
+    	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
+    	usedPercent.setHTML(String.valueOf(account.getUsedPercentage()));
+	}
+
+	protected void createHomeContainer(final AccountResource account) {
         String path = "/" + Pithos.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override

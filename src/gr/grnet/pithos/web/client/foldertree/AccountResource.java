@@ -204,14 +204,15 @@ public class AccountResource extends Resource {
         return getSize(bytesUsed , (1024D*1024D*1024D)) + " GB";
     }
 
-    public String getQuotaLeftAsString() {
-        if (bytesRemaining < 1024)
-            return String.valueOf(bytesRemaining) + " B";
-        else if (bytesRemaining < 1024 * 1024)
-            return getSize(bytesRemaining, 1024D) + " KB";
-        else if (bytesRemaining < 1024 * 1024 * 1024)
-            return getSize(bytesRemaining,(1024D * 1024D)) + " MB";
-        return getSize(bytesRemaining , (1024D * 1024D * 1024D)) + " GB";
+    public String getQuotaAsString() {
+    	long quota = bytesUsed + bytesRemaining;
+        if (quota < 1024)
+            return String.valueOf(quota) + " B";
+        else if (quota < 1024 * 1024)
+            return getSize(quota, 1024D) + " KB";
+        else if (quota < 1024 * 1024 * 1024)
+            return getSize(quota,(1024D * 1024D)) + " MB";
+        return getSize(quota , (1024D * 1024D * 1024D)) + " GB";
     }
 
     public List<Group> getGroups() {
@@ -246,5 +247,9 @@ public class AccountResource extends Resource {
 				return c;
 		}
 		return null;
+	}
+
+	public double getUsedPercentage() {
+		return 100.0 * bytesUsed / (bytesUsed + bytesRemaining);
 	}
 }
