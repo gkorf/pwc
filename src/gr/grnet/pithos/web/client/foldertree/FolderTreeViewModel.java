@@ -137,7 +137,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Folder _result) {
                     fetchFolder(iter, callback);
@@ -188,7 +188,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             @Override
             public void execute() {
                 String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                     @Override
                     public void onSuccess(final Folder _result) {
                         if (showfiles)

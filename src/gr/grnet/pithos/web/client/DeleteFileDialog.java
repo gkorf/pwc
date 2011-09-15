@@ -134,7 +134,7 @@ public class DeleteFileDialog extends DialogBox {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
-            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), app.getUsername(), path) {
+            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     deleteFile(iter);

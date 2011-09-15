@@ -754,7 +754,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     public void deleteFolder(final Folder folder) {
-        String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + folder.getPrefix();
+        String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + folder.getPrefix();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
         builder.setHeader("If-Modified-Since", "0");
         builder.setHeader("X-Auth-Token", getToken());
@@ -788,7 +788,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             if (o != null && !o.containsKey("subdir")) {
                 JSONString name = o.get("name").isString();
                 String path = "/" + folder.getContainer() + "/" + name.stringValue();
-                DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), path) {
+                DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
                     @Override
                     public void onSuccess(@SuppressWarnings("unused") Resource result) {
                         deleteObject(folder, i + 1, array);
@@ -867,14 +867,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return folderTreeView;
     }
 
-    public void copyFiles(final Iterator<File> iter, final String targetUri, final Command callback) {
+    public void copyFiles(final Iterator<File> iter, final String targetUsername, final String targetUri, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = targetUri + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(getApiPath(), getUsername(), path) {
+            PutRequest copyFile = new PutRequest(getApiPath(), targetUsername, path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    copyFiles(iter, targetUri, callback);
+                    copyFiles(iter, targetUsername, targetUri, callback);
                 }
 
                 @Override
@@ -896,27 +896,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    public void copySubfolders(final Iterator<Folder> iter, final String targetUri, final Command callback) {
+    public void copySubfolders(final Iterator<Folder> iter, final String targetUsername, final String targetUri, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
-            copyFolder(f, targetUri, callback);
+            copyFolder(f, targetUsername, targetUri, callback);
         }
         else  if (callback != null) {
             callback.execute();
         }
     }
 
-    public void copyFolder(final Folder f, final String targetUri, final Command callback) {
+    public void copyFolder(final Folder f, final String targetUsername, final String targetUri, final Command callback) {
         String path = targetUri + "/" + f.getName();
-        PutRequest createFolder = new PutRequest(getApiPath(), getUsername(), path) {
+        PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
                 Iterator<File> iter = f.getFiles().iterator();
-                copyFiles(iter, targetUri + "/" + f.getName(), new Command() {
+                copyFiles(iter, targetUsername, targetUri + "/" + f.getName(), new Command() {
                     @Override
                     public void execute() {
                         Iterator<Folder> iterf = f.getSubfolders().iterator();
-                        copySubfolders(iterf, targetUri + "/" + f.getName(), new Command() {
+                        copySubfolders(iterf, targetUsername, targetUri + "/" + f.getName(), new Command() {
                             @Override
                             public void execute() {
                                 callback.execute();

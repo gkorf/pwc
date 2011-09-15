@@ -197,7 +197,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
                 	if (!_result.isShared()) {
@@ -250,7 +250,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUsername(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if (showfiles)

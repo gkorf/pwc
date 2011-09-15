@@ -112,7 +112,7 @@ public class VersionsList extends Composite {
 			downloadHtml.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					String fileUrl = app.getApiPath() + app.getUsername() + file.getUri() + "?X-Auth-Token=" + app.getToken() + "&version=" + v.getVersion();
+					String fileUrl = app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + app.getToken() + "&version=" + v.getVersion();
 					Window.open(fileUrl, "_BLANK", "");
 				}
 			});

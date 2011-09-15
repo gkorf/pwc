@@ -153,6 +153,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel3);
 	                    	app.applyPermissions(null);
 	                    	String username = selectionModel3.getSelectedObject();
+	            			if (userDataProviderMap.get(username) == null) {
+	            				userDataProviderMap.put(username, new ListDataProvider<Folder>());
+	            			}
 	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
 	                    }
 	                }

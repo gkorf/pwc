@@ -261,7 +261,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	private void createFolder() {
 		String name = folderName.getText();
         String path = folder.getUri() + "/" + name;
-        PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+        PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
                 app.updateFolder(folder, true, null);
@@ -302,15 +302,15 @@ public class FolderPropertiesDialog extends DialogBox {
         final String newName = folderName.getText().trim();
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
             final String path = folder.getParent().getUri() + "/" + newName;
-            PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     Iterator<File> iter = folder.getFiles().iterator();
-                    app.copyFiles(iter, folder.getParent().getUri() + "/" + newName, new Command() {
+                    app.copyFiles(iter, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                         @Override
                         public void execute() {
                             Iterator<Folder> iterf = folder.getSubfolders().iterator();
-                            app.copySubfolders(iterf, folder.getParent().getUri() + "/" + newName, new Command() {
+                            app.copySubfolders(iterf, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                                 @Override
                                 public void execute() {
                                     app.deleteFolder(folder);
@@ -355,7 +355,7 @@ public class FolderPropertiesDialog extends DialogBox {
                     if (t instanceof RestException) {
                     	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
                             final String path1 = folder.getUri();
-                            PutRequest newFolder = new PutRequest(app.getApiPath(), app.getUsername(), path1) {
+                            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path1) {
                                 @Override
                                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
                                 	updateMetadata(path, newPermissions);

@@ -317,7 +317,7 @@ public class FileList extends Composite {
             	TreeView tree = app.getSelectedTree();
             	if (tree != null && (tree.equals(app.getFolderTreeView()) || tree.equals(app.getOtherSharedTreeView()))) {
 	                Folder selectedFolder = app.getSelection();
-	                FileContextMenu contextMenu = new FileContextMenu(app, images, selectedFolder, getSelectedFiles(), false);
+	                FileContextMenu contextMenu = new FileContextMenu(app, images, tree, selectedFolder, getSelectedFiles(), false);
 	                int x = event.getNativeEvent().getClientX();
 	                int y = event.getNativeEvent().getClientY();
 	                contextMenu.setPopupPosition(x, y);

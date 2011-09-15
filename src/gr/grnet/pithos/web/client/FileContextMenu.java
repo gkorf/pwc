@@ -179,18 +179,27 @@ public class FileContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(final Pithos app, Images newImages, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
+	public FileContextMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
 		setAnimationEnabled(true);
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
+        Boolean[] permissions = null;
+        boolean canWrite = true;
+        if (selectedFolder != null) {
+        	permissions = selectedFolder.getPermissions().get(app.getUsername());
+        	canWrite = selectedFolder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+		}
+        else {
+        	for (File f : selectedFiles) {
+        		permissions = f.getPermissions().get(app.getUsername());
+        		canWrite &= (f.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]));
+        	}
+        }
 
-        Boolean[] permissions = selectedFolder.getPermissions().get(app.getUsername());
-    	boolean canWrite = selectedFolder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-
-        if (!selectedFolder.isInTrash()) {
+        if (selectedFolder != null && !selectedFolder.isInTrash()) {
 	        if (canWrite && app.getClipboard().hasFiles()) {
 	            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
 	            contextMenu.addItem(pasteItem);
@@ -207,7 +216,7 @@ public class FileContextMenu extends PopupPanel {
 			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
             contextMenu.addItem(copyItem);
 
-            if (canWrite) {
+            if (selectedTree.equals(app.getFolderTreeView())) {
 				trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, selectedFiles));
 	            contextMenu.addItem(trashItem);
             }

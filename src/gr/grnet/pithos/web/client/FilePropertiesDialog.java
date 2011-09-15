@@ -398,7 +398,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    updateMetaData(app.getApiPath(), app.getUsername(), path + "?update=", newTags, finalPublished, perms);
+                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newTags, finalPublished, perms);
                 }
 
                 @Override

@@ -74,7 +74,7 @@ public class PasteCommand implements Command {
         if (clipboardItem instanceof Folder) {
             final Folder tobeCopied = (Folder) clipboardItem;
             if (operation == Clipboard.COPY) {
-                app.copyFolder(tobeCopied, folder.getUri(), new Command() {
+                app.copyFolder(tobeCopied, folder.getOwner(), folder.getUri(), new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -83,7 +83,7 @@ public class PasteCommand implements Command {
                 });
             }
             else {
-                app.copyFolder(tobeCopied, folder.getUri(), new Command() {
+                app.copyFolder(tobeCopied, folder.getOwner(), folder.getUri(), new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -98,7 +98,7 @@ public class PasteCommand implements Command {
 			List<File> tobeCopied = (List<File>) clipboardItem;
             Iterator<File> iter = tobeCopied.iterator();
             if (operation == Clipboard.COPY) {
-                app.copyFiles(iter, folder.getUri(), new Command() {
+                app.copyFiles(iter, folder.getOwner(), folder.getUri(), new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -122,7 +122,7 @@ public class PasteCommand implements Command {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = folder.getUri() + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            PutRequest copyFile = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
                     moveFiles(iter, callback);
