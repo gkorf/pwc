@@ -179,7 +179,7 @@ public class FileContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder selectedFolder, List<File> selectedFiles, boolean isTrash) {
+	public FileContextMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder selectedFolder, List<File> selectedFiles) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
@@ -198,35 +198,38 @@ public class FileContextMenu extends PopupPanel {
         		canWrite &= (f.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]));
         	}
         }
-
-        if (selectedFolder != null && !selectedFolder.isInTrash()) {
-	        if (canWrite && app.getClipboard().hasFiles()) {
-	            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
-	            contextMenu.addItem(pasteItem);
-	        }
-
-	        if (canWrite) {
-		        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
-		        contextMenu.addItem(upload);
-	
-				cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, selectedFiles));
-	            contextMenu.addItem(cutItem);
-	        }
-
-			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
-            contextMenu.addItem(copyItem);
-
-            if (selectedTree.equals(app.getFolderTreeView())) {
-				trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, selectedFiles));
-	            contextMenu.addItem(trashItem);
-            }
+        boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
+        if (selectedFolder != null) {
+		    if (!selectedFolder.isInTrash()) {
+		        if (canWrite && app.getClipboard().hasFiles()) {
+		            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
+		            contextMenu.addItem(pasteItem);
+		        }
+		
+		        if (canWrite) {
+			        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
+			        contextMenu.addItem(upload);
+		        }
+		        if (isFolderTreeSelected) {
+					cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, selectedFiles));
+		            contextMenu.addItem(cutItem);
+		        }
+		
+		
+		        if (isFolderTreeSelected) {
+					trashItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, selectedFiles));
+		            contextMenu.addItem(trashItem);
+		        }
+		    }
+		    else {
+				MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, selectedFiles));
+				contextMenu.addItem(restore);
+		    }
         }
-        else {
-			MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, selectedFiles));
-			contextMenu.addItem(restore);
-        }
+		copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
+        contextMenu.addItem(copyItem);
 
-        if (canWrite) {
+        if (isFolderTreeSelected) {
 			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
 	        contextMenu.addItem(deleteItem);
         }
@@ -235,11 +238,11 @@ public class FileContextMenu extends PopupPanel {
 //      contextMenu.addItem(refresh);
 //			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));
 //            contextMenu.addItem(sharingItem);
-        if (!selectedFolder.isInTrash()) {
-        	if (canWrite && selectedFiles.size() == 1)
+        if (selectedFolder != null && !selectedFolder.isInTrash()) {
+        	if (isFolderTreeSelected && selectedFiles.size() == 1)
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, images, 0)));
 
-            if (!selectedFiles.isEmpty())
+            if (selectedFiles.size() == 1)
 			    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + app.getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
         }
 		MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
@@ -251,7 +254,6 @@ public class FileContextMenu extends PopupPanel {
         });
 		contextMenu.addItem(unSelect);
 
-//		}
 		add(contextMenu);
 	}
 }

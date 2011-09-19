@@ -85,7 +85,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
         public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
-                FolderContextMenu menu = new FolderContextMenu(app, MysharedTreeView.images, folder);
+                FolderContextMenu menu = new FolderContextMenu(app, MysharedTreeView.images, app.getSelectedTree(), folder);
                 menu.setPopupPosition(event.getClientX(), event.getClientY());
                 menu.show();
             }

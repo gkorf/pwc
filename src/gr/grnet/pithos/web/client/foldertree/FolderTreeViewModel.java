@@ -89,7 +89,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
-                FolderContextMenu menu = new FolderContextMenu(app, FolderTreeView.images, folder);
+                FolderContextMenu menu = new FolderContextMenu(app, FolderTreeView.images, app.getSelectedTree(), folder);
                 menu.setPopupPosition(event.getClientX(), event.getClientY());
                 menu.show();
             }

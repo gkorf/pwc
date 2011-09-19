@@ -74,7 +74,7 @@ public class FolderContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FolderContextMenu(Pithos app, final Images newImages, Folder folder) {
+	public FolderContextMenu(Pithos app, final Images newImages, TreeView selectedTree, Folder folder) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
@@ -84,13 +84,14 @@ public class FolderContextMenu extends PopupPanel {
 
         Boolean[] permissions = folder.getPermissions().get(app.getUsername());
     	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-
+    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
+    	
         if (!folder.isInTrash()) {
         	if (canWrite) {
 		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
 		        contextMenu.addItem(newFolder);
 
-		        if (!folder.isContainer()) {
+		        if (isFolderTreeSelected && !folder.isContainer()) {
 		            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, folder));
 		            contextMenu.addItem(cut);
 		        }
@@ -105,7 +106,7 @@ public class FolderContextMenu extends PopupPanel {
 		            contextMenu.addItem(pasteItem);
 		        }
 
-			    if (!folder.isContainer()) {
+			    if (isFolderTreeSelected && !folder.isContainer()) {
 			        MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
 			        contextMenu.addItem(moveToTrash);
 			
