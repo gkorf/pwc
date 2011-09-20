@@ -899,7 +899,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
     public void copySubfolders(final Iterator<Folder> iter, final String targetUsername, final String targetUri, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
-            copyFolder(f, targetUsername, targetUri, callback);
+            copyFolder(f, targetUsername, targetUri, new Command() {
+				
+				@Override
+				public void execute() {
+					copySubfolders(iter, targetUsername, targetUri, callback);
+				}
+			});
         }
         else  if (callback != null) {
             callback.execute();
@@ -911,29 +917,42 @@ public class Pithos implements EntryPoint, ResizeHandler {
         PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                Iterator<File> iter = f.getFiles().iterator();
-                copyFiles(iter, targetUsername, targetUri + "/" + f.getName(), new Command() {
-                    @Override
-                    public void execute() {
-                        Iterator<Folder> iterf = f.getSubfolders().iterator();
-                        copySubfolders(iterf, targetUsername, targetUri + "/" + f.getName(), new Command() {
-                            @Override
-                            public void execute() {
-                                callback.execute();
-                            }
-                        });
-                    }
-                });
+            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix(), f) {
+
+					@Override
+					public void onSuccess(final Folder f) {
+		                Iterator<File> iter = f.getFiles().iterator();
+		                copyFiles(iter, targetUsername, targetUri + "/" + f.getName(), new Command() {
+		                    @Override
+		                    public void execute() {
+		                        Iterator<Folder> iterf = f.getSubfolders().iterator();
+		                        copySubfolders(iterf, targetUsername, targetUri + "/" + f.getName(), callback);
+		                    }
+		                });
+					}
+
+					@Override
+					public void onError(Throwable t) {
+		                GWT.log("", t);
+		                if (t instanceof RestException) {
+		                    displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
+		                }
+		                else
+		                    displayError("System error getting folder: " + t.getMessage());
+					}
+				};
+				getFolder.setHeader("X-Auth-Token", getToken());
+				Scheduler.get().scheduleDeferred(getFolder);
             }
 
             @Override
             public void onError(Throwable t) {
                 GWT.log("", t);
                 if (t instanceof RestException) {
-                    displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
+                    displayError("Unable to create folder: " + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    displayError("System error creating folder:" + t.getMessage());
+                    displayError("System error creating folder: " + t.getMessage());
             }
         };
         createFolder.setHeader("X-Auth-Token", getToken());
