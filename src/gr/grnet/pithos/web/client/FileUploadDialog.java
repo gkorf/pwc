@@ -42,7 +42,9 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -153,6 +155,7 @@ public class FileUploadDialog extends DialogBox {
 			@Override
 			public void onSubmit(@SuppressWarnings("unused") SubmitEvent event) {
                 auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
+                Cookies.setCookie("X-Auth-Token", app.getToken(), null, Window.Location.getHostName(), app.getApiPath(), false);
 			}
 		});
 		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
