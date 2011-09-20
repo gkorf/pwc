@@ -34,6 +34,8 @@
  */
 package gr.grnet.pithos.web.client;
 
+import java.util.List;
+
 import gr.grnet.pithos.web.client.commands.CopyCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
@@ -43,6 +45,7 @@ import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -102,8 +105,22 @@ public class FolderContextMenu extends PopupPanel {
 	
         	if (canWrite) {
 		        if (!app.getClipboard().isEmpty()) {
-		            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
-		            contextMenu.addItem(pasteItem);
+		        	Object item = app.getClipboard().getItem();
+		        	boolean showPaste = false;
+		        	if (item instanceof List) {
+		        		List<File> files = (List<File>) item;
+		        		if (files.get(0).getOwner().equals(folder.getOwner()))
+		        			showPaste = true;
+		        	}
+		        	else {
+		        		Folder f = (Folder) item;
+		        		if (f.getOwner().equals(folder.getOwner()))
+		        			showPaste = true;
+		        	}
+		        	if (showPaste) {
+			            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
+			            contextMenu.addItem(pasteItem);
+		        	}
 		        }
 
 			    if (isFolderTreeSelected && !folder.isContainer()) {

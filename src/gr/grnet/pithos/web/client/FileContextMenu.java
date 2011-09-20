@@ -202,8 +202,11 @@ public class FileContextMenu extends PopupPanel {
         if (selectedFolder != null) {
 		    if (!selectedFolder.isInTrash()) {
 		        if (canWrite && app.getClipboard().hasFiles()) {
-		            pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
-		            contextMenu.addItem(pasteItem);
+		        	List<File> files = (List<File>) app.getClipboard().getItem();
+		        	if (files.get(0).getOwner().equals(selectedFolder.getOwner())) {
+		        		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
+		        		contextMenu.addItem(pasteItem);
+		        	}
 		        }
 		
 		        if (canWrite) {
@@ -242,9 +245,9 @@ public class FileContextMenu extends PopupPanel {
         	if (isFolderTreeSelected && selectedFiles.size() == 1)
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, images, 0)));
 
-            if (selectedFiles.size() == 1)
-			    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + app.getUsername() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
         }
+        if (selectedFiles.size() == 1)
+		    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + selectedFiles.get(0).getOwner() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
 		MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
             @Override
             public void execute() {
