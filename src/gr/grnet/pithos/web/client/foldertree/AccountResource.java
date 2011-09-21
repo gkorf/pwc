@@ -168,22 +168,28 @@ public class AccountResource extends Resource {
             }
         }
 
-        JSONValue json = JSONParser.parseStrict(response.getText());
-        JSONArray array = json.isArray();
-        if (array != null) {
-            for (int i=0; i<array.size(); i++) {
-                JSONObject o = array.get(i).isObject();
-                if (o != null) {
-                    Folder f = new Folder();
-                    f.populate(null, o, owner, null);
-                    containers.add(f);
-                }
-            }
+        if (response.getText() != null && response.getText().length() > 0) {
+	        JSONValue json = JSONParser.parseStrict(response.getText());
+	        JSONArray array = json.isArray();
+	        if (array != null) {
+	            for (int i=0; i<array.size(); i++) {
+	                JSONObject o = array.get(i).isObject();
+	                if (o != null) {
+	                    Folder f = new Folder();
+	                    f.populate(null, o, owner, null);
+	                    containers.add(f);
+	                }
+	            }
+	        }
         }
     }
 
-    public static AccountResource createFromResponse(String owner, Response response) {
-        AccountResource a = new AccountResource();
+    public static AccountResource createFromResponse(String owner, Response response, AccountResource result) {
+    	AccountResource a;
+    	if (result == null)
+    		a = new AccountResource();
+    	else
+    		a = result;
         a.populate(owner, response);
         return a;
     }

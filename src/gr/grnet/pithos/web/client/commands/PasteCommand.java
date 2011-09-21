@@ -78,7 +78,13 @@ public class PasteCommand implements Command {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
-                        app.updateFolder(folder, true, null);
+                        app.updateFolder(folder, true, new Command() {
+							
+							@Override
+							public void execute() {
+								app.updateStatistics();
+							}
+						});
                     }
                 });
             }
@@ -102,7 +108,13 @@ public class PasteCommand implements Command {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
-                        app.updateFolder(folder, true, null);
+                        app.updateFolder(folder, true, new Command() {
+							
+							@Override
+							public void execute() {
+								app.updateStatistics();
+							}
+						});
                     }
                 });
             }

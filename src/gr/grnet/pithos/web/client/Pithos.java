@@ -51,6 +51,7 @@ import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.tagtree.Tag;
@@ -380,7 +381,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HorizontalPanel treeHeader = new HorizontalPanel();
         treeHeader.addStyleName("pithos-treeHeader");
         HorizontalPanel statistics = new HorizontalPanel();
-        statistics.add(new HTML("Total Files:&nbsp;"));
+        statistics.add(new HTML("Total Objects:&nbsp;"));
         totalFiles = new HTML();
         statistics.add(totalFiles);
         statistics.add(new HTML("&nbsp;|&nbsp;Used:&nbsp;"));
@@ -435,7 +436,26 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
-                fetchAccount();
+                fetchAccount(new Command() {
+					
+					@Override
+					public void execute() {
+		                if (!account.hasHomeContainer())
+		                    createHomeContainer(account, this);
+		                else if (!account.hasTrashContainer())
+		                	createTrashContainer(this);
+		                else {
+		                	for (Folder f : account.getContainers())
+		                		if (f.getName().equals(Pithos.TRASH_CONTAINER)) {
+		                			trash = f;
+		                			break;
+		                		}
+		                    folderTreeViewModel.initialize(account);
+		                    groupTreeViewModel.initialize();
+		                    showStatistics();
+		                }
+					}
+				});
             }
         });
     }
@@ -537,27 +557,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Window.Location.assign(conf.loginUrl() + "?next=" + Window.Location.getHref());
 	}
 
-	protected void fetchAccount() {
+	protected void fetchAccount(final Command callback) {
         String path = "?format=json";
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), username, path) {
             @Override
             public void onSuccess(AccountResource _result) {
                 account = _result;
-                if (!account.hasHomeContainer())
-                    createHomeContainer(account);
-                else if (!account.hasTrashContainer())
-                	createTrashContainer();
-                else {
-                	for (Folder f : account.getContainers())
-                		if (f.getName().equals(Pithos.TRASH_CONTAINER)) {
-                			trash = f;
-                			break;
-                		}
-                    folderTreeViewModel.initialize(account);
-                    groupTreeViewModel.initialize();
-                    updateStatistics();
-                }
+                if (callback != null)
+                	callback.execute();
             }
 
             @Override
@@ -573,22 +581,43 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
-    protected void updateStatistics() {
+    public void updateStatistics() {
+    	HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), username, "", account) {
+
+			@Override
+			public void onSuccess(AccountResource _result) {
+				showStatistics();
+			}
+
+			@Override
+			public void onError(Throwable t) {
+                GWT.log("Error getting account", t);
+                if (t instanceof RestException)
+                    displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
+                else
+                    displayError("System error fetching user data: " + t.getMessage());
+			}
+		};
+		headAccount.setHeader("X-Auth-Token", token);
+		Scheduler.get().scheduleDeferred(headAccount);
+	}
+
+	protected void showStatistics() {
     	totalFiles.setHTML(String.valueOf(account.getNumberOfObjects()));
     	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
     	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
     	usedPercent.setHTML(String.valueOf(account.getUsedPercentage()));
 	}
 
-	protected void createHomeContainer(final AccountResource account) {
+	protected void createHomeContainer(final AccountResource account, final Command callback) {
         String path = "/" + Pithos.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
             	if (!account.hasTrashContainer())
-            		createTrashContainer();
+            		createTrashContainer(callback);
             	else
-            		fetchAccount();
+            		fetchAccount(callback);
             }
 
             @Override
@@ -604,12 +633,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
-    protected void createTrashContainer() {
+    protected void createTrashContainer(final Command callback) {
         String path = "/" + Pithos.TRASH_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-           		fetchAccount();
+           		fetchAccount(callback);
             }
 
             @Override
@@ -782,7 +811,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    public void deleteObject(final Folder folder, final int i, final JSONArray array) {
+    void deleteObject(final Folder folder, final int i, final JSONArray array) {
         if (i < array.size()) {
             JSONObject o = array.get(i).isObject();
             if (o != null && !o.containsKey("subdir")) {
@@ -842,7 +871,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    updateFolder(folder.getParent(), true, null);
+                    updateFolder(folder.getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							updateStatistics();
+						}
+					});
                 }
 
                 @Override

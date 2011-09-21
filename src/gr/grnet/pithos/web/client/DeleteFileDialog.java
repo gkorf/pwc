@@ -49,6 +49,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
@@ -154,7 +155,13 @@ public class DeleteFileDialog extends DialogBox {
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {
-            app.updateFolder(files.get(0).getParent(), true, null);
+            app.updateFolder(files.get(0).getParent(), true, new Command() {
+				
+				@Override
+				public void execute() {
+					app.updateStatistics();
+				}
+			});
         }
     }
 

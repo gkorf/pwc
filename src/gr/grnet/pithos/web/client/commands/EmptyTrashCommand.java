@@ -79,7 +79,13 @@ public class EmptyTrashCommand implements Command{
 						
 						@Override
 						public void execute() {
-							app.updateTrash(true, null);
+							app.updateTrash(true, new Command() {
+								
+								@Override
+								public void execute() {
+									app.updateStatistics();
+								}
+							});
 						}
 					});
 				}

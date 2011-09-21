@@ -42,6 +42,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -175,7 +176,13 @@ public class FileUploadDialog extends DialogBox {
 					app.displayError(results);
 				}
 				if (app.getSelectedTree().equals(app.getFolderTreeView()))
-					app.updateFolder(folder, true, null);
+					app.updateFolder(folder, true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateStatistics();
+						}
+					});
 				else
 					app.updateOtherSharedFolder(folder, true);
 				hide();

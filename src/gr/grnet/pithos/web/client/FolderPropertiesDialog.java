@@ -264,7 +264,13 @@ public class FolderPropertiesDialog extends DialogBox {
         PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                app.updateFolder(folder, true, null);
+                app.updateFolder(folder, true, new Command() {
+					
+					@Override
+					public void execute() {
+						app.updateStatistics();
+					}
+				});
             }
 
             @Override
