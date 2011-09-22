@@ -274,6 +274,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private HTML totalBytes;
     
     private HTML usedPercent;
+    
+    private HTML numOfFiles;
 
 	@Override
 	public void onModuleLoad() {
@@ -303,8 +305,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
         rightside.addStyleName("pithos-rightSide");
         rightside.setSpacing(5);
 
-        HTML folderStatistics = new HTML("5 Files (size: 1.1GB)");
+        HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
+        numOfFiles = new HTML();
+        folderStatistics.add(numOfFiles);
+        HTML numOfFilesLabel = new HTML("&nbsp;Files");
+        folderStatistics.add(numOfFilesLabel);
         rightside.add(folderStatistics);
         inner.add(rightside);
         inner.setCellHorizontalAlignment(rightside, HasHorizontalAlignment.ALIGN_RIGHT);
@@ -1027,5 +1033,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	
 	public Folder getSelection() {
 		return selectedTree.getSelection();
+	}
+
+	public void showFolderStatistics(int folderFileCount) {
+		numOfFiles.setHTML(String.valueOf(folderFileCount));
 	}
 }
