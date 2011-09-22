@@ -67,7 +67,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		}
 		
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, @SuppressWarnings("unused") String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, null);
                 menu.setPopupPosition(event.getClientX(), event.getClientY());

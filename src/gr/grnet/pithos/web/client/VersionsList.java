@@ -101,7 +101,7 @@ public class VersionsList extends Composite {
 			HTML restoreVersion = new HTML("<a href='#' class='hidden-link info'><span>" + AbstractImagePrototype.create(images.restore()).getHTML() + "</span><div>Restore this Version</div></a>");
 			restoreVersion.addClickHandler(new ClickHandler() {
 				@Override
-				public void onClick(ClickEvent event) {
+				public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 					restoreVersion(v.getVersion());
 				}
 			});
@@ -111,7 +111,7 @@ public class VersionsList extends Composite {
 			HTML downloadHtml = new HTML("<a class='hidden-link info' href='#'><span>" + AbstractImagePrototype.create(images.download()).getHTML()+"</span><div>View this Version</div></a>");
 			downloadHtml.addClickHandler(new ClickHandler() {
 				@Override
-				public void onClick(ClickEvent event) {
+				public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 					String fileUrl = app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + app.getToken() + "&version=" + v.getVersion();
 					Window.open(fileUrl, "_BLANK", "");
 				}
@@ -131,7 +131,7 @@ public class VersionsList extends Composite {
 		PostRequest restoreVersion = new PostRequest(app.getApiPath(), file.getOwner(), path) {
 			
 			@Override
-			public void onSuccess(Resource result) {
+			public void onSuccess(@SuppressWarnings("unused") Resource result) {
 				container.hide();
 			}
 			

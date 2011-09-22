@@ -44,7 +44,6 @@ import gr.grnet.pithos.web.client.rest.RestException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -77,7 +76,7 @@ public class RemoveUserCommand implements Command {
     	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
 			
 			@Override
-			public void onSuccess(Resource result) {
+			public void onSuccess(@SuppressWarnings("unused") Resource result) {
 				app.updateGroupNode(group);
 			}
 			

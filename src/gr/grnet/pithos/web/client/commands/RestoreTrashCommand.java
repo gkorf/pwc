@@ -111,7 +111,7 @@ public class RestoreTrashCommand implements Command {
 								DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), f.getOwner(), f.getUri()) {
 									
 									@Override
-									public void onSuccess(Resource result) {
+									public void onSuccess(@SuppressWarnings("unused") Resource _result) {
 										if (callback != null)
 											callback.execute();
 									}

@@ -110,7 +110,7 @@ public class EmptyTrashCommand implements Command{
 							DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
 								
 								@Override
-								public void onSuccess(Resource result) {
+								public void onSuccess(@SuppressWarnings("unused") Resource result) {
 									deleteSubfolder(iter2, callback);
 								}
 								
@@ -144,7 +144,7 @@ public class EmptyTrashCommand implements Command{
 			DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
 				
 				@Override
-				public void onSuccess(Resource result) {
+				public void onSuccess(@SuppressWarnings("unused") Resource result) {
 					deleteFile(iter, callback);
 				}
 				

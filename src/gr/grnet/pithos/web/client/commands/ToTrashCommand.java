@@ -34,23 +34,19 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import com.google.gwt.core.client.Scheduler;
-
-import gr.grnet.pithos.web.client.DeleteFolderDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.Iterator;
 import java.util.List;
 
-
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -115,7 +111,7 @@ public class ToTrashCommand implements Command{
 								DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), f.getOwner(), f.getUri()) {
 									
 									@Override
-									public void onSuccess(Resource result) {
+									public void onSuccess(@SuppressWarnings("unused") Resource _result) {
 										if (callback != null)
 											callback.execute();
 									}

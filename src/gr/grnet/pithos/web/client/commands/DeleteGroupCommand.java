@@ -54,7 +54,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 public class DeleteGroupCommand implements Command {
 	private PopupPanel containerPanel;
 
-    private Group group;
+    Group group;
 
     Pithos app;
     
@@ -76,7 +76,7 @@ public class DeleteGroupCommand implements Command {
         	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
 				
 				@Override
-				public void onSuccess(Resource result) {
+				public void onSuccess(@SuppressWarnings("unused") Resource result) {
 					app.removeGroup(group);
 				}
 				

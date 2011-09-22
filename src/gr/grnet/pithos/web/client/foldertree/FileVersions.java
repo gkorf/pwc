@@ -1,14 +1,11 @@
 package gr.grnet.pithos.web.client.foldertree;
 
-import gr.grnet.pithos.web.client.SharingUsers;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 

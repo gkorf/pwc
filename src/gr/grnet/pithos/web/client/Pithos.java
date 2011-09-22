@@ -44,7 +44,6 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeViewModel;
-import gr.grnet.pithos.web.client.grouptree.User;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeViewModel;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
@@ -95,8 +94,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -257,13 +254,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private TagTreeViewModel tagTreeViewModel;
     private TagTreeView tagTreeView;
 
-    private GroupTreeViewModel groupTreeViewModel;
+    GroupTreeViewModel groupTreeViewModel;
     private GroupTreeView groupTreeView;
 
     private TreeView selectedTree;
     protected AccountResource account;
     
-    private Folder trash;
+    Folder trash;
 
     @SuppressWarnings("rawtypes")
 	private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
@@ -585,7 +582,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), username, "", account) {
 
 			@Override
-			public void onSuccess(AccountResource _result) {
+			public void onSuccess(@SuppressWarnings("unused") AccountResource _result) {
 				showStatistics();
 			}
 
@@ -609,12 +606,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	usedPercent.setHTML(String.valueOf(account.getUsedPercentage()));
 	}
 
-	protected void createHomeContainer(final AccountResource account, final Command callback) {
+	protected void createHomeContainer(final AccountResource _account, final Command callback) {
         String path = "/" + Pithos.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-            	if (!account.hasTrashContainer())
+            	if (!_account.hasTrashContainer())
             		createTrashContainer(callback);
             	else
             		fetchAccount(callback);
@@ -955,13 +952,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
             	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix(), f) {
 
 					@Override
-					public void onSuccess(final Folder f) {
-		                Iterator<File> iter = f.getFiles().iterator();
-		                copyFiles(iter, targetUsername, targetUri + "/" + f.getName(), new Command() {
+					public void onSuccess(final Folder _f) {
+		                Iterator<File> iter = _f.getFiles().iterator();
+		                copyFiles(iter, targetUsername, targetUri + "/" + _f.getName(), new Command() {
 		                    @Override
 		                    public void execute() {
-		                        Iterator<Folder> iterf = f.getSubfolders().iterator();
-		                        copySubfolders(iterf, targetUsername, targetUri + "/" + f.getName(), callback);
+		                        Iterator<Folder> iterf = _f.getSubfolders().iterator();
+		                        copySubfolders(iterf, targetUsername, targetUri + "/" + _f.getName(), callback);
 		                    }
 		                });
 					}

@@ -35,6 +35,9 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
+import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.TreeView;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
@@ -46,8 +49,6 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
-import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.TreeView;
 
 public class FolderTreeView extends Composite implements TreeView {
 
@@ -143,7 +144,8 @@ public class FolderTreeView extends Composite implements TreeView {
     }
 
 
-    public Folder getSelection() {
+    @Override
+	public Folder getSelection() {
        return model.getSelection();
     }
 

@@ -35,9 +35,6 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.commands.AddUserCommand;
-import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
-import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
 import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Images;
 

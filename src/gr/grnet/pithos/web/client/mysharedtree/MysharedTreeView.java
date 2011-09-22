@@ -141,7 +141,8 @@ public class MysharedTreeView extends Composite implements TreeView {
     }
 
 
-    public Folder getSelection() {
+    @Override
+	public Folder getSelection() {
        return model.getSelection();
     }
 

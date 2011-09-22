@@ -368,13 +368,13 @@ public class FolderPropertiesDialog extends DialogBox {
                                 }
 
                                 @Override
-                                public void onError(Throwable t) {
-                                    GWT.log("", t);
-                                    if(t instanceof RestException){
-                                        app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
+                                public void onError(Throwable _t) {
+                                    GWT.log("", _t);
+                                    if(_t instanceof RestException){
+                                        app.displayError("Unable to update folder: " + ((RestException) _t).getHttpStatusText());
                                     }
                                     else
-                                        app.displayError("System error modifying folder: " + t.getMessage());
+                                        app.displayError("System error modifying folder: " + _t.getMessage());
                                 }
                             };
                             newFolder.setHeader("X-Auth-Token", app.getToken());

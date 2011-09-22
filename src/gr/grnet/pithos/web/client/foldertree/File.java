@@ -35,18 +35,16 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import com.google.gwt.http.client.Header;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.json.client.JSONObject;
-
-import gr.grnet.pithos.web.client.Pithos;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.gwt.http.client.Header;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.json.client.JSONObject;
 
 public class File extends Resource {
     private String name;

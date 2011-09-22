@@ -51,8 +51,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
@@ -360,7 +358,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         return permPanel;
     }
 
-    private VerticalPanel createVersionPanel(List<Version> versions) {
+    VerticalPanel createVersionPanel(List<Version> versions) {
         VerticalPanel versionPanel = new VerticalPanel();
         VersionsList verList = new VersionsList(app, this, images, file, versions);
         versionPanel.add(verList);
@@ -464,7 +462,4 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         else
             app.updateFolder(file.getParent(), true, null);
     }
-
-	private void removeAllOldVersions() {
-	}
 }
