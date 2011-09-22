@@ -72,7 +72,7 @@ public class TagTreeView extends Composite {
 
     static interface Images extends Tree.Resources, FolderContextMenu.Images {
 
-        @Source("gr/grnet/pithos/resources/folder_home.png")
+        @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
         @Source("gr/grnet/pithos/resources/info.png")

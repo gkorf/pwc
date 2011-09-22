@@ -96,10 +96,10 @@ public class OtherSharedTreeView extends Composite implements TreeView {
 
     public static interface Images extends Tree.Resources, FolderContextMenu.Images {
 
-        @Source("gr/grnet/pithos/resources/folder_home.png")
+        @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/2folder22.png")
+        @Source("gr/grnet/pithos/resources/folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")

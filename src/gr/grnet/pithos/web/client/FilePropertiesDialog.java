@@ -86,7 +86,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		@Source("gr/grnet/pithos/resources/edit_user.png")
 		ImageResource permUser();
 
-		@Source("gr/grnet/pithos/resources/groupevent.png")
+		@Source("gr/grnet/pithos/resources/groups22.png")
 		ImageResource permGroup();
 
 		@Source("gr/grnet/pithos/resources/editdelete.png")

@@ -97,7 +97,7 @@ public class FileContextMenu extends PopupPanel {
 		@Source("gr/grnet/pithos/resources/doc_versions.png")
 		ImageResource versions();
 
-		@Source("gr/grnet/pithos/resources/group.png")
+		@Source("gr/grnet/pithos/resources/groups22.png")
 		ImageResource sharing();
 
 		@Source("gr/grnet/pithos/resources/border_remove.png")
@@ -118,7 +118,7 @@ public class FileContextMenu extends PopupPanel {
         @Source("gr/grnet/pithos/resources/folder_inbox.png")
         ImageResource download();
 
-        @Source("gr/grnet/pithos/resources/trashcan_empty.png")
+        @Source("gr/grnet/pithos/resources/trash.png")
         ImageResource emptyTrash();
 
         @Source("gr/grnet/pithos/resources/refresh.png")

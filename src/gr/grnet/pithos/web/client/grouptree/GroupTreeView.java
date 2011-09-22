@@ -99,10 +99,10 @@ public class GroupTreeView extends Composite {
 
     public static interface Images extends Tree.Resources, FolderContextMenu.Images {
 
-        @Source("gr/grnet/pithos/resources/groupevent.png")
+        @Source("gr/grnet/pithos/resources/groups22.png")
         ImageResource groups();
 
-        @Source("gr/grnet/pithos/resources/group.png")
+        @Source("gr/grnet/pithos/resources/groups22.png")
         public ImageResource group();
 
         @Source("gr/grnet/pithos/resources/edit_user.png")
