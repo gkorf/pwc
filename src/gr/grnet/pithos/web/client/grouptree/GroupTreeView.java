@@ -36,6 +36,8 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
@@ -48,7 +50,7 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 
-public class GroupTreeView extends Composite {
+public class GroupTreeView extends Composite implements TreeView {
 
     public void updateChildren(Group group) {
         TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
@@ -138,4 +140,14 @@ public class GroupTreeView extends Composite {
     	model.updateGroupNode(group);
     	updateChildren(group);
     }
+
+	@Override
+	public Folder getSelection() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object getSelected() {
+		return model.getSelectedObject();
+	}
 }

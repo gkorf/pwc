@@ -224,12 +224,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	private Object currentSelection;
 
-
-	/**
-	 * The WebDAV password of the current user
-	 */
-	private String webDAVPassword;
-
 	public HashMap<String, String> userFullNameMap = new HashMap<String, String>();
 
     private String username = null;
@@ -277,6 +271,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private HTML usedPercent;
     
     private HTML numOfFiles;
+    
+    private Button toolsButton;
 
 	@Override
 	public void onModuleLoad() {
@@ -306,14 +302,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
         rightside.addStyleName("pithos-rightSide");
         rightside.setSpacing(5);
 
-        Image toolsButton = AbstractImagePrototype.create(images.tools()).createImage();
+        toolsButton = new Button(AbstractImagePrototype.create(images.tools()).getHTML());
         toolsButton.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
                 ToolsMenu menu = new ToolsMenu(Pithos.this, images, getSelectedTree(), getSelectedTree().getSelection(), getFileList().getSelectedFiles());
-                menu.setPopupPosition(event.getClientX(), event.getClientY());
-                menu.show();
+                if (!menu.isEmpty()) {
+		            menu.setPopupPosition(event.getClientX(), event.getClientY());
+		            menu.show();
+                }
 			}
 		});
         rightside.add(toolsButton);
@@ -765,10 +763,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return token;
 	}
 
-	public String getWebDAVPassword() {
-		return webDAVPassword;
-	}
-
 	public static native void preventIESelection() /*-{
 		$doc.body.onselectstart = function () { return false; };
 	}-*/;
@@ -1052,5 +1046,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public void showFolderStatistics(int folderFileCount) {
 		numOfFiles.setHTML(String.valueOf(folderFileCount));
+	}
+
+	public GroupTreeView getGroupTreeView() {
+		return groupTreeView;
 	}
 }

@@ -34,18 +34,25 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.commands.AddUserCommand;
 import gr.grnet.pithos.web.client.commands.CopyCommand;
+import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
+import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
 import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RefreshCommand;
+import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.grouptree.Group;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
+import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
@@ -69,11 +76,13 @@ public class ToolsMenu extends PopupPanel {
 	 * The image bundle for this widget's images that reuses images defined in
 	 * other menus.
 	 */
-	public interface Images extends FolderContextMenu.Images {
+	public interface Images extends GroupTreeView.Images {
 	}
 
 	private MenuItem pasteItem;
 
+	private boolean empty = false;;
+	
 	/**
 	 * The widget's constructor.
 	 *
@@ -192,7 +201,33 @@ public class ToolsMenu extends PopupPanel {
 	    			contextMenu.addItem(emptyTrash);
 	        	}
 	        }
-			add(contextMenu);
         }
+        else {
+        	Object o = app.getGroupTreeView().getSelected();
+        	if (o != null) {
+	        	if (o instanceof User) {
+	                MenuItem removeUser = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Remove User</span>", true, new RemoveUserCommand(app, this, (User) o));
+	                contextMenu.addItem(removeUser);
+	        	}
+	        	else if (o instanceof Group) {
+	    	        MenuItem addUser = new MenuItem("<span>" + AbstractImagePrototype.create(images.user()).getHTML() + "&nbsp;Add User</span>", true, new AddUserCommand(app, this, (Group) o));
+	    	        contextMenu.addItem(addUser);
+	    	
+	    	        MenuItem deleteGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete Group</span>", true, new DeleteGroupCommand(app, this, (Group) o));
+	    	        contextMenu.addItem(deleteGroup);
+	        	}
+	        	else {
+	    	        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
+	    	        contextMenu.addItem(createGroup);
+	        	}
+        	}
+        	else
+        		empty = true;
+        }
+		add(contextMenu);
+	}
+	
+	public boolean isEmpty() {
+		return empty;
 	}
 }
