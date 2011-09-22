@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import java.util.List;
-
 import gr.grnet.pithos.web.client.commands.CopyCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
@@ -43,10 +41,13 @@ import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
+import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+
+import java.util.List;
 
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -88,7 +89,13 @@ public class FolderContextMenu extends PopupPanel {
         Boolean[] permissions = folder.getPermissions().get(app.getUsername());
     	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
     	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
+    	boolean otherSharedTreeSelected = selectedTree.equals(app.getOtherSharedTreeView());
     	
+    	if (isFolderTreeSelected || otherSharedTreeSelected) {
+	    	MenuItem refresh = new MenuItem("<span id = 'folderContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(app, this, folder));
+	        contextMenu.addItem(refresh);
+    	}
+
         if (!folder.isInTrash()) {
         	if (canWrite) {
 		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
@@ -148,14 +155,6 @@ public class FolderContextMenu extends PopupPanel {
     			contextMenu.addItem(emptyTrash);
         	}
         }
-
-//        MenuItem refresh = new MenuItem("<span id = 'folderContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
-//        contextMenu.addItem(refresh);
-
-//        MenuItem sharing = new MenuItem("<span id = 'folderContextMenu.sharing'>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, newImages, 1));
-//        contextMenu.addItem(sharing);
-
-
 		add(contextMenu);
 	}
 }
