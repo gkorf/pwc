@@ -204,6 +204,7 @@ table.pithos-permList.props-labels {
 
 .pithos-rightSide {
     vertical-align: middle;
+    width: 100%;
 }
 .pithos-parentButton {
     background: none;

@@ -94,6 +94,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -113,7 +114,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Instantiate an application-level image bundle. This object will provide
 	 * programmatic access to all the images needed by widgets.
 	 */
-	private static Images images = (Images) GWT.create(Images.class);
+	static Images images = (Images) GWT.create(Images.class);
 
     public String getUsername() {
         return username;
@@ -169,7 +170,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * An aggregate image bundle that pulls together all the images for this
 	 * application into a single bundle.
 	 */
-	public interface Images extends TopPanel.Images, FileList.Images {
+	public interface Images extends TopPanel.Images, FileList.Images, ToolsMenu.Images {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
@@ -177,8 +178,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		@Source("gr/grnet/pithos/resources/edit_group_22.png")
 		ImageResource groups();
 
-		@Source("gr/grnet/pithos/resources/search.png")
-		ImageResource search();
+		@Source("gr/grnet/pithos/resources/advancedsettings.png")
+		ImageResource tools();
 	}
 
 	/**
@@ -305,6 +306,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
         rightside.addStyleName("pithos-rightSide");
         rightside.setSpacing(5);
 
+        Image toolsButton = AbstractImagePrototype.create(images.tools()).createImage();
+        toolsButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+                ToolsMenu menu = new ToolsMenu(Pithos.this, images, getSelectedTree(), getSelectedTree().getSelection(), getFileList().getSelectedFiles());
+                menu.setPopupPosition(event.getClientX(), event.getClientY());
+                menu.show();
+			}
+		});
+        rightside.add(toolsButton);
+        rightside.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_LEFT);
+        
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
         numOfFiles = new HTML();
@@ -312,8 +326,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HTML numOfFilesLabel = new HTML("&nbsp;Files");
         folderStatistics.add(numOfFilesLabel);
         rightside.add(folderStatistics);
+        rightside.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
+
         inner.add(rightside);
-        inner.setCellHorizontalAlignment(rightside, HasHorizontalAlignment.ALIGN_RIGHT);
         inner.setCellVerticalAlignment(rightside, HasVerticalAlignment.ALIGN_MIDDLE);
         inner.setCellHeight(rightside, "60px");
 

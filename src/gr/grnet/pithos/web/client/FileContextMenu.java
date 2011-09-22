@@ -237,10 +237,6 @@ public class FileContextMenu extends PopupPanel {
 	        contextMenu.addItem(deleteItem);
         }
 
-//      MenuItem refresh = new MenuItem("<span>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(this, images));
-//      contextMenu.addItem(refresh);
-//			sharingItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(this, images, 1));
-//            contextMenu.addItem(sharingItem);
         if (selectedFolder != null && !selectedFolder.isInTrash()) {
         	if (isFolderTreeSelected && selectedFiles.size() == 1)
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, images, 0)));
@@ -248,14 +244,6 @@ public class FileContextMenu extends PopupPanel {
         }
         if (selectedFiles.size() == 1)
 		    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + selectedFiles.get(0).getOwner() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
-		MenuItem unSelect = new MenuItem("<span>" + AbstractImagePrototype.create(images.unselectAll()).getHTML() + "&nbsp;Unselect</span>", true, new Command() {
-            @Override
-            public void execute() {
-                hide();
-                app.getFileList().clearSelectedRows();
-            }
-        });
-		contextMenu.addItem(unSelect);
 
 		add(contextMenu);
 	}
