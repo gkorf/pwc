@@ -46,6 +46,9 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 public abstract class GetRequest<T extends Resource> implements ScheduledCommand {
 
@@ -59,8 +62,6 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     private int okCode;
     
-    protected T cached;
-
     protected T result;
 
     private Map<String, String> headers = new HashMap<String, String>();
@@ -88,8 +89,11 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     @Override
     public void execute() {
+    	if (path.contains("?"))
+    		path += "&t=" + System.currentTimeMillis();
+    	else
+    		path += "?t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
-        builder.setHeader("If-Modified-Since", "0");
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
@@ -108,9 +112,9 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
                 @Override
                 public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     if (throwable instanceof RestException) {
-                        if (((RestException) throwable).getHttpStatusCode() == 304 && cached != null){
-                            GWT.log("Using cache: " + cached.toString(), null);
-                            onSuccess(cached);
+                        if (((RestException) throwable).getHttpStatusCode() == 304 && result != null){
+                            GWT.log("Using cache: " + result.toString(), null);
+                            onSuccess(result);
                             return;
                         }
                     }

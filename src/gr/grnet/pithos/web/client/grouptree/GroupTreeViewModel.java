@@ -37,7 +37,6 @@ package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeViewModel;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
 
 import java.util.HashMap;
@@ -71,7 +70,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		}
 		
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, @SuppressWarnings("unused") String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
+        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
             GroupTreeViewModel.this.rootSelectionModel.setSelected(s, true);
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, null);

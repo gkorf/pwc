@@ -3,6 +3,7 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.http.client.Response;
@@ -40,5 +41,10 @@ public class SharingUsers extends Resource {
 
 	public List<String> getUsers() {
 		return users;
+	}
+
+	@Override
+	public Date getLastModified() {
+		return null;
 	}
 }

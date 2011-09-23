@@ -38,6 +38,7 @@ package gr.grnet.pithos.web.client.tagtree;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -146,4 +147,9 @@ public class Tag extends Resource {
     public Set<File> getFiles() {
         return files;
     }
+
+	@Override
+	public Date getLastModified() {
+		return null;
+	}
 }

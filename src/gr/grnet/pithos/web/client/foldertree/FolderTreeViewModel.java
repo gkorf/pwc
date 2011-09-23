@@ -49,9 +49,9 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
@@ -137,7 +137,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
-            String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+            String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Folder _result) {
@@ -190,45 +190,40 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
-        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+        String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
-            public void execute() {
-                String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
-                GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
+            public void onSuccess(final Folder _result) {
+                if (showfiles)
+                    app.showFiles(_result);
+                Iterator<Folder> iter = _result.getSubfolders().iterator();
+                fetchFolder(iter, new Command() {
                     @Override
-                    public void onSuccess(final Folder _result) {
-                        if (showfiles)
-                            app.showFiles(_result);
-                        Iterator<Folder> iter = _result.getSubfolders().iterator();
-                        fetchFolder(iter, new Command() {
-                            @Override
-                            public void execute() {
-                                dataProvider.getList().clear();
-                                dataProvider.getList().addAll(_result.getSubfolders());
-                                app.getFolderTreeView().updateChildren(f);
-                                if (callback != null)
-                                	callback.execute();
-                            }
-                        });
+                    public void execute() {
+                        dataProvider.getList().clear();
+                        dataProvider.getList().addAll(_result.getSubfolders());
+                        app.getFolderTreeView().updateChildren(f);
+                        if (callback != null)
+                        	callback.execute();
                     }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        GWT.log("Error getting folder", t);
-                        if (t instanceof RestException)
-                            app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                        else
-                            app.displayError("System error fetching folder: " + t.getMessage());
-                    }
-
-    				@Override
-    				protected void onUnauthorized(Response response) {
-    					app.sessionExpired();
-    				}
-                };
-                getFolder.setHeader("X-Auth-Token", app.getToken());
-                Scheduler.get().scheduleDeferred(getFolder);
+                });
             }
-        });
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("Error getting folder", t);
+                if (t instanceof RestException)
+                    app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+                else
+                    app.displayError("System error fetching folder: " + t.getMessage());
+            }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
+        };
+        getFolder.setHeader("X-Auth-Token", app.getToken());
+        Scheduler.get().scheduleDeferred(getFolder);
     }
 }

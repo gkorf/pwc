@@ -45,7 +45,7 @@ import gr.grnet.pithos.web.client.SharingUsers;
 
 import java.util.Date;
 
-public class Resource {
+public abstract class Resource {
 
     protected static String unmarshallString(JSONObject obj, String key){
         if(obj.get(key) != null) {
@@ -112,4 +112,6 @@ public class Resource {
         }
         return result1;
     }
+    
+    public abstract Date getLastModified();
 }

@@ -76,6 +76,9 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -94,7 +97,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -174,9 +176,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 		@Source("gr/grnet/pithos/resources/document.png")
 		ImageResource folders();
-
-		@Source("gr/grnet/pithos/resources/edit_group_22.png")
-		ImageResource groups();
 
 		@Source("gr/grnet/pithos/resources/advancedsettings.png")
 		ImageResource tools();
@@ -820,9 +819,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     public void deleteFolder(final Folder folder) {
-        String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + folder.getPrefix();
+        String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(folder.getPrefix()) + "&t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-        builder.setHeader("If-Modified-Since", "0");
         builder.setHeader("X-Auth-Token", getToken());
         try {
             builder.sendRequest("", new RequestCallback() {
@@ -877,9 +875,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             else if (o != null) {
                 String subdir = o.get("subdir").isString().stringValue();
                 subdir = subdir.substring(0, subdir.length() - 1);
-                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + subdir;
+                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(subdir) + "&t=" + System.currentTimeMillis();
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-                builder.setHeader("If-Modified-Since", "0");
                 builder.setHeader("X-Auth-Token", getToken());
                 try {
                     builder.sendRequest("", new RequestCallback() {
@@ -1004,7 +1001,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix(), f) {
+            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 
 					@Override
 					public void onSuccess(final Folder _f) {

@@ -38,4 +38,9 @@ public class FileVersions extends Resource {
             }
         }
 	}
+
+	@Override
+	public Date getLastModified() {
+		return null;
+	}
 }

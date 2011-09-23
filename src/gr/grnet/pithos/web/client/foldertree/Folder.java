@@ -96,7 +96,8 @@ public class Folder extends Resource {
         return name;
     }
 
-    public Date getLastModified() {
+    @Override
+	public Date getLastModified() {
         return lastModified;
     }
 

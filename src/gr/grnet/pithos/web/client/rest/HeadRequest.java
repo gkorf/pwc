@@ -46,6 +46,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 
 public abstract class HeadRequest<T extends Resource> implements ScheduledCommand {
 
@@ -88,8 +89,11 @@ public abstract class HeadRequest<T extends Resource> implements ScheduledComman
 
     @Override
     public void execute() {
+    	if (path.contains("?"))
+    		path += "&t=" + System.currentTimeMillis();
+    	else
+    		path += "?t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.HEAD, api + owner + path);
-        builder.setHeader("If-Modified-Since", "0");
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }

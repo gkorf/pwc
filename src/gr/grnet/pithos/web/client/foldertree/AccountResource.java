@@ -100,7 +100,8 @@ public class AccountResource extends Resource {
         this.lastLogin = lastLogin;
     }
 
-    public Date getLastModified() {
+    @Override
+	public Date getLastModified() {
         return lastModified;
     }
 

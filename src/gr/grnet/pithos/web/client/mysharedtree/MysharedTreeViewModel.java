@@ -58,6 +58,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
@@ -197,7 +198,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
-            String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+            String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
@@ -255,7 +256,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
-        String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + f.getPrefix();
+        String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {

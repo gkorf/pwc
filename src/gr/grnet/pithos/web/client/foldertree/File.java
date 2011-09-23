@@ -89,7 +89,8 @@ public class File extends Resource {
         return hash;
     }
 
-    public Date getLastModified() {
+    @Override
+	public Date getLastModified() {
         return lastModified;
     }
 
