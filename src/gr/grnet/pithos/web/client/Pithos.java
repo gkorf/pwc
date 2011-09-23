@@ -1104,6 +1104,5 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public void sessionExpired() {
 		new SessionExpiredDialog(this).center();
-		authenticateUser();
 	}
 }
