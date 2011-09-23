@@ -60,6 +60,8 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
         try {
             if (response.getStatusCode() == HTTP_OK || (okcode !=-1 && response.getStatusCode() == okcode))
                 onSuccess(deserialize(response));
+            else if (response.getStatusCode() == Response.SC_UNAUTHORIZED)
+            	onUnauthorized(response);
             else {
                 String statusText = "";
                 String text = "";
@@ -84,4 +86,6 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
     public abstract void onSuccess(T result);
 
     public abstract T deserialize(Response response);
+    
+    public abstract void onUnauthorized(Response response);
 }

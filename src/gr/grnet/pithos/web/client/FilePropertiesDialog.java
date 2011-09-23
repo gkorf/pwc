@@ -51,6 +51,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
@@ -186,6 +187,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 }
                 else
                     app.displayError("System error unable to fetch versions: "+t.getMessage());
+			}
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
 			}
 		};
 		getVersions.setHeader("X-Auth-Token", app.getToken());
@@ -404,6 +410,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                     GWT.log("", t);
                     app.displayError("System error modifying file:" + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
             updateFile.setHeader("X-Move-From", file.getUri());
@@ -427,6 +438,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                     GWT.log("", t);
                     app.displayError("System error modifying file:" + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
             if (newTags != null)

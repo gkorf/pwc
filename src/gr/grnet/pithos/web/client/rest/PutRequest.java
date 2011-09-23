@@ -121,13 +121,20 @@ public abstract class PutRequest implements ScheduledCommand {
                 public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
                     PutRequest.this.onError(throwable);
                 }
+
+				@Override
+				public void onUnauthorized(Response response) {
+					PutRequest.this.onUnauthorized(response);
+				}
             });
         }
         catch (RequestException e) {
         }
     }
 
-    public void setHeader(String header, String value) {
+    protected abstract void onUnauthorized(Response response);
+
+	public void setHeader(String header, String value) {
         headers.put(header, value);
     }
 }

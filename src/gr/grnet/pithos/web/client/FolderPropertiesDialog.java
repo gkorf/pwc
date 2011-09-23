@@ -282,7 +282,12 @@ public class FolderPropertiesDialog extends DialogBox {
 				else
 					app.displayError("System error creating folder:" + t.getMessage());
             }
-        };
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
+       };
         createFolder.setHeader("X-Auth-Token", app.getToken());
         createFolder.setHeader("Accept", "*/*");
         createFolder.setHeader("Content-Length", "0");
@@ -336,6 +341,11 @@ public class FolderPropertiesDialog extends DialogBox {
                     else
                         app.displayError("System error modifying folder: " + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             newFolder.setHeader("X-Auth-Token", app.getToken());
             newFolder.setHeader("Content-Type", "application/folder");
@@ -376,6 +386,11 @@ public class FolderPropertiesDialog extends DialogBox {
                                     else
                                         app.displayError("System error modifying folder: " + _t.getMessage());
                                 }
+
+                				@Override
+                				protected void onUnauthorized(Response response) {
+                					app.sessionExpired();
+                				}
                             };
                             newFolder.setHeader("X-Auth-Token", app.getToken());
                             newFolder.setHeader("Content-Type", "application/folder");
@@ -387,6 +402,11 @@ public class FolderPropertiesDialog extends DialogBox {
                     else
                     	app.displayError("System error modifying folder: " + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             updateFolder.setHeader("X-Auth-Token", app.getToken());
             String readPermHeader = "read=";

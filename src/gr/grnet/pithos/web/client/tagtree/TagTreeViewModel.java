@@ -54,6 +54,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
@@ -162,6 +163,11 @@ public class TagTreeViewModel implements TreeViewModel {
                     else
                         app.displayError("System error fetching folder: " + th.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());
             Scheduler.get().scheduleDeferred(getFolder);

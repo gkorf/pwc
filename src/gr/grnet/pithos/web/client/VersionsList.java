@@ -146,6 +146,11 @@ public class VersionsList extends Composite {
                 else
                     app.displayError("System error unable to restore versions: "+t.getMessage());
 			}
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
 		};
 		restoreVersion.setHeader("X-Auth-Token", app.getToken());
 		restoreVersion.setHeader("X-Source-Object", file.getUri());

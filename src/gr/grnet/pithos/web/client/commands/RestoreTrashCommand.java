@@ -47,6 +47,7 @@ import gr.grnet.pithos.web.client.rest.RestException;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -125,6 +126,11 @@ public class RestoreTrashCommand implements Command {
 					                    else
 					                        app.displayError("System error unable to delete folder: "+t.getMessage());
 									}
+
+									@Override
+									protected void onUnauthorized(Response response) {
+										app.sessionExpired();
+									}
 								};
 								deleteFolder.setHeader("X-Auth-Token", app.getToken());
 								Scheduler.get().scheduleDeferred(deleteFolder);
@@ -143,6 +149,11 @@ public class RestoreTrashCommand implements Command {
                 else
                     app.displayError("System error creating folder:" + t.getMessage());
             }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
         };
         createFolder.setHeader("X-Auth-Token", app.getToken());
         createFolder.setHeader("Accept", "*/*");
@@ -170,6 +181,11 @@ public class RestoreTrashCommand implements Command {
                     else
                         app.displayError("System error unable to copy file: "+t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             untrashFile.setHeader("X-Auth-Token", app.getToken());
             untrashFile.setHeader("X-Move-From", file.getUri());

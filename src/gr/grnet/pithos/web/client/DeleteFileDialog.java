@@ -49,6 +49,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -150,6 +151,11 @@ public class DeleteFileDialog extends DialogBox {
                     else
                         app.displayError("System error unable to delete file: "+t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
             };
             deleteFile.setHeader("X-Auth-Token", app.getToken());
             Scheduler.get().scheduleDeferred(deleteFile);

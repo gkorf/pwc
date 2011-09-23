@@ -116,13 +116,20 @@ public abstract class HeadRequest<T extends Resource> implements ScheduledComman
                     }
                     HeadRequest.this.onError(throwable);
                 }
+
+				@Override
+				public void onUnauthorized(Response response) {
+					HeadRequest.this.onUnauthorized(response);
+				}
             });
         }
         catch (RequestException e) {
         }
     }
 
-    public void setHeader(String header, String value) {
+    protected abstract void onUnauthorized(Response response);
+
+	public void setHeader(String header, String value) {
         headers.put(header, value);
     }
 }

@@ -530,6 +530,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     else
                         displayError("System error fetching file: " + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					sessionExpired();
+				}
             };
             getFile.setHeader("X-Auth-Token", "0000");
             Scheduler.get().scheduleDeferred(getFile);
@@ -592,6 +597,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 else
                     displayError("System error fetching user data: " + t.getMessage());
             }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
         };
         getAccount.setHeader("X-Auth-Token", token);
         Scheduler.get().scheduleDeferred(getAccount);
@@ -612,6 +622,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
                     displayError("System error fetching user data: " + t.getMessage());
+			}
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
 			}
 		};
 		headAccount.setHeader("X-Auth-Token", token);
@@ -644,6 +659,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 else
                     displayError("System error Error creating pithos: " + t.getMessage());
             }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
         };
         createPithos.setHeader("X-Auth-Token", getToken());
         Scheduler.get().scheduleDeferred(createPithos);
@@ -665,6 +685,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 else
                     displayError("System error Error creating pithos: " + t.getMessage());
             }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
         };
         createPithos.setHeader("X-Auth-Token", getToken());
         Scheduler.get().scheduleDeferred(createPithos);
@@ -840,6 +865,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         GWT.log("", t);
                         displayError("System error unable to delete folder: " + t.getMessage());
                     }
+
+    				@Override
+    				protected void onUnauthorized(Response response) {
+    					sessionExpired();
+    				}
                 };
                 delete.setHeader("X-Auth-Token", getToken());
                 Scheduler.get().scheduleDeferred(delete);
@@ -904,6 +934,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     else
                         displayError("System error unable to delete folder: " + t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					sessionExpired();
+				}
             };
             deleteFolder.setHeader("X-Auth-Token", getToken());
             Scheduler.get().scheduleDeferred(deleteFolder);
@@ -933,6 +968,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     else
                         displayError("System error unable to copy file: "+t.getMessage());
                 }
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					sessionExpired();
+				}
             };
             copyFile.setHeader("X-Auth-Token", getToken());
             copyFile.setHeader("X-Copy-From", file.getUri());
@@ -987,6 +1027,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		                else
 		                    displayError("System error getting folder: " + t.getMessage());
 					}
+
+					@Override
+					protected void onUnauthorized(Response response) {
+						sessionExpired();
+					}
 				};
 				getFolder.setHeader("X-Auth-Token", getToken());
 				Scheduler.get().scheduleDeferred(getFolder);
@@ -1001,6 +1046,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 else
                     displayError("System error creating folder: " + t.getMessage());
             }
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
         };
         createFolder.setHeader("X-Auth-Token", getToken());
         createFolder.setHeader("Accept", "*/*");
@@ -1050,5 +1100,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public GroupTreeView getGroupTreeView() {
 		return groupTreeView;
+	}
+
+	public void sessionExpired() {
+		new SessionExpiredDialog(this).center();
+		authenticateUser();
 	}
 }
