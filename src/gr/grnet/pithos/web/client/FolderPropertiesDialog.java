@@ -398,6 +398,11 @@ public class FolderPropertiesDialog extends DialogBox {
                             newFolder.setHeader("Content-Length", "0");
                             Scheduler.get().scheduleDeferred(newFolder);
                     	}
+                    	else if (((RestException) t).getHttpStatusCode() == Response.SC_CONFLICT) {
+                    		app.displayError("Cannot set permissions. Probably subfolders or files already have permissions set");
+                    	}
+                    	else
+                    		app.displayError("Wrror modifying folder: " + t.getMessage());
                     }
                     else
                     	app.displayError("System error modifying folder: " + t.getMessage());

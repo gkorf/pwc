@@ -169,11 +169,6 @@ public class Folder extends Resource {
             }
         }
 
-        inheritedPermissionsFrom = response.getHeader("X-Object-Shared-By");
-        String rawPermissions = response.getHeader("X-Object-Sharing");
-        if (rawPermissions != null)
-            parsePermissions(rawPermissions);
-
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         files.clear();
         JSONValue json = JSONParser.parseStrict(response.getText());
