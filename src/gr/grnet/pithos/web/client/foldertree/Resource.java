@@ -83,7 +83,7 @@ public abstract class Resource {
         if(obj.get(key) != null) {
             JSONString s = obj.get(key).isString();
             if (s != null)
-                return DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss").parse(s.stringValue());
+                return DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZZZ").parse(s.stringValue());
         }
         return null;
     }
