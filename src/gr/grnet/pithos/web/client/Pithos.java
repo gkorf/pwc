@@ -1102,4 +1102,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public void sessionExpired() {
 		new SessionExpiredDialog(this).center();
 	}
+
+	public void updateRootFolder(Command callback) {
+		updateFolder(account.getPithos(), false, callback);
+	}
 }

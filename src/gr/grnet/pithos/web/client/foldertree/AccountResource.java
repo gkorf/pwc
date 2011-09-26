@@ -259,4 +259,11 @@ public class AccountResource extends Resource {
 	public double getUsedPercentage() {
 		return 100.0 * bytesUsed / (bytesUsed + bytesRemaining);
 	}
+
+	public Folder getPithos() {
+		for (Folder f : containers)
+			if (f.getName().equals(Pithos.HOME_CONTAINER))
+				return f;
+		return null;
+	}
 }

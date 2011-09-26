@@ -127,7 +127,10 @@ public class ToTrashCommand implements Command{
 											public void onError(Throwable t) {
 							                    GWT.log("", t);
 							                    if (t instanceof RestException) {
-							                        app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
+							                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND)
+							                    		onSuccess(null);
+							                    	else
+							                    		app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
 							                    }
 							                    else
 							                        app.displayError("System error unable to delete folder: "+t.getMessage());

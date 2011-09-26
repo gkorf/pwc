@@ -42,12 +42,14 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
+import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -100,44 +102,69 @@ public class RestoreTrashCommand implements Command {
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                Iterator<File> iter = f.getFiles().iterator();
-                untrashFiles(iter, new Command() {
-                    @Override
-                    public void execute() {
-                        Iterator<Folder> iterf = f.getSubfolders().iterator();
-                        untrashSubfolders(iterf, new Command() {
-							
-							@Override
-							public void execute() {
-								DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), f.getOwner(), f.getUri()) {
-									
-									@Override
-									public void onSuccess(@SuppressWarnings("unused") Resource _result) {
-										if (callback != null)
-											callback.execute();
-									}
-									
-									@Override
-									public void onError(Throwable t) {
-					                    GWT.log("", t);
-					                    if (t instanceof RestException) {
-					                        app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
-					                    }
-					                    else
-					                        app.displayError("System error unable to delete folder: "+t.getMessage());
-									}
+            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 
+					@Override
+					public void onSuccess(final Folder _f) {
+		                Iterator<File> iter = _f.getFiles().iterator();
+		                untrashFiles(iter, new Command() {
+		                    @Override
+		                    public void execute() {
+		                        Iterator<Folder> iterf = _f.getSubfolders().iterator();
+		                        untrashSubfolders(iterf, new Command() {
+									
 									@Override
-									protected void onUnauthorized(Response response) {
-										app.sessionExpired();
+									public void execute() {
+										DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), _f.getOwner(), _f.getUri()) {
+											
+											@Override
+											public void onSuccess(@SuppressWarnings("unused") Resource _result) {
+												app.updateRootFolder(callback);
+											}
+											
+											@Override
+											public void onError(Throwable t) {
+							                    GWT.log("", t);
+							                    if (t instanceof RestException) {
+							                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND)
+							                    		onSuccess(null);
+							                    	else
+							                    		app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
+							                    }
+							                    else
+							                        app.displayError("System error unable to delete folder: "+t.getMessage());
+											}
+
+											@Override
+											protected void onUnauthorized(Response response) {
+												app.sessionExpired();
+											}
+										};
+										deleteFolder.setHeader("X-Auth-Token", app.getToken());
+										Scheduler.get().scheduleDeferred(deleteFolder);
 									}
-								};
-								deleteFolder.setHeader("X-Auth-Token", app.getToken());
-								Scheduler.get().scheduleDeferred(deleteFolder);
-							}
-						});
-                    }
-                });
+								});
+		                    }
+		                });
+					}
+
+					@Override
+					public void onError(Throwable t) {
+		                GWT.log("", t);
+		                if (t instanceof RestException) {
+		                    app.displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
+		                }
+		                else
+		                    app.displayError("System error getting folder: " + t.getMessage());
+					}
+
+					@Override
+					protected void onUnauthorized(Response response) {
+						app.sessionExpired();
+					}
+				};
+				getFolder.setHeader("X-Auth-Token", app.getToken());
+				Scheduler.get().scheduleDeferred(getFolder);
             }
 
             @Override
@@ -199,7 +226,13 @@ public class RestoreTrashCommand implements Command {
     protected void untrashSubfolders(final Iterator<Folder> iter, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
-            untrashFolder(f, callback);
+            untrashFolder(f, new Command() {
+				
+				@Override
+				public void execute() {
+					untrashSubfolders(iter, callback);
+				}
+			});
         }
         else  {
         	if (callback != null)
