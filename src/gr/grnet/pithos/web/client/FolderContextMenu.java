@@ -121,7 +121,7 @@ public class FolderContextMenu extends PopupPanel {
 		        	}
 		        	else {
 		        		Folder f = (Folder) item;
-		        		if (f.getOwner().equals(folder.getOwner()))
+		        		if (f.getOwner().equals(folder.getOwner()) && !f.contains(folder))
 		        			showPaste = true;
 		        	}
 		        	if (showPaste) {

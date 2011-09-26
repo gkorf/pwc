@@ -327,4 +327,11 @@ public class Folder extends Resource {
 	public boolean isHome() {
 		return isContainer() && name.equals(Pithos.HOME_CONTAINER);
 	}
+
+	public boolean contains(Folder folder) {
+		for (Folder f : subfolders)
+			if (f.equals(folder) || f.contains(folder))
+				return true;
+		return false;
+	}
 }
