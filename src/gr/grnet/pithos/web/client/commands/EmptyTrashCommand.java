@@ -41,11 +41,13 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
+import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -97,45 +99,68 @@ public class EmptyTrashCommand implements Command{
 	protected void deleteSubfolder(final Iterator<Folder> iter2, final Command callback) {
 		if (iter2.hasNext()) {
 			final Folder f = iter2.next();
-			Iterator<File> iter3 = f.getFiles().iterator();
-			deleteFile(iter3, new Command() {
+			GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 				
 				@Override
-				public void execute() {
-					Iterator<Folder> iter4 = f.getSubfolders().iterator();
-					deleteSubfolder(iter4, new Command() {
-						
+				public void onSuccess(final Folder _f) {
+					Iterator<File> iter3 = _f.getFiles().iterator();
+					deleteFile(iter3, new Command() {
+				
 						@Override
 						public void execute() {
-							String path = f.getUri();
-							DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
+							Iterator<Folder> iter4 = _f.getSubfolders().iterator();
+							deleteSubfolder(iter4, new Command() {
 								
 								@Override
-								public void onSuccess(@SuppressWarnings("unused") Resource result) {
-									deleteSubfolder(iter2, callback);
+								public void execute() {
+									String path = _f.getUri();
+									DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), _f.getOwner(), path) {
+										
+										@Override
+										public void onSuccess(@SuppressWarnings("unused") Resource result) {
+											deleteSubfolder(iter2, callback);
+										}
+										
+										@Override
+										public void onError(Throwable t) {
+											GWT.log("", t);
+											if (t instanceof RestException) {
+												app.displayError("Unable to delete file:" + ((RestException) t).getHttpStatusText());
+											}
+											else
+												app.displayError("System error deleting file:" + t.getMessage());
+										}
+		
+										@Override
+										protected void onUnauthorized(Response response) {
+											app.sessionExpired();
+										}
+									};
+									deleteF.setHeader("X-Auth-Token", app.getToken());
+									Scheduler.get().scheduleDeferred(deleteF);
 								}
-								
-								@Override
-								public void onError(Throwable t) {
-									GWT.log("", t);
-									if (t instanceof RestException) {
-										app.displayError("Unable to delete file:" + ((RestException) t).getHttpStatusText());
-									}
-									else
-										app.displayError("System error deleting file:" + t.getMessage());
-								}
-
-								@Override
-								protected void onUnauthorized(Response response) {
-									app.sessionExpired();
-								}
-							};
-							deleteF.setHeader("X-Auth-Token", app.getToken());
-							Scheduler.get().scheduleDeferred(deleteF);
+							});
 						}
 					});
 				}
-			});
+
+				@Override
+				public void onError(Throwable t) {
+	                GWT.log("", t);
+	                if (t instanceof RestException) {
+	                    app.displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
+	                }
+	                else
+	                	app.displayError("System error getting folder: " + t.getMessage());
+				}
+
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
+			};
+			getFolder.setHeader("X-Auth-Token", app.getToken());
+			Scheduler.get().scheduleDeferred(getFolder);
 		}
 		else {
 			if (callback != null)
