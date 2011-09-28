@@ -55,11 +55,13 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -267,7 +269,7 @@ public class FileList extends Composite {
                 sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg")) {
         			sb.appendHtmlConstant("&nbsp;")
-                      .append(Templates.INSTANCE.viewLink(object.getUri(), object.getOwner() + " : " + object.getPath() + object.getName()));
+                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri() + "?X-Auth-Token=" + app.getToken(), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
