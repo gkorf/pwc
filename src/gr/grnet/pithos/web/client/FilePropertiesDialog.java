@@ -394,7 +394,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         String[] tagset = null;
 		if (!tags.getText().equals(initialTagText))
-			tagset = tags.getText().split(",");
+			tagset = tags.getText().trim().split(",");
         final String[] newTags = tagset;
 
         if (newFilename != null) {
@@ -447,7 +447,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("X-Auth-Token", app.getToken());
             if (newTags != null)
                 for (String t : newTags)
-                    updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
+                	if (t.length() > 0)
+                		updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
+                for (String t : file.getTags())
+            		updateFile.setHeader("X-Object-Meta-" + t.trim(), "~");
             if (published != null)
                 updateFile.setHeader("X-Object-Public", published.toString());
             if (newPermissions != null) {
