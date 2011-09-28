@@ -37,6 +37,7 @@ package gr.grnet.pithos.web.client.foldertree;
 
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -83,7 +84,7 @@ public abstract class Resource {
         if(obj.get(key) != null) {
             JSONString s = obj.get(key).isString();
             if (s != null)
-                return DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZZZ").parse(s.stringValue());
+                return DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(s.stringValue());
         }
         return null;
     }
