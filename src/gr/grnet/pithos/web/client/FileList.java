@@ -454,6 +454,7 @@ public class FileList extends Composite {
         provider.setList(files);
         selectionModel.clear();
         app.showFolderStatistics(folderFileCount);
+        celltable.setPageSize(folderFileCount);
 	}
 
 	/**
