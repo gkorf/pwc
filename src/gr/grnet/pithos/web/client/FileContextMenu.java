@@ -203,10 +203,8 @@ public class FileContextMenu extends PopupPanel {
 		    if (!selectedFolder.isInTrash()) {
 		        if (canWrite && app.getClipboard().hasFiles()) {
 		        	List<File> files = (List<File>) app.getClipboard().getItem();
-		        	if (files.get(0).getOwner().equals(selectedFolder.getOwner())) {
-		        		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
-		        		contextMenu.addItem(pasteItem);
-		        	}
+	        		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
+	        		contextMenu.addItem(pasteItem);
 		        }
 		
 		        if (canWrite) {

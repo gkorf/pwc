@@ -113,16 +113,11 @@ public class FolderContextMenu extends PopupPanel {
         	if (canWrite) {
 		        if (!app.getClipboard().isEmpty()) {
 		        	Object item = app.getClipboard().getItem();
-		        	boolean showPaste = false;
-		        	if (item instanceof List) {
-		        		List<File> files = (List<File>) item;
-		        		if (files.get(0).getOwner().equals(folder.getOwner()))
-		        			showPaste = true;
-		        	}
-		        	else {
+		        	boolean showPaste = true;
+		        	if (item instanceof Folder) {
 		        		Folder f = (Folder) item;
-		        		if (f.getOwner().equals(folder.getOwner()) && !f.contains(folder))
-		        			showPaste = true;
+		        		if (f.contains(folder))
+		        			showPaste = false;
 		        	}
 		        	if (showPaste) {
 			            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
