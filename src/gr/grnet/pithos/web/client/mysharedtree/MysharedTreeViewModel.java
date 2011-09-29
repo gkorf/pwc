@@ -142,7 +142,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
             }),  selectionModel2, null);
         }
         else if (value instanceof String) {
-        	fetchSharedContainers();
+        	fetchSharedContainers(null);
             return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, selectionModel, null);
         }
         else {
@@ -171,7 +171,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 		});
 	}
 
-	private void fetchSharedContainers() {
+	private void fetchSharedContainers(final Command callback) {
     	final List<Folder> containers = app.getAccount().getContainers();
     	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
     	Iterator<Folder> iter = containers.iterator();
@@ -181,17 +181,23 @@ public class MysharedTreeViewModel implements TreeViewModel {
 			public void execute() {
 				firstLevelDataProvider.getList().clear();
 				firstLevelDataProvider.getList().addAll(tempProvider.getList());
+				if (callback != null)
+					callback.execute();
 			}
 		});
 	}
 
 	@Override
     public boolean isLeaf(Object o) {
-        if (o instanceof Folder) {
+		if (o == null)
+			return false;
+		else if (o instanceof Folder) {
             Folder f = (Folder) o;
             return f.getSubfolders().isEmpty();
         }
-        return false;
+		else {
+			return firstLevelDataProvider.getList().isEmpty();
+		}
     }
 
     protected void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Command callback) {
@@ -290,4 +296,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
         getFolder.setHeader("X-Auth-Token", app.getToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
+
+	public void initialize(Command callback) {
+		fetchSharedContainers(callback);
+	}
 }

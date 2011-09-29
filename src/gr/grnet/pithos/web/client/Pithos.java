@@ -77,8 +77,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -144,14 +142,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     public void updateOtherSharedFolder(Folder f, boolean showfiles) {
     	otherSharedTreeView.updateFolder(f, showfiles);
-    }
-
-    public void updateTag(Tag t) {
-        tagTreeView.updateTag(t);
-    }
-
-    public void updateTags() {
-        tagTreeViewModel.initialize(getAllTags());
     }
 
     public List<Tag> getAllTags() {
@@ -232,21 +222,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
      */
     private String token;
 
+    VerticalPanel trees;
+    
     SingleSelectionModel<Folder> folderTreeSelectionModel;
     FolderTreeViewModel folderTreeViewModel;
     FolderTreeView folderTreeView;
 
     SingleSelectionModel<Folder> mysharedTreeSelectionModel;
-    private MysharedTreeViewModel mysharedTreeViewModel;
-    MysharedTreeView mysharedTreeView;
+    MysharedTreeViewModel mysharedTreeViewModel;
+    MysharedTreeView mysharedTreeView = null;;
 
     protected SingleSelectionModel<Folder> otherSharedTreeSelectionModel;
-    private OtherSharedTreeViewModel otherSharedTreeViewModel;
-    OtherSharedTreeView otherSharedTreeView;
-
-    protected SingleSelectionModel<Tag> tagTreeSelectionModel;
-    private TagTreeViewModel tagTreeViewModel;
-    private TagTreeView tagTreeView;
+    OtherSharedTreeViewModel otherSharedTreeViewModel;
+    OtherSharedTreeView otherSharedTreeView = null;
 
     GroupTreeViewModel groupTreeViewModel;
     private GroupTreeView groupTreeView;
@@ -256,8 +244,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     Folder trash;
 
-    @SuppressWarnings("rawtypes")
-	private List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
+    @SuppressWarnings("rawtypes") List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
     
     Button upload;
     
@@ -349,40 +336,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList = new FileList(this, images, folderTreeView);
         inner.add(fileList);
 
-        mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
-        mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
-            @Override
-            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
-                if (mysharedTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
-                    upload.setEnabled(false);
-                    updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
-                }
-            }
-        });
-        selectionModels.add(mysharedTreeSelectionModel);
-        mysharedTreeViewModel = new MysharedTreeViewModel(this, mysharedTreeSelectionModel);
-        mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-
-        otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
-        otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
-            @Override
-            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
-                if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
-                    deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
-                    applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
-                    updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
-                }
-            }
-        });
-        selectionModels.add(otherSharedTreeSelectionModel);
-        otherSharedTreeViewModel = new OtherSharedTreeViewModel(this, otherSharedTreeSelectionModel);
-        otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-
         groupTreeViewModel = new GroupTreeViewModel(this);
         groupTreeView = new GroupTreeView(groupTreeViewModel);
 
-        VerticalPanel trees = new VerticalPanel();
+        trees = new VerticalPanel();
 
         upload = new Button("Upload File", new ClickHandler() {
             @Override
@@ -413,9 +370,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         trees.add(treeHeader);
 
         trees.add(folderTreeView);
-        trees.add(mysharedTreeView);
-        trees.add(otherSharedTreeView);
-//        trees.add(tagTreeView);
         trees.add(groupTreeView);
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
@@ -467,6 +421,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		                		}
 		                    folderTreeViewModel.initialize(account);
 		                    groupTreeViewModel.initialize();
+		                    createMySharedTree();
 		                    showStatistics();
 		                }
 					}
@@ -1105,5 +1060,54 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public void updateRootFolder(Command callback) {
 		updateFolder(account.getPithos(), false, callback);
+	}
+
+	void createMySharedTree() {
+		mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
+		mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+		    @Override
+		    public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+		        if (mysharedTreeSelectionModel.getSelectedObject() != null) {
+		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
+		            upload.setEnabled(false);
+		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+		        }
+		    }
+		});
+		selectionModels.add(mysharedTreeSelectionModel);
+		mysharedTreeViewModel = new MysharedTreeViewModel(Pithos.this, mysharedTreeSelectionModel);
+		mysharedTreeViewModel.initialize(new Command() {
+			
+			@Override
+			public void execute() {
+			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
+				trees.insert(mysharedTreeView, 3);
+				createOtherSharedTree();
+			}
+		});
+	}
+
+	void createOtherSharedTree() {
+		otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
+		otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
+		    @Override
+		    public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
+		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
+		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
+		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+		        }
+		    }
+		});
+		selectionModels.add(otherSharedTreeSelectionModel);
+		otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
+		otherSharedTreeViewModel.initialize(new Command() {
+			
+			@Override
+			public void execute() {
+			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
+				trees.insert(otherSharedTreeView, 4);
+			}
+		});
 	}
 }

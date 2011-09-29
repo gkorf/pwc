@@ -73,6 +73,7 @@ import com.google.gwt.view.client.TreeViewModel;
 
 public class OtherSharedTreeViewModel implements TreeViewModel {
 
+	private static final String treeTitle = "Other 's shared";
     protected Pithos app;
 
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
@@ -113,7 +114,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            rootDataProvider.getList().add("Other 's Shared");
+            rootDataProvider.getList().add(treeTitle);
             final SingleSelectionModel<String> selectionModel2 = new SingleSelectionModel<String>();
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
@@ -144,8 +145,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             }),  selectionModel2, null);
         }
         else if (value instanceof String) {
-        	if (value.equals("Other 's Shared")) {
-	        	fetchSharingUsers();
+        	if (value.equals(treeTitle)) {
+	        	fetchSharingUsers(null);
 	            final SingleSelectionModel<String> selectionModel3 = new SingleSelectionModel<String>();
 	            selectionModel3.addSelectionChangeHandler(new Handler() {
 
@@ -185,7 +186,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 				userDataProviderMap.put(username, new ListDataProvider<Folder>());
 			}
 			final ListDataProvider<Folder> dataProvider = userDataProviderMap.get(username);
-			fetchSharedContainers(username, dataProvider);
+			fetchSharedContainers(username, dataProvider, null);
 			return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
         else {
@@ -199,7 +200,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
     }
 
-    private void fetchSharingUsers() {
+    private void fetchSharingUsers(final Command callback) {
         GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(SharingUsers.class, app.getApiPath(), "", "?format=json") {
             @Override
             public void onSuccess(final SharingUsers _result) {
@@ -208,6 +209,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 for (String name : _result.getUsers()) {
                 	sharedFiles.put(name, new HashSet<File>());
                 }
+                Iterator<String> iter = _result.getUsers().iterator();
+                fetchSharedContainers(iter, callback);
             }
 
             @Override
@@ -228,16 +231,46 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         Scheduler.get().scheduleDeferred(getSharingUsers);
 	}
 
+	protected void fetchSharedContainers(final Iterator<String> iter, final Command callback) {
+		if (iter.hasNext()) {
+			String username = iter.next();
+			if (userDataProviderMap.get(username) == null) {
+				userDataProviderMap.put(username, new ListDataProvider<Folder>());
+			}
+			final ListDataProvider<Folder> dataProvider = userDataProviderMap.get(username);
+			fetchSharedContainers(username, dataProvider, new Command() {
+				
+				@Override
+				public void execute() {
+					fetchSharedContainers(iter, callback);
+					
+				}
+			});
+		}
+		else
+			if (callback != null)
+				callback.execute();
+	}
+
 	@Override
     public boolean isLeaf(Object o) {
-        if (o instanceof Folder) {
+		if (o == null)
+			return false;
+		else if (o instanceof Folder) {
             Folder f = (Folder) o;
             return f.getSubfolders().isEmpty();
         }
-        return false;
+		else {
+			if (o.equals(treeTitle))
+				return userLevelDataProvider.getList().isEmpty();
+			ListDataProvider<Folder> dp = userDataProviderMap.get(o);
+			if (dp != null)
+				return dp.getList().isEmpty();
+			return true;
+		}
     }
 
-	private void fetchSharedContainers(final String username, final ListDataProvider<Folder> dataProvider) {
+	private void fetchSharedContainers(final String username, final ListDataProvider<Folder> dataProvider, final Command callback) {
 		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
 
 			@Override
@@ -250,6 +283,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 					public void execute() {
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(tempProvider.getList());
+						if (callback != null)
+							callback.execute();
 					}
 				});
 			}
@@ -403,5 +438,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         };
         getFolder.setHeader("X-Auth-Token", app.getToken());
         Scheduler.get().scheduleDeferred(getFolder);
+    }
+    
+    public void initialize(Command callback) {
+    	fetchSharingUsers(callback);
     }
 }
