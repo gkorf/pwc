@@ -8,3 +8,4 @@ war
 .project
 .classpath
 .settings
+.gwt-tmp

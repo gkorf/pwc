@@ -140,33 +140,35 @@ public class AccountResource extends Resource {
     public void populate(String owner, Response response) {
         DateTimeFormat df = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822);
         for (Header h : response.getHeaders()) {
-            String name = h.getName();
-            if (name.startsWith("X-Account-Group-")) {
-                String groupName = name.substring("X-Account-Group-".length()).trim().toLowerCase();
-                Group g = new Group(groupName);
-                String[] members = h.getValue().split(",");
-                for (String s : members)
-                    g.addMember(s.trim());
-                groups.add(g);
-            }
-            else if (name.equals("X-Account-Container-Count")) {
-                numberOfContainers = Long.valueOf(h.getValue());
-            }
-            else if (name.equals("X-Account-Object-Count")) {
-                numberOfObjects = Long.valueOf(h.getValue());
-            }
-            else if (name.equals("X-Account-Bytes-Used")) {
-                bytesUsed = Long.valueOf(h.getValue());
-            }
-            else if (name.equals("X-Account-Bytes-Remaining")) {
-                bytesRemaining = Long.valueOf(h.getValue());
-            }
-            else if (name.equals("X-Account-Last-Login")) {
-                lastLogin = df.parse(h.getValue());
-            }
-            else if (name.equals("Last-Modified")) {
-                lastModified = df.parse(h.getValue());
-            }
+        	if (h != null) {
+		        String name = h.getName();
+		        if (name.startsWith("X-Account-Group-")) {
+		            String groupName = name.substring("X-Account-Group-".length()).trim().toLowerCase();
+		            Group g = new Group(groupName);
+		            String[] members = h.getValue().split(",");
+		            for (String s : members)
+		                g.addMember(s.trim());
+		            groups.add(g);
+		        }
+		        else if (name.equals("X-Account-Container-Count")) {
+		            numberOfContainers = Long.valueOf(h.getValue());
+		        }
+		        else if (name.equals("X-Account-Object-Count")) {
+		            numberOfObjects = Long.valueOf(h.getValue());
+		        }
+		        else if (name.equals("X-Account-Bytes-Used")) {
+		            bytesUsed = Long.valueOf(h.getValue());
+		        }
+		        else if (name.equals("X-Account-Bytes-Remaining")) {
+		            bytesRemaining = Long.valueOf(h.getValue());
+		        }
+		        else if (name.equals("X-Account-Last-Login")) {
+		            lastLogin = df.parse(h.getValue());
+		        }
+		        else if (name.equals("Last-Modified")) {
+		            lastModified = df.parse(h.getValue());
+		        }
+        	}
         }
 
         if (response.getText() != null && response.getText().length() > 0) {

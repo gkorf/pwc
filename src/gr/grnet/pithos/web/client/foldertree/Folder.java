@@ -159,7 +159,7 @@ public class Folder extends Resource {
             lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(header);
 
         header = response.getHeader("X-Container-Bytes-Used");
-        if (header != null)
+        if (header != null && header.length() > 0)
             bytesUsed = Long.valueOf(header);
 
         header = response.getHeader("X-Container-Object-Meta");
