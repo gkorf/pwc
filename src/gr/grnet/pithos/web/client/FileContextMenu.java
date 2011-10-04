@@ -50,6 +50,7 @@ import java.util.List;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -179,7 +180,7 @@ public class FileContextMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public FileContextMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder selectedFolder, List<File> selectedFiles) {
+	public FileContextMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder selectedFolder, final List<File> selectedFiles) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
@@ -240,8 +241,14 @@ public class FileContextMenu extends PopupPanel {
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, images, 0)));
 
         }
-        if (selectedFiles.size() == 1)
-		    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + selectedFiles.get(0).getOwner() + selectedFiles.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
+	    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {
+			
+			@Override
+			public void execute() {
+				for (File f : selectedFiles)
+					Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+			}
+		}));
 
 		add(contextMenu);
 	}

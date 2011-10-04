@@ -57,6 +57,7 @@ import gr.grnet.pithos.web.client.grouptree.User;
 import java.util.List;
 
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -88,7 +89,7 @@ public class ToolsMenu extends PopupPanel {
 	 *
 	 * @param newImages the image bundle passed on by the parent object
 	 */
-	public ToolsMenu(Pithos app, Images newImages, TreeView selectedTree, Folder folder, List<File> files) {
+	public ToolsMenu(final Pithos app, Images newImages, TreeView selectedTree, Folder folder, final List<File> files) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
@@ -180,8 +181,16 @@ public class ToolsMenu extends PopupPanel {
 				        if (properties != null)
 				        	contextMenu.addItem(properties);
 				    }
-			        if (files != null && files.size() == 1)
-					    contextMenu.addItem(new MenuItem("<span><a class='hidden-link' href='" + app.getApiPath() + files.get(0).getOwner() + files.get(0).getUri() + "?X-Auth-Token=" + app.getToken() + "' target='_blank'>" + AbstractImagePrototype.create(newImages.download()).getHTML() + " Download</a></span>", true, (Command) null));
+			        if (files != null) {
+					    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {
+							
+							@Override
+							public void execute() {
+					        	for (File f: files)
+					        		Window.open(app.getApiPath() + files.get(0).getOwner() + files.get(0).getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+							}
+						}));
+			        }
 	        	}
 	        }
 	        else {
