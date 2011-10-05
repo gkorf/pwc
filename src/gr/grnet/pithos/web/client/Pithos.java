@@ -1112,4 +1112,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			}
 		});
 	}
+
+	public void logoff() {
+        Configuration conf = (Configuration) GWT.create(Configuration.class);
+		Cookies.removeCookie(conf.authCookie());
+		Window.Location.assign(Window.Location.getHost());
+	}
 }

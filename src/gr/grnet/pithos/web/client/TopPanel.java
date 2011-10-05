@@ -35,6 +35,8 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -54,7 +56,7 @@ public class TopPanel extends Composite {
 	 */
 	public static final boolean DONE = false;
 
-    private Pithos app;
+    Pithos app;
 
 	/**
 	 * An image bundle for this widgets images.
@@ -83,9 +85,19 @@ public class TopPanel extends Composite {
 		outer.add(logos);
 
         MenuBar username = new MenuBar();
+//        username.setWidth("120px");
         username.setStyleName("pithos-usernameMenu");
-        MenuItem userItem = new MenuItem(_app.getUsername(), new MenuBar(true));
+        MenuBar userItemMenu = new MenuBar(true);
+        userItemMenu.addItem(new MenuItem("Log off", new Command() {
+			
+			@Override
+			public void execute() {
+				app.logoff();
+			}
+		}));
+        MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
         userItem.addStyleName("pithos-usernameMenu");
+        userItem.setWidth("68px");
         username.addItem(userItem);
         outer.add(username);
 		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
