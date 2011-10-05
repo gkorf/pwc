@@ -31,7 +31,7 @@ public class FileVersions extends Resource {
                 JSONArray o = array.get(i).isArray();
                 if (o != null) {
                 	int num = (int) o.get(0).isNumber().doubleValue();
-                	Date date = new Date((long) o.get(1).isNumber().doubleValue());
+                	Date date = new Date((long) (o.get(1).isNumber().doubleValue() * 1000)); //Convert to millis
                 	Version v = new Version(num, date);
                 	versions.add(v);
                 }
