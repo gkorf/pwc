@@ -216,3 +216,9 @@ table.pithos-permList.props-labels {
     text-align: center;
     color: white;
 }
+
+.pithos-credentialsText {
+	width: 24em;
+	/* Restore the padding we remove when overriding the gwt-DialogBox style */
+	padding: 3px;
+}

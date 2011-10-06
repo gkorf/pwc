@@ -93,6 +93,13 @@ public class TopPanel extends Composite {
 				app.logoff();
 			}
 		}));
+        userItemMenu.addItem(new MenuItem("API token", new Command() {
+			
+			@Override
+			public void execute() {
+				new CredentialsDialog(app, images).center();
+			}
+		}));
         MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
         userItem.addStyleName("pithos-usernameMenu");
         userItem.setWidth("68px");
