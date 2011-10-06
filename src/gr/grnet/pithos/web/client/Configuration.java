@@ -73,4 +73,10 @@ public interface Configuration extends Constants {
 	 */
 	@DefaultStringValue("")
 	String version();
+
+	@DefaultStringValue("X-Auth-Token")
+	String authTokenCookie();
+	
+	@DefaultStringValue("_shibsession_")
+	String shibSessionCookiePrefix();
 }

@@ -77,7 +77,6 @@ public class TopPanel extends Composite {
 		HorizontalPanel outer = new HorizontalPanel();
 		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
-//		outer.setSpacing(2);
 		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		outer.setStyleName("pithos-topPanel");
 
@@ -85,7 +84,6 @@ public class TopPanel extends Composite {
 		outer.add(logos);
 
         MenuBar username = new MenuBar();
-//        username.setWidth("120px");
         username.setStyleName("pithos-usernameMenu");
         MenuBar userItemMenu = new MenuBar(true);
         userItemMenu.addItem(new MenuItem("Log off", new Command() {
