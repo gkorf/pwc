@@ -35,6 +35,9 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -43,6 +46,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 
@@ -65,6 +69,9 @@ public class TopPanel extends Composite {
 
 		@Source("gr/grnet/pithos/resources/pithos2-logo.png")
 		ImageResource pithosLogo();
+		
+		@Source("gr/grnet/pithos/resources/desc.png")
+		ImageResource downArrow();
 	}
 
 	/**
@@ -85,14 +92,9 @@ public class TopPanel extends Composite {
 
         MenuBar username = new MenuBar();
         username.setStyleName("pithos-usernameMenu");
+        username.setAutoOpen(true);
+        
         MenuBar userItemMenu = new MenuBar(true);
-        userItemMenu.addItem(new MenuItem("Log off", new Command() {
-			
-			@Override
-			public void execute() {
-				app.logoff();
-			}
-		}));
         userItemMenu.addItem(new MenuItem("API token", new Command() {
 			
 			@Override
@@ -100,13 +102,25 @@ public class TopPanel extends Composite {
 				new CredentialsDialog(app, images).center();
 			}
 		}));
+        userItemMenu.addItem(new MenuItem("Log off", new Command() {
+			
+			@Override
+			public void execute() {
+				app.logoff();
+			}
+		}));
+
+        SafeHtmlBuilder sb = new SafeHtmlBuilder();
+        sb.append(SafeHtmlUtils.fromSafeConstant(_app.getUsername()));
+        sb.appendHtmlConstant(AbstractImagePrototype.create(images.downArrow()).getHTML());
         MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
-        userItem.addStyleName("pithos-usernameMenu");
-        userItem.setWidth("68px");
+//        userItem.setWidth("68px");
         username.addItem(userItem);
         outer.add(username);
 		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
-
+		Image downArrow = AbstractImagePrototype.create(images.downArrow()).createImage();
+		outer.add(downArrow);
+		outer.setCellHorizontalAlignment(downArrow, HasHorizontalAlignment.ALIGN_LEFT);
 		initWidget(outer);
 	}
 }
