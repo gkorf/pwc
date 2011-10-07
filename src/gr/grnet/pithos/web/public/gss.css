@@ -3,6 +3,7 @@ body {
 	font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
 	margin: 8px;
 	margin-top: 3px;
+	background: url(images/background.png) repeat-x;
 }
 
 a {
@@ -98,6 +99,7 @@ table.pithos-permList.props-labels {
 .pithos-topPanel {
 	background-color: #4085a5;
 	font-size: 80%;
+	height: 60px;
 }
 
 .pithos-usernameMenu {
@@ -121,6 +123,7 @@ table.pithos-permList.props-labels {
 	font-size: 90%;
 	vertical-align: middle;
 	font-weight: normal;
+	height:145px;
 }
 
 .pithos-List {
@@ -177,16 +180,19 @@ table.pithos-permList.props-labels {
 	padding: 6px;
 }
 
+.pithos-treeHeader {
+	background-color: #74aec9;
+}
+
 .pithos-splitPanel {
-	border: 1px solid white;
-	background: url(images/background.png) repeat-x;
+	background: url(images/white50.png);
 }
 
 /* Use the background color for the splitter. */
 .gwt-HorizontalSplitPanel .hsplitter {
 	cursor: move;
 	border: 0px;
-	background: #bec8e6;
+	background: url(images/background.png) repeat-x;
 }
 
 .pithos-tag {
@@ -199,7 +205,7 @@ table.pithos-permList.props-labels {
     font-size: 120%;
     text-align: center;
     height: 40px;
-    width: 100%;
+    width: 300px;
 }
 
 .pithos-rightSide {

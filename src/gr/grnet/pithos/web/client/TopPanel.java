@@ -114,7 +114,6 @@ public class TopPanel extends Composite {
         sb.append(SafeHtmlUtils.fromSafeConstant(_app.getUsername()));
         sb.appendHtmlConstant(AbstractImagePrototype.create(images.downArrow()).getHTML());
         MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
-//        userItem.setWidth("68px");
         username.addItem(userItem);
         outer.add(username);
 		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);

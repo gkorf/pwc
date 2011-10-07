@@ -271,10 +271,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.setWidth("100%");
 
         topPanel = new TopPanel(this, Pithos.images);
-        topPanel.setWidth("100%");
+        topPanel.setWidth("75%");
         outer.add(topPanel);
-
-        messagePanel.setWidth("100%");
+        outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
+        
+        messagePanel.setWidth("75%");
         messagePanel.setVisible(false);
         outer.add(messagePanel);
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -340,18 +341,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
         groupTreeView = new GroupTreeView(groupTreeViewModel);
 
         trees = new VerticalPanel();
+        trees.setWidth("100%");
 
+        VerticalPanel uploadButtonPanel = new VerticalPanel();
         upload = new Button("Upload File", new ClickHandler() {
             @Override
             public void onClick(@SuppressWarnings("unused") ClickEvent event) {
                 new UploadFileCommand(Pithos.this, null, getSelection()).execute();
             }
         });
+        uploadButtonPanel.add(upload);
+        uploadButtonPanel.setWidth("100%");
+        uploadButtonPanel.setHeight("60px");
+        uploadButtonPanel.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_CENTER);
+        uploadButtonPanel.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
         upload.addStyleName("pithos-uploadButton");
-        trees.add(upload);
+        trees.add(uploadButtonPanel);
         
         HorizontalPanel treeHeader = new HorizontalPanel();
         treeHeader.addStyleName("pithos-treeHeader");
+        treeHeader.setWidth("100%");
+        treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         HorizontalPanel statistics = new HorizontalPanel();
         statistics.add(new HTML("Total Objects:&nbsp;"));
         totalFiles = new HTML();
@@ -374,14 +384,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
-        splitPanel.setSplitPosition("25%");
+        splitPanel.setSplitPosition("35%");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
+        splitPanel.setWidth("75%");
         outer.add(splitPanel);
+        outer.setCellHorizontalAlignment(splitPanel, HasHorizontalAlignment.ALIGN_CENTER);
 
         statusPanel = new StatusPanel();
+        statusPanel.setWidth("75%");
         outer.add(statusPanel);
-
+        outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
 
         // Hook the window resize event, so that we can adjust the UI.
         Window.addResizeHandler(this);
