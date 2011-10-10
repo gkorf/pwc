@@ -95,6 +95,21 @@ public class TopPanel extends Composite {
         username.setAutoOpen(true);
         
         MenuBar userItemMenu = new MenuBar(true);
+        userItemMenu.addItem(new MenuItem("invite friends...", new Command() {
+			
+			@Override
+			public void execute() {
+				//Somehow get info from the server about invitations sent/left etc and then show the box
+				new InvitationsDialog().center();
+			}
+		}));
+        userItemMenu.addItem(new MenuItem("send feedback...", new Command() {
+			
+			@Override
+			public void execute() {
+				new FeedbackDialog().center();
+			}
+		}));
         userItemMenu.addItem(new MenuItem("API token", new Command() {
 			
 			@Override

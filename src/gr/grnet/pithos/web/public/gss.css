@@ -47,13 +47,43 @@ a.info:hover div {
 	text-align: center
 }
 
-/*
- * Remove the padding inside the dialog boxes so that our background color
- * appears uniform in warnings and errors.
- */
-.gwt-DialogBox .dialogMiddleCenter {
-	background:none repeat scroll 0 0 white;
-	padding: 0;
+.pithos-DialogBox .inner {
+	width: 95%;
+	background: url(images/white50.png);
+}
+
+.pithos-DialogBox .button {
+	background: none;
+	background-color: #4085A5;
+	color: white;
+	padding: 5px 6px;
+}
+
+.pithos-DialogBox .Caption {
+	color: white;
+	background-color: #4085a5;
+	padding: 4px 4px 4px 8px;
+	border-bottom: 1px solid white;
+}
+
+.pithos-DialogBox .close {
+	background: url(images/close-popup.png) no-repeat;
+	cursor: pointer;
+	position: absolute;
+	width: 13px;
+	height: 13px;
+	top: 7px;
+	right: 7px;
+}
+
+.pithos-DialogBox .dialogMiddleCenter {
+	background: url(images/popup-bg.png) repeat-x;
+	background-color: white;
+	padding: 3px;
+}
+
+.pithos-DialogBox .dialogBottomCenter {
+	border-bottom: 5px solid #4085A5;
 }
 
 table.pithos-permList {
@@ -224,7 +254,5 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-credentialsText {
-	width: 24em;
-	/* Restore the padding we remove when overriding the gwt-DialogBox style */
-	padding: 3px;
+	padding: 10px;
 }
