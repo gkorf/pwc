@@ -116,15 +116,30 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         super(_app);
         file = _file;
 
+		Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
 		// Set the dialog's caption.
 		setText("File properties");
+		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
 
 		// Outer contains inner and buttons.
 		final VerticalPanel outer = new VerticalPanel();
+		outer.add(close);
 		final FocusPanel focusPanel = new FocusPanel(outer);
 		// Inner contains generalPanel and permPanel.
 		inner = new DecoratedTabPanel();
 		inner.setAnimationEnabled(true);
+		inner.addStyleName("inner");
+		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
 
 
         inner.add(createGeneralPanel(), "General");
@@ -137,7 +152,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         outer.add(inner);
 
-		final HorizontalPanel buttons = new HorizontalPanel();
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
@@ -147,25 +161,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				closeDialog();
 			}
 		});
+		ok.addStyleName("button");
 
-		buttons.add(ok);
-		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
-		// Create the 'Cancel' button, along with a listener that hides the
-		// dialog when the button is clicked.
-		final Button cancel = new Button("Cancel", new ClickHandler() {
-			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-				closeDialog();
-			}
-		});
-		buttons.add(cancel);
-		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		buttons.setSpacing(8);
-		buttons.addStyleName("pithos-TabPanelBottom");
-
-        outer.add(buttons);
-        outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
-        outer.addStyleName("pithos-TabPanelBottom");
+        outer.add(ok);
+        outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 
         focusPanel.setFocus(true);
         setWidget(outer);

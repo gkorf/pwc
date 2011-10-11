@@ -45,6 +45,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -75,7 +76,23 @@ public class PermissionsAddDialog extends DialogBox {
 		userAdd = _userAdd;
 		permList = _permList;
 
+		Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
+		setText("Add permission");
+		setStyleName("pithos-DialogBox");
+
         final VerticalPanel panel = new VerticalPanel();
+        panel.add(close);
+
+        VerticalPanel inner = new VerticalPanel();
+		inner.addStyleName("inner");
 
         final FlexTable permTable = new FlexTable();
         permTable.setText(0, 0, "Users/Groups");
@@ -100,9 +117,8 @@ public class PermissionsAddDialog extends DialogBox {
         permTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
         permTable.getFlexCellFormatter().setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_CENTER);
         permTable.getFlexCellFormatter().setHorizontalAlignment(1, 2, HasHorizontalAlignment.ALIGN_CENTER);
-        panel.add(permTable);
+        inner.add(permTable);
 
-        final HorizontalPanel buttons = new HorizontalPanel();
         final Button ok = new Button("OK", new ClickHandler() {
             @Override
             public void onClick(@SuppressWarnings("unused") ClickEvent event) {
@@ -110,25 +126,13 @@ public class PermissionsAddDialog extends DialogBox {
                 hide();
             }
         });
-        buttons.add(ok);
-        buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
-        // Create the 'Cancel' button, along with a listener that hides the
-        // dialog
-        // when the button is clicked.
-        final Button cancel = new Button("Cancel", new ClickHandler() {
-            @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                hide();
-            }
-        });
-        buttons.add(cancel);
-        buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-        buttons.setSpacing(8);
-        buttons.addStyleName("pithos-TabPanelBottom");
 
-        panel.add(buttons);
-        panel.addStyleName("pithos-TabPanelBottom");
+        ok.addStyleName("button");
+        inner.add(ok);
 
+        panel.add(inner);
+        panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+        
         setWidget(panel);
 	}
 

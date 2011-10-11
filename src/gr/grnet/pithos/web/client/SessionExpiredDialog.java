@@ -56,12 +56,18 @@ public class SessionExpiredDialog extends DialogBox {
 		// Set the dialog's caption.
 		setText("Session Expired");
 		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
+
 		VerticalPanel outer = new VerticalPanel();
+
+		VerticalPanel inner = new VerticalPanel();
+		inner.addStyleName("inner");
 
 		// Create the text and set a style name so we can style it with CSS.
 		HTML text = new HTML("<p>Your session has expired. You will have to reauthenticate with your Identity Provider.</p> ");
 		text.setStyleName("pithos-sessionExpired");
-		outer.add(text);
+		inner.add(text);
 
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
@@ -72,8 +78,10 @@ public class SessionExpiredDialog extends DialogBox {
 				hide();
 			}
 		});
-		outer.add(confirm);
-		outer.setCellHorizontalAlignment(confirm, HasHorizontalAlignment.ALIGN_CENTER);
+		confirm.addStyleName("button");
+		inner.add(confirm);
+		outer.add(inner);
+		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		outer.setSpacing(8);
 		setWidget(outer);
 	}

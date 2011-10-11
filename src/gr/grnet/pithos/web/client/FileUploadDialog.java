@@ -54,6 +54,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
@@ -89,9 +90,20 @@ public class FileUploadDialog extends DialogBox {
 	 * The widget's constructor.
 	 */
 	public FileUploadDialog() {
+		Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
 		// Set the dialog's caption.
 		setText("File upload");
 		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
 		// Since we're going to add a FileUpload widget, we'll need to set the
 		// form to use the POST method, and multipart MIME encoding.
 		form.setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -99,10 +111,14 @@ public class FileUploadDialog extends DialogBox {
 
 		// Create a panel to hold all of the form widgets.
 		VerticalPanel panel = new VerticalPanel();
+		panel.add(close);
 		form.setWidget(panel);
 
+		VerticalPanel inner = new VerticalPanel();
+		inner.addStyleName("inner");
+
         final Hidden auth = new Hidden("X-Auth-Token", "");
-        panel.add(auth);
+        inner.add(auth);
 		upload.setName("X-Object-Data");
 		filenameLabel.setText("");
 		filenameLabel.setVisible(false);
@@ -121,10 +137,7 @@ public class FileUploadDialog extends DialogBox {
 		generalTable.getCellFormatter().setStyleName(1, 1, "props-values");
 		generalTable.setCellSpacing(4);
 
-		panel.add(generalTable);
-
-		// Create a panel to hold the buttons.
-		HorizontalPanel buttons = new HorizontalPanel();
+		inner.add(generalTable);
 
 		// Create the 'upload' button, along with a listener that submits the
 		// form.
@@ -134,21 +147,8 @@ public class FileUploadDialog extends DialogBox {
 				prepareAndSubmit();
 			}
 		});
-		buttons.add(submit);
-		buttons.setCellHorizontalAlignment(submit, HasHorizontalAlignment.ALIGN_CENTER);
-		// Create the 'Cancel' button, along with a listener that hides the
-		// dialog when the button is clicked.
-		final Button cancel = new Button("Cancel", new ClickHandler() {
-			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-				hide();
-			}
-		});
-		buttons.add(cancel);
-		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		buttons.setSpacing(8);
-        panel.add(buttons);
-        panel.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
+		submit.addStyleName("button");
+		inner.add(submit);
 
 		// Add an event handler to the form.
 		form.addSubmitHandler(new SubmitHandler() {
@@ -189,6 +189,9 @@ public class FileUploadDialog extends DialogBox {
 			}
 		});
 
+		panel.add(inner);
+		panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+		
 		setWidget(form);
 	}
 

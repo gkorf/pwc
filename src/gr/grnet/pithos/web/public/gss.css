@@ -86,6 +86,25 @@ a.info:hover div {
 	border-bottom: 5px solid #4085A5;
 }
 
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopLeft {
+  background-position: 0px -55px;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopRight {
+  background-position: -6px -55px;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopCenter {
+	background: #D0E4F6;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleLeft,
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleCenter,
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleRight {
+	background: #D0E4F6;
+	color:#d45500;
+}
+.pithos-TabPanelBottom {
+	border: none;
+}
+
 table.pithos-permList {
 	border-spacing: 3px;
 	border-collapse: collapse;
@@ -134,11 +153,18 @@ table.pithos-permList.props-labels {
 
 .pithos-usernameMenu {
     cursor: pointer;
-    color: white;
 }
 
 .pithos-usernameMenuItem {
-    cursor: pointer;
+	background: url(images/down-arrow-light.png) no-repeat scroll right 8px transparent;
+	padding-right: 13px;
+	cursor: pointer;
+    color: white;
+}
+
+.pithos-usernameMenuItem :hover {
+	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
+	background-color: red;
 }
 
 .pithos-sessionExpired {
@@ -201,13 +227,6 @@ table.pithos-permList.props-labels {
 	font-style: italic;
 	font-size: 12px;
 	padding-left: 4;
-}
-
-.pithos-TabPanelBottom {
-	border-color: darkgrey;
-	border-width: 1px 1px 1px;
-	overflow: hidden;
-	padding: 6px;
 }
 
 .pithos-treeHeader {

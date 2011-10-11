@@ -44,6 +44,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -66,18 +67,35 @@ public class DeleteFolderDialog extends DialogBox {
 	public DeleteFolderDialog(Pithos _app, Images images, Folder _folder) {
         this.app = _app;
         this.folder = _folder;
+
+        Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
+
 		// Set the dialog's caption.
 		setText("Confirmation");
 		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
 		// Create a VerticalPanel to contain the HTML label and the buttons.
 		VerticalPanel outer = new VerticalPanel();
-		HorizontalPanel buttons = new HorizontalPanel();
+		outer.add(close);
+		
+		VerticalPanel inner = new VerticalPanel();
+		inner.addStyleName("inner");
 
 		HTML text = new HTML("<table><tr><td rowspan='2'>" + AbstractImagePrototype.create(images.warn()).getHTML() +
 					"</td><td>" + "Are you sure you want to <b>permanently</b> delete folder '" + folder.getName() +
 					"'?</td></tr></table>");
 		text.setStyleName("pithos-warnMessage");
-		outer.add(text);
+		inner.add(text);
+		inner.setCellHorizontalAlignment(text, HasHorizontalAlignment.ALIGN_CENTER);
 
 		// Create the 'Delete' button, along with a listener that hides the dialog
 		// when the button is clicked and deletes the folder.
@@ -88,24 +106,10 @@ public class DeleteFolderDialog extends DialogBox {
 				hide();
 			}
 		});
-		buttons.add(ok);
-		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
-		// Create the 'Cancel' button, along with a listener that hides the
-		// dialog when the button is clicked.
-		Button cancel = new Button("Cancel", new ClickHandler() {
-			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-				hide();
-			}
-		});
-		buttons.add(cancel);
-		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		buttons.setSpacing(8);
-		buttons.setStyleName("pithos-warnMessage");
-		outer.setStyleName("pithos-warnMessage");
-		outer.add(buttons);
-		outer.setCellHorizontalAlignment(text, HasHorizontalAlignment.ALIGN_CENTER);
-		outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
+		ok.addStyleName("button");
+		inner.add(ok);
+		outer.add(inner);
+		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		setWidget(outer);
 	}
 

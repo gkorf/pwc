@@ -52,6 +52,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -93,7 +94,19 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	public FolderPropertiesDialog(final Pithos app, boolean _create,  Folder selected) {
         this.app = app;
+		Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
+
 		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
 
 		// Enable IE selection for the dialog (must disable it upon closing it)
 		Pithos.enableIESelection();
@@ -110,9 +123,12 @@ public class FolderPropertiesDialog extends DialogBox {
 
 		// Outer contains inner and buttons
 		VerticalPanel outer = new VerticalPanel();
+		outer.add(close);
 		// Inner contains generalPanel and permPanel
 		inner = new DecoratedTabPanel();
 		inner.setAnimationEnabled(true);
+		inner.addStyleName("inner");
+		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
 
 		VerticalPanel generalPanel = new VerticalPanel();
         FlexTable generalTable = new FlexTable();
@@ -183,7 +199,6 @@ public class FolderPropertiesDialog extends DialogBox {
 
         outer.add(inner);
 
-        HorizontalPanel buttons = new HorizontalPanel();
 		// Create the 'Create/Update' button, along with a listener that hides the dialog
 		// when the button is clicked and quits the application.
 		String okLabel;
@@ -198,24 +213,9 @@ public class FolderPropertiesDialog extends DialogBox {
 				closeDialog();
 			}
 		});
-		buttons.add(ok);
-		buttons.setCellHorizontalAlignment(ok, HasHorizontalAlignment.ALIGN_CENTER);
-		// Create the 'Cancel' button, along with a listener that hides the
-		// dialog
-		// when the button is clicked.
-		Button cancel = new Button("Cancel", new ClickHandler() {
-			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-				closeDialog();
-			}
-		});
-		buttons.add(cancel);
-		buttons.setCellHorizontalAlignment(cancel, HasHorizontalAlignment.ALIGN_CENTER);
-		buttons.setSpacing(8);
-		buttons.addStyleName("pithos-TabPanelBottom");
-        outer.add(buttons);
-        outer.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_CENTER);
-        outer.addStyleName("pithos-TabPanelBottom");
+		ok.addStyleName("button");
+		outer.add(ok);
+        outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 
         setWidget(outer);
 	}

@@ -92,7 +92,6 @@ public class TopPanel extends Composite {
 
         MenuBar username = new MenuBar();
         username.setStyleName("pithos-usernameMenu");
-        username.setAutoOpen(true);
         
         MenuBar userItemMenu = new MenuBar(true);
         userItemMenu.addItem(new MenuItem("invite friends...", new Command() {
@@ -125,16 +124,13 @@ public class TopPanel extends Composite {
 			}
 		}));
 
-        SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        sb.append(SafeHtmlUtils.fromSafeConstant(_app.getUsername()));
-        sb.appendHtmlConstant(AbstractImagePrototype.create(images.downArrow()).getHTML());
         MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
+        userItem.addStyleName("pithos-usernameMenuItem");
         username.addItem(userItem);
+        username.addSeparator();
+        username.addItem(new MenuItem("en", (Command) null));
         outer.add(username);
 		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
-		Image downArrow = AbstractImagePrototype.create(images.downArrow()).createImage();
-		outer.add(downArrow);
-		outer.setCellHorizontalAlignment(downArrow, HasHorizontalAlignment.ALIGN_LEFT);
 		initWidget(outer);
 	}
 }
