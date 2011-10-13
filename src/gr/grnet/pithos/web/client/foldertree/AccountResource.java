@@ -259,7 +259,7 @@ public class AccountResource extends Resource {
 	}
 
 	public double getUsedPercentage() {
-		return 100.0 * bytesUsed / (bytesUsed + bytesRemaining);
+		return ((double) bytesUsed) / (bytesUsed + bytesRemaining);
 	}
 
 	public Folder getPithos() {

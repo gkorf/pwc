@@ -77,6 +77,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -375,8 +376,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         statistics.add(new HTML("&nbsp;("));
         usedPercent = new HTML();
         statistics.add(usedPercent);
-        statistics.add(new HTML("%)"));
+        statistics.add(new HTML(")"));
         treeHeader.add(statistics);
+        treeHeader.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_LEFT);
         trees.add(treeHeader);
 
         trees.add(folderTreeView);
@@ -604,7 +606,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	totalFiles.setHTML(String.valueOf(account.getNumberOfObjects()));
     	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
     	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
-    	usedPercent.setHTML(String.valueOf(account.getUsedPercentage()));
+    	NumberFormat nf = NumberFormat.getPercentFormat();
+    	usedPercent.setHTML(nf.format(account.getUsedPercentage()));
 	}
 
 	protected void createHomeContainer(final AccountResource _account, final Command callback) {
