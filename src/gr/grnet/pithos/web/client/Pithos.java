@@ -434,9 +434,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		                			trash = f;
 		                			break;
 		                		}
-		                    folderTreeViewModel.initialize(account);
+		                    folderTreeViewModel.initialize(account, new Command() {
+								
+								@Override
+								public void execute() {
+				                    createMySharedTree();
+								}
+							});
 		                    groupTreeViewModel.initialize();
-		                    createMySharedTree();
 		                    showStatistics();
 		                }
 					}

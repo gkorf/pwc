@@ -60,8 +60,8 @@ public class FolderTreeView extends Composite implements TreeView {
     private void updateChildren(TreeNode node, Folder folder) {
         for (int i=0; i<node.getChildCount(); i++) {
             if (folder.equals(node.getChildValue(i))) {
-                node.setChildOpen(i, false, true);
-                node.setChildOpen(i, true, true);
+                node.setChildOpen(i, false, false);
+                node.setChildOpen(i, true, false);
             }
             else {
                 if (node.isChildOpen(i)) {
