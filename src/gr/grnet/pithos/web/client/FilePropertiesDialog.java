@@ -216,7 +216,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         generalTable.setText(2, 1, file.getOwner());
 
         final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
-        generalTable.setText(3, 1, formatter.format(file.getLastModified()));
+        generalTable.setText(3, 1, file.getLastModified() != null ? formatter.format(file.getLastModified()) : "");
 
 		StringBuffer tagsBuffer = new StringBuffer();
         for (String t : file.getTags())

@@ -297,7 +297,7 @@ public class FileList extends Composite {
         aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
-				return formatter.format(object.getLastModified());
+				return object.getLastModified() != null ? formatter.format(object.getLastModified()) : "";
 			}
 		};
         aheader = new SortableHeader("Last Modified");
@@ -500,7 +500,9 @@ public class FileList extends Composite {
                             } else if (sortingProperty.equals("owner")) {
                                     return arg0.getOwner().compareTo(arg1.getOwner());
                             } else if (sortingProperty.equals("date")) {
-                                    return arg0.getLastModified().compareTo(arg1.getLastModified());
+                            		if (arg0.getLastModified() != null && arg1.getLastModified() != null)
+                            			return arg0.getLastModified().compareTo(arg1.getLastModified());
+                            		return 0;
                             } else if (sortingProperty.equals("size")) {
                                     return (int) (arg0.getBytes() - arg1.getBytes());
                             } else if (sortingProperty.equals("name")) {

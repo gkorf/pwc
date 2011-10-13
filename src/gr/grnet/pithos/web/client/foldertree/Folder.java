@@ -43,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -105,10 +106,6 @@ public class Folder extends Resource {
         return bytesUsed;
     }
 
-    public void setLastModified(Date lastModified) {
-        this.lastModified = lastModified;
-    }
-
     public Set<Folder> getSubfolders() {
         return subfolders;
     }
@@ -156,7 +153,12 @@ public class Folder extends Resource {
         this.owner = _owner;
         String header = response.getHeader("Last-Modified");
         if (header != null)
-            lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(header);
+			try {
+				lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(header);
+			} catch (IllegalArgumentException e) {
+				GWT.log("Last-Modified will be set to null", e);
+				lastModified = null;
+			}
 
         header = response.getHeader("X-Container-Bytes-Used");
         if (header != null && header.length() > 0)
