@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -57,15 +58,20 @@ public class StatusPanel extends Composite {
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		HorizontalPanel firstLine = new HorizontalPanel();
 		firstLine.setSpacing(8);
-        firstLine.add(new HTML("<a href='javascript:void(0)'>About</a> |"));
-        firstLine.add(new HTML("<a href='javascript:void(0)'>Help</a> |"));
-        firstLine.add(new HTML("<a href='javascript:void(0)'>Contact</a> |"));
-        firstLine.add(new HTML("<a href='javascript:void(0)'>Terms</a> |"));
-        firstLine.add(new HTML("<a href='javascript:void(0)'>Privacy</a>"));
+		firstLine.addStyleName("pithos-statusbar");
+		firstLine.add(new Anchor("About"));
+		firstLine.add(new HTML("|"));
+        firstLine.add(new Anchor("Help"));
+		firstLine.add(new HTML("|"));
+        firstLine.add(new Anchor("Contact"));
+		firstLine.add(new HTML("|"));
+        firstLine.add(new Anchor("Terms"));
+		firstLine.add(new HTML("|"));
+        firstLine.add(new Anchor("Privacy"));
 		inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("Copyright (C) 2011 Greek Research and Technology Network"));
+        secondLine.add(new HTML("<a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011 Greek Research and Technology Network</a>"));
         inner.add(secondLine);
         outer.add(inner);
         outer.addStyleName("pithos-statusbar");

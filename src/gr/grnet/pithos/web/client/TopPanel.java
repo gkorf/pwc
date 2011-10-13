@@ -87,8 +87,12 @@ public class TopPanel extends Composite {
 		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		outer.setStyleName("pithos-topPanel");
 
+		HorizontalPanel inner = new HorizontalPanel();
+		inner.setWidth("75%");
+		inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		
 		HTML logos = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</td></tr></table>");
-		outer.add(logos);
+		inner.add(logos);
 
         MenuBar username = new MenuBar();
         username.setStyleName("pithos-usernameMenu");
@@ -129,8 +133,12 @@ public class TopPanel extends Composite {
         username.addItem(userItem);
         username.addSeparator();
         username.addItem(new MenuItem("en", (Command) null));
-        outer.add(username);
-		outer.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
+        inner.add(username);
+        inner.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
+        
+        outer.add(inner);
+        outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+        outer.setCellVerticalAlignment(inner, HasVerticalAlignment.ALIGN_BOTTOM);
 		initWidget(outer);
 	}
 }

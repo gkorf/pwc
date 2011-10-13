@@ -7,11 +7,16 @@ body {
 }
 
 a {
-	color: darkblue;
+	color: white;
+	text-decoration: none;
+}
+
+a:hover {
+	color: white;
 }
 
 a:visited {
-	color: darkblue;
+	color: white;
 }
 
 a.info {
@@ -149,6 +154,7 @@ table.pithos-permList.props-labels {
 	background-color: #4085a5;
 	font-size: 80%;
 	height: 60px;
+	border-bottom: 1px solid white;
 }
 
 .pithos-usernameMenu {
@@ -180,6 +186,7 @@ table.pithos-permList.props-labels {
 	vertical-align: middle;
 	font-weight: normal;
 	height:145px;
+	color: white;
 }
 
 .pithos-List {
@@ -274,4 +281,8 @@ table.pithos-permList.props-labels {
 
 .pithos-credentialsText {
 	padding: 10px;
+}
+
+.grnet-sign {
+	color: #72ADC8;
 }

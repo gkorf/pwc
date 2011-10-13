@@ -271,7 +271,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.setWidth("100%");
 
         topPanel = new TopPanel(this, Pithos.images);
-        topPanel.setWidth("75%");
+        topPanel.setWidth("100%");
         outer.add(topPanel);
         outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
         
@@ -392,7 +392,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.setCellHorizontalAlignment(splitPanel, HasHorizontalAlignment.ALIGN_CENTER);
 
         statusPanel = new StatusPanel();
-        statusPanel.setWidth("75%");
+        statusPanel.setWidth("100%");
         outer.add(statusPanel);
         outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
 
