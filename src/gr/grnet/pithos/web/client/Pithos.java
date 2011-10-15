@@ -326,7 +326,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
                     applyPermissions(folderTreeSelectionModel.getSelectedObject());
                     Folder f = folderTreeSelectionModel.getSelectedObject();
-                    updateFolder(f, true, null);
+                    showFiles(f);
                 }
             }
         });
@@ -886,7 +886,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-//                	folderTreeSelectionModel.setSelected(folder.getParent(), true);
                     updateFolder(folder.getParent(), true, new Command() {
 						
 						@Override

@@ -103,7 +103,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 
     protected ListDataProvider<Folder> rootDataProvider = new ListDataProvider<Folder>();
 
-    private Map<Folder, AsyncDataProvider<Folder>> dataProviderMap = new HashMap<Folder, AsyncDataProvider<Folder>>();
+    private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
 
     protected SingleSelectionModel<Folder> selectionModel;
 
@@ -121,15 +121,12 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
 		final Folder f = (Folder) value;
 		if (dataProviderMap.get(f) == null) {
-		    dataProviderMap.put(f, new AsyncDataProvider<Folder>() {
-
-				@Override
-				protected void onRangeChanged(HasData<Folder> display) {
-					fetchFolder(f, this, false, null);
-				}
-		    });
+		    dataProviderMap.put(f, new ListDataProvider<Folder>());
 		}
-		final AsyncDataProvider<Folder> dataProvider = dataProviderMap.get(f);
+		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
+		dataProvider.getList().clear();
+		dataProvider.getList().addAll(f.getSubfolders());
+		fetchFolder(f, dataProvider, false, null);
 		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }
 
@@ -192,17 +189,11 @@ public class FolderTreeViewModel implements TreeViewModel {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(final Folder folder, final boolean showfiles, final Command callback) {
+    public void updateFolder(final Folder folder, boolean showfiles, final Command callback) {
         if (dataProviderMap.get(folder) == null) {
-            dataProviderMap.put(folder, new AsyncDataProvider<Folder>() {
-
-				@Override
-				protected void onRangeChanged(HasData<Folder> display) {
-			        fetchFolder(folder, this, showfiles, null);
-				}
-            });
+            dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
-        final AsyncDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
+        final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
         fetchFolder(folder, dataProvider, showfiles, new Command() {
 			
 			@Override
@@ -214,7 +205,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 		});
     }
 
-    public void fetchFolder(final Folder f, final AsyncDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
+    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
@@ -225,8 +216,8 @@ public class FolderTreeViewModel implements TreeViewModel {
                 fetchFolder(iter, new Command() {
                     @Override
                     public void execute() {
-                        dataProvider.updateRowCount(_result.getSubfolders().size(), true);
-                        dataProvider.updateRowData(0, new ArrayList<Folder>(_result.getSubfolders()));
+                        dataProvider.getList().clear();
+                        dataProvider.getList().addAll(_result.getSubfolders());
 //                        app.getFolderTreeView().updateChildren(f);
                         if (callback != null)
                         	callback.execute();
