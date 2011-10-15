@@ -198,12 +198,20 @@ public class FolderTreeViewModel implements TreeViewModel {
 
 				@Override
 				protected void onRangeChanged(HasData<Folder> display) {
-			        fetchFolder(folder, this, showfiles, callback);
+			        fetchFolder(folder, this, showfiles, null);
 				}
             });
         }
         final AsyncDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
-        fetchFolder(folder, dataProvider, showfiles, callback);
+        fetchFolder(folder, dataProvider, showfiles, new Command() {
+			
+			@Override
+			public void execute() {
+				app.getFolderTreeView().openFolder(folder);
+				if (callback != null)
+					callback.execute();
+			}
+		});
     }
 
     public void fetchFolder(final Folder f, final AsyncDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {

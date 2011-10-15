@@ -52,21 +52,43 @@ import com.google.gwt.user.client.ui.Tree;
 
 public class FolderTreeView extends Composite implements TreeView {
 
-    public void updateChildren(Folder folder) {
+	public boolean isFolderOpen(Folder folder) {
         TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
-        updateChildren(root, folder);
-    }
-
-    private void updateChildren(TreeNode node, Folder folder) {
+        return isFolderOpen(root, folder);
+	}
+	
+	private boolean isFolderOpen(TreeNode node, Folder folder) {
         for (int i=0; i<node.getChildCount(); i++) {
             if (folder.equals(node.getChildValue(i))) {
-                node.setChildOpen(i, false, false);
-                node.setChildOpen(i, true, false);
+                return node.isChildOpen(i);
             }
             else {
                 if (node.isChildOpen(i)) {
                     TreeNode n = node.setChildOpen(i, true);
-                    updateChildren(n, folder);
+                    return isFolderOpen(n, folder);
+                }
+            }
+    	}
+        return false;
+	}
+	
+    public void openFolder(Folder folder) {
+        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        openFolder(root, folder);
+    }
+
+    private void openFolder(TreeNode node, Folder folder) {
+        for (int i=0; i<node.getChildCount(); i++) {
+            if (folder.equals(node.getChildValue(i))) {
+            	node.setChildOpen(i, false, true);
+            	node.setChildOpen(i, true, true);
+            	break;
+            }
+            else {
+                if (node.isChildOpen(i)) {
+                    TreeNode n = node.setChildOpen(i, true);
+                    openFolder(n, folder);
+                    break;
                 }
             }
     	}
