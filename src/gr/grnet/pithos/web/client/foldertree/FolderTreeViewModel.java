@@ -124,8 +124,9 @@ public class FolderTreeViewModel implements TreeViewModel {
 		    dataProviderMap.put(f, new ListDataProvider<Folder>());
 		}
 		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-		dataProvider.getList().clear();
-		dataProvider.getList().addAll(f.getSubfolders());
+		//This prevents the loading indicator
+//		dataProvider.getList().clear();
+//		dataProvider.getList().addAll(f.getSubfolders());
 		fetchFolder(f, dataProvider, false, null);
 		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }

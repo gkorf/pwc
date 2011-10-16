@@ -21,6 +21,7 @@
   padding-left: 16px;
   font-style: italic;
   background: url(images/cellTreeLoadingBasic.gif) no-repeat;
+  color: #4085A5;
 }
 
 .cellTreeItem {
