@@ -289,6 +289,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                     permList.updatePermissionTable();
                 }
             });
+            add.addStyleName("button");
             permButtons.add(add);
             permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -300,6 +301,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                     permList.updatePermissionTable();
                 }
             });
+            addUser.addStyleName("button");
             permButtons.add(addUser);
             permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
 

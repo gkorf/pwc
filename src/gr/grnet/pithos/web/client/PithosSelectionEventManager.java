@@ -61,11 +61,11 @@ import com.google.gwt.view.client.SelectionModel;
  * 
  * @param <T> the data type of records in the list
  */
-public class GSSSelectionEventManager<T> implements
+public class PithosSelectionEventManager<T> implements
     CellPreviewEvent.Handler<T> {
 
   /**
-   * Implementation of {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.EventTranslator} that only triggers selection when
+   * Implementation of {@link gr.grnet.pithos.web.client.PithosSelectionEventManager.EventTranslator} that only triggers selection when
    * any checkbox is selected.
    * 
    * @param <T> the data type
@@ -78,7 +78,7 @@ public class GSSSelectionEventManager<T> implements
     private final int column;
 
     /**
-     * Construct a new {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.CheckboxEventTranslator} that will trigger
+     * Construct a new {@link gr.grnet.pithos.web.client.PithosSelectionEventManager.CheckboxEventTranslator} that will trigger
      * selection when any checkbox in any column is selected.
      */
     public CheckboxEventTranslator() {
@@ -86,7 +86,7 @@ public class GSSSelectionEventManager<T> implements
     }
 
     /**
-     * Construct a new {@link gr.grnet.pithos.web.client.GSSSelectionEventManager.CheckboxEventTranslator} that will trigger
+     * Construct a new {@link gr.grnet.pithos.web.client.PithosSelectionEventManager.CheckboxEventTranslator} that will trigger
      * selection when a checkbox in the specified column is selected.
      * 
      * @param column the column index, or -1 for all columns
@@ -161,53 +161,53 @@ public class GSSSelectionEventManager<T> implements
   }
 
   /**
-   * Construct a new {@link GSSSelectionEventManager} that triggers
+   * Construct a new {@link PithosSelectionEventManager} that triggers
    * selection when any checkbox in any column is clicked.
    * 
    * @param <T> the data type of the display
-   * @return a {@link GSSSelectionEventManager} instance
+   * @return a {@link PithosSelectionEventManager} instance
    */
-  public static <T> GSSSelectionEventManager<T> createCheckboxManager() {
-    return new GSSSelectionEventManager<T>(new CheckboxEventTranslator<T>());
+  public static <T> PithosSelectionEventManager<T> createCheckboxManager() {
+    return new PithosSelectionEventManager<T>(new CheckboxEventTranslator<T>());
   }
 
   /**
-   * Construct a new {@link GSSSelectionEventManager} that triggers
+   * Construct a new {@link PithosSelectionEventManager} that triggers
    * selection when a checkbox in the specified column is clicked.
    * 
    * @param <T> the data type of the display
    * @param column the column to handle
-   * @return a {@link GSSSelectionEventManager} instance
+   * @return a {@link PithosSelectionEventManager} instance
    */
-  public static <T> GSSSelectionEventManager<T> createCheckboxManager(
+  public static <T> PithosSelectionEventManager<T> createCheckboxManager(
       int column) {
-    return new GSSSelectionEventManager<T>(new CheckboxEventTranslator<T>(
+    return new PithosSelectionEventManager<T>(new CheckboxEventTranslator<T>(
         column));
   }
 
   /**
-   * Create a new {@link GSSSelectionEventManager} using the specified
+   * Create a new {@link PithosSelectionEventManager} using the specified
    * {@link EventTranslator} to control which {@link SelectAction} to take for
    * each event.
    * 
    * @param <T> the data type of the display
    * @param translator the {@link EventTranslator} to use
-   * @return a {@link GSSSelectionEventManager} instance
+   * @return a {@link PithosSelectionEventManager} instance
    */
-  public static <T> GSSSelectionEventManager<T> createCustomManager(
+  public static <T> PithosSelectionEventManager<T> createCustomManager(
       EventTranslator<T> translator) {
-    return new GSSSelectionEventManager<T>(translator);
+    return new PithosSelectionEventManager<T>(translator);
   }
 
   /**
-   * Create a new {@link GSSSelectionEventManager} that handles selection
+   * Create a new {@link PithosSelectionEventManager} that handles selection
    * via user interactions.
    * 
    * @param <T> the data type of the display
-   * @return a new {@link GSSSelectionEventManager} instance
+   * @return a new {@link PithosSelectionEventManager} instance
    */
-  public static <T> GSSSelectionEventManager<T> createDefaultManager() {
-    return new GSSSelectionEventManager<T>(null);
+  public static <T> PithosSelectionEventManager<T> createDefaultManager() {
+    return new PithosSelectionEventManager<T>(null);
   }
 
   /**
@@ -242,13 +242,13 @@ public class GSSSelectionEventManager<T> implements
   private final EventTranslator<T> translator;
 
   /**
-   * Construct a new {@link GSSSelectionEventManager} using the specified
+   * Construct a new {@link PithosSelectionEventManager} using the specified
    * {@link EventTranslator} to control which {@link SelectAction} to take for
    * each event.
    * 
    * @param translator the {@link EventTranslator} to use
    */
-  protected GSSSelectionEventManager(EventTranslator<T> translator) {
+  protected PithosSelectionEventManager(EventTranslator<T> translator) {
     this.translator = translator;
   }
 

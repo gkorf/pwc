@@ -175,6 +175,7 @@ public class FolderPropertiesDialog extends DialogBox {
                     dlg.center();
                 }
             });
+            add.addStyleName("button");
             permButtons.add(add);
             permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -185,11 +186,10 @@ public class FolderPropertiesDialog extends DialogBox {
                     dlg.center();
                 }
             });
-            addUser.getElement().setId("folderPropertiesDialog.button.addUser");
+            addUser.addStyleName("button");
             permButtons.add(addUser);
             permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
             permButtons.setSpacing(8);
-            permButtons.addStyleName("gss-TabPanelBottom");
             permPanel.add(permButtons);
         }
 

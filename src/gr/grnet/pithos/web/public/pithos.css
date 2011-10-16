@@ -62,6 +62,8 @@ a.info:hover div {
 	background-color: #4085A5;
 	color: white;
 	padding: 5px 6px;
+	white-space: nowrap;
+	
 }
 
 .pithos-DialogBox .Caption {
@@ -168,9 +170,82 @@ table.pithos-permList.props-labels {
     color: white;
 }
 
-.pithos-usernameMenuItem :hover {
+.pithos-usernameMenuItem:HOVER {
 	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
-	background-color: red;
+	background-color: #599EBD;
+}
+
+.pithos-usernameMenuItem:ACTIVE {
+	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
+	background-color: #BED5E0;
+}
+
+.pithos-langMenuItem {
+	cursor: pointer;
+    color: #72ADC8;
+}
+
+.gwt-MenuBar-vertical {
+	background: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopCenter {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopRight {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupMiddleLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupMiddleRight {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.pithos-userItemMenu {
+	background-color: #D0E3ED;
+}
+
+.gwt-popuppanel {
+    border: 3px solid #D0E3ED;
+    padding: 3px;
+    background: #D0E3ED;
+    border-image: initial;
+}
+
+.gwt-MenuBar .gwt-MenuItem {
+	border-bottom: 1px solid #EFEFEF;
+}
+
+.gwt-MenuBar .gwt-MenuItem-selected {
+	background-color: #E1EFF6;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomCenter {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomRight {
+	background: none;
+	background-color: #D0E3ED;
 }
 
 .pithos-sessionExpired {

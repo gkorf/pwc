@@ -1,0 +1,356 @@
+body {
+	color: black;
+	font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+	margin: 8px;
+	margin-top: 3px;
+	background: url(images/background.png) repeat-x;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+}
+
+a:hover {
+	color: white;
+}
+
+a:visited {
+	color: white;
+}
+
+a.info {
+	position: relative; /*this is the key*/
+	z-index: 24;
+	color: black;
+	text-decoration: none
+}
+
+a.info:hover {
+	z-index: 25;
+	background-color: yellow;
+}
+
+a.info div {
+	display: none
+}
+
+a.info:hover span {
+	cursor: pointer;
+}
+
+/* The span will only display on :hover state. */
+a.info:hover div {
+	display: block;
+	position: absolute;
+	bottom: 2em;
+	right: 1em;
+	width: 10em;
+	border: 1px solid lightblue;
+	background-color: #D0E4F6;
+	color: black;
+	text-align: center
+}
+
+.pithos-DialogBox .inner {
+	width: 95%;
+	background: url(images/white50.png);
+}
+
+.pithos-DialogBox .button {
+	background: none;
+	background-color: #4085A5;
+	color: white;
+	padding: 5px 6px;
+	white-space: nowrap;
+	
+}
+
+.pithos-DialogBox .Caption {
+	color: white;
+	background-color: #4085a5;
+	padding: 4px 4px 4px 8px;
+	border-bottom: 1px solid white;
+}
+
+.pithos-DialogBox .close {
+	background: url(images/close-popup.png) no-repeat;
+	cursor: pointer;
+	position: absolute;
+	width: 13px;
+	height: 13px;
+	top: 7px;
+	right: 7px;
+}
+
+.pithos-DialogBox .dialogMiddleCenter {
+	background: url(images/popup-bg.png) repeat-x;
+	background-color: white;
+	padding: 3px;
+}
+
+.pithos-DialogBox .dialogBottomCenter {
+	border-bottom: 5px solid #4085A5;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopLeft {
+  background-position: 0px -55px;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopRight {
+  background-position: -6px -55px;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopCenter {
+	background: #D0E4F6;
+}
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleLeft,
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleCenter,
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleRight {
+	background: #D0E4F6;
+	color:#d45500;
+}
+.pithos-TabPanelBottom {
+	border: none;
+}
+
+table.pithos-permList {
+	border-spacing: 3px;
+	border-collapse: collapse;
+
+}
+
+table.pithos-permList td {
+	padding: 5px 5px 5px 5px;
+	font-size:80%;
+}
+
+table.pithos-permList.props-labels {
+	font-weight: bold;
+}
+
+.props-labels {
+	font-size: 80%;
+	font-weight: bold;
+}
+
+.props-toplabels {
+	font-size: 80%;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.props-values {
+	font-size: 80%;
+}
+
+.hidden-link {
+	text-decoration: none !important;
+	color: black !important;
+}
+
+.hidden-link:visited {
+	text-decoration: none !important;
+	color: black !important;
+}
+
+.pithos-topPanel {
+	background-color: #4085a5;
+	font-size: 80%;
+	height: 60px;
+	border-bottom: 1px solid white;
+}
+
+.pithos-usernameMenu {
+    cursor: pointer;
+}
+
+.pithos-usernameMenuItem {
+	background: url(images/down-arrow-light.png) no-repeat scroll right 8px transparent;
+	padding-right: 13px;
+	cursor: pointer;
+    color: white;
+}
+
+.pithos-usernameMenuItem:HOVER {
+	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
+	background-color: #599EBD;
+}
+
+.pithos-usernameMenuItem:ACTIVE {
+	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
+	background-color: #BED5E0;
+}
+
+.pithos-langMenuItem {
+	cursor: pointer;
+    color: #72ADC8;
+}
+
+.gwt-MenuBar-vertical {
+	background: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopCenter {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupTopRight {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupMiddleLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupMiddleRight {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.pithos-userItemMenu {
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBar .gwt-MenuItem {
+	border-bottom: 1px solid #EFEFEF;
+}
+
+.gwt-MenuBar .gwt-MenuItem-selected {
+	background-color: #E1EFF6;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomLeft {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomCenter {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.gwt-MenuBarPopup .menuPopupBottomRight {
+	background: none;
+	background-color: #D0E3ED;
+}
+
+.pithos-sessionExpired {
+	width: 24em;
+	/* Restore the padding we remove when overriding the gwt-DialogBox style */
+	padding: 3px;
+}
+
+.pithos-statusbar {
+	background-color: #4085a5;
+	border: none;
+	font-size: 90%;
+	vertical-align: middle;
+	font-weight: normal;
+	height:145px;
+	color: white;
+}
+
+.pithos-List {
+	cursor: default;
+	border-collapse: collapse;
+	/* prevents selecting text in table with shift and ctrl*/
+	-moz-user-select: none;
+}
+
+.pithos-errorMessage {
+	font-size: 90%;
+	background-color: #ff9999;
+	cursor: pointer;
+}
+
+.pithos-warnMessage {
+	font-size: 90%;
+	background-color: #eeee99;
+	cursor: pointer;
+}
+
+.pithos-infoMessage {
+	font-size: 90%;
+	background-color: #ccffcc;
+	cursor: pointer;
+}
+
+.pithos-clearMessage {
+	font-size: 90%;
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+.pithos-clearMessage:visited {
+	font-size: 90%;
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+.pithos-readForAllNote {
+	width: 240px;
+	text-align: justify;
+	font-style: italic;
+	font-size: 12px;
+	padding-left: 4;
+}
+
+.pithos-treeHeader {
+	background-color: #74aec9;
+}
+
+.pithos-splitPanel {
+	background: url(images/white50.png);
+}
+
+/* Use the background color for the splitter. */
+.gwt-HorizontalSplitPanel .hsplitter {
+	cursor: move;
+	border: 0px;
+	background: url(images/background.png) repeat-x;
+}
+
+.pithos-tag {
+	display:inline;
+}
+
+.pithos-uploadButton {
+    background: none;
+    background-color: #ff6600;
+    font-size: 120%;
+    text-align: center;
+    height: 40px;
+    width: 300px;
+}
+
+.pithos-rightSide {
+    vertical-align: middle;
+    width: 100%;
+}
+.pithos-parentButton {
+    background: none;
+    background-color: #a1c8da;
+}
+
+.pithos-folderStatistics {
+    background-color: #a1c8da;
+    text-align: center;
+    color: white;
+}
+
+.pithos-credentialsText {
+	padding: 10px;
+}
+
+.grnet-sign {
+	color: #72ADC8;
+}

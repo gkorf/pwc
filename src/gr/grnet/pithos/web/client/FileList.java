@@ -83,7 +83,7 @@ public class FileList extends Composite {
 
 	interface TableResources extends CellTable.Resources {
 	    @Override
-		@Source({CellTable.Style.DEFAULT_CSS, "GssCellTable.css"})
+		@Source({CellTable.Style.DEFAULT_CSS, "PithosCellTable.css"})
 	    TableStyle cellTableStyle();
 	}
 	
@@ -331,7 +331,7 @@ public class FileList extends Composite {
 
 		selectionModel = new MultiSelectionModel<File>(keyProvider);
 
-		celltable.setSelectionModel(selectionModel, GSSSelectionEventManager.<File> createDefaultManager());
+		celltable.setSelectionModel(selectionModel, PithosSelectionEventManager.<File> createDefaultManager());
 //		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
 		sinkEvents(Event.ONCONTEXTMENU);

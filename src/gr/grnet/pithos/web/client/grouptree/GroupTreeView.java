@@ -95,7 +95,7 @@ public class GroupTreeView extends Composite implements TreeView {
         ImageResource cellTreeOpenItem();
 
         @Override
-		@Source({"gr/grnet/pithos/web/client/GssCellTreeBasic.css"})
+		@Source({"gr/grnet/pithos/web/client/PithosCellTreeBasic.css"})
         CellTree.Style cellTreeStyle();
     }
 

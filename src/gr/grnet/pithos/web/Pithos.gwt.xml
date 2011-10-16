@@ -40,7 +40,7 @@
 	<inherits name="com.google.gwt.json.JSON"/>
 
     <entry-point class='gr.grnet.pithos.web.client.Pithos' />
-	<stylesheet src='gss.css' />
+	<stylesheet src='pithos.css' />
 
 	<source path="client"/>
 </module>

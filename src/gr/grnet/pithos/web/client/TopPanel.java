@@ -98,6 +98,7 @@ public class TopPanel extends Composite {
         username.setStyleName("pithos-usernameMenu");
         
         MenuBar userItemMenu = new MenuBar(true);
+        userItemMenu.addStyleName("pithos-userItemMenu");
         userItemMenu.addItem(new MenuItem("invite friends...", new Command() {
 			
 			@Override
@@ -132,7 +133,11 @@ public class TopPanel extends Composite {
         userItem.addStyleName("pithos-usernameMenuItem");
         username.addItem(userItem);
         username.addSeparator();
-        username.addItem(new MenuItem("en", (Command) null));
+        
+        MenuItem langItem = new MenuItem("en", (Command) null);
+        langItem.addStyleName("pithos-langMenuItem");
+        username.addItem(langItem);
+        
         inner.add(username);
         inner.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
         
