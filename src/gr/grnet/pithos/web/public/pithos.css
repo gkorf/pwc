@@ -1,8 +1,12 @@
 body {
 	color: black;
-	font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 16px;
 	margin: 8px;
 	margin-top: 3px;
+}
+
+.pithos-outer {
 	background: url(images/background.png) repeat-x;
 }
 
@@ -154,8 +158,8 @@ table.pithos-permList.props-labels {
 
 .pithos-topPanel {
 	background-color: #4085a5;
-	font-size: 80%;
-	height: 60px;
+	font-size: 75%;
+	height: 59px;
 	border-bottom: 1px solid white;
 }
 
@@ -260,7 +264,7 @@ table.pithos-permList.props-labels {
 	font-size: 90%;
 	vertical-align: middle;
 	font-weight: normal;
-	height:145px;
+	height:119px;
 	color: white;
 }
 
@@ -269,6 +273,7 @@ table.pithos-permList.props-labels {
 	border-collapse: collapse;
 	/* prevents selecting text in table with shift and ctrl*/
 	-moz-user-select: none;
+	margin-left: 10px;
 }
 
 .pithos-errorMessage {
@@ -313,10 +318,17 @@ table.pithos-permList.props-labels {
 
 .pithos-treeHeader {
 	background-color: #74aec9;
+	height: 25px;
+}
+
+.pithos-statistics {
+	color: white;
+	;
 }
 
 .pithos-splitPanel {
 	background: url(images/white50.png);
+	margin-bottom: 34px;
 }
 
 /* Use the background color for the splitter. */
@@ -332,16 +344,22 @@ table.pithos-permList.props-labels {
 
 .pithos-uploadButton {
     background: none;
-    background-color: #ff6600;
-    font-size: 120%;
+    background-color: #ff7f2a;
+    font-size: 100%;
     text-align: center;
-    height: 40px;
-    width: 300px;
+    height: 32px;
+    width: 146px;
+    border: none;
+}
+
+.pithos-uploadButton:HOVER {
+    background-color: #f95;
 }
 
 .pithos-rightSide {
     vertical-align: middle;
     width: 100%;
+    padding-left: 7px;
 }
 .pithos-parentButton {
     background: none;
@@ -352,6 +370,7 @@ table.pithos-permList.props-labels {
     background-color: #a1c8da;
     text-align: center;
     color: white;
+    height: 32px;
 }
 
 .pithos-credentialsText {
@@ -360,4 +379,15 @@ table.pithos-permList.props-labels {
 
 .grnet-sign {
 	color: #72ADC8;
+}
+
+.pithos-logo {
+	position: absolute;
+	top: 25;
+}
+
+.pithos-header {
+	width: 75%;
+	background: url(images/white50.png);
+	margin-top: 34;
 }

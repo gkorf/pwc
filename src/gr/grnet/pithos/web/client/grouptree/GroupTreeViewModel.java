@@ -65,7 +65,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		@Override
 		public void render(@SuppressWarnings("unused") Context context,	String value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.groups()).getHTML();
-            sb.appendHtmlConstant(html);
+            sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value));
 		}
 		
@@ -85,7 +85,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		@Override
 		public void render(@SuppressWarnings("unused") Context context,	Group value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.group()).getHTML();
-            sb.appendHtmlConstant(html);
+            sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
 		
@@ -105,7 +105,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		@Override
 		public void render(@SuppressWarnings("unused") Context context,	User value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
-            sb.appendHtmlConstant(html);
+            sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
 

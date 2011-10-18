@@ -268,27 +268,50 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void initialize() {
-        VerticalPanel outer = new VerticalPanel();
-        outer.setWidth("100%");
+    	boolean bareContent = Window.Location.getParameter("noframe") != null;
+    	String contentWidth = bareContent ? "100%" : "75%";
 
-        topPanel = new TopPanel(this, Pithos.images);
-        topPanel.setWidth("100%");
-        outer.add(topPanel);
-        outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
+    	VerticalPanel outer = new VerticalPanel();
+        outer.setWidth("100%");
+    	if (!bareContent) {
+    		outer.addStyleName("pithos-outer");
+    	}
+
+        if (!bareContent) {
+	        topPanel = new TopPanel(this, Pithos.images);
+	        topPanel.setWidth("100%");
+	        outer.add(topPanel);
+	        outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
+        }
         
-        messagePanel.setWidth("75%");
+        messagePanel.setWidth(contentWidth);
         messagePanel.setVisible(false);
         outer.add(messagePanel);
         outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
 
-
-        // Inner contains the various lists.
-        inner.sinkEvents(Event.ONCONTEXTMENU);
-        inner.setWidth("100%");
-
-        HorizontalPanel rightside = new HorizontalPanel();
-        rightside.addStyleName("pithos-rightSide");
-        rightside.setSpacing(5);
+        HorizontalPanel header = new HorizontalPanel();
+        header.addStyleName("pithos-header");
+        HorizontalPanel leftHeader = new HorizontalPanel();
+        VerticalPanel uploadButtonPanel = new VerticalPanel();
+        upload = new Button("Upload File", new ClickHandler() {
+            @Override
+            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                new UploadFileCommand(Pithos.this, null, getSelection()).execute();
+            }
+        });
+        upload.addStyleName("pithos-uploadButton");
+        uploadButtonPanel.add(upload);
+        uploadButtonPanel.setWidth("100%");
+        uploadButtonPanel.setHeight("60px");
+        uploadButtonPanel.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
+        uploadButtonPanel.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
+        leftHeader.add(uploadButtonPanel);
+        header.add(leftHeader);
+        header.setCellWidth(leftHeader, "35%");
+        
+        HorizontalPanel rightHeader = new HorizontalPanel();
+        rightHeader.addStyleName("pithos-rightSide");
+        rightHeader.setSpacing(5);
 
         toolsButton = new Button(AbstractImagePrototype.create(images.tools()).getHTML());
         toolsButton.addClickHandler(new ClickHandler() {
@@ -302,21 +325,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
 			}
 		});
-        rightside.add(toolsButton);
-        rightside.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_LEFT);
+        rightHeader.add(toolsButton);
+        rightHeader.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_LEFT);
         
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
         numOfFiles = new HTML();
         folderStatistics.add(numOfFiles);
+        folderStatistics.setCellVerticalAlignment(numOfFiles, HasVerticalAlignment.ALIGN_MIDDLE);
         HTML numOfFilesLabel = new HTML("&nbsp;Files");
         folderStatistics.add(numOfFilesLabel);
-        rightside.add(folderStatistics);
-        rightside.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
-
-        inner.add(rightside);
-        inner.setCellVerticalAlignment(rightside, HasVerticalAlignment.ALIGN_MIDDLE);
-        inner.setCellHeight(rightside, "60px");
+        folderStatistics.setCellVerticalAlignment(numOfFilesLabel, HasVerticalAlignment.ALIGN_MIDDLE);
+        rightHeader.add(folderStatistics);
+        rightHeader.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
+        header.add(rightHeader);
+        header.setCellVerticalAlignment(rightHeader, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellHeight(rightHeader, "60px");
+        outer.add(header);
+        outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
+        // Inner contains the various lists.nner
+        inner.sinkEvents(Event.ONCONTEXTMENU);
+        inner.setWidth("100%");
 
         folderTreeSelectionModel = new SingleSelectionModel<Folder>();
         folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -344,26 +373,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         trees = new VerticalPanel();
         trees.setWidth("100%");
 
-        VerticalPanel uploadButtonPanel = new VerticalPanel();
-        upload = new Button("Upload File", new ClickHandler() {
-            @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                new UploadFileCommand(Pithos.this, null, getSelection()).execute();
-            }
-        });
-        uploadButtonPanel.add(upload);
-        uploadButtonPanel.setWidth("100%");
-        uploadButtonPanel.setHeight("60px");
-        uploadButtonPanel.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_CENTER);
-        uploadButtonPanel.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
-        upload.addStyleName("pithos-uploadButton");
-        trees.add(uploadButtonPanel);
         
         HorizontalPanel treeHeader = new HorizontalPanel();
         treeHeader.addStyleName("pithos-treeHeader");
-        treeHeader.setWidth("100%");
         treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         HorizontalPanel statistics = new HorizontalPanel();
+        statistics.addStyleName("pithos-statistics");
         statistics.add(new HTML("Total Objects:&nbsp;"));
         totalFiles = new HTML();
         statistics.add(totalFiles);
@@ -389,14 +405,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
         splitPanel.setSplitPosition("35%");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
-        splitPanel.setWidth("75%");
+        splitPanel.setWidth(contentWidth);
         outer.add(splitPanel);
         outer.setCellHorizontalAlignment(splitPanel, HasHorizontalAlignment.ALIGN_CENTER);
 
-        statusPanel = new StatusPanel();
-        statusPanel.setWidth("100%");
-        outer.add(statusPanel);
-        outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
+        if (!bareContent) {
+	        statusPanel = new StatusPanel();
+	        statusPanel.setWidth("100%");
+	        outer.add(statusPanel);
+	        outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
+        }
 
         // Hook the window resize event, so that we can adjust the UI.
         Window.addResizeHandler(this);

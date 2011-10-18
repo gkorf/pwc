@@ -92,6 +92,7 @@ public class TopPanel extends Composite {
 		inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		
 		HTML logos = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</td></tr></table>");
+		logos.addStyleName("pithos-logo");
 		inner.add(logos);
 
         MenuBar username = new MenuBar();

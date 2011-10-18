@@ -20,9 +20,13 @@
 
 .cellTableHeader {
     border:none;
-	font-weight: bold;
 	cursor: pointer;
 	color: white;
+	background-color: #74aec9;
+	height: 25px;
+	text-shadow: none;
+	font-size: small;
+	font-weight: normal;
 }
 
 .cellTableCell {
@@ -32,6 +36,7 @@
 
 .cellTableFirstColumn {
   padding: 0px;
+  padding-left: 5px;
 }
 
 .cellTableLastColumn {
@@ -78,4 +83,5 @@
 
 .cellTableHoveredRow {
     background: none;
+    background-color: #A1C8DB;
 }

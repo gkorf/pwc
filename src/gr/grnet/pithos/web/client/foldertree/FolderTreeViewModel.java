@@ -58,6 +58,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
@@ -86,7 +87,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             	html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
         		name = Templates.INSTANCE.nameSpan(folder.getName());
             }
-            safeHtmlBuilder.appendHtmlConstant(html);
+            safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(name);
         }
 

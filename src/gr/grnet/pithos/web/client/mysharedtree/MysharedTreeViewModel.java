@@ -79,7 +79,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
        @Override
         public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
-            safeHtmlBuilder.appendHtmlConstant(html);
+            safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
@@ -136,7 +136,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 @Override
                 public void render(String object, SafeHtmlBuilder builder) {
                     String html = AbstractImagePrototype.create(MysharedTreeView.images.myShared()).getHTML();
-                    builder.appendHtmlConstant(html);
+                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
                     builder.append(MysharedTreeView.Templates.INSTANCE.nameSpan(object));
                 }
             }),  selectionModel2, null);

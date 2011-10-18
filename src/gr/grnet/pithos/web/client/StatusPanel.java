@@ -58,7 +58,7 @@ public class StatusPanel extends Composite {
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		HorizontalPanel firstLine = new HorizontalPanel();
 		firstLine.setSpacing(8);
-		firstLine.addStyleName("pithos-statusbar");
+//		firstLine.addStyleName("pithos-statusbar");
 		firstLine.add(new Anchor("About"));
 		firstLine.add(new HTML("|"));
         firstLine.add(new Anchor("Help"));
