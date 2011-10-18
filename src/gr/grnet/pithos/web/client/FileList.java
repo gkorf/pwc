@@ -309,6 +309,7 @@ public class FileList extends Composite {
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
+		vp.addStyleName("pithos-FileListContainer");
 
         vp.add(celltable);
 

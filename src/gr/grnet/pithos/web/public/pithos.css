@@ -6,6 +6,10 @@ body {
 	margin-top: 3px;
 }
 
+table td {
+	font-family: Verdana, 'PT Sans', sans-serif;
+}
+
 .pithos-outer {
 	background: url(images/background.png) repeat-x;
 }
@@ -268,12 +272,15 @@ table.pithos-permList.props-labels {
 	color: white;
 }
 
+.pithos-FileListContainer {
+    padding-left: 10px;
+}
+
 .pithos-List {
 	cursor: default;
 	border-collapse: collapse;
 	/* prevents selecting text in table with shift and ctrl*/
 	-moz-user-select: none;
-	margin-left: 10px;
 }
 
 .pithos-errorMessage {
@@ -319,11 +326,16 @@ table.pithos-permList.props-labels {
 .pithos-treeHeader {
 	background-color: #74aec9;
 	height: 25px;
+    width: 100%;
 }
 
 .pithos-statistics {
 	color: white;
 	padding: 5px;
+}
+
+.pithos-statistics .gwt-html {
+    font-size: 80%;
 }
 
 .pithos-splitPanel {
@@ -345,7 +357,7 @@ table.pithos-permList.props-labels {
 .pithos-uploadButton {
     background: none;
     background-color: #ff7f2a;
-    font-size: 100%;
+    font-size: 120%;
     text-align: center;
     height: 32px;
     width: 146px;

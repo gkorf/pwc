@@ -708,19 +708,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return captionHTML;
 	}
 
-//	protected void onWindowResized(int height) {
-//		// Adjust the split panel to take up the available room in the window.
-//		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
-//		if (newHeight < 1)
-//			newHeight = 1;
-//		splitPanel.setHeight("" + newHeight);
-//		inner.setHeight("" + newHeight);
-//	}
+	protected void onWindowResized(int height) {
+		// Adjust the split panel to take up the available room in the window.
+		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
+		if (newHeight < 1)
+			newHeight = 1;
+		splitPanel.setHeight("" + newHeight);
+		inner.setHeight("" + newHeight);
+	}
 
 	@Override
 	public void onResize(ResizeEvent event) {
 		int height = event.getHeight();
-//		onWindowResized(height);
+		onWindowResized(height);
 	}
 
 	/**
@@ -1116,8 +1116,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+		            mysharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		        }
-		    }
+                else
+                    mysharedTreeView.removeStyleName("cellTreeWidget-selectedTree");
+ 		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
 		mysharedTreeViewModel = new MysharedTreeViewModel(Pithos.this, mysharedTreeSelectionModel);
@@ -1141,8 +1144,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		        }
-		    }
+                else
+                    otherSharedTreeView.removeStyleName("cellTreeWidget-selectedTree");
+ 		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);
 		otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
