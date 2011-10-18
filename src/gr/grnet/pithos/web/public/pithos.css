@@ -323,7 +323,7 @@ table.pithos-permList.props-labels {
 
 .pithos-statistics {
 	color: white;
-	;
+	padding: 5px;
 }
 
 .pithos-splitPanel {
@@ -371,6 +371,8 @@ table.pithos-permList.props-labels {
     text-align: center;
     color: white;
     height: 32px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .pithos-credentialsText {
@@ -387,7 +389,11 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-header {
-	width: 75%;
 	background: url(images/white50.png);
 	margin-top: 34;
 }
+
+.cellTreeWidget-selectedTree {
+    background-color: #a1c8da;
+}
+

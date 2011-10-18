@@ -291,6 +291,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("pithos-header");
+        header.setWidth(contentWidth);
         HorizontalPanel leftHeader = new HorizontalPanel();
         VerticalPanel uploadButtonPanel = new VerticalPanel();
         upload = new Button("Upload File", new ClickHandler() {
@@ -354,9 +355,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
                     applyPermissions(folderTreeSelectionModel.getSelectedObject());
+                    folderTreeView.addStyleName("cellTreeWidget-selectedTree");
                     Folder f = folderTreeSelectionModel.getSelectedObject();
                     showFiles(f);
                 }
+                else
+                    folderTreeView.removeStyleName("cellTreeWidget-selectedTree");
             }
         });
         selectionModels.add(folderTreeSelectionModel);
@@ -704,19 +708,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return captionHTML;
 	}
 
-	protected void onWindowResized(int height) {
-		// Adjust the split panel to take up the available room in the window.
-		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
-		if (newHeight < 1)
-			newHeight = 1;
-		splitPanel.setHeight("" + newHeight);
-		inner.setHeight("" + newHeight);
-	}
+//	protected void onWindowResized(int height) {
+//		// Adjust the split panel to take up the available room in the window.
+//		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
+//		if (newHeight < 1)
+//			newHeight = 1;
+//		splitPanel.setHeight("" + newHeight);
+//		inner.setHeight("" + newHeight);
+//	}
 
 	@Override
 	public void onResize(ResizeEvent event) {
 		int height = event.getHeight();
-		onWindowResized(height);
+//		onWindowResized(height);
 	}
 
 	/**
