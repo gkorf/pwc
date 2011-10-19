@@ -4,6 +4,7 @@ body {
 	font-size: 16px;
 	margin: 8px;
 	margin-top: 3px;
+	background-color: transparent;
 }
 
 table td {
@@ -343,6 +344,10 @@ table.pithos-permList.props-labels {
 	margin-bottom: 34px;
 }
 
+.pithos-splitPanel-noframe {
+	margin-bottom: 0;
+}
+
 /* Use the background color for the splitter. */
 .gwt-HorizontalSplitPanel .hsplitter {
 	cursor: move;
@@ -405,7 +410,10 @@ table.pithos-permList.props-labels {
 	margin-top: 34;
 }
 
+.pithos-header-noframe {
+	margin-top: 0;
+}
+
 .cellTreeWidget-selectedTree {
     background-color: #a1c8da;
 }
-

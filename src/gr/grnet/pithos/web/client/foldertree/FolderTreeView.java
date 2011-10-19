@@ -145,7 +145,7 @@ public class FolderTreeView extends Composite implements TreeView {
     static interface Templates extends SafeHtmlTemplates {
         public Templates INSTANCE = GWT.create(Templates.class);
 
-        @Template("<span class='pithos-folderLabel'>{0}</span>")
+        @Template("<span style='vertical-align: middle;'>{0}</span>")
         public SafeHtml nameSpan(String name);
 
         @Template("<span class='pithos-folderLabel'>{0}</span>")

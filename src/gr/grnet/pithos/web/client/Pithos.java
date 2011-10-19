@@ -91,6 +91,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -244,6 +245,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     protected AccountResource account;
     
     Folder trash;
+    
+    List<Composite> treeViews = new ArrayList<Composite>();
 
     @SuppressWarnings("rawtypes") List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
     
@@ -292,6 +295,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("pithos-header");
         header.setWidth(contentWidth);
+        if (bareContent)
+        	header.addStyleName("pithos-header-noframe");
         HorizontalPanel leftHeader = new HorizontalPanel();
         VerticalPanel uploadButtonPanel = new VerticalPanel();
         upload = new Button("Upload File", new ClickHandler() {
@@ -355,25 +360,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
                     applyPermissions(folderTreeSelectionModel.getSelectedObject());
-                    folderTreeView.addStyleName("cellTreeWidget-selectedTree");
                     Folder f = folderTreeSelectionModel.getSelectedObject();
                     showFiles(f);
                 }
-                else
-                    folderTreeView.removeStyleName("cellTreeWidget-selectedTree");
             }
         });
         selectionModels.add(folderTreeSelectionModel);
 
         folderTreeViewModel = new FolderTreeViewModel(this, folderTreeSelectionModel);
         folderTreeView = new FolderTreeView(folderTreeViewModel);
-
+        treeViews.add(folderTreeView);
+        
         fileList = new FileList(this, images, folderTreeView);
         inner.add(fileList);
 
         groupTreeViewModel = new GroupTreeViewModel(this);
         groupTreeView = new GroupTreeView(groupTreeViewModel);
-
+        treeViews.add(groupTreeView);
+        
         trees = new VerticalPanel();
         trees.setWidth("100%");
 
@@ -419,6 +423,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	        outer.add(statusPanel);
 	        outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
         }
+        else
+        	splitPanel.addStyleName("pithos-splitPanel-noframe");
 
         // Hook the window resize event, so that we can adjust the UI.
         Window.addResizeHandler(this);
@@ -492,6 +498,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void deselectOthers(TreeView _selectedTree, SingleSelectionModel model) {
     	selectedTree = _selectedTree;
+    	
+    	for (Composite c : treeViews)
+    		if (c.equals(selectedTree))
+    			c.addStyleName("cellTreeWidget-selectedTree");
+    		else
+    			c.removeStyleName("cellTreeWidget-selectedTree");
+    	
         for (SingleSelectionModel s : selectionModels)
             if (!s.equals(model))
                 s.setSelected(s.getSelectedObject(), false);
@@ -710,7 +723,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	protected void onWindowResized(int height) {
 		// Adjust the split panel to take up the available room in the window.
-		int newHeight = height - splitPanel.getAbsoluteTop() - 60;
+		int newHeight = height - splitPanel.getAbsoluteTop();
 		if (newHeight < 1)
 			newHeight = 1;
 		splitPanel.setHeight("" + newHeight);
@@ -1116,10 +1129,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
-		            mysharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		        }
-                else
-                    mysharedTreeView.removeStyleName("cellTreeWidget-selectedTree");
  		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
@@ -1129,7 +1139,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-				trees.insert(mysharedTreeView, 3);
+				trees.insert(mysharedTreeView, 2);
+				treeViews.add(mysharedTreeView);
 				createOtherSharedTree();
 			}
 		});
@@ -1142,12 +1153,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		    public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
 		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
+		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
-		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		        }
-                else
-                    otherSharedTreeView.removeStyleName("cellTreeWidget-selectedTree");
  		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);
@@ -1157,7 +1166,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-				trees.insert(otherSharedTreeView, 4);
+				trees.insert(otherSharedTreeView, 3);
+				treeViews.add(otherSharedTreeView);
 			}
 		});
 	}

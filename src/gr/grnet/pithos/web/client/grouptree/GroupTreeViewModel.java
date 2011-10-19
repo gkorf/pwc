@@ -140,11 +140,8 @@ public class GroupTreeViewModel implements TreeViewModel {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				if (rootSelectionModel.getSelectedObject() != null) {
 					app.deselectOthers(app.getGroupTreeView(), rootSelectionModel);
-					app.getGroupTreeView().addStyleName("cellTreeWidget-selectedTree");
 					app.showFiles(new HashSet<File>());
 				}
-                else
-                    app.getGroupTreeView().removeStyleName("cellTreeWidget-selectedTree");
 			}
 		});
 

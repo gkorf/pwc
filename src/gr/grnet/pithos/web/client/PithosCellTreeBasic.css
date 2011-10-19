@@ -44,6 +44,10 @@
   outline: none;
 }
 
+.cellTreeItemValue img {
+	vertical-align: middle;
+}
+
 .cellTreeItem:HOVER {
 	background-color: #A1C8DB;
 }
