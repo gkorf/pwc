@@ -77,7 +77,7 @@
 	</target>
 
     <target name="uploadToVM" depends="gwt-compile">
-        <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="/home/chstath/.ssh/chstath@ross.key" passphrase="r0bax45">
+        <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="${ssh.key}" passphrase="${passphrase}">
             <fileset dir="${gwt.www.dir}/${gwt.module}"/>
         </scp>
     </target>
