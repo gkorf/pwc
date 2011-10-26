@@ -286,7 +286,8 @@ table.pithos-permList.props-labels {
 
 .pithos-errorMessage {
 	font-size: 90%;
-	background-color: #ff9999;
+	background-color: #880000;
+	color: #fff;
 	cursor: pointer;
 }
 
@@ -340,7 +341,7 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-splitPanel {
-	background: url(images/white50.png);
+	background: url(images/white50.png) transparent;
 	margin-bottom: 34px;
 }
 
@@ -364,7 +365,8 @@ table.pithos-permList.props-labels {
     background-color: #ff7f2a;
     font-size: 120%;
     text-align: center;
-    height: 32px;
+    height: auto;
+    padding: 8px;
     width: 146px;
     border: none;
 }
@@ -408,12 +410,21 @@ table.pithos-permList.props-labels {
 .pithos-header {
 	background: url(images/white50.png);
 	margin-top: 34;
+	height: 60px;
 }
 
 .pithos-header-noframe {
 	margin-top: 0;
 }
 
-.cellTreeWidget-selectedTree {
-    background-color: #a1c8da;
+/*.cellTreeWidget-selectedTree {
+    background-color: #BCD7E3;
+}*/
+
+.pithos-list thead th img {
+    top: 5px;
+}
+
+.effectPanel-inner {
+	background-color: #4085A5;
 }

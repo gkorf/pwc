@@ -287,18 +287,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	        outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
         }
         
-        messagePanel.setWidth(contentWidth);
-        messagePanel.setVisible(false);
-        outer.add(messagePanel);
-        outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
-
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("pithos-header");
         header.setWidth(contentWidth);
         if (bareContent)
         	header.addStyleName("pithos-header-noframe");
-        HorizontalPanel leftHeader = new HorizontalPanel();
-        VerticalPanel uploadButtonPanel = new VerticalPanel();
         upload = new Button("Upload File", new ClickHandler() {
             @Override
             public void onClick(@SuppressWarnings("unused") ClickEvent event) {
@@ -306,19 +299,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         upload.addStyleName("pithos-uploadButton");
-        uploadButtonPanel.add(upload);
-        uploadButtonPanel.setWidth("100%");
-        uploadButtonPanel.setHeight("60px");
-        uploadButtonPanel.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
-        uploadButtonPanel.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
-        leftHeader.add(uploadButtonPanel);
-        header.add(leftHeader);
-        header.setCellWidth(leftHeader, "35%");
-        
-        HorizontalPanel rightHeader = new HorizontalPanel();
-        rightHeader.addStyleName("pithos-rightSide");
-        rightHeader.setSpacing(5);
+        header.add(upload);
+        header.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
+        header.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(upload, "146px");
 
+        messagePanel.setVisible(false);
+        header.add(messagePanel);
+        header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
+        
+        
         toolsButton = new Button(AbstractImagePrototype.create(images.tools()).getHTML());
         toolsButton.addClickHandler(new ClickHandler() {
 			
@@ -331,8 +322,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
 			}
 		});
-        rightHeader.add(toolsButton);
-        rightHeader.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_LEFT);
+        header.add(toolsButton);
+        header.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_RIGHT);
+        header.setCellVerticalAlignment(toolsButton, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(toolsButton, "30px");
         
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
@@ -342,11 +335,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HTML numOfFilesLabel = new HTML("&nbsp;Files");
         folderStatistics.add(numOfFilesLabel);
         folderStatistics.setCellVerticalAlignment(numOfFilesLabel, HasVerticalAlignment.ALIGN_MIDDLE);
-        rightHeader.add(folderStatistics);
-        rightHeader.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
-        header.add(rightHeader);
-        header.setCellVerticalAlignment(rightHeader, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellHeight(rightHeader, "60px");
+        header.add(folderStatistics);
+        header.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
+        header.setCellVerticalAlignment(folderStatistics, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(folderStatistics, "60px");
         outer.add(header);
         outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
         // Inner contains the various lists.nner
@@ -476,6 +468,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				});
             }
         });
+        
+//        Scheduler.get().scheduleDeferred(new Command() {
+//			
+//			@Override
+//			public void execute() {
+//				displayError("lalala");
+//				
+//			}
+//		});
     }
 
     public void applyPermissions(Folder f) {

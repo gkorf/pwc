@@ -98,7 +98,7 @@ public class FolderTreeView extends Composite implements TreeView {
 
         @Override
 		@ImageOptions(flipRtl = true)
-        @Source("gr/grnet/pithos/web/client/cellTreeClosedItem.gif")
+        @Source("gr/grnet/pithos/web/client/cellTreeClosedItem.png")
         ImageResource cellTreeClosedItem();
 
         @Override
@@ -108,7 +108,7 @@ public class FolderTreeView extends Composite implements TreeView {
 
         @Override
 		@ImageOptions(flipRtl = true)
-        @Source("gr/grnet/pithos/web/client/cellTreeOpenItem.gif")
+        @Source("gr/grnet/pithos/web/client/cellTreeOpenItem.png")
         ImageResource cellTreeOpenItem();
 
         @Override

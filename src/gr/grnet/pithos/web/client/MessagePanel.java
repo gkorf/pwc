@@ -113,9 +113,10 @@ public class MessagePanel extends Composite {
 	 * Build the panel that contains the icon, the message and the 'clear' link.
 	 */
 	private void buildPanel() {
+		inner.clear();
 		inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		inner.setSpacing(4);
+//		inner.setSpacing(4);
 		inner.add(message);
 		inner.add(clearMessageLink);
 		inner.setCellVerticalAlignment(message, HasVerticalAlignment.ALIGN_MIDDLE);
