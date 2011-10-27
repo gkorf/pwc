@@ -46,7 +46,7 @@ public interface Configuration extends Constants {
 	/**
 	 * @return the login URL
 	 */
-	@DefaultStringValue("/login")
+	@DefaultStringValue("/.")
 	String loginUrl();
 
 	/**
