@@ -64,6 +64,18 @@ a.info:hover div {
 .pithos-DialogBox .inner {
 	width: 95%;
 	background: url(images/white50.png);
+	padding: 12px;
+}
+
+.pithos-DialogBox .inner form {
+	margin: 0px;
+}
+
+.pithos-dialogbox .inner form input,
+.pithos-dialogbox .inner form textarea
+{
+    border: 1px solid #aaa;
+    padding:4px;
 }
 
 .pithos-DialogBox .button {
@@ -78,7 +90,7 @@ a.info:hover div {
 .pithos-DialogBox .Caption {
 	color: white;
 	background-color: #4085a5;
-	padding: 4px 4px 4px 8px;
+	padding: 20px;
 	border-bottom: 1px solid white;
 }
 
@@ -88,7 +100,7 @@ a.info:hover div {
 	position: absolute;
 	width: 13px;
 	height: 13px;
-	top: 7px;
+	top: 12px;
 	right: 7px;
 }
 
@@ -390,8 +402,8 @@ table.pithos-permList.props-labels {
     text-align: center;
     color: white;
     height: 32px;
-	padding-left: 5px;
-	padding-right: 5px;
+	padding: 5px 15px;
+	margin-right: 10px;
 }
 
 .pithos-credentialsText {

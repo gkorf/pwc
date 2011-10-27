@@ -34,10 +34,16 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -61,7 +67,7 @@ public class InvitationsDialog extends DialogBox {
 	/**
 	 * The widget constructor.
 	 */
-	public InvitationsDialog() {
+	public InvitationsDialog(final Pithos app, Invitations inv) {
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
@@ -72,7 +78,7 @@ public class InvitationsDialog extends DialogBox {
 			}
 		});
 		// Set the dialog's caption.
-		setText("Invite people (# invitations left)");
+		setText("Invite people (" + inv.getInvitationsLeft() + " invitations left)");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
@@ -82,18 +88,18 @@ public class InvitationsDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 		// Create the text and set a style name so we can style it with CSS.
-		HTML text = new HTML("You have # invitations left in your account.");
+		HTML text = new HTML("You have " + inv.getInvitationsLeft() + " invitations left in your account.");
 		text.setStyleName("pithos-credentialsText");
 		text.setWidth(WIDTH_TEXT);
 		inner.add(text);
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Name");
 		table.setText(1, 0, "E-mail");
-		TextBox name = new TextBox();
+		final TextBox name = new TextBox();
 		name.setWidth(WIDTH_FIELD);
 		table.setWidget(0, 1, name);
 
-		TextBox emailBox = new TextBox();
+		final TextBox emailBox = new TextBox();
 		emailBox.setWidth(WIDTH_FIELD);
 		table.setWidget(1, 1, emailBox);
 
@@ -106,6 +112,24 @@ public class InvitationsDialog extends DialogBox {
 		Button confirm = new Button("Send", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				PostRequest sendInvitation = new PostRequest("/im/", "", "invitations?uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
+					
+					@Override
+					protected void onUnauthorized(Response response) {
+						app.sessionExpired();
+					}
+					
+					@Override
+					public void onSuccess(Resource result) {
+					}
+					
+					@Override
+					public void onError(Throwable t) {
+						GWT.log("", t);
+					}
+				};
+				sendInvitation.setHeader("X-Auth-Token", app.getToken());
+				Scheduler.get().scheduleDeferred(sendInvitation);
 				hide();
 			}
 		});
