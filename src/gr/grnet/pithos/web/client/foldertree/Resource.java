@@ -43,6 +43,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
+import gr.grnet.pithos.web.client.Invitations;
 import gr.grnet.pithos.web.client.SharingUsers;
 
 import java.util.Date;
@@ -115,6 +116,9 @@ public abstract class Resource {
         }
         else if (aClass.equals(FileVersions.class)) {
         	result1 = (T) FileVersions.createFromResponse(response);
+        }
+        else if (aClass.equals(Invitations.class)) {
+        	result1 = (T) Invitations.createFromResponse(response);
         }
         return result1;
     }

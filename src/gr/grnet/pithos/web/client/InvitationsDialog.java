@@ -112,7 +112,7 @@ public class InvitationsDialog extends DialogBox {
 		Button confirm = new Button("Send", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendInvitation = new PostRequest("/im/", "", "invitations?uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
+				PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
 					
 					@Override
 					protected void onUnauthorized(Response response) {
@@ -121,6 +121,7 @@ public class InvitationsDialog extends DialogBox {
 					
 					@Override
 					public void onSuccess(Resource result) {
+						app.displayInformation("Invitation sent");
 					}
 					
 					@Override

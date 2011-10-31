@@ -53,6 +53,8 @@ public abstract class PostRequest implements ScheduledCommand {
     protected String owner;
 
     private String path;
+    
+    String data = "";
 
     private Map<String, String> headers = new HashMap<String, String>();
 
@@ -66,6 +68,13 @@ public abstract class PostRequest implements ScheduledCommand {
         this.path = path;
     }
 
+    public PostRequest(String api, String owner, String path, String data) {
+        this.api = api;
+        this.owner = owner;
+        this.path = path;
+        this.data = data;
+    }
+
     @Override
     public void execute() {
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, api + owner + path);
@@ -73,7 +82,7 @@ public abstract class PostRequest implements ScheduledCommand {
             builder.setHeader(header, headers.get(header));
         }
         try {
-            builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_ACCEPTED) {
+            builder.sendRequest(data, new RestRequestCallback<Resource>(api + owner + path, Response.SC_ACCEPTED) {
                 @Override
                 public void onSuccess(Resource object) {
                     PostRequest.this.onSuccess(object);

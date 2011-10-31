@@ -111,7 +111,7 @@ public class TopPanel extends Composite {
 			
 			@Override
 			public void execute() {
-				GetRequest<Invitations> getInvitations = new GetRequest<Invitations> (Invitations.class, "/im/", "", "invitations") {
+				GetRequest<Invitations> getInvitations = new GetRequest<Invitations> (Invitations.class, "/im/", "", "invite?format=json") {
 
 					@Override
 					public void onSuccess(Invitations _result) {
