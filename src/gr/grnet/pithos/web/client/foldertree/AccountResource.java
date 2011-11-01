@@ -64,7 +64,7 @@ public class AccountResource extends Resource {
 
     private long bytesUsed = 0;
 
-    private long bytesRemaining = 0;
+    private long quota = 0;
 
     private Date lastLogin = null;
 
@@ -76,12 +76,12 @@ public class AccountResource extends Resource {
 
     private List<Group> groups = new ArrayList<Group>();
 
-    public long getBytesRemaining() {
-        return bytesRemaining;
+    public long getQuota() {
+        return quota;
     }
 
-    public void setBytesRemaining(long bytesRemaining) {
-        this.bytesRemaining = bytesRemaining;
+    public void setQuota(long quota) {
+        this.quota = quota;
     }
 
     public long getBytesUsed() {
@@ -159,8 +159,8 @@ public class AccountResource extends Resource {
 		        else if (name.equals("X-Account-Bytes-Used")) {
 		            bytesUsed = Long.valueOf(h.getValue());
 		        }
-		        else if (name.equals("X-Account-Bytes-Remaining")) {
-		            bytesRemaining = Long.valueOf(h.getValue());
+		        else if (name.equals("X-Account-Policy-Quota")) {
+		            quota = Long.valueOf(h.getValue());
 		        }
 		        else if (name.equals("X-Account-Last-Login")) {
 		            lastLogin = df.parse(h.getValue());
@@ -214,7 +214,6 @@ public class AccountResource extends Resource {
     }
 
     public String getQuotaAsString() {
-    	long quota = bytesUsed + bytesRemaining;
         if (quota < 1024)
             return String.valueOf(quota) + "B";
         else if (quota < 1024 * 1024)
@@ -259,7 +258,9 @@ public class AccountResource extends Resource {
 	}
 
 	public double getUsedPercentage() {
-		return ((double) bytesUsed) / (bytesUsed + bytesRemaining);
+		if (quota == 0)
+			return 0;
+		return ((double) bytesUsed) / quota;
 	}
 
 	public Folder getPithos() {
