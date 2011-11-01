@@ -83,7 +83,7 @@ public class FeedbackDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 		// Create the text and set a style name so we can style it with CSS.
-		HTML text = new HTML("Pithos+ is currently in alpha test and we would appreciate any<br>" + "kind of feedback. We welcome any suggestions, questions and<br>" + " bug reports you may have.");
+		HTML text = new HTML("Pithos is currently in alpha test and we would appreciate any<br>" + "kind of feedback. We welcome any suggestions, questions and<br>" + " bug reports you may have.");
 		text.setStyleName("pithos-credentialsText");
 		inner.add(text);
 		FlexTable table = new FlexTable();
@@ -99,7 +99,7 @@ public class FeedbackDialog extends DialogBox {
 
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
-		Button confirm = new Button("submit feedback", new ClickHandler() {
+		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				hide();
