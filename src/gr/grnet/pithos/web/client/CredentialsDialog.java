@@ -39,6 +39,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -61,17 +62,33 @@ public class CredentialsDialog extends DialogBox {
 	 * The widget constructor.
 	 */
 	public CredentialsDialog(final Pithos app, final MessagePanel.Images images) {
+		Anchor close = new Anchor();
+		close.addStyleName("close");
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
 		// Set the dialog's caption.
 		setText("User Credentials");
 		setAnimationEnabled(true);
+		setGlassEnabled(true);
+		setStyleName("pithos-DialogBox");
 		// A VerticalPanel that contains the 'about' label and the 'OK' button.
 		VerticalPanel outer = new VerticalPanel();
+		outer.add(close);
+
+		VerticalPanel inner = new VerticalPanel();
+		inner.addStyleName("inner");
+
 		// Create the text and set a style name so we can style it with CSS.
 		HTML text = new HTML("<p>These are the user credentials that are " +
-				"required for interacting with Pithos+");
+				"required for interacting with Pithos");
 		text.setStyleName("pithos-credentialsText");
 		text.setWidth(WIDTH_TEXT);
-		outer.add(text);
+		inner.add(text);
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Username");
 		table.setText(1, 0, "Token");
@@ -109,7 +126,7 @@ public class CredentialsDialog extends DialogBox {
 		table.getFlexCellFormatter().setStyleName(0, 1, "props-values");
 		table.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
 		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		outer.add(table);
+		inner.add(table);
 
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
@@ -119,9 +136,10 @@ public class CredentialsDialog extends DialogBox {
 				hide();
 			}
 		});
-		outer.add(confirm);
-		outer.setCellHorizontalAlignment(confirm, HasHorizontalAlignment.ALIGN_CENTER);
-		outer.setSpacing(8);
+		confirm.addStyleName("button");
+		inner.add(confirm);
+		outer.add(inner);
+		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		setWidget(outer);
 	}
 
