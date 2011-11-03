@@ -291,7 +291,7 @@ public class FolderPropertiesDialog extends DialogBox {
         createFolder.setHeader("X-Auth-Token", app.getToken());
         createFolder.setHeader("Accept", "*/*");
         createFolder.setHeader("Content-Length", "0");
-        createFolder.setHeader("Content-Type", "application/folder");
+        createFolder.setHeader("Content-Type", "application/directory");
         Scheduler.get().scheduleDeferred(createFolder);
 	}
 
