@@ -434,7 +434,7 @@ table.pithos-permList.props-labels {
 }*/
 
 .pithos-list thead th img {
-    top: 5px;
+    top: 5px !important;
 }
 
 .effectPanel-inner {
