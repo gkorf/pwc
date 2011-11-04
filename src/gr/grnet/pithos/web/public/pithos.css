@@ -303,6 +303,10 @@ table.pithos-permList.props-labels {
 	cursor: pointer;
 }
 
+.pithos-errorMessage td {
+	font-size: 90%;
+}
+
 .pithos-warnMessage {
 	font-size: 90%;
 	background-color: #eeee99;
@@ -435,4 +439,5 @@ table.pithos-permList.props-labels {
 
 .effectPanel-inner {
 	background-color: #4085A5;
+	margin: 10px;
 }
