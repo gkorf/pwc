@@ -253,8 +253,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     Button upload;
     
-    private HTML totalFiles;
-    
     private HTML usedBytes;
     
     private HTML totalBytes;
@@ -381,10 +379,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         HorizontalPanel statistics = new HorizontalPanel();
         statistics.addStyleName("pithos-statistics");
-        statistics.add(new HTML("Total Objects:&nbsp;"));
-        totalFiles = new HTML();
-        statistics.add(totalFiles);
-        statistics.add(new HTML("&nbsp;|&nbsp;Used:&nbsp;"));
+        statistics.add(new HTML("Used:&nbsp;"));
         usedBytes = new HTML();
         statistics.add(usedBytes);
         statistics.add(new HTML("&nbsp;of&nbsp;"));
@@ -646,7 +641,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	protected void showStatistics() {
-    	totalFiles.setHTML(String.valueOf(account.getNumberOfObjects()));
     	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
     	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
     	NumberFormat nf = NumberFormat.getPercentFormat();
