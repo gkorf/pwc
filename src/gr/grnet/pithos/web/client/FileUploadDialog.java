@@ -117,7 +117,7 @@ public class FileUploadDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 
-        final Hidden auth = new Hidden("X-Auth-Token", "");
+        final Hidden auth = new Hidden("X-Auth-Token");
         inner.add(auth);
 		upload.setName("X-Object-Data");
 		filenameLabel.setText("");
@@ -156,7 +156,7 @@ public class FileUploadDialog extends DialogBox {
 			@Override
 			public void onSubmit(@SuppressWarnings("unused") SubmitEvent event) {
                 auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
-                Cookies.setCookie("X-Auth-Token", app.getToken(), null, Window.Location.getHostName(), app.getApiPath(), false);
+                Cookies.setCookie("X-Auth-Token", app.getToken(), null, "", "/", false);
 			}
 		});
 		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
@@ -222,7 +222,7 @@ public class FileUploadDialog extends DialogBox {
             return;
         }
         final String fname = getFilename(upload.getFilename());
-        String apath = app.getApiPath() + folder.getOwner() + folder.getUri() + "/" + fname;
+        String apath = app.getApiPath() + folder.getOwner() + folder.getUri() + "/" + fname + "?X-Auth-Token=" + app.getToken();
         form.setAction(apath);
         submit.setEnabled(false);
         upload.setVisible(false);
