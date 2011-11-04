@@ -93,14 +93,18 @@ public class InvitationsDialog extends DialogBox {
 		text.setWidth(WIDTH_TEXT);
 		inner.add(text);
 		FlexTable table = new FlexTable();
-		table.setText(0, 0, "Name");
-		table.setText(1, 0, "E-mail");
+		if (inv.getInvitationsLeft() > 0) {
+			table.setText(0, 0, "Name");
+			table.setText(1, 0, "E-mail");
+		}
 		final TextBox name = new TextBox();
 		name.setWidth(WIDTH_FIELD);
+		name.setVisible(inv.getInvitationsLeft() > 0);
 		table.setWidget(0, 1, name);
 
 		final TextBox emailBox = new TextBox();
 		emailBox.setWidth(WIDTH_FIELD);
+		emailBox.setVisible(inv.getInvitationsLeft() > 0);
 		table.setWidget(1, 1, emailBox);
 
 		table.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
@@ -135,6 +139,7 @@ public class InvitationsDialog extends DialogBox {
 			}
 		});
 		confirm.addStyleName("button");
+		confirm.setVisible(inv.getInvitationsLeft() > 0);
 		inner.add(confirm);
 		outer.add(inner);
 		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
