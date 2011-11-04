@@ -143,14 +143,14 @@ public class TopPanel extends Composite {
 				new FeedbackDialog().center();
 			}
 		}));
-        userItemMenu.addItem(new MenuItem("API token", new Command() {
+        userItemMenu.addItem(new MenuItem("API access", new Command() {
 			
 			@Override
 			public void execute() {
 				new CredentialsDialog(app, images).center();
 			}
 		}));
-        userItemMenu.addItem(new MenuItem("Log off", new Command() {
+        userItemMenu.addItem(new MenuItem("logout", new Command() {
 			
 			@Override
 			public void execute() {
