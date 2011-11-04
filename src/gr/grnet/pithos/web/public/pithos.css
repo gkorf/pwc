@@ -441,3 +441,9 @@ table.pithos-permList.props-labels {
 	background-color: #4085A5;
 	margin: 10px;
 }
+
+.pithos-toolsButton {
+	background-color: #F95 !important;
+	background-position-x: 9px !important;
+	background-position-y: 7px !important;
+}

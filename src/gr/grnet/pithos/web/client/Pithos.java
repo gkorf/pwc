@@ -85,6 +85,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Event;
@@ -98,6 +99,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -171,6 +173,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		ImageResource folders();
 
 		@Source("gr/grnet/pithos/resources/advancedsettings.png")
+		@ImageOptions(width=32, height=32)
 		ImageResource tools();
 	}
 
@@ -261,7 +264,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private HTML numOfFiles;
     
-    private Button toolsButton;
+    private Image toolsButton;
 
 	@Override
 	public void onModuleLoad() {
@@ -301,15 +304,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.add(upload);
         header.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
         header.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellWidth(upload, "146px");
+//        header.setCellWidth(upload, "146px");
 
         messagePanel.setVisible(false);
         header.add(messagePanel);
         header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
         
-        
-        toolsButton = new Button(AbstractImagePrototype.create(images.tools()).getHTML());
+        toolsButton = new Image(images.tools());
+        toolsButton.addStyleName("pithos-toolsButton");
         toolsButton.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -322,10 +325,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			}
 		});
         header.add(toolsButton);
-        header.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_RIGHT);
+        header.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(toolsButton, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellWidth(toolsButton, "30px");
-        
+        header.setCellWidth(toolsButton, "40px");
+       
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
         numOfFiles = new HTML();
@@ -337,7 +340,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.add(folderStatistics);
         header.setCellHorizontalAlignment(folderStatistics, HasHorizontalAlignment.ALIGN_RIGHT);
         header.setCellVerticalAlignment(folderStatistics, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellWidth(folderStatistics, "60px");
+        header.setCellWidth(folderStatistics, "40px");
         outer.add(header);
         outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
         // Inner contains the various lists.nner
