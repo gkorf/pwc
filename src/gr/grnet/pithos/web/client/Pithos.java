@@ -58,6 +58,7 @@ import gr.grnet.pithos.web.client.tagtree.TagTreeView;
 import gr.grnet.pithos.web.client.tagtree.TagTreeViewModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -576,7 +577,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			token = authSplit[1];
 			return true;
         }
-		Cookies.setCookie(conf.authCookie(), username + conf.cookieSeparator() + token);
+        
+		Cookies.setCookie(conf.authCookie(), username + conf.cookieSeparator() + token, null, "", "/", false);
 		return true;
     }
 
