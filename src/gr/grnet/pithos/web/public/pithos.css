@@ -443,7 +443,11 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-toolsButton {
-	background-color: #F95 !important;
+	background-color: #FF7F2A !important;
 	background-position-x: 9px !important;
 	background-position-y: 7px !important;
+}
+
+.pithos-toolsButton:hover {
+	background-color: #F95 !important;
 }
