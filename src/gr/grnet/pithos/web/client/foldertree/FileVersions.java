@@ -6,7 +6,9 @@ import java.util.List;
 
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 public class FileVersions extends Resource {
@@ -31,7 +33,15 @@ public class FileVersions extends Resource {
                 JSONArray o = array.get(i).isArray();
                 if (o != null) {
                 	int num = (int) o.get(0).isNumber().doubleValue();
-                	Date date = new Date((long) (o.get(1).isNumber().doubleValue() * 1000)); //Convert to millis
+                	Date date = null;
+                	JSONNumber n = o.get(1).isNumber();
+                	if (n != null)
+                		date = new Date((long) (n.doubleValue() * 1000)); //Convert to millis
+                	else {
+                		JSONString s = o.get(1).isString();
+                		if (s != null)
+                			date = new Date((long) (Double.parseDouble(s.stringValue()) * 1000));
+                	}
                 	Version v = new Version(num, date);
                 	versions.add(v);
                 }

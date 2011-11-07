@@ -181,6 +181,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 			@Override
 			public void onError(Throwable t) {
+				GWT.log("", t);
                 if (t instanceof RestException) {
                     app.displayError("Unable to fetch versions: " + ((RestException) t).getHttpStatusText());
                 }
