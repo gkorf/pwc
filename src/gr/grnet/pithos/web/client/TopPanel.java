@@ -140,7 +140,7 @@ public class TopPanel extends Composite {
 			
 			@Override
 			public void execute() {
-				new FeedbackDialog().center();
+				new FeedbackDialog(app).center();
 			}
 		}));
         userItemMenu.addItem(new MenuItem("API access", new Command() {

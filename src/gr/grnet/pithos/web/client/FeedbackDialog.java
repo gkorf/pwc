@@ -34,10 +34,16 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -62,7 +68,7 @@ public class FeedbackDialog extends DialogBox {
 	/**
 	 * The widget constructor.
 	 */
-	public FeedbackDialog() {
+	public FeedbackDialog(final Pithos app) {
 		// Set the dialog's caption.
 		Anchor close = new Anchor();
 		close.addStyleName("close");
@@ -88,7 +94,7 @@ public class FeedbackDialog extends DialogBox {
 		inner.add(text);
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Please describe your problem here, provide as many details as possible");
-		TextArea msg = new TextArea();
+		final TextArea msg = new TextArea();
 		msg.setWidth("100%");
 		msg.setHeight("100px");
 		table.setWidget(1, 0, msg);
@@ -102,6 +108,25 @@ public class FeedbackDialog extends DialogBox {
 		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				PostRequest sendFeedback = new PostRequest("/tools/", "", "feedback", "feedback-msg=" + msg.getText()) {
+					
+					@Override
+					protected void onUnauthorized(Response response) {
+						app.sessionExpired();
+					}
+					
+					@Override
+					public void onSuccess(Resource result) {
+						app.displayInformation("Feedback sent");
+					}
+					
+					@Override
+					public void onError(Throwable t) {
+						GWT.log("", t);
+					}
+				};
+				sendFeedback.setHeader("X-Auth-Token", app.getToken());
+				Scheduler.get().scheduleDeferred(sendFeedback);
 				hide();
 			}
 		});
