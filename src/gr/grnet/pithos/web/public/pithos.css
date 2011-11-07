@@ -444,8 +444,7 @@ table.pithos-permList.props-labels {
 
 .pithos-toolsButton {
 	background-color: #FF7F2A !important;
-	background-position-x: 9px !important;
-	background-position-y: 7px !important;
+	background-position: 9px 7px !important;
 }
 
 .pithos-toolsButton:hover {
