@@ -566,6 +566,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 authenticateUser();
                 return false;
             }
+            if (auth.startsWith("\""))
+            	auth = auth.substring(1);
+            if (auth.endsWith("\""))
+            	auth = auth.substring(0, auth.length() - 1);
 			String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
 			if (authSplit.length != 2) {
 			    authenticateUser();
