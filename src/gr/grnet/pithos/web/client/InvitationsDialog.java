@@ -64,10 +64,15 @@ public class InvitationsDialog extends DialogBox {
 	private final String WIDTH_FIELD = "35em";
 	private final String WIDTH_TEXT = "42em";
 
+	Pithos app;
+	TextBox name;
+	TextBox emailBox;
+	
 	/**
 	 * The widget constructor.
 	 */
-	public InvitationsDialog(final Pithos app, Invitations inv) {
+	public InvitationsDialog(Pithos _app, Invitations inv) {
+		this.app = _app;
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
@@ -97,12 +102,12 @@ public class InvitationsDialog extends DialogBox {
 			table.setText(0, 0, "Name");
 			table.setText(1, 0, "E-mail");
 		}
-		final TextBox name = new TextBox();
+		name = new TextBox();
 		name.setWidth(WIDTH_FIELD);
 		name.setVisible(inv.getInvitationsLeft() > 0);
 		table.setWidget(0, 1, name);
 
-		final TextBox emailBox = new TextBox();
+		emailBox = new TextBox();
 		emailBox.setWidth(WIDTH_FIELD);
 		emailBox.setVisible(inv.getInvitationsLeft() > 0);
 		table.setWidget(1, 1, emailBox);
@@ -116,26 +121,7 @@ public class InvitationsDialog extends DialogBox {
 		Button confirm = new Button("Send", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
-					
-					@Override
-					protected void onUnauthorized(Response response) {
-						app.sessionExpired();
-					}
-					
-					@Override
-					public void onSuccess(Resource result) {
-						app.displayInformation("Invitation sent");
-					}
-					
-					@Override
-					public void onError(Throwable t) {
-						GWT.log("", t);
-					}
-				};
-				sendInvitation.setHeader("X-Auth-Token", app.getToken());
-				Scheduler.get().scheduleDeferred(sendInvitation);
-				hide();
+				sendInvitation();
 			}
 		});
 		confirm.addStyleName("button");
@@ -155,9 +141,34 @@ public class InvitationsDialog extends DialogBox {
 			// either enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
+					sendInvitation();
+					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();
 					break;
 			}
+	}
+
+	void sendInvitation() {
+		PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
+			
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
+			
+			@Override
+			public void onSuccess(Resource result) {
+				app.displayInformation("Invitation sent");
+			}
+			
+			@Override
+			public void onError(Throwable t) {
+				GWT.log("", t);
+			}
+		};
+		sendInvitation.setHeader("X-Auth-Token", app.getToken());
+		Scheduler.get().scheduleDeferred(sendInvitation);
+		hide();
 	}
 }
