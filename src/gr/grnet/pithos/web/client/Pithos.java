@@ -1178,7 +1178,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public void logoff() {
         Configuration conf = (Configuration) GWT.create(Configuration.class);
-		Cookies.removeCookie(conf.authCookie());
+		Cookies.removeCookie(conf.authCookie(), "/");
 		Cookies.removeCookie(conf.authTokenCookie(), "/");
 		for (String s: Cookies.getCookieNames())
 			if (s.startsWith(conf.shibSessionCookiePrefix()))
