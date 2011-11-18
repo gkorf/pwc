@@ -60,6 +60,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
@@ -340,7 +341,7 @@ public class FileList extends Composite {
 //		sinkEvents(Event.ONMOUSEDOWN);
 //		sinkEvents(Event.ONCLICK);
 //		sinkEvents(Event.ONKEYDOWN);
-//		sinkEvents(Event.ONDBLCLICK);
+		sinkEvents(Event.ONDBLCLICK);
 		Pithos.preventIESelection();
 	}
 
@@ -348,9 +349,9 @@ public class FileList extends Composite {
         return new ArrayList<File>(selectionModel.getSelectedSet());
 	}
 	
-//	@Override
-//	public void onBrowserEvent(Event event) {
-//
+	@Override
+	public void onBrowserEvent(Event event) {
+
 //		if (files == null || files.size() == 0) {
 //			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
 //				contextMenu = new FileContextMenu(images, false, true);
@@ -371,16 +372,16 @@ public class FileList extends Composite {
 //			contextMenu = contextMenu.onEmptyEvent(event);
 //			event.cancelBubble(true);
 //			event.preventDefault();
-//		} else if (DOM.eventGetType(event) == Event.ONDBLCLICK)
-//			if (getSelectedFiles().size() == 1) {
-//				Pithos app = app;
-//				File file = getSelectedFiles().get(0);
-//				Window.open(file.getUri(), "_blank", "");
-//				event.preventDefault();
-//				return;
-//			}
-//		super.onBrowserEvent(event);
-//	}
+//		} else 
+		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
+			if (getSelectedFiles().size() == 1) {
+				File file = getSelectedFiles().get(0);
+				Window.open(app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+				event.preventDefault();
+				return;
+			}
+		super.onBrowserEvent(event);
+	}
 
 	/**
 	 * Update the display of the file list.
