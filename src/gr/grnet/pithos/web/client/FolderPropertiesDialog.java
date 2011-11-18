@@ -46,6 +46,8 @@ import gr.grnet.pithos.web.client.rest.RestException;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -59,6 +61,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -75,7 +78,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	/**
 	 * The widget that holds the folderName of the folder.
 	 */
-	private TextBox folderName = new TextBox();
+	TextBox folderName = new TextBox();
 
 	/**
 	 * A flag that denotes whether the dialog will be used to create or modify a
@@ -136,10 +139,16 @@ public class FolderPropertiesDialog extends DialogBox {
         generalTable.setText(1, 0, "Parent");
         generalTable.setText(2, 0, "Creator");
         generalTable.setText(3, 0, "Last modified");
-        folderName.setText(create ? "" : folder.getName());
+
+		folderName.setText(create ? "" : folder.getName());
         folderName.setReadOnly(folder.isContainer() && !create);
         generalTable.setWidget(0, 1, folderName);
 
+        final Label folderNameNote = new Label("Please note that slashes ('/') are not allowed in folder names.", true);
+		folderNameNote.setVisible(false);
+		folderNameNote.setStylePrimaryName("gss-readForAllNote");
+		generalTable.setWidget(0, 2, folderNameNote);
+		
         if (create)
             generalTable.setText(1, 1, folder.getName());
         else
@@ -206,7 +215,7 @@ public class FolderPropertiesDialog extends DialogBox {
 			okLabel = "Create";
 		else
 			okLabel = "Update";
-		Button ok = new Button(okLabel, new ClickHandler() {
+		final Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
 			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				createOrUpdateFolder();
@@ -216,6 +225,21 @@ public class FolderPropertiesDialog extends DialogBox {
 		ok.addStyleName("button");
 		outer.add(ok);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+
+        folderName.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(@SuppressWarnings("unused") ChangeEvent event) {
+				if(folderName.getText().contains("/")) {
+					folderNameNote.setVisible(true);
+					ok.setEnabled(false);
+				}
+				else {
+					folderNameNote.setVisible(false);
+					ok.setEnabled(true);
+				}
+			}
+		});
 
         setWidget(outer);
 	}
@@ -259,7 +283,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 * Generate an RPC request to create a new folder.
 	 */
 	private void createFolder() {
-		String name = folderName.getText();
+		String name = folderName.getText().trim();
         String path = folder.getUri() + "/" + name;
         PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
