@@ -98,7 +98,7 @@ public class TopPanel extends Composite {
 		inner.setWidth("75%");
 		inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		
-		HTML logos = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</td></tr></table>");
+		HTML logos = new HTML("<table><tr><td><a href='/'>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</a></td></tr></table>");
 		logos.addStyleName("pithos-logo");
 		inner.add(logos);
 
