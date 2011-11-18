@@ -122,10 +122,6 @@ public class Folder extends Resource {
         return prefix;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
     private void parsePermissions(String rawPermissions) {
         String[] readwrite = rawPermissions.split(";");
         for (String s : readwrite) {
@@ -205,12 +201,17 @@ public class Folder extends Resource {
             path = unmarshallString(o, "name");
             lastModified = unmarshallDate(o, "last_modified");
         }
-        if (path.endsWith("/"))
+        boolean endsWithSlash = false;
+        if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
+            endsWithSlash = true;
+        }
         if (path.contains("/"))
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
         else
             name = path;
+        if (endsWithSlash)
+        	name += "/";
         if (aContainer != null) {
             container = aContainer;
             prefix = path;
