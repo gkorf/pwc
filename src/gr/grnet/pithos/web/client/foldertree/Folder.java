@@ -201,6 +201,7 @@ public class Folder extends Resource {
             path = unmarshallString(o, "name");
             lastModified = unmarshallDate(o, "last_modified");
         }
+        //Strip the last / if exists in order to determine the name, but remember to put it back
         boolean endsWithSlash = false;
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
@@ -210,8 +211,10 @@ public class Folder extends Resource {
             name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
         else
             name = path;
-        if (endsWithSlash)
+        if (endsWithSlash) {
+        	path += "/";
         	name += "/";
+        }
         if (aContainer != null) {
             container = aContainer;
             prefix = path;
