@@ -61,12 +61,6 @@ a.info:hover div {
 	text-align: center
 }
 
-.pithos-DialogBox .inner {
-	width: 95%;
-	background: url(images/white50.png);
-	padding: 12px;
-}
-
 .pithos-DialogBox .inner form {
 	margin: 0px;
 }
@@ -406,10 +400,6 @@ table.pithos-permList.props-labels {
 	margin-right: 10px;
 }
 
-.pithos-credentialsText {
-	padding: 10px;
-}
-
 .grnet-sign {
 	color: #72ADC8;
 }
@@ -449,4 +439,76 @@ table.pithos-permList.props-labels {
 
 .pithos-toolsButton:hover {
 	background-color: #F95 !important;
+}
+
+/*move background from inner to centerinner to wrap action buttons too*/
+.dialogMiddleCenterInner.dialogContent  {
+    background: url(https://pithos.dev.grnet.gr/ui/images/white50.png); 
+    margin: 7px;
+    padding: 15px;
+    /*border: 1px solid #aaa;*/
+    -moz-box-shadow: 0 0 1px 1px #888;
+    -webkit-box-shadow: 0 0 1px 1px #888;
+    box-shadow: 0 0 1px 1px #888;
+}
+
+/*remove background/padding from .inner*/
+.pithos-dialogbox .inner {
+    background: none;
+    padding:0;
+    width: auto !important;
+}
+
+/*button styles*/
+.pithos-dalogbox .button {
+}
+
+/*button position within the overlay content*/
+.dialogMiddleCenterInner .button {
+    margin-left: 2px;
+    border: none;
+    padding: 7px 20px;
+    margin-top: 10px;
+    float: right;
+    margin-right: 4px;
+}
+
+/* fix placement of overlay paragraphs */
+.pithos-credentialstext {
+    padding: 0 0 10px 0;
+}
+
+/* overlay styles */
+.pithos-dialogbox {
+    background-color: white;
+    border: 2px solid #444;
+    text-align: left;
+    -moz-box-shadow: 0 0 90px 5px #000;
+    -webkit-box-shadow: 0 0 90px 5px #000;
+    box-shadow: 0 0 90px 5px #000;
+}
+
+/* hide overlay dialogue unneeded side elements */
+.dialogMiddleRight, .dialogBottomRight, .dialogTopRight,
+.dialogMiddleLeft, .dialogBottomLeft, .dialogTopLeft,
+.dialogBottomCenter {
+    display: none;
+}
+
+/* fix dialogbox caption padding and font-size */
+.pithos-dialogbox .caption {
+    padding: 10px !important;
+    font-size: 1.1em;
+}
+
+
+/* form input styling */
+.dialogMiddleCenterInner input {
+    border: 1px solid #aaa;
+    padding: 4px;
+}
+
+/* fix tag color */
+a.pithos-tag {
+    color: #4085a5;
 }
