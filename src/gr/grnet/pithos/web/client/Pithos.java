@@ -990,6 +990,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             copyFile.setHeader("X-Copy-From", file.getUri());
             if (!file.getOwner().equals(targetUsername))
             	copyFile.setHeader("X-Source-Account", file.getOwner());
+            copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
         }
         else  if (callback != null) {

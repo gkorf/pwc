@@ -158,6 +158,7 @@ public class PasteCommand implements Command {
             };
             copyFile.setHeader("X-Auth-Token", app.getToken());
             copyFile.setHeader("X-Move-From", file.getUri());
+            copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
         }
         else if (callback != null) {
