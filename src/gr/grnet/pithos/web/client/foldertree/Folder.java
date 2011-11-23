@@ -45,6 +45,7 @@ import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONArray;
@@ -163,7 +164,7 @@ public class Folder extends Resource {
         header = response.getHeader("X-Container-Object-Meta");
         if (header != null && header.length() > 0) {
             for (String t : header.split(",")) {
-                tags.add(t.toLowerCase().trim());
+                tags.add(URL.decodePathSegment(t.toLowerCase()).trim());
             }
         }
 

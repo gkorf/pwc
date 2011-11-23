@@ -43,6 +43,7 @@ import gr.grnet.pithos.web.client.rest.RestException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -101,7 +102,7 @@ public class AddUserCommand implements Command {
 			String groupMembers = "";
 			for (String u : group.getMembers())
 				groupMembers += (u + ",");
-			updateGroup.setHeader("X-Account-Group-" + group.getName(), groupMembers);
+			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), groupMembers);
 			Scheduler.get().scheduleDeferred(updateGroup);
         }
 	}

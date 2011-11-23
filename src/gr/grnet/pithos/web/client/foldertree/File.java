@@ -43,6 +43,7 @@ import java.util.Set;
 
 import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
 
@@ -167,7 +168,7 @@ public class File extends Resource {
 
         for (String key : o.keySet())
             if (key.startsWith("x_object_meta_"))
-                tags.add(key.substring("x_object_meta_".length()).trim().toLowerCase());
+                tags.add(URL.decodePathSegment(key.substring("x_object_meta_".length())).trim().toLowerCase());
 
         
     }
@@ -223,7 +224,7 @@ public class File extends Resource {
         for (Header h : response.getHeaders()) {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-"))
-                tags.add(header.substring("X-Object-Meta-".length()).trim().toLowerCase());
+                tags.add(URL.decodePathSegment(header.substring("X-Object-Meta-".length())).trim().toLowerCase());
             else if (header.equals("X-Object-Sharing")) {
                 String rawPermissions = h.getValue();
                 parsePermissions(rawPermissions);

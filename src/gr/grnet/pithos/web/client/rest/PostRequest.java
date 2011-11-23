@@ -35,6 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -105,6 +106,7 @@ public abstract class PostRequest implements ScheduledCommand {
             });
         }
         catch (RequestException e) {
+        	GWT.log("", e);
         }
     }
 

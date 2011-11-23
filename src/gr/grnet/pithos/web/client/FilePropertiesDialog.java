@@ -52,6 +52,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
@@ -447,12 +448,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
+            for (String t : file.getTags()) {
+        		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
+            }
             if (newTags != null)
                 for (String t : newTags)
                 	if (t.length() > 0)
-                		updateFile.setHeader("X-Object-Meta-" + t.trim(), "true");
-                for (String t : file.getTags())
-            		updateFile.setHeader("X-Object-Meta-" + t.trim(), "~");
+                		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "true");
             if (published != null)
                 updateFile.setHeader("X-Object-Public", published.toString());
             if (newPermissions != null) {

@@ -44,6 +44,7 @@ import java.util.List;
 
 import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -143,7 +144,7 @@ public class AccountResource extends Resource {
         	if (h != null) {
 		        String name = h.getName();
 		        if (name.startsWith("X-Account-Group-")) {
-		            String groupName = name.substring("X-Account-Group-".length()).trim().toLowerCase();
+		            String groupName = URL.decodePathSegment(name.substring("X-Account-Group-".length())).trim().toLowerCase();
 		            Group g = new Group(groupName);
 		            String[] members = h.getValue().split(",");
 		            for (String s : members)
