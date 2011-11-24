@@ -9,3 +9,5 @@ war
 .classpath
 .settings
 .gwt-tmp
+tomcat
+gwt-unitCache
