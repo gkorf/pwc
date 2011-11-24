@@ -51,9 +51,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 
@@ -61,9 +59,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * A dialog box that displays info about invitations
  */
 public class FeedbackDialog extends DialogBox {
-
-	private final String WIDTH_FIELD = "35em";
-	private final String WIDTH_TEXT = "42em";
 
 	/**
 	 * The widget constructor.
@@ -82,7 +77,9 @@ public class FeedbackDialog extends DialogBox {
 		setText("Send feedback");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
+		
 		setStyleName("pithos-DialogBox");
+
 		VerticalPanel outer = new VerticalPanel();
 		outer.add(close);
 		

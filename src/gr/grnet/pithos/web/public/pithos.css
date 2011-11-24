@@ -63,6 +63,7 @@ a.info:hover div {
 
 .pithos-DialogBox .inner form {
 	margin: 0px;
+	clip: 
 }
 
 .pithos-dialogbox .inner form input,
@@ -78,7 +79,6 @@ a.info:hover div {
 	color: white;
 	padding: 5px 6px;
 	white-space: nowrap;
-	
 }
 
 .pithos-DialogBox .Caption {
@@ -486,6 +486,7 @@ table.pithos-permList.props-labels {
     -moz-box-shadow: 0 0 90px 5px #000;
     -webkit-box-shadow: 0 0 90px 5px #000;
     box-shadow: 0 0 90px 5px #000;
+	clip: inherit !important;
 }
 
 /* hide overlay dialogue unneeded side elements */
