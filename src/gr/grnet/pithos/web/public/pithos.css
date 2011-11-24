@@ -513,3 +513,14 @@ table.pithos-permList.props-labels {
 a.pithos-tag {
     color: #4085a5;
 }
+
+.pithos-sentInvitationsTitle {
+	font-size: 1.2em;
+	font-weight: normal;
+	border-bottom: 1px solid #B0D0E0;
+	color: #4085A5;
+}
+
+.pithos-resendInvitation {
+	cursor: pointer;
+}

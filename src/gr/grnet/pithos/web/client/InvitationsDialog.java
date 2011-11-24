@@ -52,6 +52,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -97,6 +98,7 @@ public class InvitationsDialog extends DialogBox {
 		text.setStyleName("pithos-credentialsText");
 		text.setWidth(WIDTH_TEXT);
 		inner.add(text);
+		
 		FlexTable table = new FlexTable();
 		if (inv.getInvitationsLeft() > 0) {
 			table.setText(0, 0, "Name");
@@ -121,12 +123,54 @@ public class InvitationsDialog extends DialogBox {
 		Button confirm = new Button("Send", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				sendInvitation();
+				sendInvitation(emailBox.getText().trim(), name.getText().trim());
 			}
 		});
 		confirm.addStyleName("button");
 		confirm.setVisible(inv.getInvitationsLeft() > 0);
 		inner.add(confirm);
+
+		HTML sentLabel = new HTML("Sent invitations");
+		sentLabel.addStyleName("pithos-sentInvitationsTitle");
+		inner.add(sentLabel);
+		
+		FlexTable sentInvitationsTable = new FlexTable();
+		Image accepted = new Image("images/invitation_accepted.png");
+		accepted.setAltText("Invitation accepted");
+		Image resend = new Image("images/resend.png");
+		resend.setAltText("Resend invitation");
+		
+		HorizontalPanel legend = new HorizontalPanel();
+		legend.add(new HTML("("));
+		legend.add(accepted);
+		legend.add(new HTML(" = Invitation has been accepted)"));
+		legend.add(new HTML("("));
+		legend.add(resend);
+		legend.add(new HTML(" = Send invitation again)"));
+		inner.add(legend);
+		
+		int row = 0;
+		for (final Invitation i : inv.getSentInvitations()) {
+			sentInvitationsTable.setText(row, 0, i.getRealname());
+			sentInvitationsTable.setText(row, 1, i.getEmail());
+			if (i.isAccepted())
+				sentInvitationsTable.setWidget(row, 2, new Image("images/invitation_accepted.png"));
+			else {
+				Image img = new Image("images/resend.png");
+				img.addStyleName("pithos-resendInvitation");
+				img.addClickHandler(new ClickHandler() {
+					
+					@Override
+					public void onClick(ClickEvent event) {
+						sendInvitation(i.getEmail(), i.getRealname());
+					}
+				});
+				sentInvitationsTable.setWidget(row, 2, img);
+			}
+			row++;
+		}
+		inner.add(sentInvitationsTable);
+		
 		outer.add(inner);
 		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		setWidget(outer);
@@ -141,7 +185,7 @@ public class InvitationsDialog extends DialogBox {
 			// either enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
-					sendInvitation();
+					sendInvitation(emailBox.getText().trim(), name.getText().trim());
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();
@@ -149,8 +193,8 @@ public class InvitationsDialog extends DialogBox {
 			}
 	}
 
-	void sendInvitation() {
-		PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + emailBox.getText().trim() + "&realname=" + name.getText().trim()) {
+	void sendInvitation(String email, String realname) {
+		PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + email + "&realname=" + realname) {
 			
 			@Override
 			protected void onUnauthorized(Response response) {
