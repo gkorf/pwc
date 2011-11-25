@@ -61,14 +61,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * A dialog box that displays info about invitations
  */
 public class InvitationsDialog extends DialogBox {
-
-	private final String WIDTH_FIELD = "35em";
-	private final String WIDTH_TEXT = "42em";
-
 	Pithos app;
-	TextBox name;
-	TextBox emailBox;
-	
+	VerticalPanel messagesPanel;
+	int rows = 0;
 	/**
 	 * The widget constructor.
 	 */
@@ -84,7 +79,7 @@ public class InvitationsDialog extends DialogBox {
 			}
 		});
 		// Set the dialog's caption.
-		setText("Invite people (" + inv.getInvitationsLeft() + " invitations left)");
+		setText("Invite friends");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
@@ -94,67 +89,101 @@ public class InvitationsDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 		// Create the text and set a style name so we can style it with CSS.
-		HTML text = new HTML("You have " + inv.getInvitationsLeft() + " invitations left in your account.");
-		text.setStyleName("pithos-credentialsText");
-		text.setWidth(WIDTH_TEXT);
+		HTML text = new HTML("You have <span class='pithos-leftInvitationsNumber'>" + inv.getInvitationsLeft() + "</span> invitations left");
+		text.addStyleName("pithos-invitationsLeft");
 		inner.add(text);
 		
-		FlexTable table = new FlexTable();
-		if (inv.getInvitationsLeft() > 0) {
-			table.setText(0, 0, "Name");
-			table.setText(1, 0, "E-mail");
-		}
-		name = new TextBox();
-		name.setWidth(WIDTH_FIELD);
-		name.setVisible(inv.getInvitationsLeft() > 0);
-		table.setWidget(0, 1, name);
+		HorizontalPanel split = new HorizontalPanel();
 
-		emailBox = new TextBox();
-		emailBox.setWidth(WIDTH_FIELD);
-		emailBox.setVisible(inv.getInvitationsLeft() > 0);
-		table.setWidget(1, 1, emailBox);
+		VerticalPanel left = new VerticalPanel();
+		left.addStyleName("pithos-sendInvitationsPanel");
+		left.setVisible(inv.getInvitationsLeft() > 0);
 
-		table.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
-		table.getFlexCellFormatter().setStyleName(0, 1, "props-values");
-		table.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
-		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-		inner.add(table);
+		HorizontalPanel sendLabelPanel = new HorizontalPanel();
+		HTML sendLabel = new HTML("Send new invitations");
+		sendLabel.addStyleName("pithos-sendInvitationsTitle");
+		sendLabelPanel.add(sendLabel);
+		Image plus = new Image("images/plus.png");
+		plus.addStyleName("pithos-addInvitationImg");
+		sendLabelPanel.add(plus);
+		left.add(sendLabelPanel);
 
-		Button confirm = new Button("Send", new ClickHandler() {
+		messagesPanel = new VerticalPanel();
+		messagesPanel.setSpacing(5);
+		left.add(messagesPanel);
+		
+		final FlexTable table = new FlexTable();
+		left.add(table);
+		plus.addClickHandler(new ClickHandler() {
+			
 			@Override
 			public void onClick(ClickEvent event) {
-				sendInvitation(emailBox.getText().trim(), name.getText().trim());
+				if (rows == 0) {
+					table.setHTML(0, 0, "Name <span class='eg'>e.g. John Smith</span>");
+					table.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+					table.setText(0, 1, "Email");
+					table.getFlexCellFormatter().setStyleName(0, 1, "props-labels");
+					rows++;
+				}
+				table.setWidget(rows, 0, new TextBox());
+				table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
+
+				table.setWidget(rows, 1, new TextBox());
+				table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+				
+				Image delete = new Image("images/delete.png");
+				delete.addStyleName("pithos-invitationDeleteImg");
+				final int r = rows;
+				delete.addClickHandler(new ClickHandler() {
+					
+					@Override
+					public void onClick(ClickEvent event) {
+						table.removeRow(r);
+					}
+				});
+				table.setWidget(rows, 2, delete);
+				
+				if (rows > 1)
+					table.getRowFormatter().addStyleName(rows, "pithos-invitationFormRow");
+				
+				rows++;
 			}
 		});
-		confirm.addStyleName("button");
-		confirm.setVisible(inv.getInvitationsLeft() > 0);
-		inner.add(confirm);
 
-		HTML sentLabel = new HTML("Sent invitations");
+		Button send = new Button("send invitations", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				int rowCount = table.getRowCount();
+				
+				for (int i = 1; i<rowCount; i++) {
+					String name = ((TextBox) table.getWidget(i, 0)).getText().trim();
+					String email = ((TextBox) table.getWidget(i, 1)).getText().trim();
+					sendInvitation(email, name);
+				}
+			}
+		});
+		send.addStyleName("pithos-sendInvitationButton");
+		send.setVisible(inv.getInvitationsLeft() > 0);
+		left.add(send);
+		
+		split.add(left);
+		
+		VerticalPanel right = new VerticalPanel();
+		right.addStyleName("pithos-sentInvitationsPanel");
+		
+		HTML sentLabel = new HTML("Invitations sent");
 		sentLabel.addStyleName("pithos-sentInvitationsTitle");
-		inner.add(sentLabel);
+		right.add(sentLabel);
 		
 		FlexTable sentInvitationsTable = new FlexTable();
-		Image accepted = new Image("images/invitation_accepted.png");
-		accepted.setAltText("Invitation accepted");
-		Image resend = new Image("images/resend.png");
-		resend.setAltText("Resend invitation");
-		
-		HorizontalPanel legend = new HorizontalPanel();
-		legend.add(new HTML("("));
-		legend.add(accepted);
-		legend.add(new HTML(" = Invitation has been accepted)"));
-		legend.add(new HTML("("));
-		legend.add(resend);
-		legend.add(new HTML(" = Send invitation again)"));
-		inner.add(legend);
 		
 		int row = 0;
 		for (final Invitation i : inv.getSentInvitations()) {
 			sentInvitationsTable.setText(row, 0, i.getRealname());
-			sentInvitationsTable.setText(row, 1, i.getEmail());
+			row++;
+			sentInvitationsTable.setText(row, 0, i.getEmail());
 			if (i.isAccepted())
-				sentInvitationsTable.setWidget(row, 2, new Image("images/invitation_accepted.png"));
+				sentInvitationsTable.setWidget(row, 1, new Image("images/invitation_accepted.png"));
 			else {
 				Image img = new Image("images/resend.png");
 				img.addStyleName("pithos-resendInvitation");
@@ -165,35 +194,22 @@ public class InvitationsDialog extends DialogBox {
 						sendInvitation(i.getEmail(), i.getRealname());
 					}
 				});
-				sentInvitationsTable.setWidget(row, 2, img);
+				sentInvitationsTable.setWidget(row, 1, img);
 			}
 			row++;
 		}
-		inner.add(sentInvitationsTable);
+		right.add(sentInvitationsTable);
+		
+		split.add(right);
+		
+		inner.add(split);
 		
 		outer.add(inner);
 		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		setWidget(outer);
 	}
 
-	@Override
-	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
-		super.onPreviewNativeEvent(preview);
-		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
-			// Use the popup's key preview hooks to close the dialog when
-			// either enter or escape is pressed.
-			switch (evt.getKeyCode()) {
-				case KeyCodes.KEY_ENTER:
-					sendInvitation(emailBox.getText().trim(), name.getText().trim());
-					break;
-				case KeyCodes.KEY_ESCAPE:
-					hide();
-					break;
-			}
-	}
-
-	void sendInvitation(String email, String realname) {
+	void sendInvitation(String email, final String realname) {
 		PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + email + "&realname=" + realname) {
 			
 			@Override
@@ -203,7 +219,10 @@ public class InvitationsDialog extends DialogBox {
 			
 			@Override
 			public void onSuccess(Resource result) {
-				app.displayInformation("Invitation sent");
+				HTML msg = new HTML("Invitation to <span class='user'>" + realname + "</span> was sent.");
+				msg.addStyleName("pithos-invitationResponse");
+				messagesPanel.add(msg);
+				
 			}
 			
 			@Override
@@ -213,6 +232,5 @@ public class InvitationsDialog extends DialogBox {
 		};
 		sendInvitation.setHeader("X-Auth-Token", app.getToken());
 		Scheduler.get().scheduleDeferred(sendInvitation);
-		hide();
 	}
 }

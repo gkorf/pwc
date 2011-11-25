@@ -460,7 +460,7 @@ table.pithos-permList.props-labels {
 }
 
 /*button styles*/
-.pithos-dalogbox .button {
+.pithos-dialogbox .button {
 }
 
 /*button position within the overlay content*/
@@ -514,10 +514,74 @@ a.pithos-tag {
     color: #4085a5;
 }
 
-.pithos-sentInvitationsTitle {
-	font-size: 1.2em;
+.pithos-invitationsLeft {
+    padding: 0 0 10px 0;
+	border-bottom: 1px solid #4085A5;
+}
+
+.pithos-leftInvitationsNumber {
+	background-color: #4085A5;
+	padding: 3px;
+	color: white;
+	font-weight: bold;
+}
+
+.pithos-sendInvitationsPanel {
+	margin-top: 10px;
+	border-right: 1px solid #4085A5;
+}
+
+.pithos-sendInvitationsTitle {
+	font-weight: bold;
+	color: #4085A5;
+	margin-right: 10px;
+}
+
+.pithos-addInvitationImg {
+	background-color: #4085A5;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.pithos-invitationResponse {
+	background-color: green;
+	color: white;
+	padding: 5px;
+}
+
+.pithos-invitationResponse .user {
+	font-weight: bold;
+}
+
+.props-labels .eg {
 	font-weight: normal;
-	border-bottom: 1px solid #B0D0E0;
+	color: gray;
+}
+
+.pithos-invitationDeleteImg {
+	cursor: pointer;
+}
+
+.pithos-invitationFormRow {
+	border-top: 1px solid gray;
+}
+
+.pithos-sendInvitationButton {
+    background: none;
+    background-color: #ff7f2a;
+    text-align: center;
+    height: auto;
+    padding: 8px;
+    border: none;
+    color: white;
+}
+
+.pithos-sentInvitationsPanel {
+	margin-top: 10px;
+}
+
+.pithos-sentInvitationsTitle {
+	font-weight: bold;
 	color: #4085A5;
 }
 
