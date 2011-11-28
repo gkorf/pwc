@@ -55,15 +55,24 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 
 /**
  * A dialog box that displays info about invitations
  */
 public class InvitationsDialog extends DialogBox {
+	private static final int INV_PER_PAGE = 5;
+	
 	Pithos app;
 	VerticalPanel messagesPanel;
 	int rows = 0;
+	FlexTable sentInvitationsTable;	
+	/**
+	 * The current displayed page of sent invitations 
+	 */
+	int currentPage = 0;
+	
 	/**
 	 * The widget constructor.
 	 */
@@ -133,12 +142,11 @@ public class InvitationsDialog extends DialogBox {
 				
 				Image delete = new Image("images/delete.png");
 				delete.addStyleName("pithos-invitationDeleteImg");
-				final int r = rows;
 				delete.addClickHandler(new ClickHandler() {
 					
 					@Override
 					public void onClick(ClickEvent event) {
-						table.removeRow(r);
+						table.removeRow(table.getCellForEvent(event).getRowIndex());
 					}
 				});
 				table.setWidget(rows, 2, delete);
@@ -175,30 +183,20 @@ public class InvitationsDialog extends DialogBox {
 		sentLabel.addStyleName("pithos-sentInvitationsTitle");
 		right.add(sentLabel);
 		
-		FlexTable sentInvitationsTable = new FlexTable();
-		
-		int row = 0;
-		for (final Invitation i : inv.getSentInvitations()) {
-			sentInvitationsTable.setText(row, 0, i.getRealname());
-			row++;
-			sentInvitationsTable.setText(row, 0, i.getEmail());
-			if (i.isAccepted())
-				sentInvitationsTable.setWidget(row, 1, new Image("images/invitation_accepted.png"));
-			else {
-				Image img = new Image("images/resend.png");
-				img.addStyleName("pithos-resendInvitation");
-				img.addClickHandler(new ClickHandler() {
-					
-					@Override
-					public void onClick(ClickEvent event) {
-						sendInvitation(i.getEmail(), i.getRealname());
-					}
-				});
-				sentInvitationsTable.setWidget(row, 1, img);
-			}
-			row++;
-		}
+		sentInvitationsTable = new FlexTable();
+		fillSentInvitationsTable(inv);
 		right.add(sentInvitationsTable);
+		
+		HorizontalPanel pagerPanel = new HorizontalPanel();
+		Button prev = new Button("prev");
+		pagerPanel.add(prev);
+		Button one = new Button("one");
+		pagerPanel.add(one);
+		Button two = new Button("two");
+		pagerPanel.add(two);
+		Button next = new Button("next");
+		pagerPanel.add(next);
+		right.add(pagerPanel);
 		
 		split.add(right);
 		
@@ -232,5 +230,30 @@ public class InvitationsDialog extends DialogBox {
 		};
 		sendInvitation.setHeader("X-Auth-Token", app.getToken());
 		Scheduler.get().scheduleDeferred(sendInvitation);
+	}
+	
+	void fillSentInvitationsTable(Invitations inv) {
+		int row = 0;
+		for (int j=currentPage * INV_PER_PAGE + 0; j<inv.getSentInvitations().size() && j<(currentPage + 1)* INV_PER_PAGE; j++) {
+			final Invitation i = inv.getSentInvitations().get(j);
+			sentInvitationsTable.setText(row, 0, i.getRealname());
+			row++;
+			sentInvitationsTable.setText(row, 0, i.getEmail());
+			if (i.isAccepted())
+				sentInvitationsTable.setWidget(row, 1, new Image("images/invitation_accepted.png"));
+			else {
+				Image img = new Image("images/resend.png");
+				img.addStyleName("pithos-resendInvitation");
+				img.addClickHandler(new ClickHandler() {
+					
+					@Override
+					public void onClick(ClickEvent event) {
+						sendInvitation(i.getEmail(), i.getRealname());
+					}
+				});
+				sentInvitationsTable.setWidget(row, 1, img);
+			}
+			row++;
+		}
 	}
 }
