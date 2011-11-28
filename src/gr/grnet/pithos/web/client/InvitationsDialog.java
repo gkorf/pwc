@@ -72,11 +72,11 @@ public class InvitationsDialog extends DialogBox {
 	 * The current displayed page of sent invitations 
 	 */
 	int currentPage = 0;
-	
+	HorizontalPanel pagerPanel;	
 	/**
 	 * The widget constructor.
 	 */
-	public InvitationsDialog(Pithos _app, Invitations inv) {
+	public InvitationsDialog(Pithos _app, final Invitations inv) {
 		this.app = _app;
 		Anchor close = new Anchor();
 		close.addStyleName("close");
@@ -187,16 +187,42 @@ public class InvitationsDialog extends DialogBox {
 		fillSentInvitationsTable(inv);
 		right.add(sentInvitationsTable);
 		
-		HorizontalPanel pagerPanel = new HorizontalPanel();
-		Button prev = new Button("prev");
+		pagerPanel = new HorizontalPanel();
+		pagerPanel.setSpacing(5);
+		Button prev = new Button("Prev");
+		prev.addStyleName("pithos-pagerButton");
+		prev.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				if (currentPage > 0) {
+					pagerPanel.getWidget(currentPage + 1).removeStyleName("pithos-pagerButtonCurrent");
+					currentPage--;
+					fillSentInvitationsTable(inv);
+					pagerPanel.getWidget(currentPage + 1).addStyleName("pithos-pagerButtonCurrent");
+				}
+			}
+		});
 		pagerPanel.add(prev);
-		Button one = new Button("one");
-		pagerPanel.add(one);
-		Button two = new Button("two");
-		pagerPanel.add(two);
-		Button next = new Button("next");
+		Button next = new Button("Next");
+		next.addStyleName("pithos-pagerButton");
+		next.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				int numOfInvs = inv.getSentInvitations().size();
+				int numOfPages = numOfInvs / INV_PER_PAGE + (numOfInvs % INV_PER_PAGE == 0 ? 0 : 1);
+				if (currentPage < numOfPages - 1) {
+					pagerPanel.getWidget(currentPage + 1).removeStyleName("pithos-pagerButtonCurrent");
+					currentPage++;
+					pagerPanel.getWidget(currentPage + 1).addStyleName("pithos-pagerButtonCurrent");
+					fillSentInvitationsTable(inv);
+				}
+			}
+		});
 		pagerPanel.add(next);
 		right.add(pagerPanel);
+		updatePagerPanel(inv);
 		
 		split.add(right);
 		
@@ -233,12 +259,12 @@ public class InvitationsDialog extends DialogBox {
 	}
 	
 	void fillSentInvitationsTable(Invitations inv) {
+		sentInvitationsTable.removeAllRows();
 		int row = 0;
 		for (int j=currentPage * INV_PER_PAGE + 0; j<inv.getSentInvitations().size() && j<(currentPage + 1)* INV_PER_PAGE; j++) {
 			final Invitation i = inv.getSentInvitations().get(j);
 			sentInvitationsTable.setText(row, 0, i.getRealname());
-			row++;
-			sentInvitationsTable.setText(row, 0, i.getEmail());
+			sentInvitationsTable.getFlexCellFormatter().addStyleName(row, 0, "pithos-invitedEmail");
 			if (i.isAccepted())
 				sentInvitationsTable.setWidget(row, 1, new Image("images/invitation_accepted.png"));
 			else {
@@ -253,7 +279,34 @@ public class InvitationsDialog extends DialogBox {
 				});
 				sentInvitationsTable.setWidget(row, 1, img);
 			}
+			sentInvitationsTable.getFlexCellFormatter().setRowSpan(row, 1, 2);
 			row++;
+			sentInvitationsTable.setText(row, 0, i.getEmail());
+			row++;
+		}
+	}
+	
+	void updatePagerPanel(final Invitations inv) {
+		int numOfInvitations = inv.getSentInvitations().size();
+		int numOfPages = numOfInvitations / INV_PER_PAGE + (numOfInvitations % INV_PER_PAGE == 0 ? 0 : 1);
+		for (int i=0; i<numOfPages; i++) {
+			final Button page = new Button(String.valueOf(i + 1));
+			page.addStyleName("pithos-pagerButton");
+			if (i == currentPage)
+				page.addStyleName("pithos-pagerButtonCurrent");
+				
+			final int j = i;
+			page.addClickHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					pagerPanel.getWidget(currentPage + 1).removeStyleName("pithos-pagerButtonCurrent");
+					currentPage = j;
+					fillSentInvitationsTable(inv);
+					page.addStyleName("pithos-pagerButtonCurrent");
+				}
+			});
+			pagerPanel.insert(page, i + 1);
 		}
 	}
 }

@@ -600,12 +600,16 @@ a.pithos-tag {
 	background-color: transparent;
 	border: 1px solid gray;
 	color: gray;
+	padding: 0px 2px 0px 2px;
+	font-size: 80%;
 }
 
 .pithos-pagerButton:HOVER {
 	background-color: #4085A5;
+	color: white;
 }
 
 .pithos-pagerButtonCurrent {
 	background-color: #4085A5;
+	color: white;
 }
