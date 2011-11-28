@@ -406,7 +406,7 @@ table.pithos-permList.props-labels {
 
 .pithos-logo {
 	position: absolute;
-	top: 25;
+	top: 29px;
 }
 
 .pithos-header {
@@ -585,6 +585,27 @@ a.pithos-tag {
 	color: #4085A5;
 }
 
+.pithos-invitedEmail {
+	color: #ff7f2a;
+	font-weight: bold;
+	border-bottom: 1px solid #4085A5;
+}
+
 .pithos-resendInvitation {
 	cursor: pointer;
+}
+
+.pithos-pagerButton {
+	background: none;
+	background-color: transparent;
+	border: 1px solid gray;
+	color: gray;
+}
+
+.pithos-pagerButton:HOVER {
+	background-color: #4085A5;
+}
+
+.pithos-pagerButtonCurrent {
+	background-color: #4085A5;
 }
