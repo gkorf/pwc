@@ -101,7 +101,7 @@ public class AddUserCommand implements Command {
 			updateGroup.setHeader("X-Auth-Token", app.getToken());
 			String groupMembers = "";
 			for (String u : group.getMembers())
-				groupMembers += (u + ",");
+				groupMembers += (URL.encodePathSegment(u) + ",");
 			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), groupMembers);
 			Scheduler.get().scheduleDeferred(updateGroup);
         }

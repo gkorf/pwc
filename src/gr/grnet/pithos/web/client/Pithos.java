@@ -987,9 +987,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				}
             };
             copyFile.setHeader("X-Auth-Token", getToken());
-            copyFile.setHeader("X-Copy-From", file.getUri());
+            copyFile.setHeader("X-Copy-From", URL.encodePathSegment(file.getUri()));
             if (!file.getOwner().equals(targetUsername))
-            	copyFile.setHeader("X-Source-Account", file.getOwner());
+            	copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwner()));
             copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
         }

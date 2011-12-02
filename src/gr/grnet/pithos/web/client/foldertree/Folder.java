@@ -164,7 +164,7 @@ public class Folder extends Resource {
         header = response.getHeader("X-Container-Object-Meta");
         if (header != null && header.length() > 0) {
             for (String t : header.split(",")) {
-                tags.add(URL.decodePathSegment(t.toLowerCase()).trim());
+                tags.add(URL.decodePathSegment(t));
             }
         }
 

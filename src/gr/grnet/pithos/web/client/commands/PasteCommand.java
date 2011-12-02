@@ -48,6 +48,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -157,7 +158,7 @@ public class PasteCommand implements Command {
 				}
             };
             copyFile.setHeader("X-Auth-Token", app.getToken());
-            copyFile.setHeader("X-Move-From", file.getUri());
+            copyFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
         }

@@ -224,13 +224,13 @@ public class File extends Resource {
         for (Header h : response.getHeaders()) {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-"))
-                tags.add(URL.decodePathSegment(header.substring("X-Object-Meta-".length())).trim().toLowerCase());
+                tags.add(URL.decodePathSegment(header.substring("X-Object-Meta-".length())));
             else if (header.equals("X-Object-Sharing")) {
                 String rawPermissions = h.getValue();
-                parsePermissions(rawPermissions);
+                parsePermissions(URL.decodePathSegment(rawPermissions));
             }
             else if (header.equals("X-Object-Shared-By")) {
-                inheritedPermissionsFrom = h.getValue().trim();
+                inheritedPermissionsFrom = URL.decodePathSegment(h.getValue());
             }
         }
     }

@@ -47,6 +47,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -156,7 +157,7 @@ public class VersionsList extends Composite {
 			}
 		};
 		restoreVersion.setHeader("X-Auth-Token", app.getToken());
-		restoreVersion.setHeader("X-Source-Object", file.getUri());
+		restoreVersion.setHeader("X-Source-Object", URL.encodePathSegment(file.getUri()));
 		restoreVersion.setHeader("X-Source-Version", String.valueOf(version));
 		restoreVersion.setHeader("Content-Range", "bytes 0-/*");
 		Scheduler.get().scheduleDeferred(restoreVersion);

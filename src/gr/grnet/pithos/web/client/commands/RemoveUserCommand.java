@@ -101,7 +101,7 @@ public class RemoveUserCommand implements Command {
 		String groupMembers = "";
 		if (!group.getMembers().isEmpty()) {
 			for (String u : group.getMembers())
-				groupMembers += (u + ",");
+				groupMembers += (URL.encodePathSegment(u) + ",");
 		}
 		else
 			groupMembers = "~";

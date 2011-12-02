@@ -52,6 +52,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
@@ -457,7 +458,9 @@ public class FolderPropertiesDialog extends DialogBox {
                 writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
             String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
             if (permHeader.length() == 0)
-                permHeader="~";
+                permHeader = "~";
+            else
+            	permHeader = URL.encodePathSegment(permHeader);
             updateFolder.setHeader("X-Object-Sharing", permHeader);
             Scheduler.get().scheduleDeferred(updateFolder);
         }

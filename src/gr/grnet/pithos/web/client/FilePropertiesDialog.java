@@ -420,7 +420,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
-            updateFile.setHeader("X-Move-From", file.getUri());
+            updateFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             updateFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(updateFile);
         }
@@ -478,6 +478,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
                 if (permHeader.length() == 0)
                     permHeader="~";
+                else
+                	permHeader = URL.encodePathSegment(permHeader);
                 updateFile.setHeader("X-Object-Sharing", permHeader);
             }
             Scheduler.get().scheduleDeferred(updateFile);

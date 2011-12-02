@@ -144,11 +144,11 @@ public class AccountResource extends Resource {
         	if (h != null) {
 		        String name = h.getName();
 		        if (name.startsWith("X-Account-Group-")) {
-		            String groupName = URL.decodePathSegment(name.substring("X-Account-Group-".length())).trim().toLowerCase();
+		            String groupName = URL.decodePathSegment(name.substring("X-Account-Group-".length()));
 		            Group g = new Group(groupName);
 		            String[] members = h.getValue().split(",");
 		            for (String s : members)
-		                g.addMember(s.trim());
+		                g.addMember(URL.decodePathSegment(s).trim());
 		            groups.add(g);
 		        }
 		        else if (name.equals("X-Account-Container-Count")) {
