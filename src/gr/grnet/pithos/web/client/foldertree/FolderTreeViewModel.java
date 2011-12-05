@@ -180,7 +180,17 @@ public class FolderTreeViewModel implements TreeViewModel {
             @Override
             public void execute() {
                 rootDataProvider.getList().clear();
-                rootDataProvider.getList().addAll(account.getContainers());
+                Folder t = null;
+                for (Folder c : account.getContainers()) {
+                	if (c.isHome())
+                    	rootDataProvider.getList().add(0, c); //Pithos is always first
+                	else if (c.isTrash())
+                		t = c; //Keep trash for adding in the end
+                	else
+                		rootDataProvider.getList().add(c);
+                }
+                if (t != null)
+            		rootDataProvider.getList().add(t);
                 selectionModel.setSelected(rootDataProvider.getList().get(0), true);
                 if (callback != null)
                 	callback.execute();
