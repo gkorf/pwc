@@ -78,7 +78,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             SafeHtml name;
         	if (folder.isHome()) {
         		html = AbstractImagePrototype.create(FolderTreeView.images.home()).getHTML();
-        		name = Templates.INSTANCE.nameSpan("Home");
+        		name = Templates.INSTANCE.nameSpan("Pithos");
         	}
         	else if (folder.isTrash()) {
         		html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
