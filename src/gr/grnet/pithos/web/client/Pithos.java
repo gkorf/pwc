@@ -245,7 +245,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     GroupTreeViewModel groupTreeViewModel;
     private GroupTreeView groupTreeView;
 
-    private TreeView selectedTree;
+    TreeView selectedTree;
     protected AccountResource account;
     
     Folder trash;
@@ -264,6 +264,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private HTML numOfFiles;
     
+    private Image refreshButton;
+
     private Image toolsButton;
 
 	@Override
@@ -311,6 +313,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
         
+        refreshButton = new Image(images.refresh());
+        refreshButton.addStyleName("pithos-toolsButton");
+        refreshButton.setWidth("32px");
+        refreshButton.setHeight("32px");
+        refreshButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+		    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
+		    	boolean otherSharedTreeSelected = selectedTree.equals(getOtherSharedTreeView());
+		    	Folder folder = getSelectedTree().getSelection();
+		    	
+		    	if (folder != null && (isFolderTreeSelected || otherSharedTreeSelected))
+		    		updateFolder(folder, true, null);
+			}
+		});
+        header.add(refreshButton);
+        header.setCellHorizontalAlignment(refreshButton, HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellVerticalAlignment(refreshButton, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(refreshButton, "40px");
+
         toolsButton = new Image(images.tools());
         toolsButton.addStyleName("pithos-toolsButton");
         toolsButton.addClickHandler(new ClickHandler() {
