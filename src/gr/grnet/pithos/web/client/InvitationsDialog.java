@@ -93,7 +93,8 @@ public class InvitationsDialog extends DialogBox {
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		VerticalPanel outer = new VerticalPanel();
-		outer.add(close);
+		outer.addStyleName("outer");
+		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
@@ -103,6 +104,7 @@ public class InvitationsDialog extends DialogBox {
 		inner.add(text);
 		
 		HorizontalPanel split = new HorizontalPanel();
+		split.addStyleName("pithos-invitationsSplitPanel");
 
 		VerticalPanel left = new VerticalPanel();
 		left.addStyleName("pithos-sendInvitationsPanel");
@@ -122,6 +124,15 @@ public class InvitationsDialog extends DialogBox {
 		left.add(messagesPanel);
 		
 		final FlexTable table = new FlexTable();
+		table.setCellSpacing(0);
+		if (inv.getInvitationsLeft() > 0) {
+			table.setHTML(0, 0, "Name <span class='eg'>e.g. John Smith</span>");
+			table.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+			table.setText(0, 1, "Email");
+			table.getFlexCellFormatter().setStyleName(0, 1, "props-labels");
+			rows = 1;
+			addFormLine(table);
+		}
 		left.add(table);
 		plus.addClickHandler(new ClickHandler() {
 			
@@ -134,27 +145,7 @@ public class InvitationsDialog extends DialogBox {
 					table.getFlexCellFormatter().setStyleName(0, 1, "props-labels");
 					rows++;
 				}
-				table.setWidget(rows, 0, new TextBox());
-				table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
-
-				table.setWidget(rows, 1, new TextBox());
-				table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
-				
-				Image delete = new Image("images/delete.png");
-				delete.addStyleName("pithos-invitationDeleteImg");
-				delete.addClickHandler(new ClickHandler() {
-					
-					@Override
-					public void onClick(ClickEvent event) {
-						table.removeRow(table.getCellForEvent(event).getRowIndex());
-					}
-				});
-				table.setWidget(rows, 2, delete);
-				
-				if (rows > 1)
-					table.getRowFormatter().addStyleName(rows, "pithos-invitationFormRow");
-				
-				rows++;
+				addFormLine(table);
 			}
 		});
 
@@ -175,7 +166,8 @@ public class InvitationsDialog extends DialogBox {
 		left.add(send);
 		
 		split.add(left);
-		
+		split.setCellWidth(left, "50%");
+
 		VerticalPanel right = new VerticalPanel();
 		right.addStyleName("pithos-sentInvitationsPanel");
 		
@@ -184,6 +176,8 @@ public class InvitationsDialog extends DialogBox {
 		right.add(sentLabel);
 		
 		sentInvitationsTable = new FlexTable();
+		sentInvitationsTable.setCellSpacing(0);
+		sentInvitationsTable.addStyleName("pithos-sentInvitationsTable");
 		fillSentInvitationsTable(inv);
 		right.add(sentInvitationsTable);
 		
@@ -229,8 +223,42 @@ public class InvitationsDialog extends DialogBox {
 		inner.add(split);
 		
 		outer.add(inner);
+		outer.add(close);
 		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		setWidget(outer);
+	}
+
+	private void addFormLine(final FlexTable table) {
+		table.setWidget(rows, 0, new TextBox());
+		table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
+
+		table.setWidget(rows, 1, new TextBox());
+		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+		
+		Image delete = new Image("images/delete.png");
+		delete.addStyleName("pithos-invitationDeleteImg");
+		delete.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				int rowIndex = table.getCellForEvent(event).getRowIndex();
+				table.removeRow(rowIndex);
+				if (rowIndex == 1 && table.getRowCount() > 1) {
+					table.getCellFormatter().removeStyleName(rowIndex, 0, "pithos-invitationFormRow");
+					table.getCellFormatter().removeStyleName(rowIndex, 1, "pithos-invitationFormRow");
+					table.getCellFormatter().removeStyleName(rowIndex, 2, "pithos-invitationFormRow");
+				}
+				rows--;
+			}
+		});
+		table.setWidget(rows, 2, delete);
+
+		if (rows > 1) {
+			table.getCellFormatter().addStyleName(rows, 0, "pithos-invitationFormRow");
+			table.getCellFormatter().addStyleName(rows, 1, "pithos-invitationFormRow");
+			table.getCellFormatter().addStyleName(rows, 2, "pithos-invitationFormRow");
+		}
+		rows++;
 	}
 
 	void sendInvitation(String email, final String realname) {
@@ -264,7 +292,6 @@ public class InvitationsDialog extends DialogBox {
 		for (int j=currentPage * INV_PER_PAGE + 0; j<inv.getSentInvitations().size() && j<(currentPage + 1)* INV_PER_PAGE; j++) {
 			final Invitation i = inv.getSentInvitations().get(j);
 			sentInvitationsTable.setText(row, 0, i.getRealname());
-			sentInvitationsTable.getFlexCellFormatter().addStyleName(row, 0, "pithos-invitedEmail");
 			if (i.isAccepted())
 				sentInvitationsTable.setWidget(row, 1, new Image("images/invitation_accepted.png"));
 			else {
@@ -280,8 +307,14 @@ public class InvitationsDialog extends DialogBox {
 				sentInvitationsTable.setWidget(row, 1, img);
 			}
 			sentInvitationsTable.getFlexCellFormatter().setRowSpan(row, 1, 2);
+			sentInvitationsTable.getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+			if (j < inv.getSentInvitations().size() - 1 && j < (currentPage + 1)* INV_PER_PAGE - 1)
+				sentInvitationsTable.getFlexCellFormatter().addStyleName(row, 1, "pithos-invitedEmailBorder");
 			row++;
 			sentInvitationsTable.setText(row, 0, i.getEmail());
+			sentInvitationsTable.getFlexCellFormatter().addStyleName(row, 0, "pithos-invitedEmail");
+			if (j < inv.getSentInvitations().size() - 1 && j < (currentPage + 1)* INV_PER_PAGE - 1)
+				sentInvitationsTable.getFlexCellFormatter().addStyleName(row, 0, "pithos-invitedEmailBorder");
 			row++;
 		}
 	}

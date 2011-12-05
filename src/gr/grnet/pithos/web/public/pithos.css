@@ -452,11 +452,15 @@ table.pithos-permList.props-labels {
     box-shadow: 0 0 1px 1px #888;
 }
 
+.pithos-dialogbox .outer {
+    width: 600px;
+}
+
 /*remove background/padding from .inner*/
 .pithos-dialogbox .inner {
     background: none;
     padding:0;
-    width: auto !important;
+    width: 100%;
 }
 
 /*button styles*/
@@ -529,6 +533,7 @@ a.pithos-tag {
 .pithos-sendInvitationsPanel {
 	margin-top: 10px;
 	border-right: 1px solid #4085A5;
+	padding-right: 5px;
 }
 
 .pithos-sendInvitationsTitle {
@@ -558,6 +563,10 @@ a.pithos-tag {
 	color: gray;
 }
 
+.pithos-invitationsSplitPanel {
+	width:100%;
+}
+
 .pithos-invitationDeleteImg {
 	cursor: pointer;
 }
@@ -578,6 +587,8 @@ a.pithos-tag {
 
 .pithos-sentInvitationsPanel {
 	margin-top: 10px;
+	padding-left: 5px;
+	width: 100%;
 }
 
 .pithos-sentInvitationsTitle {
@@ -585,9 +596,16 @@ a.pithos-tag {
 	color: #4085A5;
 }
 
+.pithos-sentInvitationsTable {
+	width: 100%;
+}
+
 .pithos-invitedEmail {
 	color: #ff7f2a;
 	font-weight: bold;
+}
+
+.pithos-invitedEmailBorder {
 	border-bottom: 1px solid #4085A5;
 }
 
