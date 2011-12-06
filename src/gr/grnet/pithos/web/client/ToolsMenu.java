@@ -103,11 +103,6 @@ public class ToolsMenu extends PopupPanel {
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
 	    	boolean otherSharedTreeSelected = selectedTree.equals(app.getOtherSharedTreeView());
 	    	
-	    	if (isFolderTreeSelected || otherSharedTreeSelected) {
-		    	MenuItem refresh = new MenuItem("<span id = 'folderContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(app, this, folder));
-		        contextMenu.addItem(refresh);
-	    	}
-	
 	        if (!folder.isInTrash()) {
 	        	if (canWrite) {
 			        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
