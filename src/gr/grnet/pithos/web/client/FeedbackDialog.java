@@ -86,7 +86,7 @@ public class FeedbackDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 		// Create the text and set a style name so we can style it with CSS.
-		HTML text = new HTML("Pithos is currently in alpha test and we would appreciate any<br>" + "kind of feedback. We welcome any suggestions, questions and<br>" + " bug reports you may have.");
+		HTML text = new HTML("Pithos+ is currently in alpha test and we would appreciate any<br>" + "kind of feedback. We welcome any suggestions, questions and<br>" + " bug reports you may have.");
 		text.setStyleName("pithos-credentialsText");
 		inner.add(text);
 		FlexTable table = new FlexTable();

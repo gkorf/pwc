@@ -85,7 +85,7 @@ public class CredentialsDialog extends DialogBox {
 
 		// Create the text and set a style name so we can style it with CSS.
 		HTML text = new HTML("<p>These are the user credentials that are " +
-				"required for interacting with Pithos");
+				"required for interacting with Pithos+");
 		text.setStyleName("pithos-credentialsText");
 		text.setWidth(WIDTH_TEXT);
 		inner.add(text);
