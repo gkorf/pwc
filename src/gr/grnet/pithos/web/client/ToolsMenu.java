@@ -101,7 +101,6 @@ public class ToolsMenu extends PopupPanel {
 	        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
 	    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
-	    	boolean otherSharedTreeSelected = selectedTree.equals(app.getOtherSharedTreeView());
 	    	
 	        if (!folder.isInTrash()) {
 	        	if (canWrite) {

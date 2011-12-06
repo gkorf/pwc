@@ -42,10 +42,12 @@ import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.tagtree.Tag;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.map.HashedMap;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -60,12 +62,11 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
-import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -110,6 +111,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
     Images images = GWT.create(Images.class);
 
+    private FlexTable metaTable;
 	/**
 	 * The widget's constructor.
 	 */
@@ -206,7 +208,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         generalTable.setText(1, 0, "Folder");
         generalTable.setText(2, 0, "Owner");
         generalTable.setText(3, 0, "Last modified");
-        generalTable.setText(4, 0, "Tags");
 
         name.setWidth("100%");
         name.setText(file.getName());
@@ -220,16 +221,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
         generalTable.setText(3, 1, file.getLastModified() != null ? formatter.format(file.getLastModified()) : "");
 
-		StringBuffer tagsBuffer = new StringBuffer();
-        for (String t : file.getTags())
-			tagsBuffer.append(t).append(", ");
-		if (tagsBuffer.length() > 1)
-			tagsBuffer.delete(tagsBuffer.length() - 2, tagsBuffer.length() - 1);
-		initialTagText = tagsBuffer.toString();
-		tags.setWidth("100%");
-		tags.setText(initialTagText);
-		generalTable.setWidget(4, 1, tags);
-
         generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(1, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(2, 0, "props-labels");
@@ -239,41 +230,63 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         generalTable.getFlexCellFormatter().setStyleName(1, 1, "props-values");
         generalTable.getFlexCellFormatter().setStyleName(2, 1, "props-values");
         generalTable.getFlexCellFormatter().setStyleName(3, 1, "props-values");
-        generalTable.getFlexCellFormatter().setStyleName(4, 1, "props-values");
         generalTable.setCellSpacing(4);
 
         generalPanel.add(generalTable);
 
-        DisclosurePanel allTags = new DisclosurePanel("All tags");
-        allTagsContent = new FlowPanel();
-        allTagsContent.setWidth("100%");
-        for (Tag t : app.getAllTags()) {
-            final Anchor tagAnchor = new Anchor(t.getName(), false);
-            tagAnchor.addStyleName("pithos-tag");
-            allTagsContent.add(tagAnchor);
-            Label separator = new Label(", ");
-            separator.addStyleName("pithos-tag");
-            allTagsContent.add(separator);
-            tagAnchor.addClickHandler(new ClickHandler() {
+        Label meta = new Label("Meta data");
+        generalPanel.add(meta);
+		Image plus = new Image("images/plus.png");
+		plus.addStyleName("pithos-addInvitationImg");
+		generalPanel.add(plus);
+		
+		metaTable = new FlexTable();
+		metaTable.setCellSpacing(0);
+		metaTable.setHTML(0, 0, "Name");
+		metaTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+		metaTable.setText(0, 1, "Value");
+		metaTable.getFlexCellFormatter().setStyleName(0, 1, "props-labels");
+		int rows = 1;
+		for (String metaKey : file.getMeta().keySet()) {
+			addFormLine(metaTable, rows++, metaKey, file.getMeta().get(metaKey));
+		}
+		
+		plus.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				addFormLine(metaTable, metaTable.getRowCount(), "", "");
+			}
+		});
 
-                @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                    String existing = tags.getText().trim();
-                    if (MULTIPLE_VALUES_TEXT.equals(existing))
-                        existing = "";
-                    String newTag = tagAnchor.getText().trim();
-                    // insert the new tag only if it is not in the list
-                    // already
-                    if (existing.indexOf(newTag) == -1)
-                        tags.setText(existing + (existing.length() > 0 ? ", " : "") + newTag);
-                }
-            });
-        }
-        allTags.setContent(allTagsContent);
-        generalPanel.add(allTags);
+		generalPanel.add(metaTable);
         generalPanel.setSpacing(4);
         return generalPanel;
     }
+
+	private void addFormLine(final FlexTable table, int row, String name, String value) {
+		TextBox nameBox = new TextBox();
+		nameBox.setText(name);
+		table.setWidget(row, 0, nameBox);
+		table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
+
+		TextBox valueBox = new TextBox();
+		valueBox.setText(value);
+		table.setWidget(row, 1, valueBox);
+		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
+		
+		Image delete = new Image("images/delete.png");
+		delete.addStyleName("pithos-invitationDeleteImg");
+		delete.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				int rowIndex = table.getCellForEvent(event).getRowIndex();
+				table.removeRow(rowIndex);
+			}
+		});
+		table.setWidget(row, 2, delete);
+	}
 
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
@@ -395,17 +408,19 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 published = readForAll.getValue();
         final Boolean finalPublished = published;
 
-        String[] tagset = null;
-		if (!tags.getText().equals(initialTagText))
-			tagset = tags.getText().trim().split(",");
-        final String[] newTags = tagset;
+        final Map<String, String> newMeta = new HashMap<String, String>();
+        for (int row = 1; row < metaTable.getRowCount(); row++) {
+        	String key = ((TextBox) metaTable.getWidget(row, 0)).getText().trim();
+        	String value = ((TextBox) metaTable.getWidget(row, 1)).getText().trim();
+        	newMeta.put(key, value);
+        }
 
         if (newFilename != null) {
             final String path = file.getParent().getUri() + "/" + newFilename;
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newTags, finalPublished, perms);
+                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newMeta, finalPublished, perms);
                 }
 
                 @Override
@@ -425,11 +440,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newTags, finalPublished, perms);
+            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta, finalPublished, perms);
 	}
 
-	protected void updateMetaData(String api, String owner, String path, String[] newTags, Boolean published, Map<String, Boolean[]> newPermissions) {
-        if (newTags != null || published != null || newPermissions != null) {
+	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta, Boolean published, Map<String, Boolean[]> newPermissions) {
+        if (newMeta != null || published != null || newPermissions != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
@@ -448,13 +463,12 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
-            for (String t : file.getTags()) {
+            for (String t : file.getMeta().keySet()) {
         		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
             }
-            if (newTags != null)
-                for (String t : newTags)
-                	if (t.length() > 0)
-                		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "true");
+            for (String key : newMeta.keySet())
+                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
+            
             if (published != null)
                 updateFile.setHeader("X-Object-Public", published.toString());
             if (newPermissions != null) {

@@ -50,19 +50,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 
 	protected static final String MULTIPLE_VALUES_TEXT = "(Multiple values)";
 
-	/**
-	 * Text box with the tags associated with the file
-	 */
-	protected TextBox tags = new TextBox();
-
-	protected String initialTagText;
-
-	/**
-	 * A FlowPanel with all user tags
-	 */
-	protected FlowPanel allTagsContent;
-
-
 	protected TabPanel inner = null;
 
     protected Pithos app;

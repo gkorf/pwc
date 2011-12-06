@@ -142,12 +142,6 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
         generalPanel.add(generalTable);
 
-		DisclosurePanel allTags = new DisclosurePanel("All tags");
-		allTagsContent = new FlowPanel();
-		allTags.setContent(allTagsContent);
-		generalPanel.add(allTags);
-		generalPanel.setSpacing(4);
-
         return generalPanel;
     }
 

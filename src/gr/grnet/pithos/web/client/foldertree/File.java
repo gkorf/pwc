@@ -46,6 +46,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 
 public class File extends Resource {
     private String name;
@@ -72,7 +73,7 @@ public class File extends Resource {
 
     private Folder parent;
 
-    private Set<String> tags = new HashSet<String>();
+    private Map<String, String> meta = new HashMap<String, String>();
 
     private boolean published;
 
@@ -166,11 +167,15 @@ public class File extends Resource {
         if (rawPermissions != null)
             parsePermissions(rawPermissions);
 
-        for (String key : o.keySet())
-            if (key.startsWith("x_object_meta_"))
-                tags.add(URL.decodePathSegment(key.substring("x_object_meta_".length())).trim().toLowerCase());
-
-        
+        JSONValue metaValue = o.get("x_object_meta");
+        if (metaValue != null) {
+        	JSONObject metaObj = metaValue.isObject();
+        	if (metaObj != null) {
+        		for (String key: metaObj.keySet()) {
+                    meta.put(key, unmarshallString(metaObj, key));
+        		}
+        	}
+        }
     }
 
     private void parsePermissions(String rawPermissions) {
@@ -224,7 +229,7 @@ public class File extends Resource {
         for (Header h : response.getHeaders()) {
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-"))
-                tags.add(URL.decodePathSegment(header.substring("X-Object-Meta-".length())));
+                meta.put(URL.decodePathSegment(header.substring("X-Object-Meta-".length())), URL.decodePathSegment(h.getValue()));
             else if (header.equals("X-Object-Sharing")) {
                 String rawPermissions = h.getValue();
                 parsePermissions(URL.decodePathSegment(rawPermissions));
@@ -239,8 +244,8 @@ public class File extends Resource {
         return parent;
     }
 
-    public Set<String> getTags() {
-        return tags;
+    public Map<String, String> getMeta() {
+        return meta;
     }
 
     public boolean isPublished() {
