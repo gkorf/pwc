@@ -140,7 +140,7 @@ public class File extends Resource {
     }
 
     public boolean isShared() {
-        return !permissions.isEmpty();
+        return !permissions.isEmpty() || published;
     }
 
     public void populate(Folder _parent, JSONObject o, String _owner, String _container) {

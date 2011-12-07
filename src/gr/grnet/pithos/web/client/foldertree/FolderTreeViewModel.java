@@ -85,7 +85,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         		name = Templates.INSTANCE.nameSpan("Trash");
         	}
             else {
-            	html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
+            	html = AbstractImagePrototype.create(folder.isShared() ? FolderTreeView.images.myShared() : FolderTreeView.images.folderYellow()).getHTML();
         		name = Templates.INSTANCE.nameSpan(folder.getName());
             }
             safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
