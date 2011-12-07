@@ -326,7 +326,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		    	Folder folder = getSelectedTree().getSelection();
 		    	
 		    	if (folder != null && (isFolderTreeSelected || otherSharedTreeSelected))
-		    		updateFolder(folder, true, null);
+		    		updateFolder(folder, true, new Command() {
+		    			
+		    			@Override
+		    			public void execute() {
+		    				updateStatistics();
+		    			}
+		    		});
 			}
 		});
         header.add(refreshButton);

@@ -45,7 +45,7 @@ public class RefreshCommand implements Command {
 
 	private PopupPanel containerPanel;
 
-    private Pithos app;
+    Pithos app;
 
     private Folder folder;
     
@@ -62,6 +62,12 @@ public class RefreshCommand implements Command {
 	public void execute() {
 		if (containerPanel != null)
 			containerPanel.hide();
-		app.updateFolder(folder, true, null);
+		app.updateFolder(folder, true, new Command() {
+			
+			@Override
+			public void execute() {
+				app.updateStatistics();
+			}
+		});
 	}
 }
