@@ -141,6 +141,7 @@ public class VersionsList extends Composite {
 			
 			@Override
 			public void onError(Throwable t) {
+				app.setError(t);
                 if (t instanceof RestException) {
                 	if (((RestException) t).getHttpStatusCode() == Response.SC_NO_CONTENT)
                 		onSuccess(null);

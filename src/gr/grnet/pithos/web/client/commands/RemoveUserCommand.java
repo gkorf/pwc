@@ -85,6 +85,7 @@ public class RemoveUserCommand implements Command {
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
+				app.setError(t);
 				if (t instanceof RestException) {
 					app.displayError("Unable to update group:" + ((RestException) t).getHttpStatusText());
 				}

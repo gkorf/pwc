@@ -183,6 +183,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 			@Override
 			public void onError(Throwable t) {
 				GWT.log("", t);
+				app.setError(t);
                 if (t instanceof RestException) {
                     app.displayError("Unable to fetch versions: " + ((RestException) t).getHttpStatusText());
                 }
@@ -435,6 +436,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					app.setError(t);
                     app.displayError("System error modifying file:" + t.getMessage());
                 }
 
@@ -463,6 +465,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					app.setError(t);
                     app.displayError("System error modifying file:" + t.getMessage());
                 }
 

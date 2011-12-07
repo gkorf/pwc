@@ -63,7 +63,7 @@ public class FeedbackDialog extends DialogBox {
 	/**
 	 * The widget constructor.
 	 */
-	public FeedbackDialog(final Pithos app) {
+	public FeedbackDialog(final Pithos app, final String appData) {
 		// Set the dialog's caption.
 		Anchor close = new Anchor();
 		close.addStyleName("close");
@@ -105,7 +105,7 @@ public class FeedbackDialog extends DialogBox {
 		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendFeedback = new PostRequest("/tools/", "", "feedback", "feedback-msg=" + msg.getText()) {
+				PostRequest sendFeedback = new PostRequest("/tools/", "", "feedback", "feedback-msg=" + msg.getText() + "&feedback-data=" + appData) {
 					
 					@Override
 					protected void onUnauthorized(Response response) {

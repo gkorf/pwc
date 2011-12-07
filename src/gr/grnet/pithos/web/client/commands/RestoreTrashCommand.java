@@ -125,6 +125,7 @@ public class RestoreTrashCommand implements Command {
 											@Override
 											public void onError(Throwable t) {
 							                    GWT.log("", t);
+												app.setError(t);
 							                    if (t instanceof RestException) {
 							                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND)
 							                    		onSuccess(null);
@@ -151,6 +152,7 @@ public class RestoreTrashCommand implements Command {
 					@Override
 					public void onError(Throwable t) {
 		                GWT.log("", t);
+						app.setError(t);
 		                if (t instanceof RestException) {
 		                    app.displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
 		                }
@@ -170,6 +172,7 @@ public class RestoreTrashCommand implements Command {
             @Override
             public void onError(Throwable t) {
                 GWT.log("", t);
+				app.setError(t);
                 if (t instanceof RestException) {
                     app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
                 }
@@ -202,6 +205,7 @@ public class RestoreTrashCommand implements Command {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					app.setError(t);
                     if (t instanceof RestException) {
                         app.displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }

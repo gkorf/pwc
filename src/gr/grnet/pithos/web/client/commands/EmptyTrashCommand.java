@@ -124,6 +124,7 @@ public class EmptyTrashCommand implements Command{
 										@Override
 										public void onError(Throwable t) {
 											GWT.log("", t);
+											app.setError(t);
 											if (t instanceof RestException) {
 												app.displayError("Unable to delete file:" + ((RestException) t).getHttpStatusText());
 											}
@@ -147,6 +148,7 @@ public class EmptyTrashCommand implements Command{
 				@Override
 				public void onError(Throwable t) {
 	                GWT.log("", t);
+					app.setError(t);
 	                if (t instanceof RestException) {
 	                    app.displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
 	                }
@@ -182,6 +184,7 @@ public class EmptyTrashCommand implements Command{
 				@Override
 				public void onError(Throwable t) {
 					GWT.log("", t);
+					app.setError(t);
 					if (t instanceof RestException) {
 						app.displayError("Unable to delete file:" + ((RestException) t).getHttpStatusText());
 					}

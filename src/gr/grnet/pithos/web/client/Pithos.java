@@ -177,6 +177,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		ImageResource tools();
 	}
 
+	private Throwable error;
+	
 	/**
 	 * The Application Clipboard implementation;
 	 */
@@ -190,7 +192,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	/**
 	 * The panel that contains the various system messages.
 	 */
-	private MessagePanel messagePanel = new MessagePanel(Pithos.images);
+	private MessagePanel messagePanel = new MessagePanel(this, Pithos.images);
 
 	/**
 	 * The bottom panel that contains the status bar.
@@ -563,6 +565,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("Error getting file", t);
+					setError(t);
                     if (t instanceof RestException)
                         displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
                     else
@@ -635,6 +638,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
+				setError(t);
                 if (t instanceof RestException)
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
@@ -661,6 +665,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
+				setError(t);
                 if (t instanceof RestException)
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
@@ -697,6 +702,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onError(Throwable t) {
                 GWT.log("Error creating pithos", t);
+				setError(t);
                 if (t instanceof RestException)
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
                 else
@@ -723,6 +729,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onError(Throwable t) {
                 GWT.log("Error creating pithos", t);
+				setError(t);
                 if (t instanceof RestException)
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
                 else
@@ -882,6 +889,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                 @Override
                 public void onError(@SuppressWarnings("unused") Request request, Throwable exception) {
+                	setError(exception);
                     displayError("System error unable to delete folder: " + exception.getMessage());
                 }
             });
@@ -905,6 +913,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     @Override
                     public void onError(Throwable t) {
                         GWT.log("", t);
+						setError(t);
                         displayError("System error unable to delete folder: " + t.getMessage());
                     }
 
@@ -941,6 +950,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                         @Override
                         public void onError(@SuppressWarnings("unused") Request request, Throwable exception) {
+                        	setError(exception);
                             displayError("System error unable to delete folder: " + exception.getMessage());
                         }
                     });
@@ -966,6 +976,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					setError(t);
                     if (t instanceof RestException) {
                     	if (((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND)
                     		displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
@@ -1003,6 +1014,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					setError(t);
                     if (t instanceof RestException) {
                         displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
                     }
@@ -1065,6 +1077,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 					@Override
 					public void onError(Throwable t) {
 		                GWT.log("", t);
+						setError(t);
 		                if (t instanceof RestException) {
 		                    displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
 		                }
@@ -1084,7 +1097,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             @Override
             public void onError(Throwable t) {
                 GWT.log("", t);
-                if (t instanceof RestException) {
+				setError(t);
+               if (t instanceof RestException) {
                     displayError("Unable to create folder: " + ((RestException) t).getHttpStatusText());
                 }
                 else
@@ -1214,5 +1228,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			if (s.startsWith(conf.shibSessionCookiePrefix()))
 				Cookies.removeCookie(s, "/");
 		Window.Location.assign(Window.Location.getPath());
+	}
+
+	public String getErrorData() {
+		if (error != null)
+			return error.toString();
+		return "";
+	}
+	
+	public void setError(Throwable t) {
+		error = t;
 	}
 }

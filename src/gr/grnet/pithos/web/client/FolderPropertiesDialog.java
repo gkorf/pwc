@@ -301,6 +301,7 @@ public class FolderPropertiesDialog extends DialogBox {
             @Override
             public void onError(Throwable t) {
 				GWT.log("", t);
+				app.setError(t);
 				if (t instanceof RestException) {
 					app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
 				}
@@ -360,6 +361,7 @@ public class FolderPropertiesDialog extends DialogBox {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					app.setError(t);
                     if(t instanceof RestException){
                         app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
                     }
@@ -393,6 +395,7 @@ public class FolderPropertiesDialog extends DialogBox {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("", t);
+					app.setError(t);
                     if (t instanceof RestException) {
                     	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
                             final String path1 = folder.getUri();
@@ -405,6 +408,7 @@ public class FolderPropertiesDialog extends DialogBox {
                                 @Override
                                 public void onError(Throwable _t) {
                                     GWT.log("", _t);
+            						app.setError(_t);
                                     if(_t instanceof RestException){
                                         app.displayError("Unable to update folder: " + ((RestException) _t).getHttpStatusText());
                                     }

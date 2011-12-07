@@ -158,6 +158,7 @@ public class TagTreeViewModel implements TreeViewModel {
                 @Override
                 public void onError(Throwable th) {
                     GWT.log("Error getting folder", th);
+					app.setError(th);
                     if (th instanceof RestException)
                         app.displayError("Error getting folder: " + ((RestException) th).getHttpStatusText());
                     else

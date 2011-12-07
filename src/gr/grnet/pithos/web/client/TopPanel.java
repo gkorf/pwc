@@ -121,6 +121,7 @@ public class TopPanel extends Composite {
 					@Override
 					public void onError(Throwable t) {
 						GWT.log("", t);
+						app.setError(t);
 	                    if (t instanceof RestException)
 	                        app.displayError("Error getting invitations: " + ((RestException) t).getHttpStatusText());
 	                    else
@@ -140,7 +141,7 @@ public class TopPanel extends Composite {
 			
 			@Override
 			public void execute() {
-				new FeedbackDialog(app).center();
+				new FeedbackDialog(app, "").center();
 			}
 		}));
         userItemMenu.addItem(new MenuItem("API access", new Command() {

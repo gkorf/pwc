@@ -216,6 +216,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             @Override
             public void onError(Throwable t) {
                 GWT.log("Error getting folder", t);
+				app.setError(t);
                 if (t instanceof RestException)
                     app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                 else
@@ -292,6 +293,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 			@Override
 			public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
+				app.setError(t);
                 if (t instanceof RestException)
                     app.displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
@@ -328,6 +330,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 			@Override
 			public void onError(Throwable t) {
                 GWT.log("Error getting account", t);
+				app.setError(t);
                 if (t instanceof RestException)
                     app.displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 else
@@ -374,6 +377,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 @Override
                 public void onError(Throwable t) {
                     GWT.log("Error getting folder", t);
+					app.setError(t);
                     if (t instanceof RestException)
                         app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                     else
@@ -425,6 +429,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             @Override
             public void onError(Throwable t) {
                 GWT.log("Error getting folder", t);
+				app.setError(t);
                 if (t instanceof RestException)
                     app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
                 else
