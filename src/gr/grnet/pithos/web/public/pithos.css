@@ -631,3 +631,25 @@ a.pithos-tag {
 	background-color: #4085A5;
 	color: white;
 }
+
+.pithos-metaTitle {
+	font-weight: bold;
+}
+
+.pithos-addMetaImg {
+	background-color: #4085A5;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.pithos-metaDeleteImg {
+	cursor: pointer;
+}
+
+.pithos-metaName {
+	width: 7em;
+}
+
+.pithos-metaValue {
+	width: 7em;
+}

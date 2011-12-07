@@ -47,8 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.HashedMap;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -111,7 +109,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
     Images images = GWT.create(Images.class);
 
-    private FlexTable metaTable;
+    FlexTable metaTable;
 	/**
 	 * The widget's constructor.
 	 */
@@ -124,7 +122,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				hide();
 			}
 		});
@@ -193,7 +191,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 			}
 
 			@Override
-			protected void onUnauthorized(Response response) {
+			protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
 				app.sessionExpired();
 			}
 		};
@@ -234,11 +232,17 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         generalPanel.add(generalTable);
 
+        HorizontalPanel metaTitlePanel = new HorizontalPanel();
+        metaTitlePanel.setSpacing(5);
         Label meta = new Label("Meta data");
-        generalPanel.add(meta);
+        meta.addStyleName("pithos-metaTitle");
+        metaTitlePanel.add(meta);
+        
 		Image plus = new Image("images/plus.png");
-		plus.addStyleName("pithos-addInvitationImg");
-		generalPanel.add(plus);
+		plus.addStyleName("pithos-addMetaImg");
+		metaTitlePanel.add(plus);
+		
+		generalPanel.add(metaTitlePanel);
 		
 		metaTable = new FlexTable();
 		metaTable.setCellSpacing(0);
@@ -250,11 +254,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		for (String metaKey : file.getMeta().keySet()) {
 			addFormLine(metaTable, rows++, metaKey, file.getMeta().get(metaKey));
 		}
+		if (rows == 1) //If no meta add an empty line
+			addFormLine(metaTable, rows++, "", "");
 		
 		plus.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
 				addFormLine(metaTable, metaTable.getRowCount(), "", "");
 			}
 		});
@@ -264,19 +270,21 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         return generalPanel;
     }
 
-	private void addFormLine(final FlexTable table, int row, String name, String value) {
+	void addFormLine(final FlexTable table, int row, String _name, String _value) {
 		TextBox nameBox = new TextBox();
-		nameBox.setText(name);
+		nameBox.setText(_name);
+		nameBox.addStyleName("pithos-metaName");
 		table.setWidget(row, 0, nameBox);
 		table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
 
 		TextBox valueBox = new TextBox();
-		valueBox.setText(value);
+		valueBox.setText(_value);
+		valueBox.addStyleName("pithos-metaValue");
 		table.setWidget(row, 1, valueBox);
 		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
 		
 		Image delete = new Image("images/delete.png");
-		delete.addStyleName("pithos-invitationDeleteImg");
+		delete.addStyleName("pithos-metaDeleteImg");
 		delete.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -412,7 +420,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         for (int row = 1; row < metaTable.getRowCount(); row++) {
         	String key = ((TextBox) metaTable.getWidget(row, 0)).getText().trim();
         	String value = ((TextBox) metaTable.getWidget(row, 1)).getText().trim();
-        	newMeta.put(key, value);
+        	if (key.length() > 0 && value.length() > 0)
+        		newMeta.put(key, value);
         }
 
         if (newFilename != null) {
@@ -430,7 +439,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 }
 
 				@Override
-				protected void onUnauthorized(Response response) {
+				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
 					app.sessionExpired();
 				}
             };
@@ -458,16 +467,20 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 }
 
 				@Override
-				protected void onUnauthorized(Response response) {
+				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
 					app.sessionExpired();
 				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
-            for (String t : file.getMeta().keySet()) {
-        		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
+            
+            if (newMeta != null) {
+	            for (String t : file.getMeta().keySet()) {
+	        		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
+	            }
+	            
+	            for (String key : newMeta.keySet())
+	                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
             }
-            for (String key : newMeta.keySet())
-                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
             
             if (published != null)
                 updateFile.setHeader("X-Object-Public", published.toString());
