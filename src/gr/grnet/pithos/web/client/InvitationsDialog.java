@@ -262,28 +262,40 @@ public class InvitationsDialog extends DialogBox {
 	}
 
 	void sendInvitation(String email, final String realname) {
-		PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + email + "&realname=" + realname) {
-			
-			@Override
-			protected void onUnauthorized(Response response) {
-				app.sessionExpired();
-			}
-			
-			@Override
-			public void onSuccess(Resource result) {
-				HTML msg = new HTML("Invitation to <span class='user'>" + realname + "</span> was sent.");
-				msg.addStyleName("pithos-invitationResponse");
-				messagesPanel.add(msg);
+		if (realname == null || realname.length() == 0) {
+			HTML msg = new HTML("Name cannot be empty");
+			msg.addStyleName("pithos-invitationResponseError");
+			messagesPanel.add(msg);
+		}
+		else if (email == null || email.length() == 0 || !email.contains("@") || 
+				email.substring(email.indexOf("@")).length() < 3 || !email.substring(email.indexOf("@") + 2).contains(".")) {
+			HTML msg = new HTML("Invalid email");
+			msg.addStyleName("pithos-invitationResponseError");
+			messagesPanel.add(msg);
+		}
+		else {
+			PostRequest sendInvitation = new PostRequest("/im/", "", "invite", "uniq=" + email + "&realname=" + realname) {
 				
-			}
-			
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-			}
-		};
-		sendInvitation.setHeader("X-Auth-Token", app.getToken());
-		Scheduler.get().scheduleDeferred(sendInvitation);
+				@Override
+				protected void onUnauthorized(Response response) {
+					app.sessionExpired();
+				}
+				
+				@Override
+				public void onSuccess(Resource result) {
+					HTML msg = new HTML("Invitation to <span class='user'>" + realname + "</span> was sent.");
+					msg.addStyleName("pithos-invitationResponse");
+					messagesPanel.add(msg);
+				}
+				
+				@Override
+				public void onError(Throwable t) {
+					GWT.log("", t);
+				}
+			};
+			sendInvitation.setHeader("X-Auth-Token", app.getToken());
+			Scheduler.get().scheduleDeferred(sendInvitation);
+		}
 	}
 	
 	void fillSentInvitationsTable(Invitations inv) {

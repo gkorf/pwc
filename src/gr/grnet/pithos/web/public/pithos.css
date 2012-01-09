@@ -555,6 +555,12 @@ a.pithos-tag {
 	padding: 5px;
 }
 
+.pithos-invitationResponseError {
+	background-color: #880000;
+	color: #fff;
+	padding: 5px;
+}
+
 .pithos-invitationResponse .user {
 	font-weight: bold;
 }
