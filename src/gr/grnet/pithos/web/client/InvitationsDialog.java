@@ -268,7 +268,7 @@ public class InvitationsDialog extends DialogBox {
 			messagesPanel.add(msg);
 		}
 		else if (email == null || email.length() == 0 || !email.contains("@") || 
-				email.substring(email.indexOf("@")).length() < 3 || !email.substring(email.indexOf("@") + 2).contains(".")) {
+				email.substring(email.indexOf("@")).length() < 4 || !email.substring(email.indexOf("@") + 2).contains(".")) {
 			HTML msg = new HTML("Invalid email");
 			msg.addStyleName("pithos-invitationResponseError");
 			messagesPanel.add(msg);
