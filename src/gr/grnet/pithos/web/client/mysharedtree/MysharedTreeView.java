@@ -151,6 +151,9 @@ public class MysharedTreeView extends Composite implements TreeView {
     }
 
 	public void updateRoot() {
+		TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+		root.setChildOpen(0, true);
+		root.setChildOpen(0, false);
 		model.fetchSharedFiles(false);
 	}
 }

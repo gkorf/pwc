@@ -389,7 +389,13 @@ public class FolderPropertiesDialog extends DialogBox {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    app.updateFolder(folder.getParent(), false, null);
+                    app.updateFolder(folder.getParent(), false, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateMySharedRoot();
+						}
+					});
                 }
 
                 @Override
@@ -469,7 +475,13 @@ public class FolderPropertiesDialog extends DialogBox {
             Scheduler.get().scheduleDeferred(updateFolder);
         }
         else
-            app.updateFolder(folder.getParent(), false, null);
+            app.updateFolder(folder.getParent(), false, new Command() {
+				
+				@Override
+				public void execute() {
+					app.updateMySharedRoot();
+				}
+			});
     }
 
 	public void selectTab(int _tab) {
