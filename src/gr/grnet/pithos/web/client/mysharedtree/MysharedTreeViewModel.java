@@ -120,7 +120,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(app.getMySharedTreeView(), selectionModel2);
                     	app.applyPermissions(null);
-                    	fetchSharedFiles();
+                    	fetchSharedFiles(true);
                     }
                 }
             });
@@ -156,7 +156,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
         }
     }
 
-	protected void fetchSharedFiles() {
+	protected void fetchSharedFiles(final boolean showFiles) {
+		sharedFiles.clear();
     	final List<Folder> containers = app.getAccount().getContainers();
     	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
     	Iterator<Folder> iter = containers.iterator();
@@ -166,7 +167,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
 			public void execute() {
 				firstLevelDataProvider.getList().clear();
 				firstLevelDataProvider.getList().addAll(tempProvider.getList());
-				app.showFiles(sharedFiles);
+				if (showFiles)
+					app.showFiles(sharedFiles);
 			}
 		});
 	}

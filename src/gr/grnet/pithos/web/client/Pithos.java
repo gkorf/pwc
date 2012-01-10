@@ -141,6 +141,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         groupTreeView.updateGroupNode(group);
     }
 
+    public void updateMySharedRoot() {
+    	mysharedTreeView.updateRoot();
+    }
+    
     public void updateSharedFolder(Folder f, boolean showfiles) {
     	mysharedTreeView.updateFolder(f, showfiles);
     }

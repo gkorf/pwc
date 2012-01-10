@@ -149,4 +149,8 @@ public class MysharedTreeView extends Composite implements TreeView {
     public void updateFolder(Folder folder, boolean showfiles) {
         model.updateFolder(folder, showfiles);
     }
+
+	public void updateRoot() {
+		model.fetchSharedFiles(false);
+	}
 }

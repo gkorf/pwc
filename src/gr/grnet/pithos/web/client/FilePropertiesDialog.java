@@ -55,6 +55,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -448,18 +449,52 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("X-Auth-Token", app.getToken());
             updateFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             updateFile.setHeader("Content-Type", file.getContentType());
+            for (String key : file.getMeta().keySet())
+                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
+            if (file.isPublished())
+                updateFile.setHeader("X-Object-Public", "true");
+            String readPermHeader = "read=";
+            String writePermHeader = "write=";
+            for (String u : file.getPermissions().keySet()) {
+                Boolean[] p = file.getPermissions().get(u);
+                if (p[0] != null && p[0])
+                    readPermHeader += u + ",";
+                if (p[1] != null && p[1])
+                    writePermHeader += u + ",";
+            }
+            if (readPermHeader.endsWith("="))
+                readPermHeader = "";
+            else if (readPermHeader.endsWith(","))
+                readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
+            if (writePermHeader.endsWith("="))
+                writePermHeader = "";
+            else if (writePermHeader.endsWith(","))
+                writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
+            String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
+            if (permHeader.length() == 0)
+                permHeader="~";
+            else
+            	permHeader = URL.encodePathSegment(permHeader);
+            updateFile.setHeader("X-Object-Sharing", permHeader);
+
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
             updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta, finalPublished, perms);
 	}
 
-	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta, Boolean published, Map<String, Boolean[]> newPermissions) {
+	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta, final Boolean published, final Map<String, Boolean[]> newPermissions) {
         if (newMeta != null || published != null || newPermissions != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    app.updateFolder(file.getParent(), true, null);
+                    app.updateFolder(file.getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateMySharedRoot();
+						}
+					});
                 }
 
                 @Override
@@ -515,6 +550,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            app.updateFolder(file.getParent(), true, null);
+            app.updateFolder(file.getParent(), true, new Command() {
+				
+				@Override
+				public void execute() {
+					if (file.isShared())
+						app.updateMySharedRoot();
+				}
+			});
     }
 }
