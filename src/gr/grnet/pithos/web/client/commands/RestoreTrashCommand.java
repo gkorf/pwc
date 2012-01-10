@@ -81,7 +81,13 @@ public class RestoreTrashCommand implements Command {
                 @SuppressWarnings("unchecked")
 				@Override
                 public void execute() {
-                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, null);
+                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateFolder(app.getAccount().getPithos(), false, null);
+						}
+					});
                 }
             });
         }
@@ -90,7 +96,13 @@ public class RestoreTrashCommand implements Command {
             untrashFolder(toBeUnTrashed, new Command() {
                 @Override
                 public void execute() {
-                    app.updateFolder(toBeUnTrashed.getParent(), true, null);
+                    app.updateFolder(toBeUnTrashed.getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateFolder(app.getAccount().getPithos(), false, null);
+						}
+					});
                 }
             });
 
