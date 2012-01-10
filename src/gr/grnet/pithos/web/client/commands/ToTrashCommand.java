@@ -81,7 +81,13 @@ public class ToTrashCommand implements Command{
                 @SuppressWarnings("unchecked")
 				@Override
                 public void execute() {
-                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, null);
+                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateTrash(false, null);
+						}
+					});
                 }
             });
         }
@@ -90,7 +96,13 @@ public class ToTrashCommand implements Command{
             trashFolder(toBeTrashed, new Command() {
                 @Override
                 public void execute() {
-                    app.updateFolder(toBeTrashed.getParent(), true, null);
+                    app.updateFolder(toBeTrashed.getParent(), true, new Command() {
+						
+						@Override
+						public void execute() {
+							app.updateTrash(false, null);
+						}
+					});
                 }
             });
 
