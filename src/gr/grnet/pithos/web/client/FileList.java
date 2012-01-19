@@ -455,6 +455,7 @@ public class FileList extends Composite {
 	        }
 	    }
 
+        provider.getList().clear();
         provider.setList(files);
         selectionModel.clear();
         app.showFolderStatistics(folderFileCount);

@@ -316,6 +316,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 			public void onSuccess(AccountResource _result) {
 		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
 				Iterator<Folder> iter = _result.getContainers().iterator();
+				sharedFiles.get(username).clear();
 				fetchFolder(username, iter, tempProvider, new Command() {
 					
 					@Override
@@ -413,6 +414,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
+            	GWT.log(String.valueOf(_result.getFiles().size()));
                 if (showfiles)
                     app.showFiles(_result);
                 Iterator<Folder> iter = _result.getSubfolders().iterator();

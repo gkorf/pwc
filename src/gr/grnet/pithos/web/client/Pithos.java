@@ -390,7 +390,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
                     applyPermissions(folderTreeSelectionModel.getSelectedObject());
                     Folder f = folderTreeSelectionModel.getSelectedObject();
-                    showFiles(f);
+            		updateFolder(f, true, new Command() {
+            			
+            			@Override
+            			public void execute() {
+            				updateStatistics();
+            			}
+            		});
                 }
             }
         });
@@ -545,14 +551,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 s.setSelected(s.getSelectedObject(), false);
     }
 
-    public void showFiles(Folder f) {
+    public void showFiles(final Folder f) {
         Set<File> files = f.getFiles();
         showFiles(files);
     }
 
     public void showFiles(Set<File> files) {
-        //Iterator<File> iter = files.iterator();
-        //fetchFile(iter, files);
         fileList.setFiles(new ArrayList<File>(files));
     }
 
