@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -68,6 +69,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -92,9 +94,12 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -270,9 +275,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private HTML numOfFiles;
     
-    private Image refreshButton;
+    private Anchor refreshButton;
 
-    private Image toolsButton;
+    private Anchor toolsButton;
 
 	@Override
 	public void onModuleLoad() {
@@ -312,17 +317,39 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.add(upload);
         header.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
         header.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
-//        header.setCellWidth(upload, "146px");
 
         messagePanel.setVisible(false);
         header.add(messagePanel);
         header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
-        
-        refreshButton = new Image(images.refresh());
-        refreshButton.addStyleName("pithos-toolsButton");
-        refreshButton.setWidth("32px");
-        refreshButton.setHeight("32px");
+
+        FlowPanel toolbar = new FlowPanel();
+        toolbar.getElement().setId("toolbar");
+        toolbar.addStyleName("clearfix");
+        toolbar.getElement().getStyle().setDisplay(Display.BLOCK);
+
+        Anchor newFolderButton = new Anchor("<span class='ico'></span><span class='title'>New folder</span>", true);
+        newFolderButton.getElement().setId("newfolder-button");
+        newFolderButton.addStyleName("pithos-toolbarItem");
+        newFolderButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+				Folder folder = getSelectedTree().getSelection();
+				if (folder != null) {
+			        Boolean[] permissions = folder.getPermissions().get(getUsername());
+			    	boolean canWrite = folder.getOwner().equals(getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+			    	
+			    	if (!folder.isInTrash() && canWrite)
+			    		new NewFolderCommand(Pithos.this, null, folder).execute();
+				}
+			}
+		});
+        toolbar.add(newFolderButton);
+
+        refreshButton = new Anchor("<span class='ico'></span><span class='title'>Refresh</span>", true);
+        refreshButton.getElement().setId("refresh-button");
+        refreshButton.addStyleName("pithos-toolbarItem");
         refreshButton.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -341,13 +368,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		    		});
 			}
 		});
-        header.add(refreshButton);
-        header.setCellHorizontalAlignment(refreshButton, HasHorizontalAlignment.ALIGN_CENTER);
-        header.setCellVerticalAlignment(refreshButton, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellWidth(refreshButton, "40px");
+        toolbar.add(refreshButton);
 
-        toolsButton = new Image(images.tools());
-        toolsButton.addStyleName("pithos-toolsButton");
+        toolsButton = new Anchor("<span class='ico'></span><span class='title'>More...</span>", true);
+        toolsButton.getElement().setId("tools-button");
+        toolsButton.addStyleName("pithos-toolbarItem");
         toolsButton.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -359,11 +384,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
 			}
 		});
-        header.add(toolsButton);
-        header.setCellHorizontalAlignment(toolsButton, HasHorizontalAlignment.ALIGN_CENTER);
-        header.setCellVerticalAlignment(toolsButton, HasVerticalAlignment.ALIGN_MIDDLE);
-        header.setCellWidth(toolsButton, "40px");
-       
+        toolbar.add(toolsButton);
+  
+        header.add(toolbar);
+        header.setCellHorizontalAlignment(toolbar, HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellVerticalAlignment(toolbar, HasVerticalAlignment.ALIGN_MIDDLE);
+//        header.setCellWidth(toolbar, "40px");
+        
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
         numOfFiles = new HTML();

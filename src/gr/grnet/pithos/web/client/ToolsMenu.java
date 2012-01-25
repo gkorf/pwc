@@ -104,8 +104,6 @@ public class ToolsMenu extends PopupPanel {
 	    	
 	        if (!folder.isInTrash()) {
 	        	if (canWrite) {
-			        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
-			        contextMenu.addItem(newFolder);
 
 			        if (isFolderTreeSelected) {
 			        	MenuItem cut = null;

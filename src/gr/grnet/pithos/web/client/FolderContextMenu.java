@@ -98,7 +98,7 @@ public class FolderContextMenu extends PopupPanel {
 
         if (!folder.isInTrash()) {
         	if (canWrite) {
-		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder, images));
+		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder));
 		        contextMenu.addItem(newFolder);
 
 		        if (isFolderTreeSelected && !folder.isContainer()) {

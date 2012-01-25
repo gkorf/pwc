@@ -399,6 +399,7 @@ table.pithos-permList.props-labels {
     height: 32px;
 	padding: 5px 15px;
 	margin-right: 10px;
+	margin-left: 10px;
 }
 
 .grnet-sign {
@@ -433,18 +434,68 @@ table.pithos-permList.props-labels {
 	margin: 10px;
 }
 
-.pithos-toolsButton {
-	background-color: #FF7F2A !important;
-	background-position: 9px 7px !important;
+.clearfix {
+	display: block;
+	width: auto;
+	zoom: 1;
 }
 
-.pithos-toolsButton:hover {
-	background-color: #F95 !important;
+div#toolbar {
+	clear: both;
+	color: white;
+	float: right;
+/*	position: absolute;
+	right: 15px;
+	top: 15px;*/
+}
+
+div#toolbar a {
+	display: block;
+	float: left;
+}
+
+.pithos-toolbarItem {
+	text-decoration: none;
+	font-size: 0.8em;
+	padding: 4px;
+	padding-right: 8px;
+	color: white;
+	margin-left: 5px;
+	background-repeat: no-repeat;
+	background-color: #A1C8DB;
+}
+
+.pithos-toolbarItem:HOVER {
+	background-color: #74aec9;
+}
+
+
+.pithos-toolbarItem span {
+	float: left;
+}
+.pithos-toolbarItem span.ico {
+	width: 16px;
+	height: 16px;
+	margin-right: 5px;
+	background-repeat: no-repeat;
+/*	background-position: -36px 0;*/
+}
+
+#tools-button span.ico {
+	background-image: url(images/advancedsettings.png);
+}
+
+#refresh-button span.ico {
+	background-image: url(images/refresh.png);
+}
+
+#newFolder-button span.ico {
+	background-image: url(images/folder_new.png);
 }
 
 /*move background from inner to centerinner to wrap action buttons too*/
 .dialogMiddleCenterInner.dialogContent  {
-    background: url(https://pithos.dev.grnet.gr/ui/images/white50.png); 
+    background: url(images/white50.png); 
     margin: 7px;
     padding: 15px;
     /*border: 1px solid #aaa;*/

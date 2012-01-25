@@ -50,7 +50,6 @@ public class NewFolderCommand implements Command{
 	private PopupPanel containerPanel;
 
     private Folder folder;
-	final Images images;
 
     private Pithos app;
 
@@ -58,10 +57,9 @@ public class NewFolderCommand implements Command{
 	 * @param aContainerPanel
 	 * @param newImages the images of the new folder dialog
 	 */
-	public NewFolderCommand(Pithos _app, PopupPanel aContainerPanel, Folder folder, final Images newImages){
+	public NewFolderCommand(Pithos _app, PopupPanel aContainerPanel, Folder folder){
         app = _app;
 		containerPanel = aContainerPanel;
-		images=newImages;
         this.folder = folder;
 	}
 
