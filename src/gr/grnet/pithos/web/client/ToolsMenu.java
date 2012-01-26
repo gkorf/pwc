@@ -121,9 +121,10 @@ public class ToolsMenu extends PopupPanel {
         		MenuItem copy = null;
 	        	if (files != null && !files.isEmpty())
 	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
-	        	else
+	        	else if (!folder.isContainer())
 	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
-		        contextMenu.addItem(copy);
+	        	if (copy != null)
+	        		contextMenu.addItem(copy);
 		
 	        	if (canWrite) {
 			        if (!app.getClipboard().isEmpty()) {
@@ -173,7 +174,7 @@ public class ToolsMenu extends PopupPanel {
 				        if (properties != null)
 				        	contextMenu.addItem(properties);
 				    }
-			        if (files != null) {
+			        if (files != null && !files.isEmpty()) {
 					    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {
 							
 							@Override

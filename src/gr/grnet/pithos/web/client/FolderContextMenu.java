@@ -107,8 +107,10 @@ public class FolderContextMenu extends PopupPanel {
 		        }
         	}
 
-	        MenuItem copy = new MenuItem("<span id = 'folderContextMenu.copy'>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, folder));
-	        contextMenu.addItem(copy);
+        	if (!folder.isContainer()) {
+        		MenuItem copy = new MenuItem("<span id = 'folderContextMenu.copy'>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, folder));
+        		contextMenu.addItem(copy);
+        	}
 	
         	if (canWrite) {
 		        if (!app.getClipboard().isEmpty()) {
