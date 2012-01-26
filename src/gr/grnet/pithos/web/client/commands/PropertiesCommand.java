@@ -54,8 +54,6 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class PropertiesCommand implements Command {
 
-	final FileContextMenu.Images newImages;
-
 	private PopupPanel containerPanel;
 
 	private int tabToShow = 0;
@@ -69,9 +67,8 @@ public class PropertiesCommand implements Command {
 	 * @param _newImages the images of all the possible delete dialogs
 	 * @param _tab the tab to switch to
 	 */
-	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, final FileContextMenu.Images _newImages, int _tab) {
+	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, int _tab) {
 		containerPanel = _containerPanel;
-		newImages = _newImages;
 		tabToShow = _tab;
         resource = _resource;
         app = _app;

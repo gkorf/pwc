@@ -35,6 +35,7 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
+import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -346,6 +347,26 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			}
 		});
         toolbar.add(newFolderButton);
+
+        Anchor shareFolderButton = new Anchor("<span class='ico'></span><span class='title'>Share folder</span>", true);
+        shareFolderButton.getElement().setId("sharefolder-button");
+        shareFolderButton.addStyleName("pithos-toolbarItem");
+        shareFolderButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+				Folder folder = getSelectedTree().getSelection();
+				if (folder != null) {
+			        Boolean[] permissions = folder.getPermissions().get(getUsername());
+			    	boolean canWrite = folder.getOwner().equals(getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+			    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
+			    	
+			    	if (!folder.isInTrash() && canWrite && isFolderTreeSelected && !folder.isContainer())
+			    		new PropertiesCommand(Pithos.this, null, folder, 1).execute();
+				}
+			}
+		});
+        toolbar.add(shareFolderButton);
 
         refreshButton = new Anchor("<span class='ico'></span><span class='title'>Refresh</span>", true);
         refreshButton.getElement().setId("refresh-button");

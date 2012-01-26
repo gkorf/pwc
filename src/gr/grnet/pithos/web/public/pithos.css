@@ -493,6 +493,10 @@ div#toolbar a {
 	background-image: url(images/folder_new.png);
 }
 
+#shareFolder-button span.ico {
+	background-image: url(images/myshared22.png);
+}
+
 /*move background from inner to centerinner to wrap action buttons too*/
 .dialogMiddleCenterInner.dialogContent  {
     background: url(images/white50.png); 

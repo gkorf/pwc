@@ -168,9 +168,9 @@ public class ToolsMenu extends PopupPanel {
 				
 				        MenuItem properties = null;
 				        if (files != null && files.size() == 1)
-				        	properties = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, images, 0));
+				        	properties = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, 0));
 				        else if (!folder.isContainer())
-				        	properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, newImages, 0));
+				        	properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, 0));
 				        if (properties != null)
 				        	contextMenu.addItem(properties);
 				    }
