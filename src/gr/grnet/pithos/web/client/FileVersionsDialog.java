@@ -128,7 +128,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		// Inner contains generalPanel and permPanel.
 		inner = new VerticalPanel();
 		inner.addStyleName("inner");
-//		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
 
 		fetchVersions();
 			

@@ -104,8 +104,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		// Inner contains generalPanel and permPanel.
 		inner = new VerticalPanel();
 		inner.addStyleName("inner");
-//		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
-
 
         inner.add(createGeneralPanel());
 
