@@ -231,7 +231,7 @@ public class FileUploadDialog extends DialogBox {
 			preinit: {
 				UploadFile: function(up, file) {
 					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
-					up.settings.file_data_name = "X-Object-Data";
+					up.settings.file_data_name = "X-Object-Data";				
 				}
 			}
 		});
