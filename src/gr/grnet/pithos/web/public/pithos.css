@@ -472,7 +472,9 @@ div#toolbar a {
 
 .pithos-toolbarItem span {
 	float: left;
+	padding-top: 2px;
 }
+
 .pithos-toolbarItem span.ico {
 	width: 16px;
 	height: 16px;
