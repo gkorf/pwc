@@ -79,14 +79,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(OtherSharedTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 OtherSharedTreeViewModel.this.selectionModel.setSelected(folder, true);
                 FolderContextMenu menu = new FolderContextMenu(app, OtherSharedTreeView.images, app.getSelectedTree(), folder);
@@ -119,7 +119,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
                 @Override
-                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+                public void onSelectionChange(SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel2);
                     	app.applyPermissions(null);
@@ -151,7 +151,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	            selectionModel3.addSelectionChangeHandler(new Handler() {
 
 	                @Override
-	                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+	                public void onSelectionChange(SelectionChangeEvent event) {
 	                    if (selectionModel3.getSelectedObject() != null) {
 	                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel3);
 	                    	app.applyPermissions(null);

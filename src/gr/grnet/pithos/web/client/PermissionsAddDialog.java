@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.user.client.ui.TextBox;
-
 import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.List;
@@ -51,8 +49,8 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class PermissionsAddDialog extends DialogBox {
@@ -121,7 +119,7 @@ public class PermissionsAddDialog extends DialogBox {
 
         final Button ok = new Button("OK", new ClickHandler() {
             @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+            public void onClick(ClickEvent event) {
                 addPermission();
                 hide();
             }

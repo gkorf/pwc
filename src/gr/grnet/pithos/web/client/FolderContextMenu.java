@@ -44,10 +44,7 @@ import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-
-import java.util.List;
 
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;

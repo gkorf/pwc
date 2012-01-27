@@ -113,7 +113,7 @@ public class ToTrashCommand implements Command{
         String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
             	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 
 					@Override
@@ -130,7 +130,7 @@ public class ToTrashCommand implements Command{
 										DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), _f.getOwner(), _f.getUri()) {
 											
 											@Override
-											public void onSuccess(@SuppressWarnings("unused") Resource _result) {
+											public void onSuccess(Resource _result) {
 												if (callback != null)
 													callback.execute();
 											}
@@ -213,7 +213,7 @@ public class ToTrashCommand implements Command{
             String path = "/" + Pithos.TRASH_CONTAINER + "/" + file.getPath();
             PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     trashFiles(iter, callback);
                 }
 

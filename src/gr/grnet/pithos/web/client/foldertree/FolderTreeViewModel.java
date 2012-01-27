@@ -41,9 +41,7 @@ import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -58,10 +56,6 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.view.client.AsyncDataProvider;
-import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
@@ -73,7 +67,7 @@ public class FolderTreeViewModel implements TreeViewModel {
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html;
             SafeHtml name;
         	if (folder.isHome()) {
@@ -93,7 +87,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
 
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 FolderTreeViewModel.this.selectionModel.setSelected(folder, true);
                 FolderContextMenu menu = new FolderContextMenu(app, FolderTreeView.images, app.getSelectedTree(), folder);
@@ -149,7 +143,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Folder _result) {
+                public void onSuccess(Folder _result) {
                     fetchFolder(iter, callback);
                 }
 

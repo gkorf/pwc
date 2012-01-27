@@ -73,7 +73,7 @@ public class SessionExpiredDialog extends DialogBox {
 		// when the button is clicked.
 		Button confirm = new Button("Proceed", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				app.authenticateUser();
 				hide();
 			}

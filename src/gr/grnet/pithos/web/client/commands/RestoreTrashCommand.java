@@ -113,7 +113,7 @@ public class RestoreTrashCommand implements Command {
         String path = "/" + Pithos.HOME_CONTAINER + "/" + f.getPrefix();
         PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
             	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 
 					@Override
@@ -130,7 +130,7 @@ public class RestoreTrashCommand implements Command {
 										DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), _f.getOwner(), _f.getUri()) {
 											
 											@Override
-											public void onSuccess(@SuppressWarnings("unused") Resource _result) {
+											public void onSuccess(Resource _result) {
 												app.updateRootFolder(callback);
 											}
 											
@@ -210,7 +210,7 @@ public class RestoreTrashCommand implements Command {
             String path = "/" + Pithos.HOME_CONTAINER + "/" + file.getPath();
             PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     untrashFiles(iter, callback);
                 }
 

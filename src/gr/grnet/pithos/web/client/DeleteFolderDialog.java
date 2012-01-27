@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -42,6 +41,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Anchor;
@@ -49,7 +49,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -101,7 +100,7 @@ public class DeleteFolderDialog extends DialogBox {
 		// when the button is clicked and deletes the folder.
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				app.deleteFolder(folder);
 				hide();
 			}

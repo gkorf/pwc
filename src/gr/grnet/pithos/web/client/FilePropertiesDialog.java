@@ -52,9 +52,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -88,7 +86,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				hide();
 			}
 		});
@@ -113,7 +111,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -187,7 +185,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		plus.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				addFormLine(metaTable, metaTable.getRowCount(), "", "");
 			}
 		});
@@ -247,7 +245,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             final String path = file.getParent().getUri() + "/" + newFilename;
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newMeta);
                 }
 
@@ -259,7 +257,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };
@@ -304,7 +302,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         if (newMeta != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     app.updateFolder(file.getParent(), true, new Command() {
 						
 						@Override
@@ -322,7 +320,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };

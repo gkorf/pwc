@@ -35,17 +35,17 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.foldertree.Resource;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class PostRequest implements ScheduledCommand {
 
@@ -95,7 +95,7 @@ public abstract class PostRequest implements ScheduledCommand {
                 }
 
                 @Override
-                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
+                public void onError(Request request, Throwable throwable) {
                     PostRequest.this.onError(throwable);
                 }
 

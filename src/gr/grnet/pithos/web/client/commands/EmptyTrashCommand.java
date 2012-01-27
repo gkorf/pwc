@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import java.util.Iterator;
-
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -43,6 +41,8 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.Iterator;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -117,7 +117,7 @@ public class EmptyTrashCommand implements Command{
 									DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), _f.getOwner(), path) {
 										
 										@Override
-										public void onSuccess(@SuppressWarnings("unused") Resource result) {
+										public void onSuccess(Resource _result) {
 											deleteSubfolder(iter2, callback);
 										}
 										
@@ -177,7 +177,7 @@ public class EmptyTrashCommand implements Command{
 			DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
 				
 				@Override
-				public void onSuccess(@SuppressWarnings("unused") Resource result) {
+				public void onSuccess(Resource result) {
 					deleteFile(iter, callback);
 				}
 				

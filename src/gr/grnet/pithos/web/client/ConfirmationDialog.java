@@ -45,7 +45,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 
@@ -94,7 +93,7 @@ public abstract class ConfirmationDialog extends DialogBox {
 		Button ok = new Button(buttonLabel, new ClickHandler() {
 
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				confirm();
 				hide();
 			}

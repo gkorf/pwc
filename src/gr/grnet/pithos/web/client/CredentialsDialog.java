@@ -61,7 +61,7 @@ public class CredentialsDialog extends DialogBox {
 	/**
 	 * The widget constructor.
 	 */
-	public CredentialsDialog(final Pithos app, final MessagePanel.Images images) {
+	public CredentialsDialog(final Pithos app) {
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {

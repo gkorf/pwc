@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.Scheduler;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
@@ -45,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -58,7 +58,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -111,7 +110,7 @@ public class DeleteFileDialog extends DialogBox {
 		// when the button is clicked and deletes the file.
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				deleteFiles();
 				hide();
 			}
@@ -138,7 +137,7 @@ public class DeleteFileDialog extends DialogBox {
             String path = f.getUri();
             DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     deleteFile(iter);
                 }
 

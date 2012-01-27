@@ -36,32 +36,24 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.FileVersions;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.foldertree.Version;
 import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -111,7 +103,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				hide();
 			}
 		});
@@ -137,7 +129,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -172,7 +164,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 			}
 
 			@Override
-			protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+			protected void onUnauthorized(Response response) {
 				app.sessionExpired();
 			}
 		};
@@ -193,10 +185,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected void accept() {
-		updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=");
-	}
-
-	protected void updateMetaData(String api, String owner, String path) {
         app.updateFolder(file.getParent(), true, new Command() {
 			
 			@Override
@@ -205,5 +193,5 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 					app.updateMySharedRoot();
 			}
 		});
-    }
+	}
 }

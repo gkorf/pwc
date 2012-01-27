@@ -138,7 +138,7 @@ public class PasteCommand implements Command {
             String path = folder.getUri() + "/" + file.getName();
             PutRequest copyFile = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     moveFiles(iter, callback);
                 }
 

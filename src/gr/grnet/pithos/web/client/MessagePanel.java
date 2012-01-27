@@ -112,7 +112,7 @@ public class MessagePanel extends Composite {
 		message.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 
 					@Override
@@ -136,7 +136,7 @@ public class MessagePanel extends Composite {
 		clearMessageLink.addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				FadeOut anim = new FadeOut(simplePanel){
 					@Override
 					protected void onComplete() {
@@ -153,7 +153,7 @@ public class MessagePanel extends Composite {
 		feedbackLink.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				new FeedbackDialog(app, app.getErrorData()).center();
 			}
 		});

@@ -109,7 +109,7 @@ public class SortableHeader extends Header<String> {
   }
 
   @Override
-  public void render(@SuppressWarnings("unused") Context context, SafeHtmlBuilder sb) {
+  public void render(Context context, SafeHtmlBuilder sb) {
     if (sorted) {
       sb.append(template.sorted(IMAGE_WIDTH, reverseSort ? DOWN_ARROW : UP_ARROW, text));
     } else {

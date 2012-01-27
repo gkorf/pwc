@@ -37,9 +37,7 @@ package gr.grnet.pithos.web.client.foldertree;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;

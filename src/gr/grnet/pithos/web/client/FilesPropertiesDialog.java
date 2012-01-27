@@ -42,10 +42,7 @@ import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DecoratedTabPanel;
-import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -87,7 +84,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -98,7 +95,7 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		// dialog when the button is clicked.
 		final Button cancel = new Button("Cancel", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				closeDialog();
 			}
 		});

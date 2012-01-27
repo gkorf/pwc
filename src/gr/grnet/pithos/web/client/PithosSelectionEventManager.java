@@ -96,7 +96,7 @@ public class PithosSelectionEventManager<T> implements
     }
 
     @Override
-	public boolean clearCurrentSelection(@SuppressWarnings("unused") CellPreviewEvent<T> event) {
+	public boolean clearCurrentSelection(CellPreviewEvent<T> event) {
       return false;
     }
 

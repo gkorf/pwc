@@ -63,14 +63,14 @@ public class GroupTreeViewModel implements TreeViewModel {
     private Cell<String> rootCell = new AbstractCell<String>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(@SuppressWarnings("unused") Context context,	String value, SafeHtmlBuilder sb) {
+		public void render(Context context,	String value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.groups()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value));
 		}
 		
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
+        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
             GroupTreeViewModel.this.rootSelectionModel.setSelected(s, true);
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, null);
@@ -83,14 +83,14 @@ public class GroupTreeViewModel implements TreeViewModel {
 	private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(@SuppressWarnings("unused") Context context,	Group value, SafeHtmlBuilder sb) {
+		public void render(Context context,	Group value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.group()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
 		
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Group group, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Group> valueUpdater) {
+        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Group group, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Group> valueUpdater) {
             GroupTreeViewModel.this.groupSelectionModel.setSelected(group, true);
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
@@ -103,14 +103,14 @@ public class GroupTreeViewModel implements TreeViewModel {
     private Cell<User> userCell = new AbstractCell<User>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(@SuppressWarnings("unused") Context context,	User value, SafeHtmlBuilder sb) {
+		public void render(Context context,	User value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             sb.append(Templates.INSTANCE.nameSpan(value.getName()));
 		}
 
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Cell.Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, User user, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<User> valueUpdater) {
+        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, User user, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<User> valueUpdater) {
             GroupTreeViewModel.this.userSelectionModel.setSelected(user, true);
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 UserContextMenu menu = new UserContextMenu(app, GroupTreeView.images, user);

@@ -91,7 +91,7 @@ public class FolderPermissionsDialog extends DialogBox {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				hide();
 			}
 		});
@@ -127,7 +127,7 @@ public class FolderPermissionsDialog extends DialogBox {
             HorizontalPanel permButtons = new HorizontalPanel();
             Button add = new Button("Add Group", new ClickHandler() {
                 @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                public void onClick(ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
                 }
@@ -138,7 +138,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
             Button addUser = new Button("Add User", new ClickHandler() {
                 @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                public void onClick(ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                     dlg.center();
                 }
@@ -159,7 +159,7 @@ public class FolderPermissionsDialog extends DialogBox {
 		String okLabel = "Update";
 		final Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				updateFolder();
 				closeDialog();
 			}
@@ -207,7 +207,7 @@ public class FolderPermissionsDialog extends DialogBox {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     Iterator<File> iter = folder.getFiles().iterator();
                     app.copyFiles(iter, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                         @Override
@@ -236,7 +236,7 @@ public class FolderPermissionsDialog extends DialogBox {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };
@@ -254,7 +254,7 @@ public class FolderPermissionsDialog extends DialogBox {
         if (newPermissions != null) {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     app.updateFolder(folder.getParent(), false, new Command() {
 						
 						@Override
@@ -273,7 +273,7 @@ public class FolderPermissionsDialog extends DialogBox {
                             final String path1 = folder.getUri();
                             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path1) {
                                 @Override
-                                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                                public void onSuccess(Resource result) {
                                 	updateMetadata(path, newPermissions);
                                 }
 
@@ -289,7 +289,7 @@ public class FolderPermissionsDialog extends DialogBox {
                                 }
 
                 				@Override
-                				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+                				protected void onUnauthorized(Response response) {
                 					app.sessionExpired();
                 				}
                             };
@@ -310,7 +310,7 @@ public class FolderPermissionsDialog extends DialogBox {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };

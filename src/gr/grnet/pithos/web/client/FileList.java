@@ -55,7 +55,6 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -386,7 +385,7 @@ public class FileList extends Composite {
 	/**
 	 * Update the display of the file list.
 	 */
-	void update(@SuppressWarnings("unused") boolean sort) {
+	void update() {
 		showCellTable();
 	}
 
@@ -553,7 +552,7 @@ public class FileList extends Composite {
 			this.header=header;
 		}
 		@Override
-		public void update(@SuppressWarnings("unused") String value) {
+		public void update(String value) {
 			header.setSorted(true);
 			header.toggleReverseSort();
 
@@ -565,7 +564,7 @@ public class FileList extends Composite {
 	        }
 	        celltable.redrawHeaders();
 	        sortFiles(property, header.getReverseSort());
-	        FileList.this.update(true);			
+	        FileList.this.update();			
 		}
 		
 	}

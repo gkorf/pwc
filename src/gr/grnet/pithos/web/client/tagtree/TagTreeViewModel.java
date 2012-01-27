@@ -68,14 +68,14 @@ public class TagTreeViewModel implements TreeViewModel {
     private Cell<Tag> tagCell = new AbstractCell<Tag>(ContextMenuEvent.getType().getName()) {
 
        @Override
-        public void render(@SuppressWarnings("unused") Context context, Tag tag, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(Context context, Tag tag, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(TagTreeView.images.tag()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html);
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(tag.getName()));
         }
 
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Tag tag, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") com.google.gwt.cell.client.ValueUpdater<Tag> valueUpdater) {
+        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Tag tag, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Tag> valueUpdater) {
             if (event.getType().equals(com.google.gwt.event.dom.client.ContextMenuEvent.getType().getName())) {
                 TagTreeViewModel.this.selectionModel.setSelected(tag, true);
             }

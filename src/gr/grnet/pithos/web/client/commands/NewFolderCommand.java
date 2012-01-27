@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FileContextMenu.Images;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -55,7 +54,6 @@ public class NewFolderCommand implements Command{
 
 	/**
 	 * @param aContainerPanel
-	 * @param newImages the images of the new folder dialog
 	 */
 	public NewFolderCommand(Pithos _app, PopupPanel aContainerPanel, Folder folder){
         app = _app;

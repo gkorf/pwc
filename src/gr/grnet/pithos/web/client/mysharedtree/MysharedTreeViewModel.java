@@ -77,14 +77,14 @@ public class MysharedTreeViewModel implements TreeViewModel {
     private Cell<Folder> folderCell = new AbstractCell<Folder>() {
 
        @Override
-        public void render(@SuppressWarnings("unused") Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+        public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
         @Override
-        public void onBrowserEvent(@SuppressWarnings("unused") Context context, @SuppressWarnings("unused") com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, @SuppressWarnings("unused") ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
                 FolderContextMenu menu = new FolderContextMenu(app, MysharedTreeView.images, app.getSelectedTree(), folder);
@@ -116,7 +116,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
                 @Override
-                public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+                public void onSelectionChange(SelectionChangeEvent event) {
                     if (selectionModel2.getSelectedObject() != null) {
                     	app.deselectOthers(app.getMySharedTreeView(), selectionModel2);
                     	app.applyPermissions(null);

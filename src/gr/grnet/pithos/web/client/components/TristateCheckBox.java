@@ -73,7 +73,7 @@ public class TristateCheckBox extends FocusWidget implements HasValue<Boolean> {
         addClickHandler(new ClickHandler() {
 
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
                 final String img = DOM.getElementAttribute(buttonElement, "src");
                 String newImg;
                 if (img.endsWith(UNCHECKED_IMG))
@@ -138,7 +138,7 @@ public class TristateCheckBox extends FocusWidget implements HasValue<Boolean> {
     protected void ensureDomEventHandlers() {
         addClickHandler(new ClickHandler() {
         	@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
         		ValueChangeEvent.fire(TristateCheckBox.this, getValue());
         	}
         });

@@ -62,12 +62,10 @@ public class FolderTreeView extends Composite implements TreeView {
             if (folder.equals(node.getChildValue(i))) {
                 return node.isChildOpen(i);
             }
-            else {
-                if (node.isChildOpen(i)) {
-                    TreeNode n = node.setChildOpen(i, true);
-                    return isFolderOpen(n, folder);
-                }
-            }
+			if (node.isChildOpen(i)) {
+			    TreeNode n = node.setChildOpen(i, true);
+			    return isFolderOpen(n, folder);
+			}
     	}
         return false;
 	}
@@ -84,13 +82,11 @@ public class FolderTreeView extends Composite implements TreeView {
             	node.setChildOpen(i, true, true);
             	break;
             }
-            else {
-                if (node.isChildOpen(i)) {
-                    TreeNode n = node.setChildOpen(i, true);
-                    openFolder(n, folder);
-                    break;
-                }
-            }
+			if (node.isChildOpen(i)) {
+			    TreeNode n = node.setChildOpen(i, true);
+			    openFolder(n, folder);
+			    break;
+			}
     	}
     }
 

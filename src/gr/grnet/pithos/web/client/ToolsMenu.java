@@ -41,10 +41,8 @@ import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
 import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
 import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
-import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RefreshCommand;
 import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
@@ -56,8 +54,6 @@ import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
-import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -133,7 +129,8 @@ public class ToolsMenu extends PopupPanel {
 			        	Object item = app.getClipboard().getItem();
 			        	boolean showPaste = false;
 			        	if (item instanceof List) {
-			        		List<File> _files = (List<File>) item;
+			        		@SuppressWarnings("unchecked")
+							List<File> _files = (List<File>) item;
 			        		if (_files.get(0).getOwner().equals(folder.getOwner()))
 			        			showPaste = true;
 			        	}
@@ -184,7 +181,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + files.get(0).getOwner() + files.get(0).getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
 							}
 						}));
 			        }

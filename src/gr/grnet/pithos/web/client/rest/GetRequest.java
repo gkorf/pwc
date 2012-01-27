@@ -46,9 +46,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 public abstract class GetRequest<T extends Resource> implements ScheduledCommand {
 
@@ -110,7 +107,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
                 }
 
                 @Override
-                public void onError(@SuppressWarnings("unused") Request request, Throwable throwable) {
+                public void onError(Request request, Throwable throwable) {
                     if (throwable instanceof RestException) {
                         if (((RestException) throwable).getHttpStatusCode() == 304 && result != null){
                             GWT.log("Using cache: " + result.toString(), null);

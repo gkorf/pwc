@@ -45,7 +45,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -54,7 +54,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
@@ -143,7 +142,7 @@ public class FileUploadDialog extends DialogBox {
 		// form.
 		submit = new Button("Upload", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				prepareAndSubmit();
 			}
 		});
@@ -154,7 +153,7 @@ public class FileUploadDialog extends DialogBox {
 		form.addSubmitHandler(new SubmitHandler() {
 
 			@Override
-			public void onSubmit(@SuppressWarnings("unused") SubmitEvent event) {
+			public void onSubmit(SubmitEvent event) {
                 auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
                 Cookies.setCookie("X-Auth-Token", app.getToken(), null, "", "/", false);
 			}

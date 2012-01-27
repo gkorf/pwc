@@ -154,7 +154,7 @@ public class PermissionsList extends Composite {
                 });
                 PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
                     @Override
-                    public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                    public void onClick(ClickEvent event) {
                         permissions.remove(user);
                         updatePermissionTable();
                         hasChanges = true;

@@ -38,9 +38,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**

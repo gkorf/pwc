@@ -79,7 +79,7 @@ public class AddUserCommand implements Command {
         	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
 				
 				@Override
-				public void onSuccess(@SuppressWarnings("unused") Resource result) {
+				public void onSuccess(Resource result) {
 					app.updateGroupNode(group);
 				}
 				

@@ -39,12 +39,9 @@ import gr.grnet.pithos.web.client.rest.PostRequest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -55,7 +52,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 
 /**
@@ -228,7 +224,7 @@ public class InvitationsDialog extends DialogBox {
 		setWidget(outer);
 	}
 
-	private void addFormLine(final FlexTable table) {
+	void addFormLine(final FlexTable table) {
 		table.setWidget(rows, 0, new TextBox());
 		table.getFlexCellFormatter().setStyleName(1, 0, "props-values");
 

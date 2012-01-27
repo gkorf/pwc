@@ -96,7 +96,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				hide();
 			}
 		});
@@ -172,7 +172,7 @@ public class FolderPropertiesDialog extends DialogBox {
 			okLabel = "Update";
 		final Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				createOrUpdateFolder();
 				closeDialog();
 			}
@@ -184,7 +184,7 @@ public class FolderPropertiesDialog extends DialogBox {
         folderName.addChangeHandler(new ChangeHandler() {
 			
 			@Override
-			public void onChange(@SuppressWarnings("unused") ChangeEvent event) {
+			public void onChange(ChangeEvent event) {
 				if(folderName.getText().contains("/")) {
 					folderNameNote.setVisible(true);
 					ok.setEnabled(false);
@@ -242,7 +242,7 @@ public class FolderPropertiesDialog extends DialogBox {
         String path = folder.getUri() + "/" + name;
         PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
                 app.updateFolder(folder, true, new Command() {
 					
 					@Override
@@ -264,7 +264,7 @@ public class FolderPropertiesDialog extends DialogBox {
             }
 
 			@Override
-			protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+			protected void onUnauthorized(Response response) {
 				app.sessionExpired();
 			}
        };
@@ -294,7 +294,7 @@ public class FolderPropertiesDialog extends DialogBox {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     Iterator<File> iter = folder.getFiles().iterator();
                     app.copyFiles(iter, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                         @Override
@@ -329,7 +329,7 @@ public class FolderPropertiesDialog extends DialogBox {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };

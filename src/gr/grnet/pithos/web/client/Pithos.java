@@ -56,11 +56,8 @@ import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 import gr.grnet.pithos.web.client.tagtree.Tag;
-import gr.grnet.pithos.web.client.tagtree.TagTreeView;
-import gr.grnet.pithos.web.client.tagtree.TagTreeViewModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -100,12 +97,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -310,7 +305,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         	header.addStyleName("pithos-header-noframe");
         upload = new Button("Upload File", new ClickHandler() {
             @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+            public void onClick(ClickEvent event) {
                 new UploadFileCommand(Pithos.this, null, getSelection()).execute();
             }
         });
@@ -335,7 +330,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         newFolderButton.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				Folder folder = getSelectedTree().getSelection();
 				if (folder != null) {
 			        Boolean[] permissions = folder.getPermissions().get(getUsername());
@@ -354,7 +349,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         shareFolderButton.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				Folder folder = getSelectedTree().getSelection();
 				if (folder != null) {
 			        Boolean[] permissions = folder.getPermissions().get(getUsername());
@@ -374,7 +369,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         refreshButton.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 		    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
 		    	boolean otherSharedTreeSelected = selectedTree.equals(getOtherSharedTreeView());
 		    	Folder folder = getSelectedTree().getSelection();
@@ -410,7 +405,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.add(toolbar);
         header.setCellHorizontalAlignment(toolbar, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(toolbar, HasVerticalAlignment.ALIGN_MIDDLE);
-//        header.setCellWidth(toolbar, "40px");
         
         HorizontalPanel folderStatistics = new HorizontalPanel();
         folderStatistics.addStyleName("pithos-folderStatistics");
@@ -433,7 +427,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeSelectionModel = new SingleSelectionModel<Folder>();
         folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
-            public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+            public void onSelectionChange(SelectionChangeEvent event) {
                 if (folderTreeSelectionModel.getSelectedObject() != null) {
                     deselectOthers(folderTreeView, folderTreeSelectionModel);
                     applyPermissions(folderTreeSelectionModel.getSelectedObject());
@@ -614,7 +608,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             String path = file.getUri() + "?format=json";
             GetRequest<File> getFile = new GetRequest<File>(File.class, getApiPath(), username, path, file) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") File _result) {
+                public void onSuccess(File _result) {
                     fetchFile(iter, files);
                 }
 
@@ -714,7 +708,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), username, "", account) {
 
 			@Override
-			public void onSuccess(@SuppressWarnings("unused") AccountResource _result) {
+			public void onSuccess(AccountResource _result) {
 				showStatistics();
 			}
 
@@ -748,7 +742,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         String path = "/" + Pithos.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
             	if (!_account.hasTrashContainer())
             		createTrashContainer(callback);
             	else
@@ -778,7 +772,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         String path = "/" + Pithos.TRASH_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
            		fetchAccount(callback);
             }
 
@@ -932,7 +926,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         try {
             builder.sendRequest("", new RequestCallback() {
                 @Override
-                public void onResponseReceived(@SuppressWarnings("unused") Request request, Response response) {
+                public void onResponseReceived(Request request, Response response) {
                     if (response.getStatusCode() == Response.SC_OK) {
                         JSONValue json = JSONParser.parseStrict(response.getText());
                         JSONArray array = json.isArray();
@@ -944,7 +938,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
 
                 @Override
-                public void onError(@SuppressWarnings("unused") Request request, Throwable exception) {
+                public void onError(Request request, Throwable exception) {
                 	setError(exception);
                     displayError("System error unable to delete folder: " + exception.getMessage());
                 }
@@ -962,7 +956,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 String path = "/" + folder.getContainer() + "/" + name.stringValue();
                 DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
                     @Override
-                    public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                    public void onSuccess(Resource result) {
                         deleteObject(folder, i + 1, array);
                     }
 
@@ -990,7 +984,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 try {
                     builder.sendRequest("", new RequestCallback() {
                         @Override
-                        public void onResponseReceived(@SuppressWarnings("unused") Request request, Response response) {
+                        public void onResponseReceived(Request request, Response response) {
                             if (response.getStatusCode() == Response.SC_OK) {
                                 JSONValue json = JSONParser.parseStrict(response.getText());
                                 JSONArray array2 = json.isArray();
@@ -1005,7 +999,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         }
 
                         @Override
-                        public void onError(@SuppressWarnings("unused") Request request, Throwable exception) {
+                        public void onError(Request request, Throwable exception) {
                         	setError(exception);
                             displayError("System error unable to delete folder: " + exception.getMessage());
                         }
@@ -1019,7 +1013,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             String path = folder.getUri();
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     updateFolder(folder.getParent(), true, new Command() {
 						
 						@Override
@@ -1063,7 +1057,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             String path = targetUri + "/" + file.getName();
             PutRequest copyFile = new PutRequest(getApiPath(), targetUsername, path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     copyFiles(iter, targetUsername, targetUri, callback);
                 }
 
@@ -1115,7 +1109,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         String path = targetUri + "/" + f.getName();
         PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
-            public void onSuccess(@SuppressWarnings("unused") Resource result) {
+            public void onSuccess(Resource result) {
             	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
 
 					@Override
@@ -1228,7 +1222,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
 		mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
 		    @Override
-		    public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+		    public void onSelectionChange(SelectionChangeEvent event) {
 		        if (mysharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
@@ -1254,7 +1248,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
 		otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
 		    @Override
-		    public void onSelectionChange(@SuppressWarnings("unused") SelectionChangeEvent event) {
+		    public void onSelectionChange(SelectionChangeEvent event) {
 		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
 		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");

@@ -52,7 +52,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -101,7 +100,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				hide();
 			}
 		});
@@ -127,7 +126,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		// when the button is clicked.
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
-			public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+			public void onClick(ClickEvent event) {
 				accept();
 				closeDialog();
 			}
@@ -151,7 +150,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             HorizontalPanel permButtons = new HorizontalPanel();
             Button add = new Button("Add Group", new ClickHandler() {
                 @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                public void onClick(ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
                     permList.updatePermissionTable();
@@ -163,7 +162,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
             final Button addUser = new Button("Add User", new ClickHandler() {
                 @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+                public void onClick(ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                     dlg.center();
                     permList.updatePermissionTable();
@@ -188,7 +187,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         readForAll.setValue(file.isPublished());
         readForAll.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
+            public void onClick(ClickEvent event) {
                 readForAllNote.setVisible(readForAll.getValue());
             }
         });
@@ -255,7 +254,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         if (published != null || newPermissions != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
-                public void onSuccess(@SuppressWarnings("unused") Resource result) {
+                public void onSuccess(Resource result) {
                     app.updateFolder(file.getParent(), true, new Command() {
 						
 						@Override
@@ -273,7 +272,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
                 }
 
 				@Override
-				protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
+				protected void onUnauthorized(Response response) {
 					app.sessionExpired();
 				}
             };

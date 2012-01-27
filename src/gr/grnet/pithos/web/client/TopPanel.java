@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -42,18 +41,13 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 
@@ -148,7 +142,7 @@ public class TopPanel extends Composite {
 			
 			@Override
 			public void execute() {
-				new CredentialsDialog(app, images).center();
+				new CredentialsDialog(app).center();
 			}
 		}));
         userItemMenu.addItem(new MenuItem("logout", new Command() {
