@@ -173,8 +173,10 @@ public class ToolsMenu extends PopupPanel {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
 				        }
-				        else if (!folder.isContainer())
-				        	contextMenu.addItem(new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, 0)));
+				        else if (!folder.isContainer()) {
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Folder sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
+				        }
 				    }
 			        if (files != null && !files.isEmpty()) {
 					    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {

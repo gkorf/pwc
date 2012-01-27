@@ -38,6 +38,7 @@ import gr.grnet.pithos.web.client.FilePermissionsDialog;
 import gr.grnet.pithos.web.client.FilePropertiesDialog;
 import gr.grnet.pithos.web.client.FileVersionsDialog;
 import gr.grnet.pithos.web.client.FilesPropertiesDialog;
+import gr.grnet.pithos.web.client.FolderPermissionsDialog;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -85,9 +86,18 @@ public class PropertiesCommand implements Command {
 
         if (resource instanceof Folder) {
             Folder folder = (Folder) resource;
-            FolderPropertiesDialog dlg = new FolderPropertiesDialog(app, false, folder);
-            dlg.selectTab(tabToShow);
-            dlg.center();
+            switch (tabToShow) {
+				case PROPERTIES:
+					FolderPropertiesDialog dlg = new FolderPropertiesDialog(app, false, folder);
+					dlg.center();
+					break;
+				case PERMISSIONS:
+					FolderPermissionsDialog dlg1 = new FolderPermissionsDialog(app, folder);
+					dlg1.center();
+					break;
+				default:
+					break;
+			}
         }
         else if (resource instanceof List) {
             @SuppressWarnings("unchecked")
