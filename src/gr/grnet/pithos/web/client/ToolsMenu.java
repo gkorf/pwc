@@ -80,7 +80,7 @@ public class ToolsMenu extends PopupPanel {
 
 	private MenuItem pasteItem;
 
-	private boolean empty = false;;
+	private boolean empty = true;
 	
 	/**
 	 * The widget's constructor.
@@ -111,18 +111,22 @@ public class ToolsMenu extends PopupPanel {
 				        else if (!folder.isContainer()) {
 				            cut = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut folder</span>", true, new CutCommand(app, this, folder));
 				        }
-				        if (cut != null)
+				        if (cut != null) {
 				        	contextMenu.addItem(cut);
+				        	empty = false;
+				        }
 			        }
 	        	}
 	
         		MenuItem copy = null;
 	        	if (files != null && !files.isEmpty())
 	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
-	        	else if (!folder.isContainer())
+	        	else if (isFolderTreeSelected && !folder.isContainer())
 	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
-	        	if (copy != null)
+	        	if (copy != null) {
 	        		contextMenu.addItem(copy);
+		        	empty = false;
+	        	}
 		
 	        	if (canWrite) {
 			        if (!app.getClipboard().isEmpty()) {
@@ -142,6 +146,7 @@ public class ToolsMenu extends PopupPanel {
 			        	if (showPaste) {
 				            pasteItem = new MenuItem("<span id = 'folderContextMenu.paste'>" + AbstractImagePrototype.create(newImages.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, folder));
 				            contextMenu.addItem(pasteItem);
+				        	empty = false;
 			        	}
 			        }
 	
@@ -153,8 +158,10 @@ public class ToolsMenu extends PopupPanel {
 				    	else if (!folder.isContainer()) {
 				    		moveToTrash = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move folder to Trash</span>", true, new ToTrashCommand(app, this, folder));
 				    	}
-				    	if (moveToTrash != null)
+				    	if (moveToTrash != null) {
 				    		contextMenu.addItem(moveToTrash);
+				        	empty = false;
+				    	}
 				
 				        MenuItem delete = null;
 				        if (files != null && !files.isEmpty()) {
@@ -162,17 +169,21 @@ public class ToolsMenu extends PopupPanel {
 				        }
 				        else if (!folder.isContainer())
 				        	delete = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete folder</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-				        if (delete != null)
+				        if (delete != null) {
 				        	contextMenu.addItem(delete);
+				        	empty = false;
+				        }
 				
 				        if (files != null && files.size() == 1) {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PROPERTIES)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
+				        	empty = false;
 				        }
 				        else if (!folder.isContainer()) {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Folder sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
+				        	empty = false;
 				        }
 				    }
 			        if (files != null && !files.isEmpty()) {
@@ -184,6 +195,7 @@ public class ToolsMenu extends PopupPanel {
 					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
 							}
 						}));
+			        	empty = false;
 			        }
 	        	}
 	        }
@@ -195,13 +207,15 @@ public class ToolsMenu extends PopupPanel {
 	        		else
 	        			restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, folder));
         			contextMenu.addItem(restore);
-	
+
 	    			MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
 			        contextMenu.addItem(delete);
+		        	empty = false;
 	        	}
 	        	else {
 	    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(app, this));
 	    			contextMenu.addItem(emptyTrash);
+		        	empty = false;
 	        	}
 	        }
         }
@@ -211,6 +225,7 @@ public class ToolsMenu extends PopupPanel {
 	        	if (o instanceof User) {
 	                MenuItem removeUser = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Remove User</span>", true, new RemoveUserCommand(app, this, (User) o));
 	                contextMenu.addItem(removeUser);
+		        	empty = false;
 	        	}
 	        	else if (o instanceof Group) {
 	    	        MenuItem addUser = new MenuItem("<span>" + AbstractImagePrototype.create(images.user()).getHTML() + "&nbsp;Add User</span>", true, new AddUserCommand(app, this, (Group) o));
@@ -218,14 +233,14 @@ public class ToolsMenu extends PopupPanel {
 	    	
 	    	        MenuItem deleteGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.delete()).getHTML() + "&nbsp;Delete Group</span>", true, new DeleteGroupCommand(app, this, (Group) o));
 	    	        contextMenu.addItem(deleteGroup);
+		        	empty = false;
 	        	}
 	        	else {
 	    	        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
 	    	        contextMenu.addItem(createGroup);
+		        	empty = false;
 	        	}
         	}
-        	else
-        		empty = true;
         }
 		add(contextMenu);
 	}

@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.NewFolderCommand;
-import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -67,7 +65,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -92,10 +89,8 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -271,10 +266,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private HTML numOfFiles;
     
-    private Anchor refreshButton;
-
-    private Anchor toolsButton;
-
 	@Override
 	public void onModuleLoad() {
 		if (parseUserCredentials())
@@ -319,89 +310,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
 
-        FlowPanel toolbar = new FlowPanel();
-        toolbar.getElement().setId("toolbar");
-        toolbar.addStyleName("clearfix");
-        toolbar.getElement().getStyle().setDisplay(Display.BLOCK);
-
-        Anchor newFolderButton = new Anchor("<span class='ico'></span><span class='title'>New folder</span>", true);
-        newFolderButton.getElement().setId("newfolder-button");
-        newFolderButton.addStyleName("pithos-toolbarItem");
-        newFolderButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				Folder folder = getSelectedTree().getSelection();
-				if (folder != null) {
-			        Boolean[] permissions = folder.getPermissions().get(getUsername());
-			    	boolean canWrite = folder.getOwner().equals(getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-			    	
-			    	if (!folder.isInTrash() && canWrite)
-			    		new NewFolderCommand(Pithos.this, null, folder).execute();
-				}
-			}
-		});
-        toolbar.add(newFolderButton);
-
-        Anchor shareFolderButton = new Anchor("<span class='ico'></span><span class='title'>Share folder</span>", true);
-        shareFolderButton.getElement().setId("sharefolder-button");
-        shareFolderButton.addStyleName("pithos-toolbarItem");
-        shareFolderButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				Folder folder = getSelectedTree().getSelection();
-				if (folder != null) {
-			        Boolean[] permissions = folder.getPermissions().get(getUsername());
-			    	boolean canWrite = folder.getOwner().equals(getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-			    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
-			    	
-			    	if (!folder.isInTrash() && canWrite && isFolderTreeSelected && !folder.isContainer())
-			    		new PropertiesCommand(Pithos.this, null, folder, PropertiesCommand.PERMISSIONS).execute();
-				}
-			}
-		});
-        toolbar.add(shareFolderButton);
-
-        refreshButton = new Anchor("<span class='ico'></span><span class='title'>Refresh</span>", true);
-        refreshButton.getElement().setId("refresh-button");
-        refreshButton.addStyleName("pithos-toolbarItem");
-        refreshButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-		    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
-		    	boolean otherSharedTreeSelected = selectedTree.equals(getOtherSharedTreeView());
-		    	Folder folder = getSelectedTree().getSelection();
-		    	
-		    	if (folder != null && (isFolderTreeSelected || otherSharedTreeSelected))
-		    		updateFolder(folder, true, new Command() {
-		    			
-		    			@Override
-		    			public void execute() {
-		    				updateStatistics();
-		    			}
-		    		});
-			}
-		});
-        toolbar.add(refreshButton);
-
-        toolsButton = new Anchor("<span class='ico'></span><span class='title'>More...</span>", true);
-        toolsButton.getElement().setId("tools-button");
-        toolsButton.addStyleName("pithos-toolbarItem");
-        toolsButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-                ToolsMenu menu = new ToolsMenu(Pithos.this, images, getSelectedTree(), getSelectedTree().getSelection(), getFileList().getSelectedFiles());
-                if (!menu.isEmpty()) {
-		            menu.setPopupPosition(event.getClientX(), event.getClientY());
-		            menu.show();
-                }
-			}
-		});
-        toolbar.add(toolsButton);
-  
+        final Toolbar toolbar = new Toolbar(this);
         header.add(toolbar);
         header.setCellHorizontalAlignment(toolbar, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(toolbar, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -440,6 +349,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             			}
             		});
                 }
+                toolbar.showRelevantButtons();
             }
         });
         selectionModels.add(folderTreeSelectionModel);
