@@ -237,8 +237,11 @@ public class FileContextMenu extends PopupPanel {
         }
 
         if (selectedFolder != null && !selectedFolder.isInTrash()) {
-        	if (isFolderTreeSelected && selectedFiles.size() == 1)
-        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, 0)));
+        	if (isFolderTreeSelected && selectedFiles.size() == 1) {
+        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PROPERTIES)));
+        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PERMISSIONS)));
+        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.VERSIONS)));
+        	}
 
         }
 	    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {

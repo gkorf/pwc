@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Abstract class, parent of all 'File properties' dialog boxes.
@@ -50,7 +51,7 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 
 	protected static final String MULTIPLE_VALUES_TEXT = "(Multiple values)";
 
-	protected TabPanel inner = null;
+	protected VerticalPanel inner = null;
 
     protected Pithos app;
 
@@ -90,13 +91,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			        break;
 			  }
 	  }
-
-
-
-	public void selectTab(int _tab) {
-		inner.selectTab(_tab);
-	}
-
 
 	/**
 	 * Enables IE selection prevention and hides the dialog

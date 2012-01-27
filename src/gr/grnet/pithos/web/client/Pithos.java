@@ -362,7 +362,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			    	boolean isFolderTreeSelected = selectedTree.equals(getFolderTreeView());
 			    	
 			    	if (!folder.isInTrash() && canWrite && isFolderTreeSelected && !folder.isContainer())
-			    		new PropertiesCommand(Pithos.this, null, folder, 1).execute();
+			    		new PropertiesCommand(Pithos.this, null, folder, PropertiesCommand.PERMISSIONS).execute();
 				}
 			}
 		});

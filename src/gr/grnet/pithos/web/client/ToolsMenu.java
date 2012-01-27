@@ -56,6 +56,8 @@ import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -166,13 +168,13 @@ public class ToolsMenu extends PopupPanel {
 				        if (delete != null)
 				        	contextMenu.addItem(delete);
 				
-				        MenuItem properties = null;
-				        if (files != null && files.size() == 1)
-				        	properties = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, 0));
+				        if (files != null && files.size() == 1) {
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PROPERTIES)));
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
+				        }
 				        else if (!folder.isContainer())
-				        	properties = new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, 0));
-				        if (properties != null)
-				        	contextMenu.addItem(properties);
+				        	contextMenu.addItem(new MenuItem("<span id = 'folderContextMenu.properties'>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, 0)));
 				    }
 			        if (files != null && !files.isEmpty()) {
 					    contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.download()).getHTML() + "&nbsp;Download</span>", true, new Command() {

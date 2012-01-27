@@ -35,16 +35,11 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.FileVersions;
 import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.foldertree.Version;
-import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
@@ -54,12 +49,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FocusPanel;
@@ -76,39 +68,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
-	protected PermissionsList permList;
-
-	protected CheckBox readForAll;
-
-	/**
-	 * An image bundle for this widgets images.
-	 */
-	public interface Images extends MessagePanel.Images {
-
-		@Source("gr/grnet/pithos/resources/edit_user.png")
-		ImageResource permUser();
-
-		@Source("gr/grnet/pithos/resources/groups22.png")
-		ImageResource permGroup();
-
-		@Source("gr/grnet/pithos/resources/editdelete.png")
-		ImageResource delete();
-
-		@Source("gr/grnet/pithos/resources/db_update.png")
-		ImageResource restore();
-
-		@Source("gr/grnet/pithos/resources/folder_inbox.png")
-		ImageResource download();
-	}
-
 	/**
 	 * The widget that holds the name of the file.
 	 */
 	private TextBox name = new TextBox();
 
 	final File file;
-
-    Images images = GWT.create(Images.class);
 
     FlexTable metaTable;
 	/**
@@ -136,21 +101,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		// Outer contains inner and buttons.
 		final VerticalPanel outer = new VerticalPanel();
 		outer.add(close);
-		final FocusPanel focusPanel = new FocusPanel(outer);
 		// Inner contains generalPanel and permPanel.
-		inner = new DecoratedTabPanel();
-		inner.setAnimationEnabled(true);
+		inner = new VerticalPanel();
 		inner.addStyleName("inner");
-		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
+//		inner.getDeckPanel().addStyleName("pithos-TabPanelBottom");
 
 
-        inner.add(createGeneralPanel(), "General");
-
-        inner.add(createSharingPanel(), "Sharing");
-
-		fetchVersions();
-			
-        inner.selectTab(0);
+        inner.add(createGeneralPanel());
 
         outer.add(inner);
 
@@ -168,37 +125,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         outer.add(ok);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 
-        focusPanel.setFocus(true);
         setWidget(outer);
-	}
-
-    protected void fetchVersions() {
-    	String path = file.getUri() + "?format=json&version=list";
-    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(FileVersions.class, app.getApiPath(), file.getOwner(), path) {
-
-			@Override
-			public void onSuccess(FileVersions _result) {
-		        inner.add(createVersionPanel(_result.getVersions()), "Versions");
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				app.setError(t);
-                if (t instanceof RestException) {
-                    app.displayError("Unable to fetch versions: " + ((RestException) t).getHttpStatusText());
-                }
-                else
-                    app.displayError("System error unable to fetch versions: "+t.getMessage());
-			}
-
-			@Override
-			protected void onUnauthorized(@SuppressWarnings("unused") Response response) {
-				app.sessionExpired();
-			}
-		};
-		getVersions.setHeader("X-Auth-Token", app.getToken());
-		Scheduler.get().scheduleDeferred(getVersions);
 	}
 
 	private VerticalPanel createGeneralPanel() {
@@ -298,105 +225,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		table.setWidget(row, 2, delete);
 	}
 
-    private VerticalPanel createSharingPanel() {
-        VerticalPanel permPanel = new VerticalPanel();
-
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), file.getInheritedPermissionsFrom() != null);
-        permPanel.add(permList);
-
-        if (file.getInheritedPermissionsFrom() == null) {
-            HorizontalPanel permButtons = new HorizontalPanel();
-            Button add = new Button("Add Group", new ClickHandler() {
-                @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                    dlg.center();
-                    permList.updatePermissionTable();
-                }
-            });
-            add.addStyleName("button");
-            permButtons.add(add);
-            permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-
-            final Button addUser = new Button("Add User", new ClickHandler() {
-                @Override
-                public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                    dlg.center();
-                    permList.updatePermissionTable();
-                }
-            });
-            addUser.addStyleName("button");
-            permButtons.add(addUser);
-            permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-
-            permButtons.setSpacing(8);
-            permButtons.addStyleName("pithos-TabPanelBottom");
-            permPanel.add(permButtons);
-        }
-
-        final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
-                    " by everyone. By checking this option, you are certifying that you have the right to " +
-                    "distribute this file and that it does not violate the Terms of Use.", true);
-        readForAllNote.setVisible(false);
-        readForAllNote.setStylePrimaryName("pithos-readForAllNote");
-
-        readForAll = new CheckBox();
-        readForAll.setValue(file.isPublished());
-        readForAll.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                readForAllNote.setVisible(readForAll.getValue());
-            }
-        });
-
-        // Only show the read for all permission if the user is the owner.
-        if (file.getOwner().equals(app.getUsername())) {
-            final HorizontalPanel permForAll = new HorizontalPanel();
-            permForAll.add(new Label("Public"));
-            permForAll.add(readForAll);
-            permForAll.setSpacing(8);
-            permForAll.addStyleName("pithos-TabPanelBottom");
-            permForAll.add(readForAllNote);
-            permPanel.add(permForAll);
-        }
-
-        if (file.isPublished()) {
-            final HorizontalPanel pathPanel = new HorizontalPanel();
-            pathPanel.setWidth("100%");
-            pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-            pathPanel.add(new Label("Link"));
-            pathPanel.setSpacing(8);
-            pathPanel.addStyleName("pithos-TabPanelBottom");
-
-            TextBox path = new TextBox();
-            path.setWidth("100%");
-            path.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    Pithos.enableIESelection();
-                    ((TextBox) event.getSource()).selectAll();
-                    Pithos.preventIESelection();
-                }
-            });
-            path.setText(Window.Location.getHost() + file.getPublicUri());
-            path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-            path.setWidth("100%");
-            path.setReadOnly(true);
-            pathPanel.add(path);
-            permPanel.add(pathPanel);
-        }
-
-        return permPanel;
-    }
-
-    VerticalPanel createVersionPanel(List<Version> versions) {
-        VerticalPanel versionPanel = new VerticalPanel();
-        VersionsList verList = new VersionsList(app, this, images, file, versions);
-        versionPanel.add(verList);
-        return versionPanel;
-    }
-
 	/**
 	 * Accepts any change and updates the file
 	 *
@@ -405,18 +233,9 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 	protected void accept() {
 		String newFilename = null;
 
-		final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
-
 		if (!name.getText().trim().equals(file.getName())) {
 			newFilename = name.getText().trim();
 		}
-
-		//only update the read for all perm if the user is the owner
-        Boolean published = null;
-		if (readForAll.getValue() != file.isPublished())
-			if (file.getOwner().equals(app.getUsername()))
-                published = readForAll.getValue();
-        final Boolean finalPublished = published;
 
         final Map<String, String> newMeta = new HashMap<String, String>();
         for (int row = 1; row < metaTable.getRowCount(); row++) {
@@ -431,7 +250,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newMeta, finalPublished, perms);
+                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newMeta);
                 }
 
                 @Override
@@ -480,11 +299,11 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta, finalPublished, perms);
+            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta);
 	}
 
-	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta, final Boolean published, final Map<String, Boolean[]> newPermissions) {
-        if (newMeta != null || published != null || newPermissions != null) {
+	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta) {
+        if (newMeta != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(@SuppressWarnings("unused") Resource result) {
@@ -511,42 +330,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
             
-            if (newMeta != null) {
-	            for (String t : file.getMeta().keySet()) {
-	        		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
-	            }
-	            
-	            for (String key : newMeta.keySet())
-	                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
+            for (String t : file.getMeta().keySet()) {
+        		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
             }
             
-            if (published != null)
-                updateFile.setHeader("X-Object-Public", published.toString());
-            if (newPermissions != null) {
-                String readPermHeader = "read=";
-                String writePermHeader = "write=";
-                for (String u : newPermissions.keySet()) {
-                    Boolean[] p = newPermissions.get(u);
-                    if (p[0] != null && p[0])
-                        readPermHeader += u + ",";
-                    if (p[1] != null && p[1])
-                        writePermHeader += u + ",";
-                }
-                if (readPermHeader.endsWith("="))
-                    readPermHeader = "";
-                else if (readPermHeader.endsWith(","))
-                    readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-                if (writePermHeader.endsWith("="))
-                    writePermHeader = "";
-                else if (writePermHeader.endsWith(","))
-                    writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-                String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
-                if (permHeader.length() == 0)
-                    permHeader="~";
-                else
-                	permHeader = URL.encodePathSegment(permHeader);
-                updateFile.setHeader("X-Object-Sharing", permHeader);
-            }
+            for (String key : newMeta.keySet())
+                updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(key.trim()), URL.encodePathSegment(newMeta.get(key)));
+            
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else

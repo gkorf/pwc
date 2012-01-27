@@ -57,8 +57,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
-//	private final TristateCheckBox versionedCheck;
-
 	private final List<File> files;
 
 	/**
@@ -78,12 +76,10 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 		final VerticalPanel outer = new VerticalPanel();
 		final FocusPanel focusPanel = new FocusPanel(outer);
 		// Inner contains generalPanel and permPanel.
-		inner = new DecoratedTabPanel();
-		inner.setAnimationEnabled(true);
+		inner = new VerticalPanel();
 
-		inner.add(createGeneralPanel(), "General");
+		inner.add(createGeneralPanel());
 
-		inner.selectTab(0);
         outer.add(inner);
 
         final HorizontalPanel buttons = new HorizontalPanel();

@@ -34,8 +34,9 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FileContextMenu;
+import gr.grnet.pithos.web.client.FilePermissionsDialog;
 import gr.grnet.pithos.web.client.FilePropertiesDialog;
+import gr.grnet.pithos.web.client.FileVersionsDialog;
 import gr.grnet.pithos.web.client.FilesPropertiesDialog;
 import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
@@ -54,6 +55,10 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class PropertiesCommand implements Command {
 
+	public static final int PROPERTIES = 0;
+	public static final int PERMISSIONS = 1;
+	public static final int VERSIONS = 2;
+
 	private PopupPanel containerPanel;
 
 	private int tabToShow = 0;
@@ -64,7 +69,6 @@ public class PropertiesCommand implements Command {
 
 	/**
 	 * @param _containerPanel
-	 * @param _newImages the images of all the possible delete dialogs
 	 * @param _tab the tab to switch to
 	 */
 	public PropertiesCommand(Pithos _app, PopupPanel _containerPanel, Object _resource, int _tab) {
@@ -90,13 +94,25 @@ public class PropertiesCommand implements Command {
 			List<File> files = (List<File>) resource;
             if (files.size() > 1) {
                 FilesPropertiesDialog dlg = new FilesPropertiesDialog(app, files);
-                dlg.selectTab(tabToShow);
                 dlg.center();
             }
             else {
-                FilePropertiesDialog dlg = new FilePropertiesDialog(app, files.get(0));
-                dlg.selectTab(tabToShow);
-                dlg.center();
+            	switch (tabToShow) {
+					case PROPERTIES:
+		                FilePropertiesDialog dlg = new FilePropertiesDialog(app, files.get(0));
+		                dlg.center();
+						break;
+					case PERMISSIONS:
+		                FilePermissionsDialog dlg1 = new FilePermissionsDialog(app, files.get(0));
+		                dlg1.center();
+						break;
+					case VERSIONS:
+		                FileVersionsDialog dlg2 = new FileVersionsDialog(app, files.get(0));
+		                dlg2.center();
+						break;
+					default:
+						break;
+				}
             }
         }
 	}

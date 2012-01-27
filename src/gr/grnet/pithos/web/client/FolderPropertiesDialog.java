@@ -171,7 +171,7 @@ public class FolderPropertiesDialog extends DialogBox {
         inner.add(generalPanel, "General");
 
         VerticalPanel permPanel = new VerticalPanel();
-        FilePropertiesDialog.Images images = GWT.create(FilePropertiesDialog.Images.class);
+        FilePermissionsDialog.Images images = GWT.create(FilePermissionsDialog.Images.class);
         boolean permsReadonly = folder.getInheritedPermissionsFrom() != null || folder.existChildrenPermissions();
         permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), permsReadonly);
         permPanel.add(permList);

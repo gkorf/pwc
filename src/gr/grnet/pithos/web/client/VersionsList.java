@@ -34,7 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.FilePropertiesDialog.Images;
+import gr.grnet.pithos.web.client.FileVersionsDialog.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.foldertree.Version;
@@ -71,9 +71,9 @@ public class VersionsList extends Composite {
     
     private FlexTable permTable = new FlexTable();
 
-	FilePropertiesDialog container;
+    FileVersionsDialog container;
 
-	public VersionsList(Pithos _app, FilePropertiesDialog aContainer, final Images theImages, File _file, List<Version> theVersions) {
+	public VersionsList(Pithos _app, FileVersionsDialog aContainer, final Images theImages, File _file, List<Version> theVersions) {
         app = _app;
 		images = theImages;
 		container = aContainer;

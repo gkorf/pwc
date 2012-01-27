@@ -72,7 +72,7 @@ public class TopPanel extends Composite {
 	/**
 	 * An image bundle for this widgets images.
 	 */
-	public interface Images extends FilePropertiesDialog.Images {
+	public interface Images extends FilePermissionsDialog.Images {
 
 		@Source("gr/grnet/pithos/resources/pithos2-logo.png")
 		ImageResource pithosLogo();
