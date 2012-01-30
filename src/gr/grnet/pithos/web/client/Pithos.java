@@ -291,6 +291,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	        outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
         }
         
+        messagePanel.setVisible(false);
+        outer.add(messagePanel);
+        outer.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
+        outer.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
+
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("pithos-header");
         header.setWidth(contentWidth);
@@ -306,11 +311,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.add(upload);
         header.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
         header.setCellVerticalAlignment(upload, HasVerticalAlignment.ALIGN_MIDDLE);
-
-        messagePanel.setVisible(false);
-        header.add(messagePanel);
-        header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
-        header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
 
         toolbar = new Toolbar(this);
         header.add(toolbar);
