@@ -38,6 +38,7 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -54,6 +55,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
@@ -188,12 +191,73 @@ public class FileUploadDialog extends DialogBox {
 			}
 		});
 
+		FlowPanel uploader = new FlowPanel();
+		uploader.getElement().setId("uploader");
+		inner.add(uploader);
+		
 		panel.add(inner);
 		panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		
+		
+		Scheduler.get().scheduleDeferred(new Command() {
+			
+			@Override
+			public void execute() {
+				String path = app.getApiPath() + folder.getOwner() + folder.getUri();
+				setupUpload(path, app.getToken());
+			}
+		});
 		setWidget(form);
 	}
 
+	native void setupUpload(String path, String token) /*-{
+		$wnd.$("#uploader").pluploadQueue({
+			// General settings
+			runtimes : 'html5, flash, gears, silverlight, browserplus',
+			url : 'upload.php',
+			max_file_size : '10mb',
+			chunk_size : '1mb',
+			unique_names : true,
+	
+			// Resize images on clientside if we can
+			resize : {width : 320, height : 240, quality : 90},
+	
+			// Flash settings
+			flash_swf_url : 'plupload/js/plupload.flash.swf',
+	
+			// Silverlight settings
+			silverlight_xap_url : 'plupload/js/plupload.silverlight.xap',
+			
+			preinit: {
+				UploadFile: function(up, file) {
+					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+					up.settings.file_data_name = "X-Object-Data";				
+				}
+			}
+		});
+	
+		// Client side form validation
+		$wnd.$('form').submit(function(e) {
+	        var uploader = $wnd.$('#uploader').pluploadQueue();
+	
+	        // Files in queue upload them first
+	        if (uploader.files.length > 0) {
+	            // When all files are uploaded submit form
+	            uploader.bind('StateChanged', function() {
+	                if (uploader.files.length === (uploader.total.uploaded + uploader.total.failed)) {
+	                    $wnd.$('form')[0].submit();
+	                }
+	            });
+	                
+	            uploader.start();
+	        } else {
+	            alert('You must queue at least one file.');
+	        }
+	
+	        return false;
+	    });
+	}-*/;
+	
 	@Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
 		super.onPreviewNativeEvent(preview);
