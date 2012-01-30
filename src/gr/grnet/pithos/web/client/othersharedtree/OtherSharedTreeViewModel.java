@@ -125,6 +125,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                     	app.applyPermissions(null);
                     	app.showFiles(new HashSet<File>());
                     }
+                    app.showRelevantToolbarButtons();
                 }
             });
             app.addSelectionModel(selectionModel2);
@@ -161,6 +162,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	            			}
 	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
 	                    }
+	                    app.showRelevantToolbarButtons();
 	                }
 	            });
 	            app.addSelectionModel(selectionModel3);

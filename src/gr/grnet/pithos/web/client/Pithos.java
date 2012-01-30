@@ -266,6 +266,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private HTML numOfFiles;
     
+    private Toolbar toolbar;
+    
 	@Override
 	public void onModuleLoad() {
 		if (parseUserCredentials())
@@ -310,7 +312,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setCellHorizontalAlignment(messagePanel, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(messagePanel, HasVerticalAlignment.ALIGN_MIDDLE);
 
-        final Toolbar toolbar = new Toolbar(this);
+        toolbar = new Toolbar(this);
         header.add(toolbar);
         header.setCellHorizontalAlignment(toolbar, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellVerticalAlignment(toolbar, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -349,7 +351,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             			}
             		});
                 }
-                toolbar.showRelevantButtons();
+                showRelevantToolbarButtons();
             }
         });
         selectionModels.add(folderTreeSelectionModel);
@@ -1138,6 +1140,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
 		        }
+		        showRelevantToolbarButtons();
  		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
@@ -1165,6 +1168,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
 		        }
+		        showRelevantToolbarButtons();
  		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);
@@ -1198,5 +1202,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	
 	public void setError(Throwable t) {
 		error = t;
+	}
+	
+	public void showRelevantToolbarButtons() {
+		toolbar.showRelevantButtons();
 	}
 }

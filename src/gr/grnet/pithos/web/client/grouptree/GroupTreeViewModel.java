@@ -142,6 +142,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 					app.deselectOthers(app.getGroupTreeView(), rootSelectionModel);
 					app.showFiles(new HashSet<File>());
 				}
+				app.showRelevantToolbarButtons();
 			}
 		});
 
@@ -155,6 +156,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
 					app.showFiles(new HashSet<File>());
 				}
+				app.showRelevantToolbarButtons();
 			}
 		});
 
@@ -168,6 +170,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 					app.deselectOthers(app.getGroupTreeView(), userSelectionModel);
 					app.showFiles(new HashSet<File>());
 				}
+				app.showRelevantToolbarButtons();
 			}
 		});
 }

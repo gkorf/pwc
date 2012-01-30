@@ -122,6 +122,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                     	app.applyPermissions(null);
                     	fetchSharedFiles(true);
                     }
+                    app.showRelevantToolbarButtons();
                 }
             });
             app.addSelectionModel(selectionModel2);
