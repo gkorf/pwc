@@ -41,6 +41,7 @@ import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -135,6 +136,10 @@ public class FolderTreeViewModel implements TreeViewModel {
         }
         return false;
     }
+
+	private native void log(String msg) /*-{
+	$wnd.console.log(msg);
+	}-*/;
 
     protected void fetchFolder(final Iterator<Folder> iter, final Command callback) {
         if (iter.hasNext()) {

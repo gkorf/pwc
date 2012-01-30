@@ -43,10 +43,13 @@ import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -177,7 +180,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 	private void fetchSharedContainers(final Command callback) {
     	final List<Folder> containers = app.getAccount().getContainers();
     	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
-    	Iterator<Folder> iter = containers.iterator();
+    	Iterator<Folder> iter = containers.listIterator();
     	fetchFolder(iter, tempProvider, new Command() {
 			
 			@Override
@@ -202,6 +205,10 @@ public class MysharedTreeViewModel implements TreeViewModel {
 			return firstLevelDataProvider.getList().isEmpty();
 		}
     }
+	
+	private native void log(String msg) /*-{
+		$wnd.console.log(msg);
+	}-*/;
 
     protected void fetchFolder(final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Command callback) {
         if (iter.hasNext()) {
@@ -216,7 +223,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 			if (file.isShared())
                 				sharedFiles.add(file);
                 		}
-	                	Iterator<Folder> iter2 = _result.getSubfolders().iterator();
+	                	Iterator<Folder> iter2 = new ArrayList<Folder>(result.getSubfolders()).listIterator();
 	                	fetchFolder(iter2, dataProvider, new Command() {
 							
 							@Override
