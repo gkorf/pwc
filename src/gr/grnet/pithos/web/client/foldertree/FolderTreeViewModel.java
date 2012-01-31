@@ -41,6 +41,7 @@ import gr.grnet.pithos.web.client.foldertree.FolderTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -175,7 +176,7 @@ public class FolderTreeViewModel implements TreeViewModel {
     }
 
     public void initialize(final AccountResource account, final Command callback) {
-        Iterator<Folder> iter = account.getContainers().iterator();
+        Iterator<Folder> iter = account.getContainers().listIterator();
         fetchFolder(iter, new Command() {
             @Override
             public void execute() {
@@ -225,7 +226,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             public void onSuccess(final Folder _result) {
                 if (showfiles)
                     app.showFiles(_result);
-                Iterator<Folder> iter = _result.getSubfolders().iterator();
+                Iterator<Folder> iter = new ArrayList<Folder>(_result.getSubfolders()).listIterator();
                 fetchFolder(iter, new Command() {
                     @Override
                     public void execute() {
