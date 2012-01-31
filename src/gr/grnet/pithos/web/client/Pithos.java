@@ -310,8 +310,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         	header.addStyleName("pithos-header-noframe");
         upload = new Button("Upload File", new ClickHandler() {
             @Override
-            public void onClick(@SuppressWarnings("unused") ClickEvent event) {
-                new UploadFileCommand(Pithos.this, null, getSelection()).execute();
+            public void onClick(ClickEvent event) {
+            	if (getSelection() != null)
+            		new UploadFileCommand(Pithos.this, null, getSelection()).execute();
             }
         });
         upload.addStyleName("pithos-uploadButton");
