@@ -110,11 +110,11 @@ public class TopPanel extends Composite {
 				Window.open("/im/feedback", "", "");
 			}
 		}));
-        userItemMenu.addItem(new MenuItem("API access", new Command() {
+        userItemMenu.addItem(new MenuItem("profile...", new Command() {
 			
 			@Override
 			public void execute() {
-				new CredentialsDialog(app).center();
+				Window.open("/im/profile", "", "");
 			}
 		}));
         userItemMenu.addItem(new MenuItem("logout", new Command() {
