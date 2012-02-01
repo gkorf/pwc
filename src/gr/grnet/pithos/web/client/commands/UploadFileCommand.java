@@ -67,16 +67,8 @@ public class UploadFileCommand implements Command {
 	public void execute() {
 		if(containerPanel!=null)
 			containerPanel.hide();
-		displayNewFile();
-	}
-
-	/**
-	 * Display the 'new file' dialog for uploading a new file to the system.
-	 */
-	private void displayNewFile() {
-        FileUploadDialog dlg = GWT.create(FileUploadDialog.class);
-        dlg.setApp(app);
-        dlg.setFolder(folder);
+		
+        FileUploadDialog dlg = new FileUploadDialog(app, folder);
 		dlg.center();
 	}
 }

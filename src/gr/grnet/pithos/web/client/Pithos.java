@@ -304,7 +304,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         upload = new Button("Upload File", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                new UploadFileCommand(Pithos.this, null, getSelection()).execute();
+            	if (getSelection() != null)
+            		new UploadFileCommand(Pithos.this, null, getSelection()).execute();
             }
         });
         upload.addStyleName("pithos-uploadButton");

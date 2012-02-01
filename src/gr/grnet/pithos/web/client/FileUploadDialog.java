@@ -91,7 +91,10 @@ public class FileUploadDialog extends DialogBox {
 	/**
 	 * The widget's constructor.
 	 */
-	public FileUploadDialog() {
+	public FileUploadDialog(Pithos _app, Folder _folder) {
+		app = _app;
+		folder = _folder;
+		foldernameLabel.setText(folder.getName());
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
@@ -122,74 +125,24 @@ public class FileUploadDialog extends DialogBox {
         final Hidden auth = new Hidden("X-Auth-Token");
         inner.add(auth);
 		upload.setName("X-Object-Data");
+		upload.setVisible(false);
 		filenameLabel.setText("");
 		filenameLabel.setVisible(false);
 		filenameLabel.setStyleName("props-labels");
 		HorizontalPanel fileUploadPanel = new HorizontalPanel();
+		fileUploadPanel.setVisible(false);
 		fileUploadPanel.add(filenameLabel);
 		fileUploadPanel.add(upload);
 		Grid generalTable = new Grid(2, 2);
 		generalTable.setText(0, 0, "Folder");
         generalTable.setWidget(0, 1, foldernameLabel);
-		generalTable.setText(1, 0, "File");
 		generalTable.setWidget(1, 1, fileUploadPanel);
 		generalTable.getCellFormatter().setStyleName(0, 0, "props-labels");
         generalTable.getCellFormatter().setStyleName(0, 1, "props-values");
-		generalTable.getCellFormatter().setStyleName(1, 0, "props-labels");
-		generalTable.getCellFormatter().setStyleName(1, 1, "props-values");
+        generalTable.getCellFormatter().setVisible(1, 0, false);
 		generalTable.setCellSpacing(4);
 
 		inner.add(generalTable);
-
-		// Create the 'upload' button, along with a listener that submits the
-		// form.
-		submit = new Button("Upload", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				prepareAndSubmit();
-			}
-		});
-		submit.addStyleName("button");
-		inner.add(submit);
-
-		// Add an event handler to the form.
-		form.addSubmitHandler(new SubmitHandler() {
-
-			@Override
-			public void onSubmit(SubmitEvent event) {
-                auth.setValue(app.getToken()); //This is done here because the app object is not available in the constructor
-                Cookies.setCookie("X-Auth-Token", app.getToken(), null, "", "/", false);
-			}
-		});
-		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
-
-			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event) {
-				// When the form submission is successfully completed, this
-				// event is fired. Assuming the service returned a response
-				// of type text/html, we can get the result text here (see
-				// the FormPanel documentation for further explanation).
-				String results = event.getResults();
-
-				// Unfortunately the results are never empty, even in
-				// the absense of errors, so we have to check for '<pre></pre>'.
-				if (results != null && results.length() > 0 && !results.equalsIgnoreCase("<pre></pre>")) {
-					GWT.log(results, null);
-					app.displayError(results);
-				}
-				if (app.getSelectedTree().equals(app.getFolderTreeView()))
-					app.updateFolder(folder, true, new Command() {
-						
-						@Override
-						public void execute() {
-							app.updateStatistics();
-						}
-					});
-				else
-					app.updateOtherSharedFolder(folder, true);
-				hide();
-			}
-		});
 
 		FlowPanel uploader = new FlowPanel();
 		uploader.getElement().setId("uploader");
@@ -204,23 +157,30 @@ public class FileUploadDialog extends DialogBox {
 			@Override
 			public void execute() {
 				String path = app.getApiPath() + folder.getOwner() + folder.getUri();
-				setupUpload(path, app.getToken());
+				setupUpload(FileUploadDialog.this, path, app.getToken());
 			}
 		});
 		setWidget(form);
 	}
 
-	native void setupUpload(String path, String token) /*-{
+	private void refreshFolder() {
+		if (app.getSelectedTree().equals(app.getFolderTreeView()))
+			app.updateFolder(folder, true, new Command() {
+				
+				@Override
+				public void execute() {
+					app.updateStatistics();
+				}
+			});
+		else
+			app.updateOtherSharedFolder(folder, true);
+	}
+	
+	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
 		$wnd.$("#uploader").pluploadQueue({
 			// General settings
-			runtimes : 'html5, flash, gears, silverlight, browserplus',
-			url : 'upload.php',
-			max_file_size : '10mb',
-			chunk_size : '1mb',
+			runtimes : 'html5, silverlight, flash, gears, browserplus, html4',
 			unique_names : true,
-	
-			// Resize images on clientside if we can
-			resize : {width : 320, height : 240, quality : 90},
 	
 			// Flash settings
 			flash_swf_url : 'plupload/js/plupload.flash.swf',
@@ -229,9 +189,25 @@ public class FileUploadDialog extends DialogBox {
 			silverlight_xap_url : 'plupload/js/plupload.silverlight.xap',
 			
 			preinit: {
-				UploadFile: function(up, file) {
-					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+				Init: function(up, info) {
 					up.settings.file_data_name = "X-Object-Data";				
+				},
+				
+				UploadFile: function(up, file) {
+					$wnd.console.log('About to upload ' + file.name);
+					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+				}
+			},
+			
+			init: {
+				FileUploaded: function(up, file, response) {
+					$wnd.console.log('File ' + file.name + ' uploaded');
+					$wnd.console.log('Response: ' + response);
+				},
+				
+				UploadComplete: function(up, files) {
+					$wnd.console.log('All files finished');
+					dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
 				}
 			}
 		});
@@ -258,24 +234,6 @@ public class FileUploadDialog extends DialogBox {
 	    });
 	}-*/;
 	
-	@Override
-	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
-		super.onPreviewNativeEvent(preview);
-
-		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
-			// Use the popup's key preview hooks to close the dialog when either
-			// enter or escape is pressed.
-			switch (evt.getKeyCode()) {
-				case KeyCodes.KEY_ENTER:
-					prepareAndSubmit();
-					break;
-				case KeyCodes.KEY_ESCAPE:
-					hide();
-					break;
-			}
-	}
-
 	/**
 	 * Make any last minute checks and start the upload.
 	 */
@@ -340,13 +298,4 @@ public class FileUploadDialog extends DialogBox {
 				return f;
 		return null;
 	}
-
-    public void setApp(Pithos app) {
-        this.app = app;
-    }
-
-    public void setFolder(Folder folder) {
-        this.folder = folder;
-        foldernameLabel.setText(folder.getName());
-    }
 }
