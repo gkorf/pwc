@@ -34,14 +34,9 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.rest.GetRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -105,30 +100,7 @@ public class TopPanel extends Composite {
 			
 			@Override
 			public void execute() {
-				GetRequest<Invitations> getInvitations = new GetRequest<Invitations> (Invitations.class, "/im/", "", "invite?format=json") {
-
-					@Override
-					public void onSuccess(Invitations _result) {
-						new InvitationsDialog(app, _result).center();
-					}
-
-					@Override
-					public void onError(Throwable t) {
-						GWT.log("", t);
-						app.setError(t);
-	                    if (t instanceof RestException)
-	                        app.displayError("Error getting invitations: " + ((RestException) t).getHttpStatusText());
-	                    else
-	                        app.displayError("System error getting invitations: " + t.getMessage());
-					}
-
-					@Override
-					protected void onUnauthorized(Response response) {
-						app.sessionExpired();
-					}
-				};
-				getInvitations.setHeader("X-Auth-Token", app.getToken());
-				Scheduler.get().scheduleDeferred(getInvitations);
+				Window.open("/im/invite", "", "");
 			}
 		}));
         userItemMenu.addItem(new MenuItem("send feedback...", new Command() {
