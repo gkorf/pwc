@@ -117,6 +117,13 @@ public class TopPanel extends Composite {
 				Window.open("/im/profile", "", "");
 			}
 		}));
+        userItemMenu.addItem(new MenuItem("change password...", new Command() {
+			
+			@Override
+			public void execute() {
+				Window.open("/im/password", "", "");
+			}
+		}));
         userItemMenu.addItem(new MenuItem("logout", new Command() {
 			
 			@Override
