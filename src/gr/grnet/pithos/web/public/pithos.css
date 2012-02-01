@@ -1,14 +1,13 @@
 body {
 	color: black;
-	font-family: Verdana, 'PT Sans', sans-serif;
-	font-size: 16px;
+	font: 13px Verdana, 'PT Sans', sans-serif;
 	margin: 8px;
 	margin-top: 3px;
 	background-color: transparent;
 }
 
 table td {
-	font-family: Verdana, 'PT Sans', sans-serif;
+	font: 13px Verdana, 'PT Sans', sans-serif;
 }
 
 .pithos-outer {
