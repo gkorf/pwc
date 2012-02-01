@@ -101,7 +101,4 @@ public class SessionExpiredDialog extends DialogBox {
 					break;
 			}
 	}
-
-
-
 }
