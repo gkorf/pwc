@@ -114,7 +114,7 @@ public class EmptyTrashCommand implements Command{
 								@Override
 								public void execute() {
 									String path = _f.getUri();
-									DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), _f.getOwner(), path) {
+									DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), _f.getOwner(), URL.encode(path)) {
 										
 										@Override
 										public void onSuccess(Resource _result) {
@@ -174,7 +174,7 @@ public class EmptyTrashCommand implements Command{
 		if (iter.hasNext()) {
 			File f = iter.next();
 			String path = f.getUri();
-			DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
+			DeleteRequest deleteF = new DeleteRequest(app.getApiPath(), f.getOwner(), URL.encode(path)) {
 				
 				@Override
 				public void onSuccess(Resource result) {

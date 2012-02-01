@@ -866,7 +866,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             if (o != null && !o.containsKey("subdir")) {
                 JSONString name = o.get("name").isString();
                 String path = "/" + folder.getContainer() + "/" + name.stringValue();
-                DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
+                DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), URL.encode(path)) {
                     @Override
                     public void onSuccess(Resource result) {
                         deleteObject(folder, i + 1, array);
@@ -923,7 +923,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
         else {
             String path = folder.getUri();
-            DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), path) {
+            DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), URL.encode(path)) {
                 @Override
                 public void onSuccess(Resource result) {
                     updateFolder(folder.getParent(), true, new Command() {

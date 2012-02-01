@@ -50,6 +50,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -135,7 +136,7 @@ public class DeleteFileDialog extends DialogBox {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
-            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwner(), path) {
+            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwner(), URL.encode(path)) {
                 @Override
                 public void onSuccess(Resource result) {
                     deleteFile(iter);
