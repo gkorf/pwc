@@ -67,6 +67,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 
 /**
  * A composite that displays the list of files in a particular folder.
@@ -331,7 +332,14 @@ public class FileList extends Composite {
 		initWidget(vp);
 
 		selectionModel = new MultiSelectionModel<File>(keyProvider);
-
+		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+			
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				app.showRelevantToolbarButtons();
+			}
+		});
+		
 		celltable.setSelectionModel(selectionModel, PithosSelectionEventManager.<File> createDefaultManager());
 //		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
