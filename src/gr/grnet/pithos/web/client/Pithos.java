@@ -1192,7 +1192,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		for (String s: Cookies.getCookieNames())
 			if (s.startsWith(conf.shibSessionCookiePrefix()))
 				Cookies.removeCookie(s, "/");
-		Window.Location.assign(Window.Location.getPath());
+		Window.Location.assign("/im/logout");
 	}
 
 	public String getErrorData() {
