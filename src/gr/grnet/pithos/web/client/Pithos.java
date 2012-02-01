@@ -583,8 +583,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
-		Configuration conf = (Configuration) GWT.create(Configuration.class);
-        Window.Location.assign(conf.loginUrl() + "?next=" + Window.Location.getHref());
+        Window.Location.assign("/im/login");
 	}
 
 	protected void fetchAccount(final Command callback) {

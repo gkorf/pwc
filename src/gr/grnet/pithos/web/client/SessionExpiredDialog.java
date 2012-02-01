@@ -99,9 +99,6 @@ public class SessionExpiredDialog extends DialogBox {
 					app.authenticateUser();
 					hide();
 					break;
-				case KeyCodes.KEY_ESCAPE:
-					hide();
-					break;
 			}
 	}
 
