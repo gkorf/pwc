@@ -169,7 +169,7 @@ public class FileUploadDialog extends DialogBox {
 	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
 		$wnd.$("#uploader").pluploadQueue({
 			// General settings
-			runtimes : 'html5, silverlight, flash, gears, browserplus, html4',
+			runtimes : 'html5, flash, gears, silverlight, browserplus, html4',
 			unique_names : true,
 	
 			// Flash settings
