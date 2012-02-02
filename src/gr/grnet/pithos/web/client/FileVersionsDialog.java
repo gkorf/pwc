@@ -54,6 +54,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -122,8 +123,8 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		inner.addStyleName("inner");
 
 		fetchVersions();
-			
-        outer.add(inner);
+
+		outer.add(inner);
 
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
@@ -143,6 +144,15 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
         setWidget(outer);
 	}
 
+	private void doCenter() {
+		super.center();
+	}
+	
+	@Override
+	public void center() {
+		fetchVersions();
+	}
+
     protected void fetchVersions() {
     	String path = file.getUri() + "?format=json&version=list";
     	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(FileVersions.class, app.getApiPath(), file.getOwner(), path) {
@@ -150,6 +160,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 			@Override
 			public void onSuccess(FileVersions _result) {
 		        inner.add(createVersionPanel(_result.getVersions()));
+				doCenter();
 			}
 
 			@Override
