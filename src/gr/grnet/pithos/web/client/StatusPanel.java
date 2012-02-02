@@ -58,7 +58,6 @@ public class StatusPanel extends Composite {
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		HorizontalPanel firstLine = new HorizontalPanel();
 		firstLine.setSpacing(8);
-//		firstLine.addStyleName("pithos-statusbar");
 		firstLine.add(new Anchor("About"));
 		firstLine.add(new HTML("|"));
         firstLine.add(new Anchor("Help"));
@@ -71,7 +70,7 @@ public class StatusPanel extends Composite {
 		inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("<a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011 Greek Research and Technology Network</a>"));
+        secondLine.add(new HTML("<a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
         inner.add(secondLine);
         outer.add(inner);
         outer.addStyleName("pithos-statusbar");
