@@ -1194,6 +1194,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				Cookies.removeCookie(s, "/");
 		Window.Location.assign(config.logoutUrl());
 	}
+	
+	public native void log1(String message)/*-{
+		$wnd.console.log(message);
+	}-*/;
 
 	public String getErrorData() {
 		if (error != null)
