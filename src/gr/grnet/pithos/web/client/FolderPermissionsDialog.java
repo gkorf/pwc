@@ -303,7 +303,7 @@ public class FolderPermissionsDialog extends DialogBox {
                     		app.displayError("Cannot set permissions. Probably subfolders or files already have permissions set");
                     	}
                     	else
-                    		app.displayError("Wrror modifying folder: " + t.getMessage());
+                    		app.displayError("Εrror modifying folder: " + t.getMessage());
                     }
                     else
                     	app.displayError("System error modifying folder: " + t.getMessage());
