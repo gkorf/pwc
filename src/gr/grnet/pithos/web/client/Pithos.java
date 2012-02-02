@@ -110,6 +110,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public static final String HOME_CONTAINER = "pithos";
 
 	public static final String TRASH_CONTAINER = "trash";
+
+	public static final Configuration config = GWT.create(Configuration.class);
 	
 	/**
 	 * Instantiate an application-level image bundle. This object will provide
@@ -583,7 +585,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
-        Window.Location.assign("/im/login");
+        Window.Location.assign(config.loginUrl());
 	}
 
 	protected void fetchAccount(final Command callback) {
@@ -1185,13 +1187,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public void logoff() {
-        Configuration conf = (Configuration) GWT.create(Configuration.class);
-		Cookies.removeCookie(conf.authCookie(), "/");
-		Cookies.removeCookie(conf.authTokenCookie(), "/");
+		Cookies.removeCookie(config.authCookie(), "/");
+		Cookies.removeCookie(config.authTokenCookie(), "/");
 		for (String s: Cookies.getCookieNames())
-			if (s.startsWith(conf.shibSessionCookiePrefix()))
+			if (s.startsWith(config.shibSessionCookiePrefix()))
 				Cookies.removeCookie(s, "/");
-		Window.Location.assign("/im/logout");
+		Window.Location.assign(config.logoutUrl());
 	}
 
 	public String getErrorData() {

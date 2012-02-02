@@ -46,7 +46,7 @@ public interface Configuration extends Constants {
 	/**
 	 * @return the login URL
 	 */
-	@DefaultStringValue("/.")
+	@DefaultStringValue("/im/login?next=/ui")
 	String loginUrl();
 
 	/**
@@ -79,4 +79,7 @@ public interface Configuration extends Constants {
 	
 	@DefaultStringValue("_shibsession_")
 	String shibSessionCookiePrefix();
+	
+	@DefaultStringValue("/im/logout?next=/ui")
+	String logoutUrl();
 }
