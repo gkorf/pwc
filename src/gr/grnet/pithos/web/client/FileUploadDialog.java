@@ -222,6 +222,8 @@ public class FileUploadDialog extends DialogBox {
 	
 	        return false;
 	    });
+	    
+	    dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
 	}-*/;
 	
 	/**
