@@ -164,7 +164,6 @@ public class FileUploadDialog extends DialogBox {
 			});
 		else
 			app.updateOtherSharedFolder(folder, true);
-		hide();
 	}
 	
 	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
