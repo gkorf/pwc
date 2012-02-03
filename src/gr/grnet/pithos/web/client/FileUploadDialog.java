@@ -164,6 +164,7 @@ public class FileUploadDialog extends DialogBox {
 			});
 		else
 			app.updateOtherSharedFolder(folder, true);
+		hide();
 	}
 	
 	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
@@ -181,15 +182,15 @@ public class FileUploadDialog extends DialogBox {
 			preinit: {
 				Init: function(up, info) {
 					up.settings.file_data_name = "X-Object-Data";				
-				},
-				
-				UploadFile: function(up, file) {
-					$wnd.console.log('About to upload ' + file.name);
-					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
 				}
 			},
 			
 			init: {
+				BeforeUpload: function(up, file) {
+					$wnd.console.log('About to upload ' + file.name);
+					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+				},
+				
 				FileUploaded: function(up, file, response) {
 					$wnd.console.log('File ' + file.name + ' uploaded');
 					$wnd.console.log('Response: ' + response);
@@ -203,91 +204,26 @@ public class FileUploadDialog extends DialogBox {
 		});
 	
 		// Client side form validation
-		$wnd.$('form').submit(function(e) {
-	        var uploader = $wnd.$('#uploader').pluploadQueue();
-	
-	        // Files in queue upload them first
-	        if (uploader.files.length > 0) {
-	            // When all files are uploaded submit form
-	            uploader.bind('StateChanged', function() {
-	                if (uploader.files.length === (uploader.total.uploaded + uploader.total.failed)) {
-	                    $wnd.$('form')[0].submit();
-	                }
-	            });
-	                
-	            uploader.start();
-	        } else {
-	            alert('You must queue at least one file.');
-	        }
-	
-	        return false;
-	    });
+//		$wnd.$('form').submit(function(e) {
+//	        var uploader = $wnd.$('#uploader').pluploadQueue();
+//	
+//	        // Files in queue upload them first
+//	        if (uploader.files.length > 0) {
+//	            // When all files are uploaded submit form
+//	            uploader.bind('StateChanged', function() {
+//	                if (uploader.files.length === (uploader.total.uploaded + uploader.total.failed)) {
+//	                    $wnd.$('form')[0].submit();
+//	                }
+//	            });
+//	                
+//	            uploader.start();
+//	        } else {
+//	            alert('You must queue at least one file.');
+//	        }
+//	
+//	        return false;
+//	    });
 	    
 	    dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
 	}-*/;
-	
-	/**
-	 * Make any last minute checks and start the upload.
-	 */
-	protected void prepareAndSubmit() {
-        if (upload.getFilename().length() == 0) {
-            app.displayError("You must select a file!");
-            return;
-        }
-        final String fname = getFilename(upload.getFilename());
-        String apath = app.getApiPath() + folder.getOwner() + folder.getUri() + "/" + fname + "?X-Auth-Token=" + app.getToken();
-        form.setAction(apath);
-        submit.setEnabled(false);
-        upload.setVisible(false);
-        filenameLabel.setText(fname);
-        filenameLabel.setVisible(true);
-
-		if (getFileForName(fname) == null) {
-            form.submit();
-		}
-		else {
-			// We are going to update an existing file, so show a confirmation dialog.
-			ConfirmationDialog confirm = new ConfirmationDialog("Are you sure " +
-					"you want to update " + fname + "?", "Update") {
-
-				@Override
-				public void cancel() {
-					FileUploadDialog.this.hide();
-				}
-
-				@Override
-				public void confirm() {
-					form.submit();
-				}
-
-			};
-			confirm.center();
-		}
-	}
-
-    /**
-	 * Returns the file name from a potential full path argument. Apparently IE
-	 * insists on sending the full path name of a file when uploading, forcing
-	 * us to trim the extra path info. Since this is only observed on Windows we
-	 * get to check for a single path separator value.
-	 *
-	 * @param name the potentially full path name of a file
-	 * @return the file name without extra path information
-	 */
-	protected String getFilename(String name) {
-		int pathSepIndex = name.lastIndexOf("\\");
-		if (pathSepIndex == -1) {
-			pathSepIndex = name.lastIndexOf("/");
-			if (pathSepIndex == -1)
-				return name;
-		}
-		return name.substring(pathSepIndex + 1);
-	}
-
-	protected File getFileForName(String name){
-		for (File f : folder.getFiles())
-			if (f.getName().equals(name))
-				return f;
-		return null;
-	}
 }
