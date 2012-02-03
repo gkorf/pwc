@@ -70,7 +70,8 @@ public class StatusPanel extends Composite {
 		inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("<a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
+        secondLine.add(new HTML("Pithos Web Client v0.1 <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
+        secondLine.addStyleName("grnet-sign");
         inner.add(secondLine);
         outer.add(inner);
         outer.addStyleName("pithos-statusbar");
