@@ -554,10 +554,6 @@ div#toolbar a {
     width: 100%;
 }
 
-/*button styles*/
-.pithos-dialogbox .button {
-}
-
 /*button position within the overlay content*/
 .dialogMiddleCenterInner .button {
     margin-left: 2px;

@@ -201,28 +201,7 @@ public class FileUploadDialog extends DialogBox {
 				}
 			}
 		});
-	
-		// Client side form validation
-//		$wnd.$('form').submit(function(e) {
-//	        var uploader = $wnd.$('#uploader').pluploadQueue();
-//	
-//	        // Files in queue upload them first
-//	        if (uploader.files.length > 0) {
-//	            // When all files are uploaded submit form
-//	            uploader.bind('StateChanged', function() {
-//	                if (uploader.files.length === (uploader.total.uploaded + uploader.total.failed)) {
-//	                    $wnd.$('form')[0].submit();
-//	                }
-//	            });
-//	                
-//	            uploader.start();
-//	        } else {
-//	            alert('You must queue at least one file.');
-//	        }
-//	
-//	        return false;
-//	    });
-	    
+
 	    dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
 	}-*/;
 }
