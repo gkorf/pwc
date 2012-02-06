@@ -180,12 +180,14 @@ public class Folder extends Resource {
                     if (o.containsKey("subdir") || (contentType != null && (contentType.startsWith("application/directory") || contentType.startsWith("application/folder")))) {
                         Folder f = new Folder();
                         f.populate(this, o, _owner, container);
-                        subfolders.add(f);
+                        if (f.getName().length() > 0)
+                        	subfolders.add(f);
                     }
                     else {
                         File file = new File();
                         file.populate(this, o, _owner, container);
-                        files.add(file);
+                        if (file.getName().length() > 0)
+                        	files.add(file);
                     }
                 }
             }
@@ -197,18 +199,24 @@ public class Folder extends Resource {
         String path = null;
         if (o.containsKey("subdir")) {
             path = unmarshallString(o, "subdir");
+            if (path.endsWith("/")) { //Always true for "subdir"
+                path = path.substring(0, path.length() - 1);
+            }
+            if (parent != null && parent.getPrefix().length() > 0)
+            	name = path.substring(parent.getPrefix().length() + 1);
+            else
+            	name = path;
+            if (name.equals("/"))
+            	name = "";
         }
         else {
             path = unmarshallString(o, "name");
             lastModified = unmarshallDate(o, "last_modified");
+            if (parent != null && parent.getPrefix().length() > 0)
+            	name = path.substring(parent.getPrefix().length() + 1);
+            else
+            	name = path;
         }
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
-        if (path.contains("/"))
-            name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
-        else
-            name = path;
         if (aContainer != null) {
             container = aContainer;
             prefix = path;

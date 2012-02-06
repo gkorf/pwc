@@ -144,8 +144,8 @@ public class File extends Resource {
     public void populate(Folder _parent, JSONObject o, String _owner, String _container) {
         this.parent = _parent;
         path = unmarshallString(o, "name");
-        if (path.contains("/"))
-            name = path.substring(path.lastIndexOf("/") + 1, path.length()); //strip the prefix
+        if (parent != null && parent.getPrefix().length() > 0)
+        	name = path.substring(parent.getPrefix().length() + 1);
         else
             name = path;
         this.owner = _owner;
