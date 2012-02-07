@@ -54,7 +54,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -144,7 +143,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
         setWidget(outer);
 	}
 
-	private void doCenter() {
+	void doCenter() {
 		super.center();
 	}
 	
