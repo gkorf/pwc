@@ -207,32 +207,6 @@ table.pithos-permList.props-labels {
 	border-bottom: 1px solid white;
 }
 
-.pithos-usernameMenu {
-    cursor: pointer;
-}
-
-.pithos-usernameMenuItem {
-	background: url(images/down-arrow-light.png) no-repeat scroll right 8px transparent;
-	padding-right: 13px;
-	cursor: pointer;
-    color: white;
-}
-
-.pithos-usernameMenuItem:HOVER {
-	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
-	background-color: #599EBD;
-}
-
-.pithos-usernameMenuItem:ACTIVE {
-	background: url(images/down-arrow-lighter.png) no-repeat scroll right 8px transparent;
-	background-color: #BED5E0;
-}
-
-.pithos-langMenuItem {
-	cursor: pointer;
-    color: #72ADC8;
-}
-
 .gwt-MenuBar-vertical {
 	background: #D0E3ED;
 }
@@ -259,10 +233,6 @@ table.pithos-permList.props-labels {
 
 .gwt-MenuBarPopup .menuPopupMiddleRight {
 	background: none;
-	background-color: #D0E3ED;
-}
-
-.pithos-userItemMenu {
 	background-color: #D0E3ED;
 }
 
@@ -441,7 +411,7 @@ table.pithos-permList.props-labels {
 
 .pithos-logo {
 	position: absolute;
-	top: 29px;
+	top: 65px;
 }
 
 .pithos-header {

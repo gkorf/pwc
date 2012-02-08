@@ -90,60 +90,6 @@ public class TopPanel extends Composite {
 		HTML logos = new HTML("<table><tr><td><a href='/'>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</a></td></tr></table>");
 		logos.addStyleName("pithos-logo");
 		inner.add(logos);
-
-        MenuBar username = new MenuBar();
-        username.setStyleName("pithos-usernameMenu");
-        
-        MenuBar userItemMenu = new MenuBar(true);
-        userItemMenu.addStyleName("pithos-userItemMenu");
-        userItemMenu.addItem(new MenuItem("invite friends...", new Command() {
-			
-			@Override
-			public void execute() {
-				Window.open("/im/invite", "", "");
-			}
-		}));
-        userItemMenu.addItem(new MenuItem("send feedback...", new Command() {
-			
-			@Override
-			public void execute() {
-				Window.open("/im/feedback", "", "");
-			}
-		}));
-        userItemMenu.addItem(new MenuItem("profile...", new Command() {
-			
-			@Override
-			public void execute() {
-				Window.open("/im/profile", "", "");
-			}
-		}));
-        userItemMenu.addItem(new MenuItem("change password...", new Command() {
-			
-			@Override
-			public void execute() {
-				Window.open("/im/password", "", "");
-			}
-		}));
-        userItemMenu.addItem(new MenuItem("logout", new Command() {
-			
-			@Override
-			public void execute() {
-				app.logoff();
-			}
-		}));
-
-        MenuItem userItem = new MenuItem(_app.getUsername(), userItemMenu);
-        userItem.addStyleName("pithos-usernameMenuItem");
-        username.addItem(userItem);
-        username.addSeparator();
-        
-        MenuItem langItem = new MenuItem("en", (Command) null);
-        langItem.addStyleName("pithos-langMenuItem");
-        username.addItem(langItem);
-        
-        inner.add(username);
-        inner.setCellHorizontalAlignment(username, HasHorizontalAlignment.ALIGN_RIGHT);
-        
         outer.add(inner);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
         outer.setCellVerticalAlignment(inner, HasVerticalAlignment.ALIGN_BOTTOM);
