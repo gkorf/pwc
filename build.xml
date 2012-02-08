@@ -82,6 +82,12 @@
         </scp>
     </target>
 
+    <target name="uploadCSSToVM">
+        <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="${ssh.key}" passphrase="${passphrase}">
+            <fileset dir="${gwt.www.dir}/${gwt.module}" includes="pithos.css"/>
+        </scp>
+    </target>
+
 	<target name="clean" description="Delete all build artifacts">
 		<delete dir="${build.dir}"/>
 	</target>
