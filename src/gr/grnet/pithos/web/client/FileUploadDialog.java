@@ -37,9 +37,12 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -105,6 +108,7 @@ public class FileUploadDialog extends DialogBox {
 
 		// Create a panel to hold all of the form widgets.
 		VerticalPanel panel = new VerticalPanel();
+		panel.setWidth("470px");
 		panel.add(close);
 		form.setWidget(panel);
 
@@ -166,41 +170,84 @@ public class FileUploadDialog extends DialogBox {
 	}
 	
 	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
-		$wnd.$("#uploader").pluploadQueue({
-			// General settings
-			runtimes : 'html5, flash, gears, silverlight, browserplus, html4',
-			unique_names : true,
-	
-			// Flash settings
-			flash_swf_url : 'plupload/js/plupload.flash.swf',
-	
-			// Silverlight settings
-			silverlight_xap_url : 'plupload/js/plupload.silverlight.xap',
-			
-			preinit: {
-				Init: function(up, info) {
-					up.settings.file_data_name = "X-Object-Data";				
+		var uploader = $wnd.$('#uploader').pluploadQueue();
+		$wnd.console.log(uploader);
+		if (!uploader) {
+			$wnd.$("#uploader").pluploadQueue({
+				// General settings
+				runtimes : 'html5, flash, gears, silverlight, browserplus, html4',
+				unique_names : true,
+		
+				// Flash settings
+				flash_swf_url : 'plupload/js/plupload.flash.swf',
+		
+				// Silverlight settings
+				silverlight_xap_url : 'plupload/js/plupload.silverlight.xap',
+				
+				multiple_queues: true,
+				
+				preinit: {
+					Init: function(up, info) {
+						$wnd.console.log("Init fired");
+						up.settings.file_data_name = "X-Object-Data";				
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
+//						up.refresh();
+						return true;
+					}
+					
+				},
+				
+				init: {
+					PostInit: function(up) {
+						$wnd.console.log("PostInit fired");
+						//dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
+					},
+					
+					BeforeUpload: function(up, file) {
+						$wnd.console.log('About to upload ' + file.name);
+						up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+					},
+					
+					FileUploaded: function(up, file, response) {
+						$wnd.console.log('File ' + file.name + ' uploaded');
+						$wnd.console.log('Response: ' + response);
+					},
+					
+					UploadComplete: function(up, files) {
+						$wnd.console.log('All files finished');
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
+					}
 				}
-			},
-			
-			init: {
-				BeforeUpload: function(up, file) {
-					$wnd.console.log('About to upload ' + file.name);
-					up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
-				},
-				
-				FileUploaded: function(up, file, response) {
-					$wnd.console.log('File ' + file.name + ' uploaded');
-					$wnd.console.log('Response: ' + response);
-				},
-				
-				UploadComplete: function(up, files) {
-					$wnd.console.log('All files finished');
-					dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
+			});
+		}
+		else {
+			var previousSettings = uploader.settings;
+			var previousFiles = uploader.files;
+			$wnd.$("#uploader").pluploadQueue(previousSettings);
+			uploader = $wnd.$("#uploader").pluploadQueue();
+			uploader.trigger('FilesAdded', previousFiles);
+			for (var i=0; i<previousFiles.length; i++) {
+				var f = previousFiles[i];
+				if (f.status == $wnd.plupload.UPLOADING) {
+					uploader.trigger('UploadProgress', f);
+					break;
 				}
 			}
-		});
-
-	    dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
+		}
 	}-*/;
+	
+	@Override
+	protected void onPreviewNativeEvent(NativePreviewEvent event) {
+		super.onPreviewNativeEvent(event);
+
+		NativeEvent evt = event.getNativeEvent();
+		if (evt.getType().equals("keydown"))
+			// Use the popup's key preview hooks to close the dialog when
+			// escape is pressed.
+			switch (evt.getKeyCode()) {
+				case KeyCodes.KEY_ESCAPE:
+					hide();
+					break;
+			}
+	}
 }
