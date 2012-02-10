@@ -49,10 +49,10 @@ table td {
 }
 
 a {
-	color: white;
-	text-decoration: none;
-}
-
+ 	color: white;
+ 	text-decoration: none;
+} 
+ 
 a:hover {
 	color: white;
 }
@@ -371,14 +371,20 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-uploadButton {
-    background: none;
-    background-color: #ff7f2a;
+	background: none;
+	background-color: #ff7f2a;
     font-size: 120%;
     text-align: center;
     height: auto;
     padding: 8px;
     width: 146px;
     border: none;
+}
+
+.pithos-uploadButton-loading {
+	background: url(images/ajax-loader.gif) no-repeat;
+	background-position: 110px 0px;
+	background-color: #ff7f2a;
 }
 
 .pithos-uploadButton:HOVER {

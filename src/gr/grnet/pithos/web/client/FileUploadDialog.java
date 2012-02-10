@@ -41,6 +41,8 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
@@ -54,6 +56,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -83,17 +86,15 @@ public class FileUploadDialog extends DialogBox {
 	/**
 	 * The widget's constructor.
 	 */
-	public FileUploadDialog(Pithos _app, Folder _folder) {
+	public FileUploadDialog(Pithos _app) {
 		app = _app;
-		folder = _folder;
-		foldernameLabel.setText(folder.getName());
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				hide();
+				close();
 			}
 		});
 		// Set the dialog's caption.
@@ -101,6 +102,8 @@ public class FileUploadDialog extends DialogBox {
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
+		setVisible(false);
+		
 		// Since we're going to add a FileUpload widget, we'll need to set the
 		// form to use the POST method, and multipart MIME encoding.
 		form.setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -144,15 +147,6 @@ public class FileUploadDialog extends DialogBox {
 		panel.add(inner);
 		panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		
-		
-		Scheduler.get().scheduleDeferred(new Command() {
-			
-			@Override
-			public void execute() {
-				String path = app.getApiPath() + folder.getOwner() + folder.getUri();
-				setupUpload(FileUploadDialog.this, path, app.getToken());
-			}
-		});
 		setWidget(form);
 	}
 
@@ -190,22 +184,19 @@ public class FileUploadDialog extends DialogBox {
 					Init: function(up, info) {
 						$wnd.console.log("Init fired");
 						up.settings.file_data_name = "X-Object-Data";				
-						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
-//						up.refresh();
-						return true;
 					}
 					
 				},
 				
 				init: {
-					PostInit: function(up) {
-						$wnd.console.log("PostInit fired");
-						//dlg.@gr.grnet.pithos.web.client.FileUploadDialog::center()();
+					FilesAdded: function(up, files) {
+						for (var j=0; j<files.length; j++)
+							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + token;
 					},
 					
 					BeforeUpload: function(up, file) {
-						$wnd.console.log('About to upload ' + file.name);
-						up.settings.url = path + "/" + file.name + "?X-Auth-Token=" + token;
+						$wnd.console.log('About to upload ' + file.url);
+						up.settings.url = file.url;
 					},
 					
 					FileUploaded: function(up, file, response) {
@@ -215,25 +206,45 @@ public class FileUploadDialog extends DialogBox {
 					
 					UploadComplete: function(up, files) {
 						$wnd.console.log('All files finished');
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
 					}
 				}
 			});
+			uploader = $wnd.$("#uploader").pluploadQueue();
 		}
 		else {
-			var previousSettings = uploader.settings;
-			var previousFiles = uploader.files;
-			$wnd.$("#uploader").pluploadQueue(previousSettings);
-			uploader = $wnd.$("#uploader").pluploadQueue();
-			uploader.trigger('FilesAdded', previousFiles);
-			for (var i=0; i<previousFiles.length; i++) {
-				var f = previousFiles[i];
-				if (f.status == $wnd.plupload.UPLOADING) {
-					uploader.trigger('UploadProgress', f);
+			var removeAll = true;
+			var files = uploader.files;
+			$wnd.console.log('About to check ' + files.length + ' files');
+			for (var i=0; i<files.length; i++) {
+				var f = files[i];
+				if (f.status != $wnd.plupload.DONE && f.status != $wnd.plupload.FAILED) {
+					removeAll = false;
 					break;
 				}
 			}
+			if (removeAll) {
+				$wnd.console.log('About to remove ' + files.length + ' files');
+				while (files.length > 0) {
+					uploader.removeFile(files[0]);
+				}
+				$wnd.console.log(uploader);
+			}
 		}
+		uploader.path = path;
+	}-*/;
+	
+	native boolean isUploading()/*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var files = uploader.files;
+		for (var i=0; i<files.length; i++) {
+			var f = files[i];
+			if (f.status == $wnd.plupload.UPLOADING) {
+				return true;
+			}
+		}
+		return false;
 	}-*/;
 	
 	@Override
@@ -246,8 +257,35 @@ public class FileUploadDialog extends DialogBox {
 			// escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ESCAPE:
-					hide();
+					close();
 					break;
 			}
+	}
+
+	public void setFolder(Folder folder) {
+		this.folder = folder;
+		foldernameLabel.setText(folder.getName());
+	}
+
+	@Override
+	public void center() {
+		app.hideUploadIndicator();
+		setVisible(true);
+		setModal(true);
+		super.center();
+		String path = app.getApiPath() + folder.getOwner() + folder.getUri();
+		setupUpload(this, path, app.getToken());
+		super.center();
+	}
+	
+	private void hideUploadIndicator() {
+		app.hideUploadIndicator();
+	}
+	
+	void close() {
+		setVisible(false);
+		setModal(false);
+		if (isUploading())
+			app.showUploadIndicator();
 	}
 }

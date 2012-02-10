@@ -67,7 +67,8 @@ public class UploadFileCommand implements Command {
 		if(containerPanel!=null)
 			containerPanel.hide();
 		
-        FileUploadDialog dlg = new FileUploadDialog(app, folder);
+        FileUploadDialog dlg = app.getFileUploadDialog();
+        dlg.setFolder(folder);
 		dlg.center();
 	}
 }

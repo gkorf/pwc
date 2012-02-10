@@ -270,6 +270,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private Toolbar toolbar;
     
+    private FileUploadDialog fileUploadDialog;
+    
 	@Override
 	public void onModuleLoad() {
 		if (parseUserCredentials())
@@ -303,7 +305,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setWidth(contentWidth);
         if (bareContent)
         	header.addStyleName("pithos-header-noframe");
-        upload = new Button("Upload File", new ClickHandler() {
+        upload = new Button("Upload", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
             	if (getSelection() != null)
@@ -1211,5 +1213,21 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	
 	public void showRelevantToolbarButtons() {
 		toolbar.showRelevantButtons();
+	}
+
+	public FileUploadDialog getFileUploadDialog() {
+		if (fileUploadDialog == null)
+			fileUploadDialog = new FileUploadDialog(this);
+		return fileUploadDialog;
+	}
+
+	public void hideUploadIndicator() {
+		upload.removeStyleName("pithos-uploadButton-loading");
+		upload.setTitle("");
+	}
+	
+	public void showUploadIndicator() {
+		upload.addStyleName("pithos-uploadButton-loading");
+		upload.setTitle("Upload in progress. Click for details.");
 	}
 }

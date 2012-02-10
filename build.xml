@@ -84,7 +84,7 @@
 
     <target name="uploadCSSToVM">
         <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="${ssh.key}" passphrase="${passphrase}">
-            <fileset dir="${gwt.www.dir}/${gwt.module}" includes="pithos.css"/>
+            <fileset dir="${src.dir}/${gwt.root.path}/public" includes="pithos.css"/>
         </scp>
     </target>
 
