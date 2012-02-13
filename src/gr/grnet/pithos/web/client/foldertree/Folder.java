@@ -80,8 +80,6 @@ public class Folder extends Resource {
 
     private Set<File> files = new LinkedHashSet<File>();
 
-    private Set<String> tags = new LinkedHashSet<String>();
-
     private String owner;
 
     private Map<String, Boolean[]> permissions = new HashMap<String, Boolean[]>();
@@ -160,13 +158,6 @@ public class Folder extends Resource {
         header = response.getHeader("X-Container-Bytes-Used");
         if (header != null && header.length() > 0)
             bytesUsed = Long.valueOf(header);
-
-        header = response.getHeader("X-Container-Object-Meta");
-        if (header != null && header.length() > 0) {
-            for (String t : header.split(",")) {
-                tags.add(URL.decodePathSegment(t));
-            }
-        }
 
         subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
         files.clear();
@@ -276,10 +267,6 @@ public class Folder extends Resource {
 
     public void setContainer(String container) {
         this.container = container;
-    }
-
-    public Set<String> getTags() {
-        return tags;
     }
 
     public String getInheritedPermissionsFrom() {

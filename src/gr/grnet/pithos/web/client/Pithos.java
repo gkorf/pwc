@@ -151,16 +151,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	otherSharedTreeView.updateFolder(f, showfiles);
     }
 
-    public List<Tag> getAllTags() {
-        List<Tag> tagList = new ArrayList<Tag>();
-        for (Folder f : account.getContainers()) {
-            for (String t : f.getTags()) {
-                tagList.add(new Tag(t));
-            }
-        }
-        return tagList;
-    }
-
     public MysharedTreeView getMySharedTreeView() {
         return mysharedTreeView;
     }
@@ -517,38 +507,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void showFiles(Set<File> files) {
         fileList.setFiles(new ArrayList<File>(files));
-    }
-
-    protected void fetchFile(final Iterator<File> iter, final Set<File> files) {
-        if (iter.hasNext()) {
-            File file = iter.next();
-            String path = file.getUri() + "?format=json";
-            GetRequest<File> getFile = new GetRequest<File>(File.class, getApiPath(), username, path, file) {
-                @Override
-                public void onSuccess(File _result) {
-                    fetchFile(iter, files);
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    GWT.log("Error getting file", t);
-					setError(t);
-                    if (t instanceof RestException)
-                        displayError("Error getting file: " + ((RestException) t).getHttpStatusText());
-                    else
-                        displayError("System error fetching file: " + t.getMessage());
-                }
-
-				@Override
-				protected void onUnauthorized(Response response) {
-					sessionExpired();
-				}
-            };
-            getFile.setHeader("X-Auth-Token", "0000");
-            Scheduler.get().scheduleDeferred(getFile);
-        }
-        else
-            fileList.setFiles(new ArrayList<File>(files));
     }
 
     /**

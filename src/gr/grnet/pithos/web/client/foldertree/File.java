@@ -217,6 +217,7 @@ public class File extends Resource {
         return container;
     }
 
+    //Never called
     public static File createFromResponse(String owner, Response response, File result) {
         result.populate(owner, response);
         return result;
