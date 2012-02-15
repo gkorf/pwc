@@ -109,7 +109,6 @@ public abstract class Resource {
             result1 = (T) Folder.createFromResponse(owner, response, (Folder) result);
         }
         else if (aClass.equals(File.class)) {
-        	//This case cannot happen since we never GET a file directly. Files are always fetch through their parent Folder
             result1 = (T) File.createFromResponse(owner, response, (File) result);
         }
         else if (aClass.equals(SharingUsers.class)) {

@@ -43,9 +43,15 @@ import gr.grnet.pithos.web.client.FolderPropertiesDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.HeadRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -66,7 +72,7 @@ public class PropertiesCommand implements Command {
 
     private Object resource;
 
-    private Pithos app;
+    Pithos app;
 
 	/**
 	 * @param _containerPanel
@@ -109,8 +115,32 @@ public class PropertiesCommand implements Command {
             else {
             	switch (tabToShow) {
 					case PROPERTIES:
-		                FilePropertiesDialog dlg = new FilePropertiesDialog(app, files.get(0));
-		                dlg.center();
+						File f = files.get(0);
+		                final FilePropertiesDialog dlg = new FilePropertiesDialog(app, f);
+		                HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), f.getOwner(), f.getUri(), f) {
+
+		                	@Override
+		                	public void onSuccess(File _result) {
+		                		dlg.center();
+		                	}
+
+							@Override
+							public void onError(Throwable t) {
+			                    GWT.log("Error heading file", t);
+								app.setError(t);
+			                    if (t instanceof RestException)
+			                        app.displayError("Error heading file: " + ((RestException) t).getHttpStatusText());
+			                    else
+			                        app.displayError("System error heading folder: " + t.getMessage());
+							}
+
+							@Override
+							protected void onUnauthorized(Response response) {
+								app.sessionExpired();
+							}
+						};
+						headFile.setHeader("X-Auth-Token", app.getToken());
+						Scheduler.get().scheduleDeferred(headFile);
 						break;
 					case PERMISSIONS:
 		                FilePermissionsDialog dlg1 = new FilePermissionsDialog(app, files.get(0));
