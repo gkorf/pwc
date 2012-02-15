@@ -268,7 +268,7 @@ public class FileList extends Composite {
 			public SafeHtml getValue(File object) {
 				SafeHtmlBuilder sb = new SafeHtmlBuilder();
                 sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
-				if (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg")) {
+				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
                       .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri() + "?X-Auth-Token=" + app.getToken(), object.getName()));
 				}
