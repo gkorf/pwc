@@ -54,6 +54,7 @@ import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -192,7 +193,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
 							}
 						}));
 			        	empty = false;

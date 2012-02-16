@@ -52,6 +52,7 @@ import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -383,7 +384,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+				Window.open(app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
 				event.preventDefault();
 				return;
 			}

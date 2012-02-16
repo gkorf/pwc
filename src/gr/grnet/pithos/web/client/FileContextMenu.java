@@ -47,6 +47,7 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import java.util.List;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
@@ -248,7 +249,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + app.getToken(), "_blank", "");
+					Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
 			}
 		}));
 
