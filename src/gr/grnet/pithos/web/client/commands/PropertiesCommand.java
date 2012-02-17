@@ -99,8 +99,14 @@ public class PropertiesCommand implements Command {
 					dlg.center();
 					break;
 				case PERMISSIONS:
-					final FolderPermissionsDialog dlg1 = new FolderPermissionsDialog(app, folder);
-					scheduleFolderHeadCommand(folder, dlg1);
+					scheduleFolderHeadCommand(folder, new Command() {
+						
+						@Override
+						public void execute() {
+							FolderPermissionsDialog dlg1 = new FolderPermissionsDialog(app, folder);
+							dlg1.center();
+						}
+					});
 					break;
 				default:
 					break;
@@ -114,16 +120,27 @@ public class PropertiesCommand implements Command {
                 dlg.center();
             }
             else {
-				File f = files.get(0);
-				PopupPanel dlg = null;
+				final File f = files.get(0);
             	switch (tabToShow) {
 					case PROPERTIES:
-		                dlg = new FilePropertiesDialog(app, f);
-		                scheduleFileHeadCommand(f, dlg);
+		                scheduleFileHeadCommand(f, new Command() {
+							
+							@Override
+							public void execute() {
+								FilePropertiesDialog dlg = new FilePropertiesDialog(app, f);
+				                dlg.center();
+							}
+						});
 						break;
 					case PERMISSIONS:
-		                dlg = new FilePermissionsDialog(app, f);
-		                scheduleFileHeadCommand(f, dlg);
+		                scheduleFileHeadCommand(f, new Command() {
+							
+							@Override
+							public void execute() {
+								FilePermissionsDialog dlg = new FilePermissionsDialog(app, f);
+								dlg.center();
+							}
+						});
 						break;
 					case VERSIONS:
 		                FileVersionsDialog dlg2 = new FileVersionsDialog(app, files.get(0));
@@ -136,12 +153,13 @@ public class PropertiesCommand implements Command {
         }
 	}
 
-	private void scheduleFileHeadCommand(File f, final PopupPanel dlg) {
+	private void scheduleFileHeadCommand(File f, final Command callback) {
 		HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), f.getOwner(), f.getUri(), f) {
 
 			@Override
 			public void onSuccess(File _result) {
-				dlg.center();
+				if (callback != null)
+					callback.execute();
 			}
 
 			@Override
@@ -163,12 +181,13 @@ public class PropertiesCommand implements Command {
 		Scheduler.get().scheduleDeferred(headFile);
 	}
 	
-	void scheduleFolderHeadCommand(final Folder folder, final FolderPermissionsDialog dlg) {
+	void scheduleFolderHeadCommand(final Folder folder, final Command callback) {
 		HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, app.getApiPath(), folder.getOwner(), folder.getUri(), folder) {
 
 			@Override
 			public void onSuccess(Folder _result) {
-				dlg.center();
+				if (callback != null)
+					callback.execute();
 			}
 
 			@Override
@@ -179,7 +198,7 @@ public class PropertiesCommand implements Command {
                         PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
                             @Override
                             public void onSuccess(Resource _result) {
-                            	scheduleFolderHeadCommand(folder, dlg);
+                            	scheduleFolderHeadCommand(folder, callback);
                             }
 
                             @Override
