@@ -159,11 +159,18 @@ public class Folder extends Resource {
         if (header != null && header.length() > 0)
             bytesUsed = Long.valueOf(header);
 
-        subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
-        files.clear();
+        String rawPermissions = response.getHeader("X-Object-Sharing");
+        if (rawPermissions != null && rawPermissions.length() > 0) {
+            parsePermissions(URL.decodePathSegment(rawPermissions));
+        }
+        
+        if (response.getText() == null || response.getText().isEmpty())
+        	return;
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONArray array = json.isArray();
         if (array != null) {
+            subfolders.clear(); //This is necessary in case we update a pre-existing Folder so that stale subfolders won't show up
+            files.clear();
             for (int i=0; i<array.size(); i++) {
                 JSONObject o = array.get(i).isObject();
                 if (o != null) {
