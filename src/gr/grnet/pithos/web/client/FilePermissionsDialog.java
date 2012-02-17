@@ -143,39 +143,37 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), file.getInheritedPermissionsFrom() != null);
+        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), false);
         permPanel.add(permList);
 
-        if (file.getInheritedPermissionsFrom() == null) {
-            HorizontalPanel permButtons = new HorizontalPanel();
-            Button add = new Button("Add Group", new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                    dlg.center();
-                    permList.updatePermissionTable();
-                }
-            });
-            add.addStyleName("button");
-            permButtons.add(add);
-            permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+        HorizontalPanel permButtons = new HorizontalPanel();
+        Button add = new Button("Add Group", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                dlg.center();
+                permList.updatePermissionTable();
+            }
+        });
+        add.addStyleName("button");
+        permButtons.add(add);
+        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
-            final Button addUser = new Button("Add User", new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                    dlg.center();
-                    permList.updatePermissionTable();
-                }
-            });
-            addUser.addStyleName("button");
-            permButtons.add(addUser);
-            permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+        final Button addUser = new Button("Add User", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                dlg.center();
+                permList.updatePermissionTable();
+            }
+        });
+        addUser.addStyleName("button");
+        permButtons.add(addUser);
+        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
 
-            permButtons.setSpacing(8);
-            permButtons.addStyleName("pithos-TabPanelBottom");
-            permPanel.add(permButtons);
-        }
+        permButtons.setSpacing(8);
+        permButtons.addStyleName("pithos-TabPanelBottom");
+        permPanel.add(permButtons);
 
         final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
                     " by everyone. By checking this option, you are certifying that you have the right to " +

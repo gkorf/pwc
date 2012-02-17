@@ -119,36 +119,33 @@ public class FolderPermissionsDialog extends DialogBox {
 
         VerticalPanel permPanel = new VerticalPanel();
         FilePermissionsDialog.Images images = GWT.create(FilePermissionsDialog.Images.class);
-        boolean permsReadonly = folder.getInheritedPermissionsFrom() != null || folder.existChildrenPermissions();
-        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), permsReadonly);
+        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), false);
         permPanel.add(permList);
 
-        if (!permsReadonly) {
-            HorizontalPanel permButtons = new HorizontalPanel();
-            Button add = new Button("Add Group", new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                    dlg.center();
-                }
-            });
-            add.addStyleName("button");
-            permButtons.add(add);
-            permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+        HorizontalPanel permButtons = new HorizontalPanel();
+        Button add = new Button("Add Group", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                dlg.center();
+            }
+        });
+        add.addStyleName("button");
+        permButtons.add(add);
+        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
-            Button addUser = new Button("Add User", new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                    dlg.center();
-                }
-            });
-            addUser.addStyleName("button");
-            permButtons.add(addUser);
-            permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-            permButtons.setSpacing(8);
-            permPanel.add(permButtons);
-        }
+        Button addUser = new Button("Add User", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                dlg.center();
+            }
+        });
+        addUser.addStyleName("button");
+        permButtons.add(addUser);
+        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+        permButtons.setSpacing(8);
+        permPanel.add(permButtons);
 
         inner.add(permPanel);
 

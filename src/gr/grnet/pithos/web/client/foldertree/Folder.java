@@ -288,17 +288,6 @@ public class Folder extends Resource {
         return owner;
     }
 
-    public boolean existChildrenPermissions() {
-        for (File f : files)
-            if (!f.getPermissions().isEmpty() && f.getInheritedPermissionsFrom() == null)
-                return true;
-
-        for (Folder fo : subfolders)
-            if ((!fo.getPermissions().isEmpty() && fo.getInheritedPermissionsFrom() == null) || fo.existChildrenPermissions())
-                return true;
-        return false;
-    }
-
 	public boolean isShared() {
 		return !permissions.isEmpty();
 	}

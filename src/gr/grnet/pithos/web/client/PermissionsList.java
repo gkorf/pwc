@@ -72,7 +72,6 @@ public class PermissionsList extends Composite {
 		images = theImages;
 		owner = theOwner;
 		permissions =  new HashMap<String, Boolean[]>(thePermissions);
-        readonly = inheritsPermissions;
 		permTable.setText(0, 0, "Users/Groups");
 		permTable.setText(0, 1, "Read");
 		permTable.setText(0, 2, "Write");
