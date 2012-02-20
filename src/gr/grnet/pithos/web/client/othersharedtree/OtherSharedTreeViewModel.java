@@ -41,6 +41,7 @@ import gr.grnet.pithos.web.client.SharingUsers;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -86,12 +87,20 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
 
         @Override
-        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, final Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
             if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+            	final int x = event.getClientX();
+            	final int y = event.getClientY();
                 OtherSharedTreeViewModel.this.selectionModel.setSelected(folder, true);
-                FolderContextMenu menu = new FolderContextMenu(app, OtherSharedTreeView.images, app.getSelectedTree(), folder);
-                menu.setPopupPosition(event.getClientX(), event.getClientY());
-                menu.show();
+                app.scheduleFolderHeadCommand(folder, new Command() {
+					
+					@Override
+					public void execute() {
+		                FolderContextMenu menu = new FolderContextMenu(app, OtherSharedTreeView.images, app.getSelectedTree(), folder);
+		                menu.setPopupPosition(x, y);
+		                menu.show();
+					}
+				});
             }
         }
     };

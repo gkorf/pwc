@@ -51,11 +51,11 @@ public class Toolbar extends Composite {
 
 	Pithos app;
 	
-	private Anchor newFolderButton;
+	Anchor newFolderButton;
 	
-	private Anchor shareFolderButton;
+	Anchor shareFolderButton;
 	
-	private Anchor refreshButton;
+	Anchor refreshButton;
 	
 	private Anchor toolsButton;
 	
@@ -153,30 +153,36 @@ public class Toolbar extends Composite {
 	}
 	
 	public void showRelevantButtons() {
-		Folder folder = app.getSelectedTree().getSelection();
+		final Folder folder = app.getSelectedTree().getSelection();
 		if (folder != null) {
-	        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-	    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-	    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
-	    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
-	    	
-	    	if (isFolderTreeSelected || otherSharedTreeSelected)
-	    		refreshButton.setVisible(true);
-	    	else
-	    		refreshButton.setVisible(true);
-	    	
-	    	if (!folder.isInTrash() && canWrite) {
-	    		if (isFolderTreeSelected || otherSharedTreeSelected)
-	    			newFolderButton.setVisible(true);
-	    		if (isFolderTreeSelected && !folder.isContainer())
-	    			shareFolderButton.setVisible(true);
-	    		else
-	    			shareFolderButton.setVisible(false);
-	    	}
-	    	else {
-	    		newFolderButton.setVisible(false);
-	    		shareFolderButton.setVisible(false);
-	    	}
+			app.scheduleFolderHeadCommand(folder, new Command() {
+				
+				@Override
+				public void execute() {
+			        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
+			    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+			    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
+			    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
+			    	
+			    	if (isFolderTreeSelected || otherSharedTreeSelected)
+			    		refreshButton.setVisible(true);
+			    	else
+			    		refreshButton.setVisible(true);
+			    	
+			    	if (!folder.isInTrash() && canWrite) {
+			    		if (isFolderTreeSelected || otherSharedTreeSelected)
+			    			newFolderButton.setVisible(true);
+			    		if (isFolderTreeSelected && !folder.isContainer())
+			    			shareFolderButton.setVisible(true);
+			    		else
+			    			shareFolderButton.setVisible(false);
+			    	}
+			    	else {
+			    		newFolderButton.setVisible(false);
+			    		shareFolderButton.setVisible(false);
+			    	}
+				}
+			});
 		}
 		else {
 			newFolderButton.setVisible(false);

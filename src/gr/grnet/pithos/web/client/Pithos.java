@@ -1188,4 +1188,93 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		upload.addStyleName("pithos-uploadButton-loading");
 		upload.setTitle("Upload in progress. Click for details.");
 	}
+
+	public void scheduleFolderHeadCommand(final Folder folder, final Command callback) {
+		HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
+
+			@Override
+			public void onSuccess(Folder _result) {
+				if (callback != null)
+					callback.execute();
+			}
+
+			@Override
+			public void onError(Throwable t) {
+		        if (t instanceof RestException) {
+		        	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
+                        final String path = folder.getUri();
+                        PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
+                            @Override
+                            public void onSuccess(Resource _result) {
+                            	scheduleFolderHeadCommand(folder, callback);
+                            }
+
+                            @Override
+                            public void onError(Throwable _t) {
+                                GWT.log("", _t);
+        						setError(_t);
+                                if(_t instanceof RestException){
+                                    displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
+                                }
+                                else
+                                    displayError("System error creating folder: " + _t.getMessage());
+                            }
+
+            				@Override
+            				protected void onUnauthorized(Response response) {
+            					sessionExpired();
+            				}
+                        };
+                        newFolder.setHeader("X-Auth-Token", getToken());
+                        newFolder.setHeader("Content-Type", "application/folder");
+                        newFolder.setHeader("Accept", "*/*");
+                        newFolder.setHeader("Content-Length", "0");
+                        Scheduler.get().scheduleDeferred(newFolder);
+		        	}
+		        	else
+		        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
+		        }
+		        else
+		            displayError("System error heading folder: " + t.getMessage());
+
+		        GWT.log("Error heading folder", t);
+				setError(t);
+			}
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
+		};
+		headFolder.setHeader("X-Auth-Token", getToken());
+		Scheduler.get().scheduleDeferred(headFolder);
+	}
+
+	public void scheduleFileHeadCommand(File f, final Command callback) {
+		HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwner(), f.getUri(), f) {
+
+			@Override
+			public void onSuccess(File _result) {
+				if (callback != null)
+					callback.execute();
+			}
+
+			@Override
+			public void onError(Throwable t) {
+		        GWT.log("Error heading file", t);
+				setError(t);
+		        if (t instanceof RestException)
+		            displayError("Error heading file: " + ((RestException) t).getHttpStatusText());
+		        else
+		            displayError("System error heading file: " + t.getMessage());
+			}
+
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
+		};
+		headFile.setHeader("X-Auth-Token", getToken());
+		Scheduler.get().scheduleDeferred(headFile);
+	}
 }

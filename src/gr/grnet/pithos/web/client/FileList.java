@@ -60,6 +60,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
@@ -318,15 +319,29 @@ public class FileList extends Composite {
 		vp.setCellWidth(celltable, "100%");
         vp.addHandler(new ContextMenuHandler() {
             @Override
-            public void onContextMenu(ContextMenuEvent event) {
-            	TreeView tree = app.getSelectedTree();
+            public void onContextMenu(final ContextMenuEvent event) {
+            	final TreeView tree = app.getSelectedTree();
             	if (tree != null && (tree.equals(app.getFolderTreeView()) || tree.equals(app.getOtherSharedTreeView()))) {
-	                Folder selectedFolder = app.getSelection();
-	                FileContextMenu contextMenu = new FileContextMenu(app, images, tree, selectedFolder, getSelectedFiles());
-	                int x = event.getNativeEvent().getClientX();
-	                int y = event.getNativeEvent().getClientY();
-	                contextMenu.setPopupPosition(x, y);
-	                contextMenu.show();
+	                final int x = event.getNativeEvent().getClientX();
+	                final int y = event.getNativeEvent().getClientY();
+	                final Folder selectedFolder = app.getSelection();
+	                app.scheduleFolderHeadCommand(selectedFolder, new Command() {
+						
+						@Override
+						public void execute() {
+							final List<File> selectedFiles = getSelectedFiles();
+							Iterator<File> iter = selectedFiles.iterator();
+							iterateFilesHeadCommand(iter, new Command() {
+								
+								@Override
+								public void execute() {
+					                FileContextMenu contextMenu = new FileContextMenu(app, images, tree, selectedFolder, selectedFiles);
+					                contextMenu.setPopupPosition(x, y);
+					                contextMenu.show();
+								}
+							});
+						}
+					});
             	}
             }
         }, ContextMenuEvent.getType());
@@ -588,5 +603,20 @@ public class FileList extends Composite {
 		
 		//celltable.redraw();
 		celltable.redrawHeaders();		
+	}
+	
+	void iterateFilesHeadCommand(final Iterator<File> iter, final Command callback) {
+		if (iter.hasNext()) {
+			File f = iter.next();
+			app.scheduleFileHeadCommand(f, new Command() {
+				
+				@Override
+				public void execute() {
+					iterateFilesHeadCommand(iter, callback);
+				}
+			});
+		}
+		else if (callback != null)
+			callback.execute();
 	}
 }
