@@ -165,8 +165,7 @@ public class FileUploadDialog extends DialogBox {
 	
 	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
 		var uploader = $wnd.$('#uploader').pluploadQueue();
-		$wnd.console.log(uploader);
-		if (!uploader) {
+		var createUploader = function() {
 			$wnd.$("#uploader").pluploadQueue({
 				// General settings
 				runtimes : 'html5, flash, gears, silverlight, browserplus, html4',
@@ -208,10 +207,19 @@ public class FileUploadDialog extends DialogBox {
 						$wnd.console.log('All files finished');
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
+					},
+					
+					Error: function(up, error) {
+						$wnd.console.log("Error occured:" + error);
 					}
 				}
 			});
-			uploader = $wnd.$("#uploader").pluploadQueue();
+			return $wnd.$('#uploader').pluploadQueue();
+		};
+		
+		$wnd.console.log(uploader);
+		if (!uploader) {
+			uploader = createUploader();
 		}
 		else {
 			var removeAll = true;
@@ -226,9 +234,8 @@ public class FileUploadDialog extends DialogBox {
 			}
 			if (removeAll) {
 				$wnd.console.log('About to remove ' + files.length + ' files');
-				while (files.length > 0) {
-					uploader.removeFile(files[0]);
-				}
+				uploader.destroy();
+				uploader = createUploader();
 				$wnd.console.log(uploader);
 			}
 		}
