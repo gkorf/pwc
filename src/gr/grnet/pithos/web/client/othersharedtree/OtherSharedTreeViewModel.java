@@ -425,7 +425,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
-            	GWT.log(String.valueOf(_result.getFiles().size()));
                 if (showfiles)
                     app.showFiles(_result);
                 Iterator<Folder> iter = _result.getSubfolders().iterator();
