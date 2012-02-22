@@ -93,3 +93,7 @@
   height: auto;
   overflow: auto;
 }
+
+.cellTableFirstColumnShared {
+	  background: url(images/share.png) no-repeat 5px 9px;
+}

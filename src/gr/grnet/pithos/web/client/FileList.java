@@ -45,6 +45,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
@@ -82,6 +83,7 @@ public class FileList extends Composite {
        * The styles applied to the table.
        */
     interface TableStyle extends CellTable.Style {
+    	String cellTableFirstColumnShared();
     }
 
 	interface TableResources extends CellTable.Resources {
@@ -236,7 +238,7 @@ public class FileList extends Composite {
 		images = _images;
         this.treeView = _treeView;
 
-        CellTable.Resources resources = GWT.create(TableResources.class);
+        final CellTable.Resources resources = GWT.create(TableResources.class);
 
         ProvidesKey<File> keyProvider = new ProvidesKey<File>(){
 
@@ -261,6 +263,13 @@ public class FileList extends Composite {
 	         public ImageResource getValue(File entity) {
 	             return getFileIcon(entity);
 	         }
+
+			@Override
+			public String getCellStyleNames(Context context, File object) {
+				if (!object.getPermissions().isEmpty() && !object.isPublished())
+					return ((TableStyle) resources.cellTableStyle()).cellTableFirstColumnShared();
+				return super.getCellStyleNames(context, object);
+			}
 	    };
 	    celltable.addColumn(status,"");
 
@@ -421,35 +430,35 @@ public class FileList extends Composite {
 	 */
 	protected ImageResource getFileIcon(File file) {
 		String mimetype = file.getContentType();
-		boolean shared = file.isShared();
+		boolean published = file.isPublished();
 		if (mimetype == null)
-			return shared ? images.documentShared() : images.document();
+			return published ? images.documentShared() : images.document();
 		mimetype = mimetype.toLowerCase();
 		if (mimetype.startsWith("application/pdf"))
-			return shared ? images.pdfShared() : images.pdf();
+			return published ? images.pdfShared() : images.pdf();
 		else if (mimetype.endsWith("excel"))
-			return shared ? images.spreadsheetShared() : images.spreadsheet();
+			return published ? images.spreadsheetShared() : images.spreadsheet();
 		else if (mimetype.endsWith("msword"))
-			return shared ? images.wordprocessorShared() : images.wordprocessor();
+			return published ? images.wordprocessorShared() : images.wordprocessor();
 		else if (mimetype.endsWith("powerpoint"))
-			return shared ? images.presentationShared() : images.presentation();
+			return published ? images.presentationShared() : images.presentation();
 		else if (mimetype.startsWith("application/zip") ||
 					mimetype.startsWith("application/gzip") ||
 					mimetype.startsWith("application/x-gzip") ||
 					mimetype.startsWith("application/x-tar") ||
 					mimetype.startsWith("application/x-gtar"))
-			return shared ? images.zipShared() : images.zip();
+			return published ? images.zipShared() : images.zip();
 		else if (mimetype.startsWith("text/html"))
-			return shared ? images.htmlShared() : images.html();
+			return published ? images.htmlShared() : images.html();
 		else if (mimetype.startsWith("text/plain"))
-			return shared ? images.txtShared() : images.txt();
+			return published ? images.txtShared() : images.txt();
 		else if (mimetype.startsWith("image/"))
-			return shared ? images.imageShared() : images.image();
+			return published ? images.imageShared() : images.image();
 		else if (mimetype.startsWith("video/"))
-			return shared ? images.videoShared() : images.video();
+			return published ? images.videoShared() : images.video();
 		else if (mimetype.startsWith("audio/"))
-			return shared ? images.audioShared() : images.audio();
-		return shared ? images.documentShared() : images.document();
+			return published ? images.audioShared() : images.audio();
+		return published ? images.documentShared() : images.document();
 	}
 
 	/**
