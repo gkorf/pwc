@@ -225,6 +225,8 @@ public class File extends Resource {
     private void populate(String _owner, Response response) {
         this.owner = _owner;
         for (Header h : response.getHeaders()) {
+        	if (h == null)
+        		continue; //IE bug. h cannot be null in the general case
             String header = h.getName();
             if (header.startsWith("X-Object-Meta-"))
                 meta.put(URL.decodePathSegment(header.substring("X-Object-Meta-".length())), URL.decodePathSegment(h.getValue()));
