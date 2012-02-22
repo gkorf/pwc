@@ -7,7 +7,7 @@
 
     <property name="gwt.workers" value="1"/>
 
-    <property name="gwt.version" value="2.1.1"/>
+    <property name="gwt.version" value="2.4.0"/>
 	<property name="gwt.home" value="${deps.dir}/gwt-${gwt.version}"/>
     <property name="gwt.filename" value="gwt-${gwt.version}.zip"/>
     <property name="gwt.download.url" value="http://google-web-toolkit.googlecode.com/files/${gwt.filename}"/>
