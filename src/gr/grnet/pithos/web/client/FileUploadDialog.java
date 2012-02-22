@@ -43,6 +43,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
@@ -190,7 +191,7 @@ public class FileUploadDialog extends DialogBox {
 				init: {
 					FilesAdded: function(up, files) {
 						for (var j=0; j<files.length; j++)
-							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + token;
+							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
 					},
 					
 					BeforeUpload: function(up, file) {
