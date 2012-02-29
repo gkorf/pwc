@@ -36,14 +36,10 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
@@ -57,7 +53,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -182,7 +177,8 @@ public class FileUploadDialog extends DialogBox {
 				
 				preinit: {
 					Init: function(up, info) {
-						$wnd.console.log("Init fired");
+						if ($wnd.console && $wnd.console.log)
+							$wnd.console.log("Init fired");
 						up.settings.file_data_name = "X-Object-Data";				
 					}
 					
@@ -195,37 +191,44 @@ public class FileUploadDialog extends DialogBox {
 					},
 					
 					BeforeUpload: function(up, file) {
-						$wnd.console.log('About to upload ' + file.url);
+						if ($wnd.console && $wnd.console.log)
+							$wnd.console.log('About to upload ' + file.url);
 						up.settings.url = file.url;
 					},
 					
 					FileUploaded: function(up, file, response) {
-						$wnd.console.log('File ' + file.name + ' uploaded');
-						$wnd.console.log('Response: ' + response);
+						if ($wnd.console && $wnd.console.log) {
+							$wnd.console.log('File ' + file.name + ' uploaded');
+							$wnd.console.log('Response: ' + response);
+						}
 					},
 					
 					UploadComplete: function(up, files) {
-						$wnd.console.log('All files finished');
+						if ($wnd.console && $wnd.console.log)
+							$wnd.console.log('All files finished');
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
 					},
 					
 					Error: function(up, error) {
-						$wnd.console.log("Error occured:" + error);
+						if ($wnd.console && $wnd.console.log)
+							$wnd.console.log("Error occured:" + error);
 					}
 				}
 			});
 			return $wnd.$('#uploader').pluploadQueue();
 		};
 		
-		$wnd.console.log(uploader);
+		if ($wnd.console && $wnd.console.log)
+			$wnd.console.log(uploader);
 		if (!uploader) {
 			uploader = createUploader();
 		}
 		else {
 			var removeAll = true;
 			var files = uploader.files;
-			$wnd.console.log('About to check ' + files.length + ' files');
+			if ($wnd.console && $wnd.console.log)
+				$wnd.console.log('About to check ' + files.length + ' files');
 			for (var i=0; i<files.length; i++) {
 				var f = files[i];
 				if (f.status != $wnd.plupload.DONE && f.status != $wnd.plupload.FAILED) {
@@ -234,10 +237,12 @@ public class FileUploadDialog extends DialogBox {
 				}
 			}
 			if (removeAll) {
-				$wnd.console.log('About to remove ' + files.length + ' files');
+				if ($wnd.console && $wnd.console.log)
+					$wnd.console.log('About to remove ' + files.length + ' files');
 				uploader.destroy();
 				uploader = createUploader();
-				$wnd.console.log(uploader);
+				if ($wnd.console && $wnd.console.log)
+					$wnd.console.log(uploader);
 			}
 		}
 		uploader.path = path;
