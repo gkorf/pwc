@@ -1146,15 +1146,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		});
 	}
 
-	public void logoff() {
-		Cookies.removeCookie(config.authCookie(), "/");
-		Cookies.removeCookie(config.authTokenCookie(), "/");
-		for (String s: Cookies.getCookieNames())
-			if (s.startsWith(config.shibSessionCookiePrefix()))
-				Cookies.removeCookie(s, "/");
-		Window.Location.assign(config.logoutUrl());
-	}
-	
 	public native void log1(String message)/*-{
 		$wnd.console.log(message);
 	}-*/;
