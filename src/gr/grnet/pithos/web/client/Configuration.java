@@ -44,12 +44,6 @@ import com.google.gwt.i18n.client.Constants;
  */
 public interface Configuration extends Constants {
 	/**
-	 * @return the login URL
-	 */
-	@DefaultStringValue("/im/login?next=/ui")
-	String loginUrl();
-
-	/**
 	 * @return the authentication cookie name
 	 */
 	@DefaultStringValue("_pithos2_a")

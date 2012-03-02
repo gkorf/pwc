@@ -75,6 +75,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -545,7 +546,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Redirect the user to the login page for authentication.
 	 */
 	protected void authenticateUser() {
-        Window.Location.assign(config.loginUrl());
+		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+        Window.Location.assign(otherProperties.get("loginUrl"));
 	}
 
 	protected void fetchAccount(final Command callback) {

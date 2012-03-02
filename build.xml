@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="pithos" default="gwt-compile" basedir=".">
+<project name="pithos" default="main" basedir=".">
 	<description>The Pithos web client project build file</description>
 
 	<property file="build.properties"/>
+	<property file="runtime.properties"/>
     <property name="deps.dir" value="dependencies"/>
 
     <property name="gwt.workers" value="1"/>
@@ -73,10 +74,38 @@
 				<pathelement path="${src.dir}" />
 		    </classpath>
 		</java>
-        <!--move file="${gwt.www.dir}/${gwt.module}/${gwt.module.class}.html" tofile="${gwt.www.dir}/${gwt.module}/index.html"/-->
 	</target>
+    
+    <target name="main" depends="gwt-compile">
+        <!--Fix the index html file variables -->
+	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+	                   match="CLOUDBAR_ACTIVE_SERVICE = (.*)"
+	                   replace="CLOUDBAR_ACTIVE_SERVICE = '${CLOUDBAR_ACTIVE_SERVICE}';"
+	                   byline="true"
+	    />
+	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+	                   match="CLOUDBAR_LOCATION = (.*)"
+	                   replace="CLOUDBAR_LOCATION = &quot;${CLOUDBAR_LOCATION}&quot;;"
+	                   byline="true"
+	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="CLOUDBAR_SERVICES = (.*)"
+   	                   replace="CLOUDBAR_SERVICES = &quot;${CLOUDBAR_SERVICES}&quot;;"
+   	                   byline="true"
+   	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="CLOUDBAR_MENU = (.*)"
+   	                   replace="CLOUDBAR_MENU = &quot;${CLOUDBAR_MENU}&quot;;"
+   	                   byline="true"
+   	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="loginUrl: (.*)"
+   	                   replace="loginUrl: &quot;${loginUrl}&quot;"
+   	                   byline="true"
+   	    />
+    </target>
 
-    <target name="uploadToVM" depends="gwt-compile">
+    <target name="uploadToVM" depends="main">
         <scp todir="chstath@pithos.dev.grnet.gr:/var/www/pithos_web_client" keyfile="${ssh.key}" passphrase="${passphrase}">
             <fileset dir="${gwt.www.dir}/${gwt.module}"/>
         </scp>
