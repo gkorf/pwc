@@ -44,12 +44,6 @@ import com.google.gwt.i18n.client.Constants;
  */
 public interface Configuration extends Constants {
 	/**
-	 * @return the authentication cookie name
-	 */
-	@DefaultStringValue("_pithos2_a")
-	String authCookie();
-
-	/**
 	 * @return the separator string between username and token in the
 	 * authentication cookie
 	 */

@@ -100,7 +100,12 @@
    	    />
    	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
    	                   match="loginUrl: (.*)"
-   	                   replace="loginUrl: &quot;${loginUrl}&quot;"
+   	                   replace="loginUrl: &quot;${loginUrl}&quot;,"
+   	                   byline="true"
+   	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="authCookie: (.*)"
+   	                   replace="authCookie: &quot;${authCookie}&quot;"
    	                   byline="true"
    	    />
     </target>

@@ -517,8 +517,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         username = Window.Location.getParameter("user");
         token = Window.Location.getParameter("token");
         Configuration conf = (Configuration) GWT.create(Configuration.class);
+		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
         if (username == null || username.length() == 0 || token == null || token.length() == 0) {
-            String cookie = conf.authCookie();
+            String cookie = otherProperties.get("authCookie");
             String auth = Cookies.getCookie(cookie);
             if (auth == null) {
                 authenticateUser();
@@ -538,7 +539,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			return true;
         }
         
-		Cookies.setCookie(conf.authCookie(), username + conf.cookieSeparator() + token, null, "", "/", false);
+		Cookies.setCookie(otherProperties.get("authCookie"), username + conf.cookieSeparator() + token, null, "", "/", false);
 		return true;
     }
 
