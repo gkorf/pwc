@@ -43,6 +43,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -67,8 +68,11 @@ public class PermissionsList extends Composite {
 	protected boolean hasChanges = false;
 
     private boolean readonly = false;
+    
+    Command changePermissionsCallback;
 	
-	public PermissionsList(final Images theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions){
+	public PermissionsList(final Images theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions, Command _changePermissionsCallback){
+		changePermissionsCallback = _changePermissionsCallback;
 		images = theImages;
 		owner = theOwner;
 		permissions =  new HashMap<String, Boolean[]>(thePermissions);
@@ -103,6 +107,8 @@ public class PermissionsList extends Composite {
 		permissions.put(user, new Boolean[] {Boolean.valueOf(read), Boolean.valueOf(write)});
 		hasChanges = true;
         updatePermissionTable();
+        if (changePermissionsCallback != null)
+        	changePermissionsCallback.execute();
 	}
 
 	/**
@@ -141,6 +147,8 @@ public class PermissionsList extends Composite {
                         Boolean[] ps = permissions.get(user);
                         ps[0] = booleanValueChangeEvent.getValue();
                         hasChanges = true;
+                        if (changePermissionsCallback != null)
+                        	changePermissionsCallback.execute();
                     }
                 });
                 write.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -149,6 +157,8 @@ public class PermissionsList extends Composite {
                         Boolean[] ps = permissions.get(user);
                         ps[1] = booleanValueChangeEvent.getValue();
                         hasChanges = true;
+                        if (changePermissionsCallback != null)
+                        	changePermissionsCallback.execute();
                     }
                 });
                 PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
@@ -157,6 +167,8 @@ public class PermissionsList extends Composite {
                         permissions.remove(user);
                         updatePermissionTable();
                         hasChanges = true;
+                        if (changePermissionsCallback != null)
+                        	changePermissionsCallback.execute();
                     }
                 });
                 permTable.setWidget(i, 3, removeButton);

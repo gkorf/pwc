@@ -49,6 +49,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
@@ -76,6 +78,8 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	private HorizontalPanel pathPanel;
 	
 	private TextBox path;
+	
+	private Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
 	
 	/**
 	 * An image bundle for this widgets images.
@@ -148,7 +152,13 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), false);
+        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), false, new Command() {
+			
+			@Override
+			public void execute() {
+				accept();
+			}
+		});
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
@@ -241,8 +251,16 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     }
 
     void showLinkIfPublished() {
-		if (file.isPublished()) {
-	        path.setText(Window.Location.getHost() + file.getPublicUri());
+		if (file.isShared()) {
+			UrlBuilder b = Window.Location.createUrlBuilder();
+			if (file.isPublished()) {
+				b.setPath(file.getPublicUri());
+				path.setText(b.buildString());
+			}
+			else {
+				b.setPath(app.getApiPath() + file.getOwner() + file.getUri());
+				path.setText(GWT.getModuleBaseURL() + "?goto=" + b.buildString());
+			}
 	        pathPanel.setVisible(true);
 		}
 		else {
@@ -255,13 +273,11 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected void accept() {
-		final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
-
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
 			if (file.getOwner().equals(app.getUsername()))
                 published = readForAll.getValue();
-        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published, perms);
+        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published, permList.getPermissions());
 	}
 
 	protected void updateMetaData(String api, String owner, final String path, final Boolean published, final Map<String, Boolean[]> newPermissions) {

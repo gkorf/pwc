@@ -228,6 +228,7 @@ public class File extends Resource {
         this.owner = _owner;
         published = false;
         publicUri = null;
+        permissions.clear();
         for (Header h : response.getHeaders()) {
         	if (h == null)
         		continue; //IE bug. h cannot be null in the general case

@@ -536,10 +536,15 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			}
 			username = authSplit[0];
 			token = authSplit[1];
-			return true;
         }
-        
-		Cookies.setCookie(otherProperties.get("authCookie"), username + conf.cookieSeparator() + token, null, "", "/", false);
+        else
+        	Cookies.setCookie(otherProperties.get("authCookie"), username + conf.cookieSeparator() + token, null, "", "/", false);
+
+        String gotoUrl = Window.Location.getParameter("goto");
+		if (gotoUrl != null && gotoUrl.length() > 0) {
+			Window.Location.assign(gotoUrl + "?X-Auth-Token=" + token);
+			return false;
+		}
 		return true;
     }
 
@@ -548,7 +553,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	protected void authenticateUser() {
 		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        Window.Location.assign(otherProperties.get("loginUrl"));
+        Window.Location.assign(otherProperties.get("loginUrl") + Window.Location.getHref());
 	}
 
 	protected void fetchAccount(final Command callback) {

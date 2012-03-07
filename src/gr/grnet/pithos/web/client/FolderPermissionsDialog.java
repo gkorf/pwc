@@ -119,7 +119,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
         VerticalPanel permPanel = new VerticalPanel();
         FilePermissionsDialog.Images images = GWT.create(FilePermissionsDialog.Images.class);
-        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), false);
+        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), false, null);
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
