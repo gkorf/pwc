@@ -104,6 +104,11 @@
    	                   byline="true"
    	    />
    	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="feedbackUrl: (.*)"
+   	                   replace="feedbackUrl: &quot;${feedbackUrl}&quot;,"
+   	                   byline="true"
+   	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
    	                   match="authCookie: (.*)"
    	                   replace="authCookie: &quot;${authCookie}&quot;"
    	                   byline="true"

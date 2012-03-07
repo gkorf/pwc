@@ -44,6 +44,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -60,6 +61,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FeedbackDialog extends DialogBox {
 
+	Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+	
 	/**
 	 * The widget constructor.
 	 */
@@ -105,7 +108,7 @@ public class FeedbackDialog extends DialogBox {
 		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendFeedback = new PostRequest("/tools/", "", "feedback", "feedback-msg=" + msg.getText() + "&feedback-data=" + appData) {
+				PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback-msg=" + msg.getText() + "&feedback-data=" + appData) {
 					
 					@Override
 					protected void onUnauthorized(Response response) {
