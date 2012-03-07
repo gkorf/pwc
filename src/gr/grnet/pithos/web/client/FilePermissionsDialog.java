@@ -36,19 +36,23 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -68,7 +72,11 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	protected PermissionsList permList;
 
 	protected CheckBox readForAll;
-
+	
+	private HorizontalPanel pathPanel;
+	
+	private TextBox path;
+	
 	/**
 	 * An image bundle for this widgets images.
 	 */
@@ -122,12 +130,9 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
         outer.add(inner);
 
-		// Create the 'OK' button, along with a listener that hides the dialog
-		// when the button is clicked.
-		final Button ok = new Button("OK", new ClickHandler() {
+		final Button ok = new Button("Close", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				accept();
 				closeDialog();
 			}
 		});
@@ -178,7 +183,6 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
                     " by everyone. By checking this option, you are certifying that you have the right to " +
                     "distribute this file and that it does not violate the Terms of Use.", true);
-        readForAllNote.setVisible(false);
         readForAllNote.setStylePrimaryName("pithos-readForAllNote");
 
         readForAll = new CheckBox();
@@ -186,7 +190,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         readForAll.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                readForAllNote.setVisible(readForAll.getValue());
+            	accept();
             }
         });
 
@@ -201,35 +205,50 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             permPanel.add(permForAll);
         }
 
-        if (file.isPublished()) {
-            final HorizontalPanel pathPanel = new HorizontalPanel();
-            pathPanel.setWidth("100%");
-            pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-            pathPanel.add(new Label("Link"));
-            pathPanel.setSpacing(8);
-            pathPanel.addStyleName("pithos-TabPanelBottom");
+        pathPanel = new HorizontalPanel();
+        pathPanel.setVisible(false);
+        pathPanel.setWidth("100%");
+        pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        pathPanel.add(new Label("Link"));
+        pathPanel.setSpacing(8);
+        pathPanel.addStyleName("pithos-TabPanelBottom");
 
-            TextBox path = new TextBox();
-            path.setWidth("100%");
-            path.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    Pithos.enableIESelection();
-                    ((TextBox) event.getSource()).selectAll();
-                    Pithos.preventIESelection();
-                }
-            });
-            path.setText(Window.Location.getHost() + file.getPublicUri());
-            path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-            path.setWidth("100%");
-            path.setReadOnly(true);
-            pathPanel.add(path);
-            permPanel.add(pathPanel);
-        }
+        path = new TextBox();
+        path.setWidth("100%");
+        path.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Pithos.enableIESelection();
+                ((TextBox) event.getSource()).selectAll();
+                Pithos.preventIESelection();
+            }
+        });
+        path.setText(Window.Location.getHost() + file.getPublicUri());
+        path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
+        path.setWidth("100%");
+        path.setReadOnly(true);
+        pathPanel.add(path);
+        permPanel.add(pathPanel);
 
+        Scheduler.get().scheduleDeferred(new Command() {
+			
+			@Override
+			public void execute() {
+				showLinkIfPublished();
+			}
+		});
         return permPanel;
     }
 
+    void showLinkIfPublished() {
+		if (file.isPublished()) {
+	        path.setText(Window.Location.getHost() + file.getPublicUri());
+	        pathPanel.setVisible(true);
+		}
+		else {
+			pathPanel.setVisible(false);
+		}
+    }
 	/**
 	 * Accepts any change and updates the file
 	 *
@@ -238,28 +257,46 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	protected void accept() {
 		final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
 
-		//only update the read for all perm if the user is the owner
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
 			if (file.getOwner().equals(app.getUsername()))
                 published = readForAll.getValue();
-        final Boolean finalPublished = published;
-
-        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", finalPublished, perms);
+        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published, perms);
 	}
 
-	protected void updateMetaData(String api, String owner, String path, final Boolean published, final Map<String, Boolean[]> newPermissions) {
+	protected void updateMetaData(String api, String owner, final String path, final Boolean published, final Map<String, Boolean[]> newPermissions) {
         if (published != null || newPermissions != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    app.updateFolder(file.getParent(), true, new Command() {
-						
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwner(), path, file) {
+
 						@Override
-						public void execute() {
-							app.updateMySharedRoot();
+						public void onSuccess(File _result) {
+							showLinkIfPublished();
+		                    app.updateFolder(file.getParent(), true, new Command() {
+								
+								@Override
+								public void execute() {
+									app.updateMySharedRoot();
+								}
+							});
 						}
-					});
+
+						@Override
+						public void onError(Throwable t) {
+		                    GWT.log("", t);
+							app.setError(t);
+		                    app.displayError("System error modifying file:" + t.getMessage());
+						}
+
+						@Override
+						protected void onUnauthorized(Response response) {
+							app.sessionExpired();
+						}
+					};
+					headFile.setHeader("X-Auth-Token", app.getToken());
+					Scheduler.get().scheduleDeferred(headFile);
                 }
 
                 @Override
@@ -315,4 +352,13 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 				}
 			});
     }
+
+	@Override
+	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
+	    super.onPreviewNativeEvent(preview);
+
+	    NativeEvent evt = preview.getNativeEvent();
+	    if (evt.getType().equals("keydown") && evt.getKeyCode() == KeyCodes.KEY_ENTER)
+			        closeDialog();
+	}
 }

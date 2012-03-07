@@ -42,7 +42,9 @@ import java.util.Map;
 import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 
@@ -224,6 +226,8 @@ public class File extends Resource {
 
     private void populate(String _owner, Response response) {
         this.owner = _owner;
+        published = false;
+        publicUri = null;
         for (Header h : response.getHeaders()) {
         	if (h == null)
         		continue; //IE bug. h cannot be null in the general case
@@ -236,6 +240,19 @@ public class File extends Resource {
             }
             else if (header.equals("X-Object-Shared-By")) {
                 inheritedPermissionsFrom = URL.decodePathSegment(h.getValue());
+            }
+            else if (header.equals("Content-Length")) {
+                bytes = Long.parseLong(h.getValue());
+            }
+            else if (header.equals("Content-Type")) {
+            	contentType = h.getValue();
+            }
+            else if (header.equals("Last-Modified")) {
+            	lastModified = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822).parse(h.getValue());
+            }
+            else if (header.equals("X-Object-Public")) {
+            	published = true;
+            	publicUri = h.getValue();
             }
         }
     }
