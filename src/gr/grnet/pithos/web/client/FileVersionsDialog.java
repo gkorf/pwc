@@ -62,10 +62,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FileVersionsDialog extends AbstractPropertiesDialog {
 
-	protected PermissionsList permList;
-
-	protected CheckBox readForAll;
-
 	/**
 	 * An image bundle for this widgets images.
 	 */
@@ -120,8 +116,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		// Inner contains generalPanel and permPanel.
 		inner = new VerticalPanel();
 		inner.addStyleName("inner");
-
-		fetchVersions();
 
 		outer.add(inner);
 
