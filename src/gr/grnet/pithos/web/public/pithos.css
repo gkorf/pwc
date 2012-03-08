@@ -722,3 +722,7 @@ a.pithos-tag {
 .pithos-metaValue {
 	width: 7em;
 }
+
+.pithos-versionList {
+	padding-right: 5px;
+}

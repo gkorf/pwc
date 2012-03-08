@@ -46,16 +46,23 @@ import java.util.List;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.CustomScrollPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.NativeVerticalScrollbar;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.VerticalScrollbar;
+import com.google.gwt.user.client.ui.Widget;
 
 public class VersionsList extends Composite {
 
@@ -67,7 +74,7 @@ public class VersionsList extends Composite {
     
     private Images images;
     
-    private VerticalPanel permPanel = new VerticalPanel();
+    private CustomScrollPanel permPanel = new CustomScrollPanel();
     
     private FlexTable permTable = new FlexTable();
 
@@ -89,7 +96,8 @@ public class VersionsList extends Composite {
 		permTable.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		permTable.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
 		permPanel.add(permTable);
-		permPanel.addStyleName("pithos-TabPanelBottom");
+		permPanel.addStyleName("pithos-versionList");
+		permPanel.setSize("260px", "150px");
 		permTable.addStyleName("pithos-permList");
 		initWidget(permPanel);
 		showVersionsTable();
