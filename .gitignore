@@ -11,3 +11,13 @@ war
 .gwt-tmp
 tomcat
 gwt-unitCache
+*.pyc
+.DS_Store
+*.egg-info
+*/dist/
+*/build/
+*/pithos_web_client/version.py
+*/pithos_web_client/templates/pithos_web_client/*
+*/pithos_web_client/static/pithos_web_client/*
+distribute*.tar.gz
+distribute*.egg
