@@ -174,6 +174,85 @@ def find_package_data(
                 out.setdefault(package, []).append(prefix+name)
     return out
 
+
+"""
+Gwt clea/build helpers
+"""
+import subprocess as sp
+import glob
+
+def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
+    curdir = os.getcwd()
+    os.chdir(root)
+    rcode = sp.call(["ant", "clean"])
+    if rcode == 1:
+        raise Exception("GWT clean failed")
+    os.chdir(curdir)
+    pub_dir = os.path.abspath(os.path.join(root, public_dir))
+    static_dir = os.path.abspath(os.path.join("pithos_web_client", "static", \
+        "pithos_web_client"))
+    templates_dir = os.path.abspath(os.path.join("pithos_web_client", \
+        "templates", "pithos_web_client"))
+    clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
+    clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
+
+    # clean dirs
+    if len(clean_static) > 2:
+        sp.call(clean_static)
+    if len(clean_static) > 2:
+        sp.call(clean_templates)
+
+
+def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
+    curdir = os.getcwd()
+    os.chdir(root)
+    # run ant on root dir
+    rcode = sp.call(["ant"])
+    if rcode == 1:
+        raise Exception("GWT build failed")
+    os.chdir(curdir)
+
+
+    pub_dir = os.path.abspath(os.path.join(root, public_dir))
+    static_dir = os.path.abspath(os.path.join("pithos_web_client", "static", \
+        "pithos_web_client"))
+    templates_dir = os.path.abspath(os.path.join("pithos_web_client", \
+        "templates", "pithos_web_client"))
+
+    clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
+    clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
+
+    # clean dirs
+    if len(clean_static) > 2:
+        sp.call(clean_static)
+    if len(clean_static) > 2:
+        sp.call(clean_templates)
+
+    copy_static = ["cp", "-r"] + glob.glob(os.path.join(pub_dir, "*")) + [static_dir]
+    copy_index = ["cp", os.path.join(pub_dir, "index.html"), templates_dir]
+    sp.call(copy_static)
+    sp.call(copy_index)
+
+    index = os.path.join(templates_dir, "index.html")
+    index_data = file(index).read()
+    index_data = index_data.replace('href="', 'href="{{ MEDIA_URL }}pithos_web_client/')
+    index_data = index_data.replace('" src="', '" src="{{ MEDIA_URL }}pithos_web_client/')
+    index_data = index_data.replace('\' src=\'', '" src="{{ MEDIA_URL }}pithos_web_client/')
+    index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_web_client/')
+
+    ifile = file(index, "w+")
+    ifile.write(index_data)
+    ifile.close()
+
+
+# do we need to run ant ???
+if any(x in ''.join(sys.argv) for x in ["sdist", "build"]):
+    build_gwt()
+
+if any(x in ''.join(sys.argv) for x in ["clean"]):
+    clean_gwt()
+
+
 setup(
     name='snf-pithos-web-client',
     version=VERSION,
@@ -197,7 +276,7 @@ setup(
     entry_points={
         'synnefo': [
              'web_apps = pithos_web_client.synnefo_settings:installed_apps',
-             'urls = pithos_web_client.urls:urlpatterns',
+             'urls = pithos_web_client.synnefo_settings:urlpatterns',
              'web_static = pithos_web_client.synnefo_settings:static_files'
         ]
     }
