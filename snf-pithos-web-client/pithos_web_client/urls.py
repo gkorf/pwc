@@ -35,6 +35,6 @@ from django.conf.urls.defaults import include, patterns
 
 
 urlpatterns = patterns('',
-    (r'^$', 'pithos_web_client.view.index')
+    (r'^$', 'pithos_web_client.views.index')
 )
 
