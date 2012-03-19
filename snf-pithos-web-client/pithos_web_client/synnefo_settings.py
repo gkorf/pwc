@@ -42,3 +42,11 @@ installed_apps = [
 
 static_files = {'pithos_web_client': ''}
 
+# namespace
+from django.conf.urls.defaults import include, patterns
+urlpatterns = patterns('',
+    (r'^ui/$', 'pithos_web_client.views.index'),
+    (r'^ui/index.html$', 'pithos_web_client.views.index'),
+    (r'^pithos/ui/$', 'pithos_web_client.views.index'),
+    (r'^pithos/ui/index.html$', 'pithos_web_client.views.index')
+)
