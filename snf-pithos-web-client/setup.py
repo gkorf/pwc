@@ -182,6 +182,10 @@ import subprocess as sp
 import glob
 
 def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
+    # skip if no build.xml found (debian build process)
+    if not os.path.exists(os.path.join(root, "build.xml")):
+        return
+
     curdir = os.getcwd()
     os.chdir(root)
     rcode = sp.call(["ant", "clean"])
@@ -204,6 +208,10 @@ def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
 
 
 def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
+    # skip if no build.xml found (debian build process)
+    if not os.path.exists(os.path.join(root, "build.xml")):
+        return
+
     curdir = os.getcwd()
     os.chdir(root)
     # run ant on root dir
