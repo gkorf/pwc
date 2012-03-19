@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with python2
+
+package=snf-pithos-web-client
+static_dir=debian/$(package)/usr/share/synnefo/static/
+pkg_static_dir=pithos_web_client/static/pithos_web_client/
+config_lvl=20
+
+override_dh_auto_install:
+	dh_auto_install
+	
+	mkdir -p $(static_dir)im;
+	-mv $(pkg_static_dir) $(static_dir);
+	
+	mkdir -p debian/$(package)/etc/synnefo
+	-mv conf/*.conf debian/$(package)/etc/synnefo
+
