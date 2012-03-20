@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-0.8.5
------
+v0.8.5
+------
 
 - Django app to serve the index.html
+- Use synnefo.lib.context_processors.cloudbar to display cloudbar
 

@@ -1,0 +1,14 @@
+snf-pithos-web-client
+=====================
+
+This is the python package of the synnefo pithos ui frontend
+webapp. It consist of a django application module which includes
+a prebuilt version of the pithos ui gwt project contained in
+`../src` directory.
+
+The gwt built files are not included in the repository. Ant
+hooks has been added in setup.py so that each time you run ``python
+setup.py {develop, install, sdist}`` ant build is executed and
+compiled js and other asset files are placed in the appropriate
+locations within the python module to be packaged/installed.
+
