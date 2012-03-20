@@ -11,7 +11,7 @@ config_lvl=20
 override_dh_auto_install:
 	dh_auto_install
 	
-	mkdir -p $(static_dir)im;
+	mkdir -p $(static_dir)pithos_web_client;
 	-mv $(pkg_static_dir) $(static_dir);
 	
 	mkdir -p debian/$(package)/etc/synnefo
