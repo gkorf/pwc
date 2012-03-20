@@ -249,7 +249,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
+					Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
 			}
 		}));
 

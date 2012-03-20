@@ -193,7 +193,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
+					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
 							}
 						}));
 			        	empty = false;

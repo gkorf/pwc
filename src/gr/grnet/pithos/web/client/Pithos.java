@@ -53,7 +53,6 @@ import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.tagtree.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ import java.util.Set;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -459,14 +459,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-//        Scheduler.get().scheduleDeferred(new Command() {
-//			
-//			@Override
-//			public void execute() {
-//				displayError("lalala");
-//				
-//			}
-//		});
+        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				Folder f = getSelection();
+				if (f != null) {
+					if (getSelectedTree().equals(folderTreeView))
+						updateFolder(f, true, null);
+					else if (getSelectedTree().equals(mysharedTreeView))
+						updateSharedFolder(f, true);
+				}
+				return true;
+			}
+		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -542,7 +548,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         String gotoUrl = Window.Location.getParameter("goto");
 		if (gotoUrl != null && gotoUrl.length() > 0) {
-			Window.Location.assign(gotoUrl + "?X-Auth-Token=" + token);
+			Window.Location.assign(gotoUrl);
 			return false;
 		}
 		return true;
@@ -1189,64 +1195,70 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public void scheduleFolderHeadCommand(final Folder folder, final Command callback) {
-		HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
-
-			@Override
-			public void onSuccess(Folder _result) {
-				if (callback != null)
-					callback.execute();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-		        if (t instanceof RestException) {
-		        	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
-                        final String path = folder.getUri();
-                        PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
-                            @Override
-                            public void onSuccess(Resource _result) {
-                            	scheduleFolderHeadCommand(folder, callback);
-                            }
-
-                            @Override
-                            public void onError(Throwable _t) {
-                                GWT.log("", _t);
-        						setError(_t);
-                                if(_t instanceof RestException){
-                                    displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
-                                }
-                                else
-                                    displayError("System error creating folder: " + _t.getMessage());
-                            }
-
-            				@Override
-            				protected void onUnauthorized(Response response) {
-            					sessionExpired();
-            				}
-                        };
-                        newFolder.setHeader("X-Auth-Token", getToken());
-                        newFolder.setHeader("Content-Type", "application/folder");
-                        newFolder.setHeader("Accept", "*/*");
-                        newFolder.setHeader("Content-Length", "0");
-                        Scheduler.get().scheduleDeferred(newFolder);
-		        	}
-		        	else
-		        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
-		        }
-		        else
-		            displayError("System error heading folder: " + t.getMessage());
-
-		        GWT.log("Error heading folder", t);
-				setError(t);
-			}
-
-			@Override
-			protected void onUnauthorized(Response response) {
-				sessionExpired();
-			}
-		};
-		headFolder.setHeader("X-Auth-Token", getToken());
-		Scheduler.get().scheduleDeferred(headFolder);
+		if (folder == null) {
+			if (callback != null)
+				callback.execute();
+		}
+		else {
+			HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
+	
+				@Override
+				public void onSuccess(Folder _result) {
+					if (callback != null)
+						callback.execute();
+				}
+	
+				@Override
+				public void onError(Throwable t) {
+			        if (t instanceof RestException) {
+			        	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
+	                        final String path = folder.getUri();
+	                        PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
+	                            @Override
+	                            public void onSuccess(Resource _result) {
+	                            	scheduleFolderHeadCommand(folder, callback);
+	                            }
+	
+	                            @Override
+	                            public void onError(Throwable _t) {
+	                                GWT.log("", _t);
+	        						setError(_t);
+	                                if(_t instanceof RestException){
+	                                    displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
+	                                }
+	                                else
+	                                    displayError("System error creating folder: " + _t.getMessage());
+	                            }
+	
+	            				@Override
+	            				protected void onUnauthorized(Response response) {
+	            					sessionExpired();
+	            				}
+	                        };
+	                        newFolder.setHeader("X-Auth-Token", getToken());
+	                        newFolder.setHeader("Content-Type", "application/folder");
+	                        newFolder.setHeader("Accept", "*/*");
+	                        newFolder.setHeader("Content-Length", "0");
+	                        Scheduler.get().scheduleDeferred(newFolder);
+			        	}
+			        	else
+			        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
+			        }
+			        else
+			            displayError("System error heading folder: " + t.getMessage());
+	
+			        GWT.log("Error heading folder", t);
+					setError(t);
+				}
+	
+				@Override
+				protected void onUnauthorized(Response response) {
+					sessionExpired();
+				}
+			};
+			headFolder.setHeader("X-Auth-Token", getToken());
+			Scheduler.get().scheduleDeferred(headFolder);
+		}
 	}
 
 	public void scheduleFileHeadCommand(File f, final Command callback) {
