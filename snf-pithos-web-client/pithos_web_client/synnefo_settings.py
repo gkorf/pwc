@@ -42,6 +42,10 @@ installed_apps = [
 
 static_files = {'pithos_web_client': ''}
 
+context_processors = [
+   'synnefo.lib.context_processors.cloudbar'
+]
+
 # namespace
 from django.conf.urls.defaults import include, patterns
 urlpatterns = patterns('',
