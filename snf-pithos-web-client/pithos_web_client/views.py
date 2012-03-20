@@ -31,7 +31,7 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
-from django.shortcuts import render_to_response
+from django.views.generic.simple import direct_to_template
 
 from pithos_web_client import settings
 from django.conf import settings as django_settings
@@ -40,6 +40,6 @@ MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
         getattr(django_settings, "MEDIA_URL", "/static/"))
 
 def index(request):
-    return render_to_response('pithos_web_client/index.html', \
+    return direct_to_template(request, 'pithos_web_client/index.html', \
             {'settings': settings, 'MEDIA_URL': MEDIA_URL})
 

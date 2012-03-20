@@ -245,7 +245,7 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     index_data = file(index).read()
     index_data = index_data.replace('href="', 'href="{{ MEDIA_URL }}pithos_web_client/')
     index_data = index_data.replace('" src="', '" src="{{ MEDIA_URL }}pithos_web_client/')
-    index_data = index_data.replace('\' src=\'', '" src="{{ MEDIA_URL }}pithos_web_client/')
+    index_data = index_data.replace('\' src=\'', '\' src=\'{{ MEDIA_URL }}pithos_web_client/')
     index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_web_client/')
 
     ifile = file(index, "w+")
@@ -254,7 +254,7 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
 
 
 # do we need to run ant ???
-if any(x in ''.join(sys.argv) for x in ["sdist", "build"]):
+if any(x in ''.join(sys.argv) for x in ["sdist", "build", "develop", "install"]):
     build_gwt()
 
 if any(x in ''.join(sys.argv) for x in ["clean"]):
@@ -285,7 +285,8 @@ setup(
         'synnefo': [
              'web_apps = pithos_web_client.synnefo_settings:installed_apps',
              'urls = pithos_web_client.synnefo_settings:urlpatterns',
-             'web_static = pithos_web_client.synnefo_settings:static_files'
+             'web_static = pithos_web_client.synnefo_settings:static_files',
+             'web_context_processors = pithos_web_client.synnefo_settings:context_processors'
         ]
     }
 )
