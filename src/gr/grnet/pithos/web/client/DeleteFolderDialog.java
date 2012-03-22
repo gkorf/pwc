@@ -101,7 +101,7 @@ public class DeleteFolderDialog extends DialogBox {
 		Button ok = new Button("Delete", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				app.deleteFolder(folder);
+				app.deleteFolder(folder, null);
 				hide();
 			}
 		});
@@ -123,7 +123,7 @@ public class DeleteFolderDialog extends DialogBox {
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
 					hide();
-					app.deleteFolder(folder);
+					app.deleteFolder(folder, null);
 					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();

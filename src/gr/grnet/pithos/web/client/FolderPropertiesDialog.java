@@ -303,14 +303,19 @@ public class FolderPropertiesDialog extends DialogBox {
                             app.copySubfolders(iterf, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                                 @Override
                                 public void execute() {
-                                    app.deleteFolder(folder);
-                                    app.updateFolder(folder.getParent(), false, new Command() {
-                            			
-                            			@Override
-                            			public void execute() {
-                            				app.updateMySharedRoot();
-                            			}
-                            		});
+                                    app.deleteFolder(folder, new Command() {
+										
+										@Override
+										public void execute() {
+		                                    app.updateFolder(folder.getParent(), false, new Command() {
+		                            			
+		                            			@Override
+		                            			public void execute() {
+		                            				app.updateMySharedRoot();
+		                            			}
+		                            		});
+										}
+									});
                                 }
                             });
                         }
