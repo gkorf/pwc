@@ -131,8 +131,14 @@ public class MysharedTreeViewModel implements TreeViewModel {
                     	app.deselectOthers(app.getMySharedTreeView(), selectionModel2);
                     	app.applyPermissions(null);
                     	fetchSharedFiles(true);
+    					app.showRelevantToolbarButtons();
                     }
-                    app.showRelevantToolbarButtons();
+    				else {
+    					if (app.getSelectedTree().equals(app.getMySharedTreeView()))
+    						app.setSelectedTree(null);
+    					if (app.getSelectedTree() == null)
+    						app.showRelevantToolbarButtons();
+    				}
                 }
             });
             app.addSelectionModel(selectionModel2);

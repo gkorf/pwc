@@ -133,8 +133,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                     	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel2);
                     	app.applyPermissions(null);
                     	app.showFiles(new HashSet<File>());
+    					app.showRelevantToolbarButtons();
                     }
-                    app.showRelevantToolbarButtons();
+    				else {
+    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
+    						app.setSelectedTree(null);
+    					if (app.getSelectedTree() == null)
+    						app.showRelevantToolbarButtons();
+    				}
                 }
             });
             app.addSelectionModel(selectionModel2);
@@ -170,8 +176,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	            				userDataProviderMap.put(username, new ListDataProvider<Folder>());
 	            			}
 	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
+	    					app.showRelevantToolbarButtons();
 	                    }
-	                    app.showRelevantToolbarButtons();
+	    				else {
+	    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
+	    						app.setSelectedTree(null);
+	    					if (app.getSelectedTree() == null)
+	    						app.showRelevantToolbarButtons();
+	    				}
 	                }
 	            });
 	            app.addSelectionModel(selectionModel3);

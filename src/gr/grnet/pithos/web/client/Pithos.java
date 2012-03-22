@@ -346,8 +346,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
             				updateStatistics();
             			}
             		});
+            		showRelevantToolbarButtons();
                 }
-                showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(folderTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
             }
         });
         selectionModels.add(folderTreeSelectionModel);
@@ -459,20 +465,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-			
-			@Override
-			public boolean execute() {
-				Folder f = getSelection();
-				if (f != null) {
-					if (getSelectedTree().equals(folderTreeView))
-						updateFolder(f, true, null);
-					else if (getSelectedTree().equals(mysharedTreeView))
-						updateSharedFolder(f, true);
-				}
-				return true;
-			}
-		}, 3000);
+//        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+//			
+//			@Override
+//			public boolean execute() {
+//				Folder f = getSelection();
+//				if (f != null) {
+//					if (getSelectedTree().equals(folderTreeView))
+//						updateFolder(f, true, null);
+//					else if (getSelectedTree().equals(mysharedTreeView))
+//						updateSharedFolder(f, true);
+//				}
+//				return true;
+//			}
+//		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -503,7 +509,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     			c.removeStyleName("cellTreeWidget-selectedTree");
     	
         for (SingleSelectionModel s : selectionModels)
-            if (!s.equals(model))
+            if (!s.equals(model) && s.getSelectedObject() != null)
                 s.setSelected(s.getSelectedObject(), false);
     }
 
@@ -1086,6 +1092,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return selectedTree;
 	}
 	
+	public void setSelectedTree(TreeView selected) {
+		selectedTree = selected;
+	}
+
 	public Folder getSelection() {
 		return selectedTree.getSelection();
 	}
@@ -1115,8 +1125,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(mysharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
@@ -1143,8 +1159,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(otherSharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);
