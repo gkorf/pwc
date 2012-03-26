@@ -163,7 +163,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         meta.addStyleName("pithos-metaTitle");
         metaTitlePanel.add(meta);
         
-		Image plus = new Image("images/plus.png");
+		Image plus = new Image();
 		plus.addStyleName("pithos-addMetaImg");
 		metaTitlePanel.add(plus);
 		
@@ -208,7 +208,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		table.setWidget(row, 1, valueBox);
 		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
 		
-		Image delete = new Image("images/delete.png");
+		Image delete = new Image();
 		delete.addStyleName("pithos-metaDeleteImg");
 		delete.addClickHandler(new ClickHandler() {
 			
