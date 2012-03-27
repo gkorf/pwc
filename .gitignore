@@ -11,3 +11,4 @@ war
 .gwt-tmp
 tomcat
 gwt-unitCache
+docs/build
