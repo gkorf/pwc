@@ -141,8 +141,14 @@ public class GroupTreeViewModel implements TreeViewModel {
 				if (rootSelectionModel.getSelectedObject() != null) {
 					app.deselectOthers(app.getGroupTreeView(), rootSelectionModel);
 					app.showFiles(new HashSet<File>());
+					app.showRelevantToolbarButtons();
 				}
-				app.showRelevantToolbarButtons();
+				else {
+					if (app.getSelectedTree().equals(app.getGroupTreeView()))
+						app.setSelectedTree(null);
+					if (app.getSelectedTree() == null)
+						app.showRelevantToolbarButtons();
+				}
 			}
 		});
 
@@ -155,8 +161,14 @@ public class GroupTreeViewModel implements TreeViewModel {
 				if (groupSelectionModel.getSelectedObject() != null) {
 					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
 					app.showFiles(new HashSet<File>());
+					app.showRelevantToolbarButtons();
 				}
-				app.showRelevantToolbarButtons();
+				else {
+					if (app.getSelectedTree().equals(app.getGroupTreeView()))
+						app.setSelectedTree(null);
+					if (app.getSelectedTree() == null)
+						app.showRelevantToolbarButtons();
+				}
 			}
 		});
 
@@ -169,8 +181,14 @@ public class GroupTreeViewModel implements TreeViewModel {
 				if (userSelectionModel.getSelectedObject() != null) {
 					app.deselectOthers(app.getGroupTreeView(), userSelectionModel);
 					app.showFiles(new HashSet<File>());
+					app.showRelevantToolbarButtons();
 				}
-				app.showRelevantToolbarButtons();
+				else {
+					if (app.getSelectedTree().equals(app.getGroupTreeView()))
+						app.setSelectedTree(null);
+					if (app.getSelectedTree() == null)
+						app.showRelevantToolbarButtons();
+				}
 			}
 		});
 }

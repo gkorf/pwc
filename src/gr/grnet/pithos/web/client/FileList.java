@@ -466,8 +466,10 @@ public class FileList extends Composite {
 	 */
 	public void setFiles(final List<File> _files) {
 		files = new ArrayList<File>();
-    	for (File fres : _files)
+    	for (File fres : _files) {
 			files.add(fres);
+    	}
+    	
 		Collections.sort(files, new Comparator<File>() {
 
 			@Override
@@ -487,9 +489,16 @@ public class FileList extends Composite {
 	        }
 	    }
 
-        provider.getList().clear();
+		List<File> previousSelection = getSelectedFiles(); //Keep the previous selection
+
+		provider.getList().clear();
         provider.setList(files);
         selectionModel.clear();
+    	for (File f : files) {
+    		if (previousSelection.contains(f))
+    			selectionModel.setSelected(f, true);
+    	}
+        
         app.showFolderStatistics(folderFileCount);
         celltable.setPageSize(folderFileCount);
 	}

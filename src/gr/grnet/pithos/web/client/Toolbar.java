@@ -153,36 +153,44 @@ public class Toolbar extends Composite {
 	}
 	
 	public void showRelevantButtons() {
-		final Folder folder = app.getSelectedTree().getSelection();
-		if (folder != null) {
-			app.scheduleFolderHeadCommand(folder, new Command() {
-				
-				@Override
-				public void execute() {
-			        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-			    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
-			    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
-			    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
-			    	
-			    	if (isFolderTreeSelected || otherSharedTreeSelected)
-			    		refreshButton.setVisible(true);
-			    	else
-			    		refreshButton.setVisible(true);
-			    	
-			    	if (!folder.isInTrash() && canWrite) {
-			    		if (isFolderTreeSelected || otherSharedTreeSelected)
-			    			newFolderButton.setVisible(true);
-			    		if (isFolderTreeSelected && !folder.isContainer())
-			    			shareFolderButton.setVisible(true);
-			    		else
-			    			shareFolderButton.setVisible(false);
-			    	}
-			    	else {
-			    		newFolderButton.setVisible(false);
-			    		shareFolderButton.setVisible(false);
-			    	}
-				}
-			});
+		TreeView selectedTree = app.getSelectedTree();
+		if (selectedTree != null) {
+			final Folder folder = app.getSelectedTree().getSelection();
+			if (folder != null) {
+				app.scheduleFolderHeadCommand(folder, new Command() {
+					
+					@Override
+					public void execute() {
+				        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
+				    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+				    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
+				    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
+				    	
+				    	if (isFolderTreeSelected || otherSharedTreeSelected)
+				    		refreshButton.setVisible(true);
+				    	else
+				    		refreshButton.setVisible(true);
+				    	
+				    	if (!folder.isInTrash() && canWrite) {
+				    		if (isFolderTreeSelected || otherSharedTreeSelected)
+				    			newFolderButton.setVisible(true);
+				    		if (isFolderTreeSelected && !folder.isContainer())
+				    			shareFolderButton.setVisible(true);
+				    		else
+				    			shareFolderButton.setVisible(false);
+				    	}
+				    	else {
+				    		newFolderButton.setVisible(false);
+				    		shareFolderButton.setVisible(false);
+				    	}
+					}
+				});
+			}
+			else {
+				newFolderButton.setVisible(false);
+				shareFolderButton.setVisible(false);
+				refreshButton.setVisible(false);
+			}
 		}
 		else {
 			newFolderButton.setVisible(false);
@@ -190,10 +198,12 @@ public class Toolbar extends Composite {
 			refreshButton.setVisible(false);
 		}
 
-        menu = new ToolsMenu(app, Pithos.images, app.getSelectedTree(), app.getSelectedTree().getSelection(), app.getFileList().getSelectedFiles());
-        if (!menu.isEmpty())
-        	toolsButton.setVisible(true);
-        else
-        	toolsButton.setVisible(false);
+		if (selectedTree != null) {
+	        menu = new ToolsMenu(app, Pithos.images, selectedTree, selectedTree.getSelection(), app.getFileList().getSelectedFiles());
+	        if (!menu.isEmpty())
+	        	toolsButton.setVisible(true);
+	        else
+	        	toolsButton.setVisible(false);
+		}
     }
 }

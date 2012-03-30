@@ -346,8 +346,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
             				updateStatistics();
             			}
             		});
+            		showRelevantToolbarButtons();
                 }
-                showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(folderTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
             }
         });
         selectionModels.add(folderTreeSelectionModel);
@@ -503,7 +509,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     			c.removeStyleName("cellTreeWidget-selectedTree");
     	
         for (SingleSelectionModel s : selectionModels)
-            if (!s.equals(model))
+            if (!s.equals(model) && s.getSelectedObject() != null)
                 s.setSelected(s.getSelectedObject(), false);
     }
 
@@ -807,7 +813,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		History.newItem(key);
 	}
 
-    public void deleteFolder(final Folder folder) {
+    public void deleteFolder(final Folder folder, final Command callback) {
         String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(folder.getPrefix()) + "&t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
         builder.setHeader("X-Auth-Token", getToken());
@@ -820,7 +826,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         JSONArray array = json.isArray();
                         int i = 0;
                         if (array != null) {
-                            deleteObject(folder, i, array);
+                            deleteObject(folder, i, array, callback);
                         }
                     }
                 }
@@ -836,7 +842,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    void deleteObject(final Folder folder, final int i, final JSONArray array) {
+    void deleteObject(final Folder folder, final int i, final JSONArray array, final Command callback) {
         if (i < array.size()) {
             JSONObject o = array.get(i).isObject();
             if (o != null && !o.containsKey("subdir")) {
@@ -845,7 +851,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), URL.encode(path)) {
                     @Override
                     public void onSuccess(Resource result) {
-                        deleteObject(folder, i + 1, array);
+                        deleteObject(folder, i + 1, array, callback);
                     }
 
                     @Override
@@ -882,7 +888,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                                         array.set(l++, array2.get(j));
                                     }
                                 }
-                                deleteObject(folder, i + 1, array);
+                                deleteObject(folder, i + 1, array, callback);
                             }
                         }
 
@@ -907,6 +913,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 						@Override
 						public void execute() {
 							updateStatistics();
+							if (callback != null)
+								callback.execute();
 						}
 					});
                 }
@@ -1086,6 +1094,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return selectedTree;
 	}
 	
+	public void setSelectedTree(TreeView selected) {
+		selectedTree = selected;
+	}
+
 	public Folder getSelection() {
 		return selectedTree.getSelection();
 	}
@@ -1115,8 +1127,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(mysharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
@@ -1143,8 +1161,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(otherSharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);

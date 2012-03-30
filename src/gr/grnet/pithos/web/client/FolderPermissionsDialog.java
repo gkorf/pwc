@@ -213,7 +213,7 @@ public class FolderPermissionsDialog extends DialogBox {
                             app.copySubfolders(iterf, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
                                 @Override
                                 public void execute() {
-                                    app.deleteFolder(folder);
+                                    app.deleteFolder(folder, null);
                                     updateMetadata(path + "?update=", perms);
                                 }
                             });
