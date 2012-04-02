@@ -288,23 +288,24 @@ public class FileList extends Composite {
 			}
 			
 		};
-        celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name"));
+        celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name", "name"));
 		allHeaders.add(nameHeader);
-		nameHeader.setUpdater(new FileValueUpdater(nameHeader, "name"));
+		nameHeader.setUpdater(new FileValueUpdater(nameHeader));
+		nameHeader.setSorted(true);
+		nameHeader.setReverseSort(true);
 
 		celltable.redrawHeaders();
 		
         Column<File,String> aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
-				// TODO Auto-generated method stub
 				return object.getSizeAsString();
 			}
 		};
-        SortableHeader aheader = new SortableHeader("Size");
+        SortableHeader aheader = new SortableHeader("Size", "size");
         celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "size"));
+		aheader.setUpdater(new FileValueUpdater(aheader));
 
         aColumn = new Column<File,String>(new TextCell()) {
 			@Override
@@ -312,10 +313,10 @@ public class FileList extends Composite {
 				return object.getLastModified() != null ? formatter.format(object.getLastModified()) : "";
 			}
 		};
-        aheader = new SortableHeader("Last Modified");
+        aheader = new SortableHeader("Last Modified", "date");
 		celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "date"));
+		aheader.setUpdater(new FileValueUpdater(aheader));
 	       
 		provider.addDataDisplay(celltable);
 
@@ -470,25 +471,13 @@ public class FileList extends Composite {
 			files.add(fres);
     	}
     	
-		Collections.sort(files, new Comparator<File>() {
-
-			@Override
-			public int compare(File arg0, File arg1) {
-				return arg0.getName().compareTo(arg1.getName());
-			}
-
-		});
 		folderFileCount = files.size();
 		
-		nameHeader.setSorted(true);
-		nameHeader.toggleReverseSort();
-		for (SortableHeader otherHeader : allHeaders) {
-	        if (otherHeader != nameHeader) {
-	            otherHeader.setSorted(false);
-	            otherHeader.setReverseSort(true);
-	        }
-	    }
-
+		for (SortableHeader header : allHeaders) {
+			if (header.isSorted())
+				sortFiles(header.getProperty(), header.getReverseSort());
+		}
+		
 		List<File> previousSelection = getSelectedFiles(); //Keep the previous selection
 
 		provider.getList().clear();
@@ -584,13 +573,11 @@ public class FileList extends Composite {
 	}
 	
 	final class FileValueUpdater implements ValueUpdater<String>{
-		private String property;
 		private SortableHeader header;
 		/**
 		 * 
 		 */
-		public FileValueUpdater(SortableHeader header,String property) {
-			this.property=property;
+		public FileValueUpdater(SortableHeader header) {
 			this.header=header;
 		}
 		@Override
@@ -605,7 +592,7 @@ public class FileList extends Composite {
 	          }
 	        }
 	        celltable.redrawHeaders();
-	        sortFiles(property, header.getReverseSort());
+	        sortFiles(header.getProperty(), header.getReverseSort());
 	        FileList.this.update();			
 		}
 		

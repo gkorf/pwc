@@ -90,13 +90,15 @@ public class SortableHeader extends Header<String> {
   private boolean reverseSort = false;
   private boolean sorted = false;
   private String text;
+  private String property;
 
-  SortableHeader(String text) {
+  SortableHeader(String text, String property) {
     super(new ClickableTextCell());
     if (template == null) {
       template = GWT.create(Template.class);
     }
     this.text = text;
+    this.property = property;
   }
 
   public boolean getReverseSort() {
@@ -121,6 +123,10 @@ public class SortableHeader extends Header<String> {
     this.reverseSort = reverseSort;
   }
 
+  public boolean isSorted() {
+	  return sorted;
+  }
+  
   public void setSorted(boolean sorted) {
     this.sorted = sorted;
   }
@@ -128,4 +134,8 @@ public class SortableHeader extends Header<String> {
   public void toggleReverseSort() {
     this.reverseSort = !this.reverseSort;
   }
+
+public String getProperty() {
+	return property;
+}
 }
