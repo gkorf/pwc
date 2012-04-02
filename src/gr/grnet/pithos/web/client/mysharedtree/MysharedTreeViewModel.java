@@ -121,7 +121,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
             ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-            rootDataProvider.getList().add("My Shared");
+            rootDataProvider.getList().add("Shared by me");
             final SingleSelectionModel<String> selectionModel2 = new SingleSelectionModel<String>();
             selectionModel2.addSelectionChangeHandler(new Handler() {
 
