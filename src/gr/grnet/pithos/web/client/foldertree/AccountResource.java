@@ -140,6 +140,7 @@ public class AccountResource extends Resource {
 
     public void populate(String owner, Response response) {
         DateTimeFormat df = DateTimeFormat.getFormat(PredefinedFormat.RFC_2822);
+        groups.clear();
         for (Header h : response.getHeaders()) {
         	if (h != null) {
 		        String name = h.getName();
@@ -173,6 +174,7 @@ public class AccountResource extends Resource {
         }
 
         if (response.getText() != null && response.getText().length() > 0) {
+        	containers.clear();
 	        JSONValue json = JSONParser.parseStrict(response.getText());
 	        JSONArray array = json.isArray();
 	        if (array != null) {

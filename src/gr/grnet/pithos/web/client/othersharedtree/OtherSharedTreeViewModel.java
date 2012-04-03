@@ -74,7 +74,7 @@ import com.google.gwt.view.client.TreeViewModel;
 
 public class OtherSharedTreeViewModel implements TreeViewModel {
 
-	private static final String treeTitle = "Others' shared";
+	private static final String treeTitle = "Shared to me";
     protected Pithos app;
 
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
