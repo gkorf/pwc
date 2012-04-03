@@ -21,3 +21,4 @@ gwt-unitCache
 */pithos_web_client/static/pithos_web_client/*
 distribute*.tar.gz
 distribute*.egg
+docs/build

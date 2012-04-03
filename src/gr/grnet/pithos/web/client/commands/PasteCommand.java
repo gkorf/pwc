@@ -95,7 +95,7 @@ public class PasteCommand implements Command {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
-                        app.deleteFolder(tobeCopied);
+                        app.deleteFolder(tobeCopied, null);
                         app.updateFolder(folder, true, null);
                     }
                 });

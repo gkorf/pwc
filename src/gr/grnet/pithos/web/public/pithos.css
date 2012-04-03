@@ -706,12 +706,19 @@ a.pithos-tag {
 }
 
 .pithos-addMetaImg {
+	background-image: url(images/plus.png);
 	background-color: #4085A5;
-	padding: 5px;
+	background-repeat: no-repeat;
+	background-position: center;
+	padding: 8px;
 	cursor: pointer;
 }
 
 .pithos-metaDeleteImg {
+	background: url(images/delete.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	padding: 10px;
 	cursor: pointer;
 }
 
@@ -725,4 +732,9 @@ a.pithos-tag {
 
 .pithos-versionList {
 	padding-right: 5px;
+}
+
+
+.glg5-e2bki {
+    background: url(images/share.png) no-repeat 5px 9px !important;
 }

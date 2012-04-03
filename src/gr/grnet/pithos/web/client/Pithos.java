@@ -53,7 +53,6 @@ import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-import gr.grnet.pithos.web.client.tagtree.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ import java.util.Set;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -346,8 +346,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
             				updateStatistics();
             			}
             		});
+            		showRelevantToolbarButtons();
                 }
-                showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(folderTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
             }
         });
         selectionModels.add(folderTreeSelectionModel);
@@ -459,14 +465,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-//        Scheduler.get().scheduleDeferred(new Command() {
-//			
-//			@Override
-//			public void execute() {
-//				displayError("lalala");
-//				
-//			}
-//		});
+        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				Folder f = getSelection();
+				if (f != null) {
+					if (getSelectedTree().equals(folderTreeView))
+						updateFolder(f, true, null);
+					else if (getSelectedTree().equals(mysharedTreeView))
+						updateSharedFolder(f, true);
+				}
+				return true;
+			}
+		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -497,7 +509,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     			c.removeStyleName("cellTreeWidget-selectedTree");
     	
         for (SingleSelectionModel s : selectionModels)
-            if (!s.equals(model))
+            if (!s.equals(model) && s.getSelectedObject() != null)
                 s.setSelected(s.getSelectedObject(), false);
     }
 
@@ -542,7 +554,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         String gotoUrl = Window.Location.getParameter("goto");
 		if (gotoUrl != null && gotoUrl.length() > 0) {
-			Window.Location.assign(gotoUrl + "?X-Auth-Token=" + token);
+			Window.Location.assign(gotoUrl);
 			return false;
 		}
 		return true;
@@ -801,7 +813,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		History.newItem(key);
 	}
 
-    public void deleteFolder(final Folder folder) {
+    public void deleteFolder(final Folder folder, final Command callback) {
         String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(folder.getPrefix()) + "&t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
         builder.setHeader("X-Auth-Token", getToken());
@@ -814,7 +826,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         JSONArray array = json.isArray();
                         int i = 0;
                         if (array != null) {
-                            deleteObject(folder, i, array);
+                            deleteObject(folder, i, array, callback);
                         }
                     }
                 }
@@ -830,7 +842,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    void deleteObject(final Folder folder, final int i, final JSONArray array) {
+    void deleteObject(final Folder folder, final int i, final JSONArray array, final Command callback) {
         if (i < array.size()) {
             JSONObject o = array.get(i).isObject();
             if (o != null && !o.containsKey("subdir")) {
@@ -839,7 +851,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), URL.encode(path)) {
                     @Override
                     public void onSuccess(Resource result) {
-                        deleteObject(folder, i + 1, array);
+                        deleteObject(folder, i + 1, array, callback);
                     }
 
                     @Override
@@ -876,7 +888,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                                         array.set(l++, array2.get(j));
                                     }
                                 }
-                                deleteObject(folder, i + 1, array);
+                                deleteObject(folder, i + 1, array, callback);
                             }
                         }
 
@@ -901,6 +913,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 						@Override
 						public void execute() {
 							updateStatistics();
+							if (callback != null)
+								callback.execute();
 						}
 					});
                 }
@@ -1080,6 +1094,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		return selectedTree;
 	}
 	
+	public void setSelectedTree(TreeView selected) {
+		selectedTree = selected;
+	}
+
 	public Folder getSelection() {
 		return selectedTree.getSelection();
 	}
@@ -1109,8 +1127,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(mysharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(mysharedTreeSelectionModel);
@@ -1137,8 +1161,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+					showRelevantToolbarButtons();
 		        }
-		        showRelevantToolbarButtons();
+				else {
+					if (getSelectedTree().equals(otherSharedTreeView))
+						setSelectedTree(null);
+					if (getSelectedTree() == null)
+						showRelevantToolbarButtons();
+				}
  		    }
 		});
 		selectionModels.add(otherSharedTreeSelectionModel);
@@ -1189,64 +1219,70 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public void scheduleFolderHeadCommand(final Folder folder, final Command callback) {
-		HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
-
-			@Override
-			public void onSuccess(Folder _result) {
-				if (callback != null)
-					callback.execute();
-			}
-
-			@Override
-			public void onError(Throwable t) {
-		        if (t instanceof RestException) {
-		        	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
-                        final String path = folder.getUri();
-                        PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
-                            @Override
-                            public void onSuccess(Resource _result) {
-                            	scheduleFolderHeadCommand(folder, callback);
-                            }
-
-                            @Override
-                            public void onError(Throwable _t) {
-                                GWT.log("", _t);
-        						setError(_t);
-                                if(_t instanceof RestException){
-                                    displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
-                                }
-                                else
-                                    displayError("System error creating folder: " + _t.getMessage());
-                            }
-
-            				@Override
-            				protected void onUnauthorized(Response response) {
-            					sessionExpired();
-            				}
-                        };
-                        newFolder.setHeader("X-Auth-Token", getToken());
-                        newFolder.setHeader("Content-Type", "application/folder");
-                        newFolder.setHeader("Accept", "*/*");
-                        newFolder.setHeader("Content-Length", "0");
-                        Scheduler.get().scheduleDeferred(newFolder);
-		        	}
-		        	else
-		        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
-		        }
-		        else
-		            displayError("System error heading folder: " + t.getMessage());
-
-		        GWT.log("Error heading folder", t);
-				setError(t);
-			}
-
-			@Override
-			protected void onUnauthorized(Response response) {
-				sessionExpired();
-			}
-		};
-		headFolder.setHeader("X-Auth-Token", getToken());
-		Scheduler.get().scheduleDeferred(headFolder);
+		if (folder == null) {
+			if (callback != null)
+				callback.execute();
+		}
+		else {
+			HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
+	
+				@Override
+				public void onSuccess(Folder _result) {
+					if (callback != null)
+						callback.execute();
+				}
+	
+				@Override
+				public void onError(Throwable t) {
+			        if (t instanceof RestException) {
+			        	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
+	                        final String path = folder.getUri();
+	                        PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
+	                            @Override
+	                            public void onSuccess(Resource _result) {
+	                            	scheduleFolderHeadCommand(folder, callback);
+	                            }
+	
+	                            @Override
+	                            public void onError(Throwable _t) {
+	                                GWT.log("", _t);
+	        						setError(_t);
+	                                if(_t instanceof RestException){
+	                                    displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
+	                                }
+	                                else
+	                                    displayError("System error creating folder: " + _t.getMessage());
+	                            }
+	
+	            				@Override
+	            				protected void onUnauthorized(Response response) {
+	            					sessionExpired();
+	            				}
+	                        };
+	                        newFolder.setHeader("X-Auth-Token", getToken());
+	                        newFolder.setHeader("Content-Type", "application/folder");
+	                        newFolder.setHeader("Accept", "*/*");
+	                        newFolder.setHeader("Content-Length", "0");
+	                        Scheduler.get().scheduleDeferred(newFolder);
+			        	}
+			        	else
+			        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
+			        }
+			        else
+			            displayError("System error heading folder: " + t.getMessage());
+	
+			        GWT.log("Error heading folder", t);
+					setError(t);
+				}
+	
+				@Override
+				protected void onUnauthorized(Response response) {
+					sessionExpired();
+				}
+			};
+			headFolder.setHeader("X-Auth-Token", getToken());
+			Scheduler.get().scheduleDeferred(headFolder);
+		}
 	}
 
 	public void scheduleFileHeadCommand(File f, final Command callback) {

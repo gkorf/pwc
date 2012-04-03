@@ -239,7 +239,6 @@ public class FolderTreeViewModel implements TreeViewModel {
                     public void execute() {
                         dataProvider.getList().clear();
                         dataProvider.getList().addAll(_result.getSubfolders());
-//                        app.getFolderTreeView().updateChildren(f);
                         if (callback != null)
                         	callback.execute();
                     }

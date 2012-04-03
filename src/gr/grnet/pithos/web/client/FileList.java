@@ -281,30 +281,31 @@ public class FileList extends Composite {
                 sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
-                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri() + "?X-Auth-Token=" + app.getToken(), object.getName()));
+                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
 			}
 			
 		};
-        celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name"));
+        celltable.addColumn(nameColumn, nameHeader = new SortableHeader("Name", "name"));
 		allHeaders.add(nameHeader);
-		nameHeader.setUpdater(new FileValueUpdater(nameHeader, "name"));
+		nameHeader.setUpdater(new FileValueUpdater(nameHeader));
+		nameHeader.setSorted(true);
+		nameHeader.setReverseSort(true);
 
 		celltable.redrawHeaders();
 		
         Column<File,String> aColumn = new Column<File,String>(new TextCell()) {
 			@Override
 			public String getValue(File object) {
-				// TODO Auto-generated method stub
 				return object.getSizeAsString();
 			}
 		};
-        SortableHeader aheader = new SortableHeader("Size");
+        SortableHeader aheader = new SortableHeader("Size", "size");
         celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "size"));
+		aheader.setUpdater(new FileValueUpdater(aheader));
 
         aColumn = new Column<File,String>(new TextCell()) {
 			@Override
@@ -312,10 +313,10 @@ public class FileList extends Composite {
 				return object.getLastModified() != null ? formatter.format(object.getLastModified()) : "";
 			}
 		};
-        aheader = new SortableHeader("Last Modified");
+        aheader = new SortableHeader("Last Modified", "date");
 		celltable.addColumn(aColumn, aheader);
 		allHeaders.add(aheader);
-		aheader.setUpdater(new FileValueUpdater(aheader, "date"));
+		aheader.setUpdater(new FileValueUpdater(aheader));
 	       
 		provider.addDataDisplay(celltable);
 
@@ -408,7 +409,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(app.getApiPath() + file.getOwner() + file.getUri() + "?X-Auth-Token=" + URL.encodeQueryString(app.getToken()), "_blank", "");
+				Window.open(app.getApiPath() + file.getOwner() + file.getUri(), "_blank", "");
 				event.preventDefault();
 				return;
 			}
@@ -466,30 +467,27 @@ public class FileList extends Composite {
 	 */
 	public void setFiles(final List<File> _files) {
 		files = new ArrayList<File>();
-    	for (File fres : _files)
+    	for (File fres : _files) {
 			files.add(fres);
-		Collections.sort(files, new Comparator<File>() {
-
-			@Override
-			public int compare(File arg0, File arg1) {
-				return arg0.getName().compareTo(arg1.getName());
-			}
-
-		});
+    	}
+    	
 		folderFileCount = files.size();
 		
-		nameHeader.setSorted(true);
-		nameHeader.toggleReverseSort();
-		for (SortableHeader otherHeader : allHeaders) {
-	        if (otherHeader != nameHeader) {
-	            otherHeader.setSorted(false);
-	            otherHeader.setReverseSort(true);
-	        }
-	    }
+		for (SortableHeader header : allHeaders) {
+			if (header.isSorted())
+				sortFiles(header.getProperty(), header.getReverseSort());
+		}
+		
+		List<File> previousSelection = getSelectedFiles(); //Keep the previous selection
 
-        provider.getList().clear();
+		provider.getList().clear();
         provider.setList(files);
         selectionModel.clear();
+    	for (File f : files) {
+    		if (previousSelection.contains(f))
+    			selectionModel.setSelected(f, true);
+    	}
+        
         app.showFolderStatistics(folderFileCount);
         celltable.setPageSize(folderFileCount);
 	}
@@ -575,13 +573,11 @@ public class FileList extends Composite {
 	}
 	
 	final class FileValueUpdater implements ValueUpdater<String>{
-		private String property;
 		private SortableHeader header;
 		/**
 		 * 
 		 */
-		public FileValueUpdater(SortableHeader header,String property) {
-			this.property=property;
+		public FileValueUpdater(SortableHeader header) {
 			this.header=header;
 		}
 		@Override
@@ -596,7 +592,7 @@ public class FileList extends Composite {
 	          }
 	        }
 	        celltable.redrawHeaders();
-	        sortFiles(property, header.getReverseSort());
+	        sortFiles(header.getProperty(), header.getReverseSort());
 	        FileList.this.update();			
 		}
 		
