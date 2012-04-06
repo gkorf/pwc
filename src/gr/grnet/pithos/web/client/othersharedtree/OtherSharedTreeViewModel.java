@@ -378,7 +378,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), username, path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
-                	if (!_result.isShared()) {
+                	if (!_result.isShared() && !_result.isContainer()) {
                 		for (File file : _result.getFiles()) {
                 			if (file.isShared())
                 				sharedFiles.get(username).add(file);

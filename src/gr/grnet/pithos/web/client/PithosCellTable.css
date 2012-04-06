@@ -94,6 +94,7 @@
   overflow: auto;
 }
 
-.cellTableFirstColumnShared {
-	  background: url(images/share.png) no-repeat 5px 9px;
+@sprite .cellTableFirstColumnShared {
+	gwt-image: 'cellTableSharedIcon';
+	background-position: 5px 9px;
 }

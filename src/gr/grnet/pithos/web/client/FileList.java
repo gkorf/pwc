@@ -56,6 +56,9 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
+import com.google.gwt.resources.client.ImageResource.ImageOptions;
+import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -90,6 +93,10 @@ public class FileList extends Composite {
 	    @Override
 		@Source({CellTable.Style.DEFAULT_CSS, "PithosCellTable.css"})
 	    TableStyle cellTableStyle();
+	    
+	    @Source("share.png")
+	    @ImageOptions(repeatStyle = RepeatStyle.None)
+	    ImageResource cellTableSharedIcon();
 	}
 	
 	static interface Templates extends SafeHtmlTemplates {
