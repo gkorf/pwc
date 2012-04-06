@@ -89,22 +89,61 @@ PUT /v1/username/trash
 
 Constructing the folder tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The folder tree displays in a tree structure all the user 's containers (including trash). For each container a request is made
 
+GET /v1/username/pithos?format=json&delimiter=/&prefix=
 
-Constructing the My Shared tree
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+to get the first level of folders (either actual objects with application/folder content type or virtual prefixes). The home folder (pithos) is always displayed first, selected and expanded and the trash container is always last.
 
-Constructing the Others' Shared tree
+Due to the pithos container being programmatically selected and expanded at the beginning, additional requests 
+
+GET /v1/username/pithos?format=json&delimiter=/&prefix=pithos_subfolder1
+
+are made to server to fetch details of the subfolders. We need to know if a subfolder has its own subfolders so that we display the cross sign next to it.
+
+Constructing the "Shared by me" tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+My shared tree construction is a bit more complicated. All files that are shared individualy (not through sharing their parent folder) are displayed directly in the root of the tree (inside the 'Shared by me' folder).
+
+All shared folders are displayed in tree structure under the root.
+
+The above means that the client has to make a series of requests to collect all shared items and display them accordingly.
+
+First a
+
+GET /v1/username/container?format=json&delimiter=/&prefix=
+
+is made for each container. If the container is shared it is added to the tree (under "Shared by me") and the client continues to the next container (this has to be re-visited because it was based that due to the permission inheritance the subfolders are also shared. Since the inheritance has been removed this is no longer valid).
+
+If the container is not shared we have to go deeper to find possible shared subfolders and files. So we examine each file in the folder and if shared we add it in the "Shared by me" folder and we also do a nested iteration getting each subfolder
+
+GET /v1/username/container?format=json&delimiter=/&prefix=subfolder
+
+and this is done recursively until all shared folders have been collected.
+
+Constructing the "Shared by others" tree
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The "Shared by others" tree has the additional complication that we need to get the users that share objects with us and display them as a first level of subfolders.
+
+GET /v1?format=json
+
+For each of the users we do an additional
+
+GET /v1/username?format=json
+
+to get the containers shared by the user and for each container we do the same sequence of requests as in the "Shared by me case". The difference no is that we don't need to check if the container/folder/file is shared because all requests with a different username always return only object that are visible to the logged-on user.
 
 Constructing the Groups tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The groups tree is contructed with the initial request for the user account data which returns the groups defined be the user along with their members.
 
 File sharing
 ^^^^^^^^^^^^
 
 File uploading
 ^^^^^^^^^^^^^^
+File uploading is done using the plupload http://www.plupload.com/ plugin.
 
 File Copy/Cut/Paste operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
