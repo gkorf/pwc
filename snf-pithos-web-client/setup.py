@@ -186,12 +186,12 @@ def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     if not os.path.exists(os.path.join(root, "build.xml")):
         return
 
-    #curdir = os.getcwd()
-    #os.chdir(root)
-    #rcode = sp.call(["ant", "clean"])
-    #if rcode == 1:
-        #raise Exception("GWT clean failed")
-    #os.chdir(curdir)
+    curdir = os.getcwd()
+    os.chdir(root)
+    rcode = sp.call(["ant", "clean"])
+    if rcode == 1:
+        raise Exception("GWT clean failed")
+    os.chdir(curdir)
     pub_dir = os.path.abspath(os.path.join(root, public_dir))
     static_dir = os.path.abspath(os.path.join("pithos_web_client", "static", \
         "pithos_web_client"))
