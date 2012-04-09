@@ -10,7 +10,7 @@ Document Revisions
 =====================  =====================================
 Revision               Description
 =====================  =====================================
-0.1 (Mar 17, 2012)     Initial release.
+0.1 (Apr 09, 2012)     Initial release.
 =====================  =====================================
 
 Build instructions
@@ -48,10 +48,12 @@ Important reminder: Due to Same-Origin-Policy the web client should be served un
 
 Technology and tools
 --------------------
-Pithos+ web client is a gwt application. It is written in Java and compiled to javascript that runs in the browser.
+Pithos+ web client is a gwt application. It is written in Java and compiled to javascript that runs in the browser. More info about gwt can be found here http://developers.google.com/web-toolkit/
 
 General architecture
 --------------------
+
+The web client does an adaptation of the container/object server-side data model to the more user-friendly folder/file data model. The client uses the API to retrieve info about the containers and objects from the server and displays them in a tree-like structure. It uses two special gwt widgets, CellTree (https://developers.google.com/web-toolkit/doc/latest/DevGuideUiCellWidgets#celltree) and CellTable (https://developers.google.com/web-toolkit/doc/latest/DevGuideUiCellTable) for the folder tree and filelist accordingly. The CellTree widget initiates calls to the API at the beginning and each time a subtree is expanded in order to fetch all info needed to display the subfolders. That way the datamodel is controlled by the widget.
 
 Authentication
 --------------
@@ -71,7 +73,7 @@ API Usage
 
 Initialization
 ^^^^^^^^^^^^^^
-Upon loading, the web client performs the followinf steps:
+Upon loading, the web client performs the following steps:
 
 Ckeck if the user is authenticated (auth cookie present)
 
