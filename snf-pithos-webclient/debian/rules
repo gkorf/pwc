@@ -3,15 +3,15 @@
 %:
 	dh $@ --with python2
 
-package=snf-pithos-web-client
+package=snf-pithos-webclient
 static_dir=debian/$(package)/usr/share/synnefo/static/
-pkg_static_dir=pithos_web_client/static/pithos_web_client/
+pkg_static_dir=pithos_web_client/static/pithos_webclient/
 config_lvl=20
 
 override_dh_auto_install:
 	dh_auto_install
 	
-	mkdir -p $(static_dir)pithos_web_client;
+	mkdir -p $(static_dir)pithos_webclient;
 	-mv $(pkg_static_dir) $(static_dir);
 	
 	mkdir -p debian/$(package)/etc/synnefo
