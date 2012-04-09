@@ -1,3 +1,9 @@
+snf-pithos-webclient (0.8.6-1) stable; urgency=low
+
+  * New upstream version.
+
+ -- Kostas Papadimitriou <kpap@grnet.gr>  Mon, 09 Apr 2012 13:26:15 +0300
+
 snf-pithos-webclient (0.8.5-1) stable; urgency=low
 
   * New upstream version.
