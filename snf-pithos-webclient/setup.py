@@ -48,11 +48,11 @@ HERE = os.path.abspath(os.path.normpath(os.path.dirname(__file__)))
 try:
     # try to update the version file
     from synnefo.util import version
-    version.update_version('pithos_web_client', 'version', HERE)
+    version.update_version('pithos_webclient', 'version', HERE)
 except ImportError:
     pass
 
-from pithos_web_client.version import __version__
+from pithos_webclient.version import __version__
 
 # Package info
 VERSION = __version__
@@ -193,10 +193,10 @@ def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
         raise Exception("GWT clean failed")
     os.chdir(curdir)
     pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_web_client", "static", \
-        "pithos_web_client"))
-    templates_dir = os.path.abspath(os.path.join("pithos_web_client", \
-        "templates", "pithos_web_client"))
+    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static", \
+        "pithos_webclient"))
+    templates_dir = os.path.abspath(os.path.join("pithos_webclient", \
+        "templates", "pithos_webclient"))
     clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
     clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
 
@@ -222,10 +222,10 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
 
 
     pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_web_client", "static", \
-        "pithos_web_client"))
-    templates_dir = os.path.abspath(os.path.join("pithos_web_client", \
-        "templates", "pithos_web_client"))
+    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static", \
+        "pithos_webclient"))
+    templates_dir = os.path.abspath(os.path.join("pithos_webclient", \
+        "templates", "pithos_webclient"))
 
     clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
     clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
@@ -243,10 +243,10 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
 
     index = os.path.join(templates_dir, "index.html")
     index_data = file(index).read()
-    index_data = index_data.replace('href="', 'href="{{ MEDIA_URL }}pithos_web_client/')
-    index_data = index_data.replace('" src="', '" src="{{ MEDIA_URL }}pithos_web_client/')
-    index_data = index_data.replace('\' src=\'', '\' src=\'{{ MEDIA_URL }}pithos_web_client/')
-    index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_web_client/')
+    index_data = index_data.replace('href="', 'href="{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace('" src="', '" src="{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace('\' src=\'', '\' src=\'{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_webclient/')
 
     ifile = file(index, "w+")
     ifile.write(index_data)
@@ -262,7 +262,7 @@ if any(x in ''.join(sys.argv) for x in ["clean"]):
 
 
 setup(
-    name='snf-pithos-web-client',
+    name='snf-pithos-webclient',
     version=VERSION,
     license='BSD',
     url='http://code.grnet.gr/projects/pithos-web-client',
@@ -283,10 +283,10 @@ setup(
 
     entry_points={
         'synnefo': [
-             'web_apps = pithos_web_client.synnefo_settings:installed_apps',
-             'urls = pithos_web_client.synnefo_settings:urlpatterns',
-             'web_static = pithos_web_client.synnefo_settings:static_files',
-             'web_context_processors = pithos_web_client.synnefo_settings:context_processors'
+             'web_apps = pithos_webclient.synnefo_settings:installed_apps',
+             'urls = pithos_webclient.synnefo_settings:urlpatterns',
+             'web_static = pithos_webclient.synnefo_settings:static_files',
+             'web_context_processors = pithos_webclient.synnefo_settings:context_processors'
         ]
     }
 )

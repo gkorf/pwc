@@ -22,3 +22,5 @@ gwt-unitCache
 distribute*.tar.gz
 distribute*.egg
 docs/build
+pithos-web-client.sublime-project
+pithos-web-client.sublime-workspace

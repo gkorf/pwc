@@ -31,10 +31,15 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
-from django.conf.urls.defaults import include, patterns
+from django.views.generic.simple import direct_to_template
 
+from pithos_webclient import settings
+from django.conf import settings as django_settings
 
-urlpatterns = patterns('',
-    (r'^$', 'pithos_web_client.views.index')
-)
+MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
+        getattr(django_settings, "MEDIA_URL", "/static/"))
+
+def index(request):
+    return direct_to_template(request, 'pithos_webclient/index.html', \
+            {'settings': settings, 'MEDIA_URL': MEDIA_URL})
 

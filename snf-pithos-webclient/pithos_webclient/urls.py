@@ -30,27 +30,11 @@
 # documentation are those of the authors and should not be
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
-#
 
-"""
-Django settings metadata. To be used in setup.py snf-webproject entry points.
-"""
-
-installed_apps = [
-        'pithos_web_client'
-]
-
-static_files = {'pithos_web_client': ''}
-
-context_processors = [
-   'synnefo.lib.context_processors.cloudbar'
-]
-
-# namespace
 from django.conf.urls.defaults import include, patterns
+
+
 urlpatterns = patterns('',
-    (r'^ui/$', 'pithos_web_client.views.index'),
-    (r'^ui/index.html$', 'pithos_web_client.views.index'),
-    (r'^pithos/ui/$', 'pithos_web_client.views.index'),
-    (r'^pithos/ui/index.html$', 'pithos_web_client.views.index')
+    (r'^$', 'pithos_webclient.views.index')
 )
+

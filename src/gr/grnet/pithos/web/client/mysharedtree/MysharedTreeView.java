@@ -41,7 +41,9 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
+import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTree;
@@ -92,6 +94,10 @@ public class MysharedTreeView extends Composite implements TreeView {
         @Override
 		@Source({"gr/grnet/pithos/web/client/PithosCellTreeBasic.css"})
         CellTree.Style cellTreeStyle();
+        
+        @Source("gr/grnet/pithos/web/client/cellTreeLoadingBasic.gif")
+        @ImageOptions(repeatStyle=RepeatStyle.None)
+        ImageResource cellTreeLoadingBasic();
     }
 
     public static interface Images extends Tree.Resources, FolderContextMenu.Images {
