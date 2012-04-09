@@ -30,16 +30,27 @@
 # documentation are those of the authors and should not be
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
+#
 
-from django.views.generic.simple import direct_to_template
+"""
+Django settings metadata. To be used in setup.py snf-webproject entry points.
+"""
 
-from pithos_web_client import settings
-from django.conf import settings as django_settings
+installed_apps = [
+        'pithos_webclient'
+]
 
-MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
-        getattr(django_settings, "MEDIA_URL", "/static/"))
+static_files = {'pithos_webclient': ''}
 
-def index(request):
-    return direct_to_template(request, 'pithos_web_client/index.html', \
-            {'settings': settings, 'MEDIA_URL': MEDIA_URL})
+context_processors = [
+   'synnefo.lib.context_processors.cloudbar'
+]
 
+# namespace
+from django.conf.urls.defaults import include, patterns
+urlpatterns = patterns('',
+    (r'^ui/$', 'pithos_webclient.views.index'),
+    (r'^ui/index.html$', 'pithos_webclient.views.index'),
+    (r'^pithos/ui/$', 'pithos_webclient.views.index'),
+    (r'^pithos/ui/index.html$', 'pithos_webclient.views.index')
+)
