@@ -259,7 +259,9 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 			}
 			else {
 				b.setPath(app.getApiPath() + file.getOwner() + file.getUri());
-				path.setText(GWT.getModuleBaseURL() + "?goto=" + b.buildString());
+				String href = Window.Location.getHref();
+				boolean hasParameters = href.contains("?");
+				path.setText(href + (hasParameters ? "&" : "?") + "goto=" + b.buildString());
 			}
 	        pathPanel.setVisible(true);
 		}
