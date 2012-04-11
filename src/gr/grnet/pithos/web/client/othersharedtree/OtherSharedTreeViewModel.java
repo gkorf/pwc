@@ -136,7 +136,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     					app.showRelevantToolbarButtons();
                     }
     				else {
-    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
+    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()) && app.getOtherSharedTreeView().getSelection() == null)
     						app.setSelectedTree(null);
     					if (app.getSelectedTree() == null)
     						app.showRelevantToolbarButtons();
@@ -179,7 +179,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	    					app.showRelevantToolbarButtons();
 	                    }
 	    				else {
-	    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
+	    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()) && app.getOtherSharedTreeView().getSelection() == null)
 	    						app.setSelectedTree(null);
 	    					if (app.getSelectedTree() == null)
 	    						app.showRelevantToolbarButtons();

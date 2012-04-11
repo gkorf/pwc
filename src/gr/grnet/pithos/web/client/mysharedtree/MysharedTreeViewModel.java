@@ -134,7 +134,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     					app.showRelevantToolbarButtons();
                     }
     				else {
-    					if (app.getSelectedTree().equals(app.getMySharedTreeView()))
+    					if (app.getSelectedTree().equals(app.getMySharedTreeView()) && app.getMySharedTreeView().getSelection() == null)
     						app.setSelectedTree(null);
     					if (app.getSelectedTree() == null)
     						app.showRelevantToolbarButtons();
