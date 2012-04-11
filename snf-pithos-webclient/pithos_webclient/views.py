@@ -41,5 +41,6 @@ MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
 
 def index(request):
     return direct_to_template(request, 'pithos_webclient/index.html', \
-            {'settings': settings, 'MEDIA_URL': MEDIA_URL})
+            {'settings': settings, 'MEDIA_URL': MEDIA_URL,
+             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE': settings.CLOUDBAR_ACTIVE_SERVICE})
 

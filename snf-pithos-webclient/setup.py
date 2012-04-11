@@ -248,6 +248,13 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     index_data = index_data.replace('\' src=\'', '\' src=\'{{ MEDIA_URL }}pithos_webclient/')
     index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_webclient/')
 
+    index_data = index_data.replace("{{ CLOUDBAR_CODE }}", """
+            {{ CLOUDBAR_CODE }}
+            <script>
+            var CLOUDBAR_ACTIVE_SERVICE = "{{ PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE }}"
+            </script>
+    """)
+
     ifile = file(index, "w+")
     ifile.write(index_data)
     ifile.close()
