@@ -298,7 +298,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 								public void execute() {
 									app.updateMySharedRoot();
 								}
-							});
+							}, true);
 						}
 
 						@Override
@@ -368,7 +368,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 					if (file.isShared())
 						app.updateMySharedRoot();
 				}
-			});
+			}, true);
     }
 
 	@Override

@@ -132,8 +132,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return account;
     }
 
-    public void updateFolder(Folder f, boolean showfiles, Command callback) {
-        folderTreeView.updateFolder(f, showfiles, callback);
+    public void updateFolder(Folder f, boolean showfiles, Command callback, final boolean openParent) {
+        folderTreeView.updateFolder(f, showfiles, callback, openParent);
     }
 
     public void updateGroupNode(Group group) {
@@ -345,7 +345,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             			public void execute() {
             				updateStatistics();
             			}
-            		});
+            		}, true);
             		showRelevantToolbarButtons();
                 }
 				else {
@@ -465,20 +465,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-//        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-//			
-//			@Override
-//			public boolean execute() {
-//				Folder f = getSelection();
-//				if (f != null) {
-//					if (getSelectedTree().equals(folderTreeView))
-//						updateFolder(f, true, null);
-//					else if (getSelectedTree().equals(mysharedTreeView))
-//						updateSharedFolder(f, true);
-//				}
-//				return true;
-//			}
-//		}, 3000);
+        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				Folder f = getSelection();
+				if (f != null) {
+					if (getSelectedTree().equals(folderTreeView))
+						updateFolder(f, true, null, false);
+					else if (getSelectedTree().equals(mysharedTreeView))
+						updateSharedFolder(f, true);
+				}
+				return true;
+			}
+		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -917,7 +917,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 							if (callback != null)
 								callback.execute();
 						}
-					});
+					}, true);
                 }
 
                 @Override
@@ -1073,7 +1073,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public void updateTrash(boolean showFiles, Command callback) {
-		updateFolder(trash, showFiles, callback);
+		updateFolder(trash, showFiles, callback, true);
 	}
 
 	public void updateGroupsNode() {
@@ -1116,7 +1116,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public void updateRootFolder(Command callback) {
-		updateFolder(account.getPithos(), false, callback);
+		updateFolder(account.getPithos(), false, callback, true);
 	}
 
 	void createMySharedTree() {

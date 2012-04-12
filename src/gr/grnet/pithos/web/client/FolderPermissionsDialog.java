@@ -259,7 +259,7 @@ public class FolderPermissionsDialog extends DialogBox {
 						public void execute() {
 							app.updateMySharedRoot();
 						}
-					});
+					}, true);
                 }
 
                 @Override
@@ -345,6 +345,6 @@ public class FolderPermissionsDialog extends DialogBox {
 				public void execute() {
 					app.updateMySharedRoot();
 				}
-			});
+			}, true);
     }
 }

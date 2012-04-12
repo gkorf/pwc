@@ -196,6 +196,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 				if (file.isShared())
 					app.updateMySharedRoot();
 			}
-		});
+		}, true);
 	}
 }

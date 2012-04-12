@@ -85,9 +85,9 @@ public class RestoreTrashCommand implements Command {
 						
 						@Override
 						public void execute() {
-							app.updateFolder(app.getAccount().getPithos(), false, null);
+							app.updateFolder(app.getAccount().getPithos(), false, null, true);
 						}
-					});
+					}, true);
                 }
             });
         }
@@ -100,9 +100,9 @@ public class RestoreTrashCommand implements Command {
 						
 						@Override
 						public void execute() {
-							app.updateFolder(app.getAccount().getPithos(), false, null);
+							app.updateFolder(app.getAccount().getPithos(), false, null, true);
 						}
-					});
+					}, true);
                 }
             });
 
