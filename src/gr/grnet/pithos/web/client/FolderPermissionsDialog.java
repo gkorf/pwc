@@ -123,6 +123,17 @@ public class FolderPermissionsDialog extends DialogBox {
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
+        Button addUser = new Button("Add User", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
+                dlg.center();
+            }
+        });
+        addUser.addStyleName("button");
+        permButtons.add(addUser);
+        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+
         Button add = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -134,16 +145,6 @@ public class FolderPermissionsDialog extends DialogBox {
         permButtons.add(add);
         permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
-        Button addUser = new Button("Add User", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                dlg.center();
-            }
-        });
-        addUser.addStyleName("button");
-        permButtons.add(addUser);
-        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
         permButtons.setSpacing(8);
         permPanel.add(permButtons);
 

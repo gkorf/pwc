@@ -162,18 +162,6 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
-        Button add = new Button("Add Group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        add.addStyleName("button");
-        permButtons.add(add);
-        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-
         final Button addUser = new Button("Add User", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -185,6 +173,18 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         addUser.addStyleName("button");
         permButtons.add(addUser);
         permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
+
+        Button add = new Button("Add Group", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                dlg.center();
+                permList.updatePermissionTable();
+            }
+        });
+        add.addStyleName("button");
+        permButtons.add(add);
+        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
 
         permButtons.setSpacing(8);
         permButtons.addStyleName("pithos-TabPanelBottom");
