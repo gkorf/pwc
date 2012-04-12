@@ -380,7 +380,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 public void onSuccess(Folder _result) {
                 	if (!_result.isShared() && !_result.isContainer()) {
                 		for (File file : _result.getFiles()) {
-                			if (file.isShared())
+                			if (file.isSharedOrPublished())
                 				sharedFiles.get(username).add(file);
                 		}
 	                	Iterator<Folder> iter2 = _result.getSubfolders().iterator();

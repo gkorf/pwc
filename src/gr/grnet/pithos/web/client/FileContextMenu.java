@@ -170,6 +170,9 @@ public class FileContextMenu extends PopupPanel {
          */
         @Source("gr/grnet/pithos/resources/translate.png")
         ImageResource selectAll();
+        
+        @Source("gr/grnet/pithos/resources/internet.png")
+        ImageResource internet();
     }
 
 	public static native String getDate()/*-{
@@ -240,6 +243,7 @@ public class FileContextMenu extends PopupPanel {
         	if (isFolderTreeSelected && selectedFiles.size() == 1) {
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PROPERTIES)));
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PERMISSIONS)));
+        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PUBLISH)));
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.VERSIONS)));
         	}
 

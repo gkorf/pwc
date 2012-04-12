@@ -233,7 +233,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 public void onSuccess(Folder _result) {
                 	if (!_result.isShared()) {
                 		for (File file : _result.getFiles()) {
-                			if (file.isShared())
+                			if (file.isSharedOrPublished())
                 				sharedFiles.add(file);
                 		}
 	                	Iterator<Folder> iter2 = new ArrayList<Folder>(result.getSubfolders()).listIterator();
