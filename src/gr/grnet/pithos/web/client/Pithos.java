@@ -912,6 +912,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 						
 						@Override
 						public void execute() {
+							folderTreeSelectionModel.setSelected(folder.getParent(), true);
 							updateStatistics();
 							if (callback != null)
 								callback.execute();
