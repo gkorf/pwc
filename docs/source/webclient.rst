@@ -169,7 +169,7 @@ GET /v1/username/container?format=json&delimiter=/&prefix=subfolder
 and this is done recursively until all shared folders have been collected.
 
 Constructing the "Shared by others" tree
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The "Shared by others" tree has the additional complication that we need to get the users that share objects with us and display them as a first level of subfolders.
 
 GET /v1?format=json
@@ -185,12 +185,68 @@ Constructing the Groups tree
 
 The groups tree is contructed with the initial request for the user account data which returns the groups defined by the user along with their members.
 
-File sharing
-^^^^^^^^^^^^
+Functionality
+-------------
+The web client provides functionality which is typical to a file manager like copy/cut/paste of individual files, create/rename/delete of folders, upload/rename/delete files etc. All such operations are done by using single calls to the API or combination of calls.
 
+Folder operations
+^^^^^^^^^^^^^^^^^
+Folder creation
+"""""""""""""""
+is done by the FolderPropertiesDialog class with a request
+
+PUT /v1/username/container/path/to/new/folder
+
+Folder removal
+""""""""""""""
+is done by the DeleteFolderDialog class and is a bit more complicated because the files and subfolders must be deleted first. A request
+
+GET /v1/username/container?format=json&delimiter=/&prefix=/path/to/folder
+
+is made to retrieve all objects with names starting with the folder 's prefix. All objects are deleted with requests
+
+DELETE /v1/username/container/path/to/folder/file
+
+and if any of those objects is a marker object (folder) itself the same procedure is followed recursively. Finally a 
+
+DELETE /v1/username/container/path/to/folder
+
+is made to delete the initial folder.
+
+Folder rename
+"""""""""""""
+is done by a 
+
+PUT /v1/username/container/path/to/new/foldername
+
+to create a folder with the new name, followed by recursive copy operations (see below about copy/move/paste) to move all folder 's children under the new one. Finally, a folder deletion is done as described earlier.
+
+File Operations
+^^^^^^^^^^^^^^^
 File uploading
-^^^^^^^^^^^^^^
+""""""""""""""
 File uploading is done using the plupload http://www.plupload.com/ plugin.
 
-File Copy/Cut/Paste operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File rename
+"""""""""""
+is done by FilePropertiesDialog class with a
+
+PUT /v1/username/container/path/to/newfilename
+
+with X-Move-From header containing the old path.
+
+File delete
+"""""""""""
+is done by DeleteFileDialog class with a simple
+
+DELETE /v1/username/container/path/to/file
+
+File/Folder sharing
+^^^^^^^^^^^^^^^^^^^
+Sharing of file and folders with other users is done by setting permissions for other users or groups of users. The FolderPermissionsDialog/FilePermissionsDialog classes display the corresponding UI and perform the API calls. Permissions are set with
+
+POST /v1/username/container/path/to/object
+
+with the X-Object-Sharing containing the permissions (see Pithos+ development guide).
+
+In the case of a virtual folder (no marker object) the above operation will return 404 (Not Found) and a PUT request is needed to create the marker and then repeat the POST.
