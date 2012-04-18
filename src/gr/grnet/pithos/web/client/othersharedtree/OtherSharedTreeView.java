@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.othersharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -133,10 +134,18 @@ public class OtherSharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/othersshared.png")
+    	ImageResource icon();
+    }
+
     private OtherSharedTreeViewModel model;
 
     public OtherSharedTreeView(OtherSharedTreeViewModel viewModel) {
         this.model = viewModel;
+        
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared to me", false); 
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
@@ -146,7 +155,8 @@ public class OtherSharedTreeView extends Composite implements TreeView {
         CellTree tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        initWidget(panel);
     }
 
 

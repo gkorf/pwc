@@ -36,12 +36,12 @@
 package gr.grnet.pithos.web.client.mysharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -130,10 +130,18 @@ public class MysharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/myshared22.png")
+    	ImageResource icon();
+    }
+
     private MysharedTreeViewModel model;
 
     public MysharedTreeView(MysharedTreeViewModel viewModel) {
         this.model = viewModel;
+        
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false);
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
@@ -143,7 +151,8 @@ public class MysharedTreeView extends Composite implements TreeView {
         CellTree tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        initWidget(panel);
     }
 
 

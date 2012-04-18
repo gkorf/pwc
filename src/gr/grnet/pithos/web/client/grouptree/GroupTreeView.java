@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -50,6 +51,8 @@ import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Tree;
 
 public class GroupTreeView extends Composite implements TreeView {
@@ -118,8 +121,14 @@ public class GroupTreeView extends Composite implements TreeView {
     }
 
     static Images images = GWT.create(Images.class);
+    
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/groups22.png")
+    	ImageResource icon();
+    }
 
-    static interface Templates extends SafeHtmlTemplates {
+    public static interface Templates extends SafeHtmlTemplates {
         public Templates INSTANCE = GWT.create(Templates.class);
 
         @Template("<span>{0}</span>")
@@ -130,6 +139,8 @@ public class GroupTreeView extends Composite implements TreeView {
 
     public GroupTreeView(GroupTreeViewModel viewModel) {
         this.model = viewModel;
+
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Groups", false);
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
@@ -139,7 +150,9 @@ public class GroupTreeView extends Composite implements TreeView {
         CellTree tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        
+        initWidget(panel);
     }
 
     public void updateGroupNode(Group group) {

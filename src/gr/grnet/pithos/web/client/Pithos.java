@@ -1179,7 +1179,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-				trees.insert(otherSharedTreeView, 3);
+				trees.insert(otherSharedTreeView, 2);
 				treeViews.add(otherSharedTreeView);
 			}
 		});

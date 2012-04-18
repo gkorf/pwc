@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 
 import com.google.gwt.core.client.GWT;
@@ -72,7 +73,7 @@ public class FolderTreeView extends Composite implements TreeView {
 	}
 	
     public void openFolder(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         openFolder(root, folder);
     }
 
@@ -153,20 +154,32 @@ public class FolderTreeView extends Composite implements TreeView {
         public SafeHtml imageSpan(String name);
     }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/home22.png")
+    	ImageResource icon();
+    }
+
     private FolderTreeViewModel model;
+    
+    private CellTree tree;
 
     public FolderTreeView(FolderTreeViewModel viewModel) {
         this.model = viewModel;
+
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "My Files", true);
+
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        initWidget(panel);
     }
 
 
