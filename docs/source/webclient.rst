@@ -221,6 +221,13 @@ PUT /v1/username/container/path/to/new/foldername
 
 to create a folder with the new name, followed by recursive copy operations (see below about copy/move/paste) to move all folder 's children under the new one. Finally, a folder deletion is done as described earlier.
 
+File Cut/Copy/Paste
+"""""""""""""""""""
+Cut/Copy operations on folders just put the objects in an internal clipboard. The Paste command does the actual job of copying/moving.
+
+Folder copy is done by creating a folder at the new location with a PUT and then recursively copy all subfolders and files.
+Folder move is done the same way followed by a deletion of the initial folder. It is obvious that a copy/move of a big subtree will result in a great number of API requests.
+
 File Operations
 ^^^^^^^^^^^^^^^
 File uploading
@@ -240,6 +247,13 @@ File delete
 is done by DeleteFileDialog class with a simple
 
 DELETE /v1/username/container/path/to/file
+
+File Cut/Copy/Paste
+"""""""""""""""""""
+Cut/Copy operations on files just put the objects in an internal clipboard. The Paste command does the actual job of copying/moving.
+
+In case of copy, a sequence (if multiple files are copied) of PUT commands is issued to the new path, with X-Copy-From header
+In case of cut, the same PUT commands have X-Move-From header set.
 
 File/Folder sharing
 ^^^^^^^^^^^^^^^^^^^
