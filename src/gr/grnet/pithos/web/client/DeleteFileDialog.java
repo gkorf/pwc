@@ -168,7 +168,7 @@ public class DeleteFileDialog extends DialogBox {
 				public void execute() {
 					app.updateStatistics();
 				}
-			});
+			}, true);
         }
     }
 

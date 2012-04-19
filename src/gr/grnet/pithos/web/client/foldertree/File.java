@@ -139,8 +139,12 @@ public class File extends Resource {
         return nf.format(Double.valueOf(bytes)/(1024 * 1024 * 1024)) + " GB";
     }
 
-    public boolean isShared() {
+    public boolean isSharedOrPublished() {
         return !permissions.isEmpty() || published;
+    }
+    
+    public boolean isShared() {
+    	return !permissions.isEmpty();
     }
 
     public void populate(Folder _parent, JSONObject o, String _owner, String _container) {

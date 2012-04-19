@@ -36,6 +36,7 @@ package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.FilePermissionsDialog;
 import gr.grnet.pithos.web.client.FilePropertiesDialog;
+import gr.grnet.pithos.web.client.FilePublishDialog;
 import gr.grnet.pithos.web.client.FileVersionsDialog;
 import gr.grnet.pithos.web.client.FilesPropertiesDialog;
 import gr.grnet.pithos.web.client.FolderPermissionsDialog;
@@ -59,6 +60,7 @@ public class PropertiesCommand implements Command {
 	public static final int PROPERTIES = 0;
 	public static final int PERMISSIONS = 1;
 	public static final int VERSIONS = 2;
+	public static final int PUBLISH = 3;
 
 	private PopupPanel containerPanel;
 
@@ -138,6 +140,16 @@ public class PropertiesCommand implements Command {
 					case VERSIONS:
 		                FileVersionsDialog dlg2 = new FileVersionsDialog(app, files.get(0));
 		                dlg2.center();
+						break;
+					case PUBLISH:
+		                app.scheduleFileHeadCommand(f, new Command() {
+							
+							@Override
+							public void execute() {
+								FilePublishDialog dlg = new FilePublishDialog(app, f);
+								dlg.center();
+							}
+						});
 						break;
 					default:
 						break;

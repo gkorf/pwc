@@ -111,8 +111,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     protected Map<String, ListDataProvider<Folder>> userDataProviderMap = new HashMap<String, ListDataProvider<Folder>>();
     private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
     
-    protected Map<String, Set<File>> sharedFiles = new HashMap<String, Set<File>>();
-
     protected SingleSelectionModel<Folder> selectionModel;
 
     public OtherSharedTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
@@ -124,26 +122,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
             rootDataProvider.getList().add(treeTitle);
-            final SingleSelectionModel<String> selectionModel2 = new SingleSelectionModel<String>();
-            selectionModel2.addSelectionChangeHandler(new Handler() {
-
-                @Override
-                public void onSelectionChange(SelectionChangeEvent event) {
-                    if (selectionModel2.getSelectedObject() != null) {
-                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel2);
-                    	app.applyPermissions(null);
-                    	app.showFiles(new HashSet<File>());
-    					app.showRelevantToolbarButtons();
-                    }
-    				else {
-    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
-    						app.setSelectedTree(null);
-    					if (app.getSelectedTree() == null)
-    						app.showRelevantToolbarButtons();
-    				}
-                }
-            });
-            app.addSelectionModel(selectionModel2);
             return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
                 @Override
                 public SafeHtml render(String object) {
@@ -158,35 +136,11 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                     builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
                     builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
                 }
-            }),  selectionModel2, null);
+            }),  null, null);
         }
         else if (value instanceof String) {
         	if (value.equals(treeTitle)) {
 	        	fetchSharingUsers(null);
-	            final SingleSelectionModel<String> selectionModel3 = new SingleSelectionModel<String>();
-	            selectionModel3.addSelectionChangeHandler(new Handler() {
-
-	                @Override
-	                public void onSelectionChange(SelectionChangeEvent event) {
-	                    if (selectionModel3.getSelectedObject() != null) {
-	                    	app.deselectOthers(app.getOtherSharedTreeView(), selectionModel3);
-	                    	app.applyPermissions(null);
-	                    	String username = selectionModel3.getSelectedObject();
-	            			if (userDataProviderMap.get(username) == null) {
-	            				userDataProviderMap.put(username, new ListDataProvider<Folder>());
-	            			}
-	                    	fetchSharedFiles(username, userDataProviderMap.get(username));
-	    					app.showRelevantToolbarButtons();
-	                    }
-	    				else {
-	    					if (app.getSelectedTree().equals(app.getOtherSharedTreeView()))
-	    						app.setSelectedTree(null);
-	    					if (app.getSelectedTree() == null)
-	    						app.showRelevantToolbarButtons();
-	    				}
-	                }
-	            });
-	            app.addSelectionModel(selectionModel3);
 	            return new DefaultNodeInfo<String>(userLevelDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
 
 					@Override
@@ -202,7 +156,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
 	                    builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
 					}
-				}), selectionModel3, null);
+				}), null, null);
         	}
 			String username = (String) value;
 			if (userDataProviderMap.get(username) == null) {
@@ -229,9 +183,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             public void onSuccess(final SharingUsers _result) {
                 userLevelDataProvider.getList().clear();
                 userLevelDataProvider.getList().addAll(_result.getUsers());
-                for (String name : _result.getUsers()) {
-                	sharedFiles.put(name, new HashSet<File>());
-                }
                 Iterator<String> iter = _result.getUsers().iterator();
                 fetchSharedContainers(iter, callback);
             }
@@ -332,44 +283,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 		Scheduler.get().scheduleDeferred(getUserSharedContainers);
 	}
 
-	protected void fetchSharedFiles(final String username, final ListDataProvider<Folder> dataProvider) {
-		GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), username, "?format=json") {
-
-			@Override
-			public void onSuccess(AccountResource _result) {
-		    	final ListDataProvider<Folder> tempProvider = new ListDataProvider<Folder>();
-				Iterator<Folder> iter = _result.getContainers().iterator();
-				sharedFiles.get(username).clear();
-				fetchFolder(username, iter, tempProvider, new Command() {
-					
-					@Override
-					public void execute() {
-						dataProvider.getList().clear();
-						dataProvider.getList().addAll(tempProvider.getList());
-						app.showFiles(sharedFiles.get(username));
-					}
-				});
-			}
-
-			@Override
-			public void onError(Throwable t) {
-                GWT.log("Error getting account", t);
-				app.setError(t);
-                if (t instanceof RestException)
-                    app.displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
-                else
-                    app.displayError("System error fetching user data: " + t.getMessage());
-			}
-
-			@Override
-			protected void onUnauthorized(Response response) {
-				app.sessionExpired();
-			}
-		};
-		getUserSharedContainers.setHeader("X-Auth-Token", app.getToken());
-		Scheduler.get().scheduleDeferred(getUserSharedContainers);
-	}
-
 	protected void fetchFolder(final String username, final Iterator<Folder> iter, final ListDataProvider<Folder> dataProvider, final Command callback) {
         if (iter.hasNext()) {
             final Folder f = iter.next();
@@ -378,24 +291,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), username, path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
-                	if (!_result.isShared() && !_result.isContainer()) {
-                		for (File file : _result.getFiles()) {
-                			if (file.isShared())
-                				sharedFiles.get(username).add(file);
-                		}
-	                	Iterator<Folder> iter2 = _result.getSubfolders().iterator();
-	                	fetchFolder(username, iter2, dataProvider, new Command() {
-							
-							@Override
-							public void execute() {
-			                    fetchFolder(username, iter, dataProvider, callback);
-							}
-						});
-                	}
-                	else {
-                		dataProvider.getList().add(_result);
-	                    fetchFolder(username, iter, dataProvider, callback);
-                	}
+               		dataProvider.getList().add(_result);
+                    fetchFolder(username, iter, dataProvider, callback);
                 }
 
                 @Override

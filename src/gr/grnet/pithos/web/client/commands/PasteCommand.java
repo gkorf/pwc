@@ -86,7 +86,7 @@ public class PasteCommand implements Command {
 							public void execute() {
 								app.updateStatistics();
 							}
-						});
+						}, true);
                     }
                 });
             }
@@ -96,7 +96,7 @@ public class PasteCommand implements Command {
                     public void execute() {
                         app.getClipboard().clear();
                         app.deleteFolder(tobeCopied, null);
-                        app.updateFolder(folder, true, null);
+                        app.updateFolder(folder, true, null, true);
                     }
                 });
             }
@@ -116,7 +116,7 @@ public class PasteCommand implements Command {
 							public void execute() {
 								app.updateStatistics();
 							}
-						});
+						}, true);
                     }
                 });
             }
@@ -125,7 +125,7 @@ public class PasteCommand implements Command {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
-                        app.updateFolder(folder, true, null);
+                        app.updateFolder(folder, true, null, true);
                     }
                 });
             }

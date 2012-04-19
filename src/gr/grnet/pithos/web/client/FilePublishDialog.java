@@ -69,10 +69,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * The 'File properties' dialog box implementation.
  *
  */
-public class FilePermissionsDialog extends AbstractPropertiesDialog {
+public class FilePublishDialog extends AbstractPropertiesDialog {
 
-	protected PermissionsList permList;
-
+	protected CheckBox readForAll;
+	
 	private HorizontalPanel pathPanel;
 	
 	private TextBox path;
@@ -99,7 +99,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	/**
 	 * The widget's constructor.
 	 */
-	public FilePermissionsDialog(Pithos _app, File _file) {
+	public FilePublishDialog(Pithos _app, File _file) {
         super(_app);
         file = _file;
 
@@ -113,7 +113,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 			}
 		});
 		// Set the dialog's caption.
-		setText("File permissions");
+		setText("Publish/Un-publish");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
@@ -148,48 +148,30 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), false, new Command() {
-			
-			@Override
-			public void execute() {
-				accept();
-			}
-		});
-        permPanel.add(permList);
-
-        HorizontalPanel permButtons = new HorizontalPanel();
-        final Button addUser = new Button("Add User", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        addUser.addStyleName("button");
-        permButtons.add(addUser);
-        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
-
-        Button add = new Button("Add Group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        add.addStyleName("button");
-        permButtons.add(add);
-        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
-
-        permButtons.setSpacing(8);
-        permButtons.addStyleName("pithos-TabPanelBottom");
-        permPanel.add(permButtons);
-
         final Label readForAllNote = new Label("When this option is enabled, the file will be readable" +
                     " by everyone. By checking this option, you are certifying that you have the right to " +
                     "distribute this file and that it does not violate the Terms of Use.", true);
         readForAllNote.setStylePrimaryName("pithos-readForAllNote");
+
+        readForAll = new CheckBox();
+        readForAll.setValue(file.isPublished());
+        readForAll.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+            	accept();
+            }
+        });
+
+        // Only show the read for all permission if the user is the owner.
+        if (file.getOwner().equals(app.getUsername())) {
+            final HorizontalPanel permForAll = new HorizontalPanel();
+            permForAll.add(new Label("Public"));
+            permForAll.add(readForAll);
+            permForAll.setSpacing(8);
+            permForAll.addStyleName("pithos-TabPanelBottom");
+            permForAll.add(readForAllNote);
+            permPanel.add(permForAll);
+        }
 
         pathPanel = new HorizontalPanel();
         pathPanel.setVisible(false);
@@ -220,19 +202,17 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 			
 			@Override
 			public void execute() {
-				showLinkIfShared();
+				showLinkIfPublished();
 			}
 		});
         return permPanel;
     }
 
-    void showLinkIfShared() {
-		if (file.isShared()) {
+    void showLinkIfPublished() {
+		if (file.isPublished()) {
 			UrlBuilder b = Window.Location.createUrlBuilder();
-			b.setPath(app.getApiPath() + file.getOwner() + file.getUri());
-			String href = Window.Location.getHref();
-			boolean hasParameters = href.contains("?");
-			path.setText(href + (hasParameters ? "&" : "?") + "goto=" + b.buildString());
+			b.setPath(file.getPublicUri());
+			path.setText(b.buildString());
 	        pathPanel.setVisible(true);
 		}
 		else {
@@ -245,11 +225,15 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected void accept() {
-        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", permList.getPermissions());
+        Boolean published = null;
+		if (readForAll.getValue() != file.isPublished())
+			if (file.getOwner().equals(app.getUsername()))
+                published = readForAll.getValue();
+        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published);
 	}
 
-	protected void updateMetaData(String api, String owner, final String path, final Map<String, Boolean[]> newPermissions) {
-        if (newPermissions != null) {
+	protected void updateMetaData(String api, String owner, final String path, final Boolean published) {
+        if (published != null) {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
@@ -257,7 +241,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
 						@Override
 						public void onSuccess(File _result) {
-							showLinkIfShared();
+							showLinkIfPublished();
 		                    app.updateFolder(file.getParent(), true, new Command() {
 								
 								@Override
@@ -296,30 +280,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 				}
             };
             updateFile.setHeader("X-Auth-Token", app.getToken());
-            
-            String readPermHeader = "read=";
-            String writePermHeader = "write=";
-            for (String u : newPermissions.keySet()) {
-                Boolean[] p = newPermissions.get(u);
-                if (p[0] != null && p[0])
-                    readPermHeader += u + ",";
-                if (p[1] != null && p[1])
-                    writePermHeader += u + ",";
-            }
-            if (readPermHeader.endsWith("="))
-                readPermHeader = "";
-            else if (readPermHeader.endsWith(","))
-                readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-            if (writePermHeader.endsWith("="))
-                writePermHeader = "";
-            else if (writePermHeader.endsWith(","))
-                writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-            String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
-            if (permHeader.length() == 0)
-                permHeader="~";
-            else
-            	permHeader = URL.encodePathSegment(permHeader);
-            updateFile.setHeader("X-Object-Sharing", permHeader);
+            updateFile.setHeader("X-Object-Public", published.toString());
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else

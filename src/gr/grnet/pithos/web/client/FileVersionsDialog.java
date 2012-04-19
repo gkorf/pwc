@@ -193,9 +193,9 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 			
 			@Override
 			public void execute() {
-				if (file.isShared())
+				if (file.isSharedOrPublished())
 					app.updateMySharedRoot();
 			}
-		});
+		}, true);
 	}
 }

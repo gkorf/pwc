@@ -178,6 +178,7 @@ public class ToolsMenu extends PopupPanel {
 				        if (files != null && files.size() == 1) {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PROPERTIES)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PUBLISH)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
 				        	empty = false;
 				        }

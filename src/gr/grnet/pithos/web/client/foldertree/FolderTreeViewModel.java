@@ -210,7 +210,7 @@ public class FolderTreeViewModel implements TreeViewModel {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(final Folder folder, boolean showfiles, final Command callback) {
+    public void updateFolder(final Folder folder, boolean showfiles, final Command callback, final boolean openParent) {
         if (dataProviderMap.get(folder) == null) {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
@@ -219,7 +219,8 @@ public class FolderTreeViewModel implements TreeViewModel {
 			
 			@Override
 			public void execute() {
-				app.getFolderTreeView().openFolder(folder);
+				if (openParent)
+					app.getFolderTreeView().openFolder(folder);
 				if (callback != null)
 					callback.execute();
 			}

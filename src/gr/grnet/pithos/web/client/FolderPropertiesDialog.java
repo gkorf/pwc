@@ -249,7 +249,7 @@ public class FolderPropertiesDialog extends DialogBox {
 					public void execute() {
 						app.updateStatistics();
 					}
-				});
+				}, true);
             }
 
             @Override
@@ -313,7 +313,7 @@ public class FolderPropertiesDialog extends DialogBox {
 		                            			public void execute() {
 		                            				app.updateMySharedRoot();
 		                            			}
-		                            		});
+		                            		}, true);
 										}
 									});
                                 }
@@ -351,6 +351,6 @@ public class FolderPropertiesDialog extends DialogBox {
     			public void execute() {
     				app.updateMySharedRoot();
     			}
-    		});
+    		}, true);
 	}
 }
