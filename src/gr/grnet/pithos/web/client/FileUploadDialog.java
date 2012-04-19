@@ -154,7 +154,7 @@ public class FileUploadDialog extends DialogBox {
 				public void execute() {
 					app.updateStatistics();
 				}
-			});
+			}, true);
 		else
 			app.updateOtherSharedFolder(folder, true);
 	}

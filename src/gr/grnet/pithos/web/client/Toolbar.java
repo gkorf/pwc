@@ -128,7 +128,7 @@ public class Toolbar extends Composite {
 		    			public void execute() {
 		    				app.updateStatistics();
 		    			}
-		    		});
+		    		}, true);
 			}
 		});
         toolbar.add(refreshButton);

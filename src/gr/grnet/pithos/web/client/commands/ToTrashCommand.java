@@ -87,7 +87,7 @@ public class ToTrashCommand implements Command{
 						public void execute() {
 							app.updateTrash(false, null);
 						}
-					});
+					}, true);
                 }
             });
         }
@@ -102,7 +102,7 @@ public class ToTrashCommand implements Command{
 						public void execute() {
 							app.updateTrash(false, null);
 						}
-					});
+					}, true);
                 }
             });
 

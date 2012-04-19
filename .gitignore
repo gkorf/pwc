@@ -17,8 +17,8 @@ gwt-unitCache
 */dist/
 */build/
 */pithos_webclient/version.py
-*/pithos_webclient/templates/pithos_web_client/*
-*/pithos_webclient/static/pithos_web_client/*
+*/pithos_webclient/templates/pithos_webclient/*
+*/pithos_webclient/static/pithos_webclient/*
 distribute*.tar.gz
 distribute*.egg
 docs/build

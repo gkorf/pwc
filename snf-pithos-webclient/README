@@ -1,14 +1,80 @@
 snf-pithos-webclient
-=====================
+********************
 
-This is the python package of the synnefo pithos ui frontend
-webapp. It consist of a django application module which includes
-a prebuilt version of the pithos ui gwt project contained in
-`../src` directory.
+This is the python package of the pithos frontend web application. It consists
+of a django application module which includes a prebuilt version of the pithos
+gwt project contained in `../src` directory.
 
-The gwt built files are not included in the repository. Ant
-hooks has been added in setup.py so that each time you run ``python
-setup.py {develop, install, sdist}`` ant build is executed and
-compiled js and other asset files are placed in the appropriate
-locations within the python module to be packaged/installed.
+The gwt build files are not included in the repository. Ant hooks has been
+added in setup.py so that each time you run ``python setup.py {develop,
+install, sdist}`` ant build gets executed automatically for you.  Additionally
+after each successfull build, compiled js and other asset files are copied in
+the appropriate locations so that they will get included in the created python
+package.
+
+
+Installation
+============
+
+1. Install the ``snf-pithos-webclient`` python package:
+
+    pip install snf-pithos-webclient -f http://docs.dev.grnet.gr/pypi/
+
+2. Add ``pithos_webclient`` in your django project INSTALLED_APPS setting.
+
+3. Configure your web server to serve package static files placed in
+   pithos_web_client/static/pithos_web_client under the
+   ``/static/pithos_web_client`` url (``/static/`` is the default django
+   MEDIA_URL).
+
+
+Available settings
+==================
+
+The pithos webclient use the following settings 
+
+
+PITHOS_UI_LOGIN_URL
+-------------------
+Web client checks for existing ``PITHOS_UI_AUTH_COOKIE_NAME`` cookie on the
+browser and if found, uses the stored token to make requests to the pithos api
+service. If cookie is not found or if api response with 401 error, the
+application will redirect to the ``PITHOS_UI_LOGIN_URL``. ``next`` parameter
+gets automatically appended in the url by the webclient.
+
+**default value:** ``https://accounts.okeanos.grnet.gr/im/login?next=``
+
+
+PITHOS_UI_FEEDBACK_URL
+----------------------
+Should be set to match your astakos deployment feedback endpoint. This is used
+in error messages, if user want to submit the error as feedback to the service
+administrators.
+
+**default value:** ``https://accounts.okeanos.grnet.gr/im/feedback``
+
+
+PITHOS_UI_AUTH_COOKIE_NAME
+--------------------------
+The cookie name the webclient will check for user authenticity. This
+should match the ``ASTAKOS_COOKIE_NAME`` setting of your astakos deployment.
+
+**default value:** ``_pithos2_a``
+
+
+PITHOS_CLOUDBAR_ACTIVE_SERVICE
+------------------------------
+This is passed as a setting to the cloudbar js script to set focus to the
+appropriate service menu. This should match the `id` key of
+``ASTAKOS_CLOUD_SERVICES`` entry which refers to pithos application.
+
+**default value:** ``pithos``
+
+
+CLOUDBAR_SETTINGS
+-----------------
+Webclient also makes use of the ``cloudbar`` context processor located in
+``snf-common`` package which requires ``CLOUDBAR_ACTIVE``,
+``CLOUDBAR_LOCATION``, ``CLOUDBAR_COOKIE_NAME``, ``CLOUDBAR_SERVICES_URL``,
+``CLOUDBAR_MENU_URL`` settings to be set.
 

@@ -309,7 +309,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 						public void execute() {
 							app.updateMySharedRoot();
 						}
-					});
+					}, true);
                 }
 
                 @Override
@@ -340,9 +340,9 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				
 				@Override
 				public void execute() {
-					if (file.isShared())
+					if (file.isSharedOrPublished())
 						app.updateMySharedRoot();
 				}
-			});
+			}, true);
     }
 }

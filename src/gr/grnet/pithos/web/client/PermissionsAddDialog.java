@@ -50,6 +50,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -59,9 +60,9 @@ public class PermissionsAddDialog extends DialogBox {
 
 	private ListBox groupBox = new ListBox();
 
-	private CheckBox read = new CheckBox();
+	private RadioButton read = new RadioButton("permissions");
 
-	private CheckBox write = new CheckBox();
+	private RadioButton write = new RadioButton("permissions");
 
 	private PermissionsList permList;
 
@@ -94,8 +95,8 @@ public class PermissionsAddDialog extends DialogBox {
 
         final FlexTable permTable = new FlexTable();
         permTable.setText(0, 0, "Users/Groups");
-        permTable.setText(0, 1, "Read");
-        permTable.setText(0, 2, "Write");
+        permTable.setText(0, 1, "Read Only");
+        permTable.setText(0, 2, "Read/Write");
         permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
         permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
         permTable.getFlexCellFormatter().setStyleName(0, 2, "props-toplabels");
@@ -108,7 +109,8 @@ public class PermissionsAddDialog extends DialogBox {
                 groupBox.addItem(group.getName(), group.getName());
             permTable.setWidget(1, 0, groupBox);
         }
-
+                
+        read.setValue(true);
         permTable.setWidget(1, 1, read);
         permTable.setWidget(1, 2, write);
 

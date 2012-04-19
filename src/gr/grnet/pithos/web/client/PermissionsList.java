@@ -50,6 +50,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.PushButton;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 
@@ -77,8 +78,8 @@ public class PermissionsList extends Composite {
 		owner = theOwner;
 		permissions =  new HashMap<String, Boolean[]>(thePermissions);
 		permTable.setText(0, 0, "Users/Groups");
-		permTable.setText(0, 1, "Read");
-		permTable.setText(0, 2, "Write");
+		permTable.setText(0, 1, "Read Only");
+		permTable.setText(0, 2, "Read/Write");
 		permTable.setText(0, 3, "");
 		permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
 		permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
@@ -130,12 +131,12 @@ public class PermissionsList extends Composite {
             Boolean readP = userPerms[0];
             Boolean writeP = userPerms[1];
 
-			CheckBox read = new CheckBox();
+			RadioButton read = new RadioButton("permissions" + i);
 			read.setValue(readP != null ? readP : false);
             permTable.setWidget(i, 1, read);
             permTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
 
-            CheckBox write = new CheckBox();
+            RadioButton write = new RadioButton("permissions" + i);
             write.setValue(writeP != null ? writeP : false);
             permTable.setWidget(i, 2, write);
             permTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
@@ -146,6 +147,7 @@ public class PermissionsList extends Composite {
                     public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
                         Boolean[] ps = permissions.get(user);
                         ps[0] = booleanValueChangeEvent.getValue();
+                        ps[1] = !booleanValueChangeEvent.getValue();
                         hasChanges = true;
                         if (changePermissionsCallback != null)
                         	changePermissionsCallback.execute();
@@ -155,6 +157,7 @@ public class PermissionsList extends Composite {
                     @Override
                     public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
                         Boolean[] ps = permissions.get(user);
+                        ps[0] = !booleanValueChangeEvent.getValue();
                         ps[1] = booleanValueChangeEvent.getValue();
                         hasChanges = true;
                         if (changePermissionsCallback != null)
