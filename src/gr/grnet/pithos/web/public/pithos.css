@@ -377,8 +377,8 @@ table.pithos-permList.props-labels {
     text-align: center;
     height: auto;
     padding: 8px;
-    width: 146px;
-    border: none;
+    width: 127px;
+    border: 0px;
 }
 
 .pithos-uploadButton-loading {
@@ -732,4 +732,13 @@ a.pithos-tag {
 
 .pithos-versionList {
 	padding-right: 5px;
+}
+
+.pithos-folderTreeSection {
+	padding-left: 10px;
+}
+
+.pithos-folderTreeSectionContent {
+	padding: 4px 0px 4px 8px;
+	margin-left: 6px;
 }

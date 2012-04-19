@@ -131,7 +131,7 @@ public class GroupTreeView extends Composite implements TreeView {
     public static interface Templates extends SafeHtmlTemplates {
         public Templates INSTANCE = GWT.create(Templates.class);
 
-        @Template("<span>{0}</span>")
+        @Template("<span style='margin-left:5px;'>{0}</span>")
         public SafeHtml nameSpan(String name);
       }
 

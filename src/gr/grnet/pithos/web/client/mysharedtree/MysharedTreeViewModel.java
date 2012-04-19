@@ -119,37 +119,16 @@ public class MysharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-            rootDataProvider.getList().add("Shared by me");
-            return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
-                @Override
-                public SafeHtml render(String object) {
-                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                    render(object, builder);
-                    return builder.toSafeHtml();
-                }
-
-                @Override
-                public void render(String object, SafeHtmlBuilder builder) {
-                    String html = AbstractImagePrototype.create(MysharedTreeView.images.myShared()).getHTML();
-                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-                    builder.append(MysharedTreeView.Templates.INSTANCE.nameSpan(object));
-                }
-            }),  null, null);
-        }
-        else if (value instanceof String) {
         	fetchSharedContainers(null);
             return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, selectionModel, null);
         }
-        else {
-            final Folder f = (Folder) value;
-            if (dataProviderMap.get(f) == null) {
-                dataProviderMap.put(f, new ListDataProvider<Folder>());
-            }
-            final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-            fetchFolder(f, dataProvider, false);
-            return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
+        final Folder f = (Folder) value;
+        if (dataProviderMap.get(f) == null) {
+            dataProviderMap.put(f, new ListDataProvider<Folder>());
         }
+        final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
+        fetchFolder(f, dataProvider, false);
+        return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }
 
 	private void fetchSharedContainers(final Command callback) {

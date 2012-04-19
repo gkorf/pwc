@@ -55,7 +55,7 @@ import com.google.gwt.user.client.ui.Tree;
 public class MysharedTreeView extends Composite implements TreeView {
 
     public void updateChildren(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         updateChildren(root, folder);
     }
 
@@ -105,17 +105,17 @@ public class MysharedTreeView extends Composite implements TreeView {
         @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder22.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
 
-        @Source("gr/grnet/pithos/resources/othersshared.png")
-        ImageResource othersShared();
-
         @Source("gr/grnet/pithos/resources/myshared22.png")
         ImageResource myShared();
+
+        @Source("gr/grnet/pithos/resources/sharedbyme22.png")
+        ImageResource sharedByMe();
 
         @Source("gr/grnet/pithos/resources/folder_user.png")
         ImageResource sharedFolder();
@@ -132,12 +132,14 @@ public class MysharedTreeView extends Composite implements TreeView {
 
     interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
     	@Override
-		@Source("gr/grnet/pithos/resources/myshared22.png")
+		@Source("gr/grnet/pithos/resources/sharedbyme22.png")
     	ImageResource icon();
     }
 
     private MysharedTreeViewModel model;
 
+    private CellTree tree;
+    
     public MysharedTreeView(MysharedTreeViewModel viewModel) {
         this.model = viewModel;
         
@@ -148,7 +150,7 @@ public class MysharedTreeView extends Composite implements TreeView {
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
         panel.add(tree);

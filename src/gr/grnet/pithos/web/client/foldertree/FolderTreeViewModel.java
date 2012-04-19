@@ -72,7 +72,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             String html;
             SafeHtml name;
         	if (folder.isHome()) {
-        		html = AbstractImagePrototype.create(FolderTreeView.images.home()).getHTML();
+        		html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
         		name = Templates.INSTANCE.nameSpan("Pithos");
         	}
         	else if (folder.isTrash()) {

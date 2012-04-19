@@ -58,6 +58,8 @@ public class PithosDisclosurePanel extends Composite {
 
 	public interface Style extends CssResource {
 		String disclosurePanel();
+		
+		String content();
 	}
 	
 	public interface Resources extends ClientBundle {
@@ -76,7 +78,10 @@ public class PithosDisclosurePanel extends Composite {
 	
 	DisclosurePanel panel;
 	
-	public PithosDisclosurePanel(final Resources resources, final String title, boolean open) {
+	Resources resources;
+	
+	public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
+		resources = _resources;
 		resources.pithosDisclosurePanelCss().ensureInjected();
 		panel = new DisclosurePanel();
 		panel.addStyleName(resources.pithosDisclosurePanelCss().disclosurePanel());
@@ -97,18 +102,21 @@ public class PithosDisclosurePanel extends Composite {
 				panel.setHeader(createHeader(resources, title, false));
 			}
 		});
+		
 		initWidget(panel);
 	}
 	
 	HTML createHeader(Resources resources, String title, boolean open) {
         SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML()).appendHtmlConstant("&nbsp;");
+        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
         sb.append(Templates.INSTANCE.nameSpan(title));
-        sb.appendHtmlConstant(AbstractImagePrototype.create(open ? resources.open() : resources.closed()).getHTML());
+       	sb.appendHtmlConstant(AbstractImagePrototype.create(open ? resources.open() : resources.closed()).getHTML());
         return new HTML(sb.toSafeHtml());
 	}
 	
 	public void add(IsWidget widget) {
 		panel.add(widget);
+		panel.getContent().removeStyleName("content");
+		panel.getContent().addStyleName(resources.pithosDisclosurePanelCss().content());
 	}
 }
