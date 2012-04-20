@@ -35,6 +35,13 @@
  
 .disclosurePanel {
 	padding-left: 10px;
+	width: 100%;
+}
+
+.header {
+	background-color: #74aec9;
+	height: 25px;
+    width: 100%;
 }
 
 .content {

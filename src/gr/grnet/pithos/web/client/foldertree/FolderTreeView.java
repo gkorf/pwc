@@ -53,7 +53,11 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -172,10 +176,23 @@ public class FolderTreeView extends Composite implements TreeView {
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("pithos-folderTreeSection");
         Resources resources = GWT.create(Resources.class);
-        SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
-        sb.append(Templates.INSTANCE.nameSpan("My Files"));
-        panel.add(new HTML(sb.toSafeHtml()));
+        
+        HorizontalPanel header = new HorizontalPanel();
+        
+//        SafeHtmlBuilder sb = new SafeHtmlBuilder();
+        Image img = new Image(resources.icon());
+        header.add(img);
+        header.setCellVerticalAlignment(img, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(img, "32px");
+        HTML title = new HTML("My Files");
+        header.add(title);
+        header.setCellVerticalAlignment(title, HasVerticalAlignment.ALIGN_MIDDLE);
+        
+//        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
+ //       sb.append(Templates.INSTANCE.nameSpan("My Files"));
+//        HTML header = new HTML(sb.toSafeHtml());
+        header.addStyleName("pithos-folderTreeSectionHeader");
+        panel.add(header);
 
 
         /*

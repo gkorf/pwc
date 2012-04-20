@@ -371,34 +371,41 @@ public class Pithos implements EntryPoint, ResizeHandler {
         
         trees = new VerticalPanel();
         trees.setWidth("100%");
-
+        trees.setSpacing(5);
         
-        HorizontalPanel treeHeader = new HorizontalPanel();
-        treeHeader.addStyleName("pithos-treeHeader");
-        treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        HorizontalPanel statistics = new HorizontalPanel();
-        statistics.addStyleName("pithos-statistics");
-        statistics.add(new HTML("Used:&nbsp;"));
-        usedBytes = new HTML();
-        statistics.add(usedBytes);
-        statistics.add(new HTML("&nbsp;of&nbsp;"));
-        totalBytes = new HTML();
-        statistics.add(totalBytes);
-        statistics.add(new HTML("&nbsp;("));
-        usedPercent = new HTML();
-        statistics.add(usedPercent);
-        statistics.add(new HTML(")"));
-        treeHeader.add(statistics);
-        treeHeader.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_LEFT);
-        trees.add(treeHeader);
+//        HorizontalPanel treeHeader = new HorizontalPanel();
+//        treeHeader.addStyleName("pithos-treeHeader");
+//        treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+//        treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+//        treeHeader.add(statistics);
+//        treeHeader.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_LEFT);
+//        trees.add(treeHeader);
 
         trees.add(folderTreeView);
+        
+        HorizontalPanel separator = new HorizontalPanel();
+        separator.addStyleName("pithos-statisticsSeparator");
+        trees.add(separator);
+        
+        HorizontalPanel statistics = new HorizontalPanel();
+	    statistics.addStyleName("pithos-statistics");
+	    statistics.add(new HTML("Used:&nbsp;"));
+	    usedBytes = new HTML();
+	    statistics.add(usedBytes);
+	    statistics.add(new HTML("&nbsp;of&nbsp;"));
+	    totalBytes = new HTML();
+	    statistics.add(totalBytes);
+	    statistics.add(new HTML("&nbsp;("));
+	    usedPercent = new HTML();
+	    statistics.add(usedPercent);
+	    statistics.add(new HTML(")"));
+        trees.add(statistics);
+        
         trees.add(groupTreeView);
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
-        splitPanel.setSplitPosition("35%");
+        splitPanel.setSplitPosition("219px");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
         splitPanel.setWidth(contentWidth);
@@ -1145,7 +1152,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-				trees.insert(mysharedTreeView, 2);
+				trees.insert(mysharedTreeView, 4);
 				treeViews.add(mysharedTreeView);
 				createOtherSharedTree();
 			}
@@ -1179,7 +1186,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-				trees.insert(otherSharedTreeView, 2);
+				trees.insert(otherSharedTreeView, 4);
 				treeViews.add(otherSharedTreeView);
 			}
 		});

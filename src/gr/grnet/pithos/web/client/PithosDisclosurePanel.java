@@ -59,6 +59,8 @@ public class PithosDisclosurePanel extends Composite {
 	public interface Style extends CssResource {
 		String disclosurePanel();
 		
+		String header();
+		
 		String content();
 	}
 	
@@ -111,7 +113,9 @@ public class PithosDisclosurePanel extends Composite {
         sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
         sb.append(Templates.INSTANCE.nameSpan(title));
        	sb.appendHtmlConstant(AbstractImagePrototype.create(open ? resources.open() : resources.closed()).getHTML());
-        return new HTML(sb.toSafeHtml());
+       	HTML header = new HTML(sb.toSafeHtml());
+       	header.addStyleName(resources.pithosDisclosurePanelCss().header());
+        return header;
 	}
 	
 	public void add(IsWidget widget) {
