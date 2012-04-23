@@ -52,7 +52,12 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
 
 public class PithosDisclosurePanel extends Composite {
 
@@ -60,6 +65,8 @@ public class PithosDisclosurePanel extends Composite {
 		String disclosurePanel();
 		
 		String header();
+		
+		String arrow();
 		
 		String content();
 	}
@@ -108,14 +115,24 @@ public class PithosDisclosurePanel extends Composite {
 		initWidget(panel);
 	}
 	
-	HTML createHeader(Resources resources, String title, boolean open) {
-        SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
-        sb.append(Templates.INSTANCE.nameSpan(title));
-       	sb.appendHtmlConstant(AbstractImagePrototype.create(open ? resources.open() : resources.closed()).getHTML());
-       	HTML header = new HTML(sb.toSafeHtml());
-       	header.addStyleName(resources.pithosDisclosurePanelCss().header());
-        return header;
+	Widget createHeader(Resources resources, String title, boolean open) {
+		HorizontalPanel header = new HorizontalPanel();
+        
+		Image img = new Image(resources.icon());
+		header.add(img);
+		header.setCellVerticalAlignment(img, HasVerticalAlignment.ALIGN_MIDDLE);
+		header.setCellWidth(img, "32px");
+		HTML titleHtml = new HTML(title);
+		header.add(titleHtml);
+		header.setCellVerticalAlignment(titleHtml, HasVerticalAlignment.ALIGN_MIDDLE);
+		Image arrow = new Image(open ? resources.open() : resources.closed());
+		arrow.addStyleName(resources.pithosDisclosurePanelCss().arrow());
+		header.add(arrow);
+		header.setCellHorizontalAlignment(arrow, HasHorizontalAlignment.ALIGN_RIGHT);
+		header.setCellVerticalAlignment(arrow, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		header.addStyleName(resources.pithosDisclosurePanelCss().header());
+		return header;
 	}
 	
 	public void add(IsWidget widget) {
