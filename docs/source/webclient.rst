@@ -168,7 +168,7 @@ GET /v1/username/container?format=json&delimiter=/&prefix=subfolder
 
 and this is done recursively until all shared folders have been collected.
 
-Constructing the "Shared by others" tree
+Constructing the "Shared to me" tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The "Shared by others" tree has the additional complication that we need to get the users that share objects with us and display them as a first level of subfolders.
 
@@ -232,7 +232,11 @@ File Operations
 ^^^^^^^^^^^^^^^
 File uploading
 """"""""""""""
-File uploading is done using the plupload http://www.plupload.com/ plugin.
+File uploading is done using the plupload http://www.plupload.com/ plugin. The plugin supports multiple file upload, drag'n'drop from the desktop and progress indication. It uses any of the following technolgies (whatever is available in the browser) html5, flash, gears, silverlight, browserplus, html4 in this order. If none is found then html4 is the last fallback in which case most features are not available (no drag'n'drop, no progress indicator).
+
+The upload operation is done with a 
+
+POST /v1/username/container/path/to/file?X-Auth-Token=<auth token>. This is the only case the auth token is passed as a url parameter. The reason is that it cannot be passed as a header due to the fact that the POST is not controlled by the code, it cannot be passed as POST payload parameter (form parameter) for efficiency reasons (the server should read the whole file first, before reading the token) and it cannot be passed as a cookie to avoid XSRF attacks.
 
 File rename
 """""""""""
