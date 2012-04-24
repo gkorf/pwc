@@ -38,6 +38,7 @@ package gr.grnet.pithos.web.client.grouptree;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
@@ -58,7 +59,7 @@ import com.google.gwt.user.client.ui.Tree;
 public class GroupTreeView extends Composite implements TreeView {
 
     public void updateChildren(Group group) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         if (group != null)
         	updateChildren(root, group);
         else {
@@ -122,8 +123,17 @@ public class GroupTreeView extends Composite implements TreeView {
 
     static Images images = GWT.create(Images.class);
     
-    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    interface Style extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Style {
     	@Override
+		String header();
+    }
+ 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("PithosGroupDisclosurePanel.css")
+		Style pithosDisclosurePanelCss();
+
+		@Override
 		@Source("gr/grnet/pithos/resources/groups22.png")
     	ImageResource icon();
     }
@@ -136,6 +146,8 @@ public class GroupTreeView extends Composite implements TreeView {
       }
 
     private GroupTreeViewModel model;
+    
+    private CellTree tree;
 
     public GroupTreeView(GroupTreeViewModel viewModel) {
         this.model = viewModel;
@@ -147,7 +159,7 @@ public class GroupTreeView extends Composite implements TreeView {
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
         panel.add(tree);

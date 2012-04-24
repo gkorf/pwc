@@ -42,6 +42,7 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -130,8 +131,17 @@ public class MysharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
-    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    interface Style extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Style {
     	@Override
+		String header();
+    }
+
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("PithosMySharedDisclosurePanel.css")
+		Style pithosDisclosurePanelCss();
+
+		@Override
 		@Source("gr/grnet/pithos/resources/sharedbyme22.png")
     	ImageResource icon();
     }
@@ -168,7 +178,7 @@ public class MysharedTreeView extends Composite implements TreeView {
     }
 
 	public void updateRoot() {
-		TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+		TreeNode root = tree.getRootTreeNode();
 		root.setChildOpen(0, true);
 		root.setChildOpen(0, false);
 	}

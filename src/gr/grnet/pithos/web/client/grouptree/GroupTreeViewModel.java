@@ -58,28 +58,6 @@ public class GroupTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
-    private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-    
-    private Cell<String> rootCell = new AbstractCell<String>(ContextMenuEvent.getType().getName()) {
-
-		@Override
-		public void render(Context context,	String value, SafeHtmlBuilder sb) {
-            String html = AbstractImagePrototype.create(GroupTreeView.images.groups()).getHTML();
-            sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-            sb.append(Templates.INSTANCE.nameSpan(value));
-		}
-		
-        @Override
-        public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, String s, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<String> valueUpdater) {
-            GroupTreeViewModel.this.rootSelectionModel.setSelected(s, true);
-            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
-                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, null);
-                menu.setPopupPosition(event.getClientX(), event.getClientY());
-                menu.show();
-            }
-        }
-	};
-
 	private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
 
 		@Override
@@ -124,33 +102,11 @@ public class GroupTreeViewModel implements TreeViewModel {
 
     protected Map<Group, ListDataProvider<User>> userDataProviderMap = new HashMap<Group, ListDataProvider<User>>();
     
-    protected Map<String, Set<File>> sharedFiles = new HashMap<String, Set<File>>();
-
-    SingleSelectionModel<String> rootSelectionModel;
     SingleSelectionModel<Group> groupSelectionModel;
     SingleSelectionModel<User> userSelectionModel;
 
     public GroupTreeViewModel(Pithos _app) {
         app = _app;
-        rootSelectionModel = new SingleSelectionModel<String>();
-    	app.addSelectionModel(rootSelectionModel);
-    	rootSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-			
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				if (rootSelectionModel.getSelectedObject() != null) {
-					app.deselectOthers(app.getGroupTreeView(), rootSelectionModel);
-					app.showFiles(new HashSet<File>());
-					app.showRelevantToolbarButtons();
-				}
-				else {
-					if (app.getSelectedTree().equals(app.getGroupTreeView()))
-						app.setSelectedTree(null);
-					if (app.getSelectedTree() == null)
-						app.showRelevantToolbarButtons();
-				}
-			}
-		});
 
     	groupSelectionModel = new SingleSelectionModel<Group>();
     	app.addSelectionModel(groupSelectionModel);
@@ -196,25 +152,19 @@ public class GroupTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-        	rootDataProvider.getList().add("");
-            return new DefaultNodeInfo<String>(rootDataProvider, rootCell,  rootSelectionModel, null);
-        }
-        else if (value instanceof String) {
         	groupsDataProvider.getList().clear();
         	groupsDataProvider.getList().addAll(app.getAccount().getGroups());
             return new DefaultNodeInfo<Group>(groupsDataProvider, groupCell, groupSelectionModel, null);
         }
-        else { //Group
-        	Group g = (Group) value;
-			if (userDataProviderMap.get(g) == null) {
-				userDataProviderMap.put(g, new ListDataProvider<User>());
-			}
-			final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
-			dataProvider.getList().clear();
-			for (String u : g.getMembers())
-				dataProvider.getList().add(new User(u, g));
-        	return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
-        }
+    	Group g = (Group) value;
+		if (userDataProviderMap.get(g) == null) {
+			userDataProviderMap.put(g, new ListDataProvider<User>());
+		}
+		final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
+		dataProvider.getList().clear();
+		for (String u : g.getMembers())
+			dataProvider.getList().add(new User(u, g));
+    	return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
     }
 
 	@Override
@@ -229,11 +179,6 @@ public class GroupTreeViewModel implements TreeViewModel {
         return false;
     }
 	
-	public void initialize() {
-    	rootDataProvider.getList().clear();
-    	rootDataProvider.getList().add("Groups");
-	}
-
 	public void updateGroupNode(Group group) {
 		if (group == null) {
 			groupsDataProvider.getList().clear();
@@ -251,8 +196,6 @@ public class GroupTreeViewModel implements TreeViewModel {
 	}
 
 	public Object getSelectedObject() {
-		if (rootSelectionModel.getSelectedObject() != null)
-			return rootSelectionModel.getSelectedObject();
 		if (groupSelectionModel.getSelectedObject() != null)
 			return groupSelectionModel.getSelectedObject();
 		if (userSelectionModel.getSelectedObject() != null)
