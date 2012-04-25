@@ -1090,7 +1090,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public Folder getSelection() {
-		return selectedTree.getSelection();
+		if (selectedTree != null)
+			return selectedTree.getSelection();
+		return null;
 	}
 
 	public void showFolderStatistics(int folderFileCount) {
