@@ -178,12 +178,16 @@ table.pithos-permList.props-labels {
 .props-labels {
 	font-size: 80%;
 	font-weight: bold;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .props-toplabels {
 	font-size: 80%;
 	font-weight: bold;
 	font-style: italic;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .props-values {
