@@ -144,7 +144,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 	@Override
     public boolean isLeaf(Object o) {
 		if (o == null)
-			return false;
+			return firstLevelDataProvider.getList().isEmpty();
 		return true;
     }
 	

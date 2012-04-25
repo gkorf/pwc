@@ -74,7 +74,6 @@ import com.google.gwt.view.client.TreeViewModel;
 
 public class OtherSharedTreeViewModel implements TreeViewModel {
 
-	private static final String treeTitle = "Shared to me";
     protected Pithos app;
 
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
@@ -212,14 +211,12 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	@Override
     public boolean isLeaf(Object o) {
 		if (o == null)
-			return false;
+			return userLevelDataProvider.getList().isEmpty();
 		else if (o instanceof Folder) {
             Folder f = (Folder) o;
             return f.getSubfolders().isEmpty();
         }
 		else {
-			if (o.equals(treeTitle))
-				return userLevelDataProvider.getList().isEmpty();
 			ListDataProvider<Folder> dp = userDataProviderMap.get(o);
 			if (dp != null)
 				return dp.getList().isEmpty();

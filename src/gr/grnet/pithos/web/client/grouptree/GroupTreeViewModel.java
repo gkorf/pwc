@@ -176,7 +176,7 @@ public class GroupTreeViewModel implements TreeViewModel {
         	return ((Group) o).getMembers().isEmpty();
         else if (o != null)
         	return true;
-        return false;
+        return app.getAccount().getGroups().isEmpty();
     }
 	
 	public void updateGroupNode(Group group) {
