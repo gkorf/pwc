@@ -88,7 +88,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		@Source("gr/grnet/pithos/resources/groups22.png")
 		ImageResource permGroup();
 
-		@Source("gr/grnet/pithos/resources/editdelete.png")
+		@Source("gr/grnet/pithos/resources/delete.gif")
 		ImageResource delete();
 	}
 
