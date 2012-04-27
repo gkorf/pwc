@@ -75,8 +75,9 @@
 
 .cellTreeSelectedItem {
   color: #d45500;
-  background-color: #BCD7E3;
-  height: auto;
+  background-color: #A1C8DA;
+/*   background-color: #BCD7E3;
+ */  height: auto;
   overflow: visible;
 }
 
