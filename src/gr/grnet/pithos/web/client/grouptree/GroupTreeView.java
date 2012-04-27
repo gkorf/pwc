@@ -62,7 +62,7 @@ public class GroupTreeView extends Composite implements TreeView {
         TreeNode root = tree.getRootTreeNode();
         if (group != null)
         	updateChildren(root, group);
-        else {
+        else if (root.getChildCount() > 0) {
         	root.setChildOpen(0, false, true);
         	root.setChildOpen(0, true, true);
         }

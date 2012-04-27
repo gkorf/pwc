@@ -153,7 +153,8 @@ public class GroupTreeViewModel implements TreeViewModel {
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
         	groupsDataProvider.getList().clear();
-        	groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(new Group("Create new group..."));
             return new DefaultNodeInfo<Group>(groupsDataProvider, groupCell, groupSelectionModel, null);
         }
     	Group g = (Group) value;
@@ -169,20 +170,19 @@ public class GroupTreeViewModel implements TreeViewModel {
 
 	@Override
     public boolean isLeaf(Object o) {
-        if (o instanceof String) {
-       		return ((String) o).length() == 0 || app.getAccount().getGroups().isEmpty();
+        if (o instanceof User) {
+       		return true;
         }
         else if (o instanceof Group)
         	return ((Group) o).getMembers().isEmpty();
-        else if (o != null)
-        	return true;
-        return app.getAccount().getGroups().isEmpty();
+        return false;
     }
 	
 	public void updateGroupNode(Group group) {
 		if (group == null) {
 			groupsDataProvider.getList().clear();
 			groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(new Group("Create new group..."));
 		}
 		else {
 			if (userDataProviderMap.get(group) == null) {
