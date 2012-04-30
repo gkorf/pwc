@@ -140,12 +140,16 @@ public class PermissionsAddDialog extends DialogBox {
         String selected = null;
 		if (userAdd) {
 			selected = userBox.getText();
-		} else {
+		} else if (groupBox.getSelectedIndex() > -1) {
 			String groupName = groupBox.getValue(groupBox.getSelectedIndex());
-            selected = app.getUsername() + ":" + groupName;
+			selected = app.getUsername() + ":" + groupName;
 		}
         if (permList.getPermissions().get(selected) != null) {
             return;
+        }
+        if (selected == null || selected.length() == 0 || selected.equals(app.getUsername() + ":")) {
+        	app.displayError("You have to select o username or group");
+        	return;
         }
 		boolean readValue = read.getValue();
 		boolean writeValue = write.getValue();
