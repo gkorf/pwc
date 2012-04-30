@@ -67,9 +67,10 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 
 	/**
 	 * Accepts any change and updates the file
+	 * @return 
 	 *
 	 */
-	protected abstract void accept();
+	protected abstract boolean accept();
 
 	@Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
@@ -81,8 +82,9 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
 			  // enter or escape is pressed.
 			  switch (evt.getKeyCode()) {
 			    case KeyCodes.KEY_ENTER:
-			    	accept();
-			    //$FALL-THROUGH$
+			    	if (accept())
+			    		closeDialog();
+			    	break;
 			case KeyCodes.KEY_ESCAPE:
 			        closeDialog();
 			        break;

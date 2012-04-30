@@ -112,8 +112,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				accept();
-				closeDialog();
+				if (accept())
+					closeDialog();
 			}
 		});
 		ok.addStyleName("button");
@@ -226,12 +226,15 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
 		String newFilename = null;
 
 		if (!name.getText().trim().equals(file.getName())) {
 			newFilename = name.getText().trim();
+			if (newFilename.length() == 0)
+				newFilename = null;
 		}
+		
 
         final Map<String, String> newMeta = new HashMap<String, String>();
         for (int row = 1; row < metaTable.getRowCount(); row++) {
@@ -239,6 +242,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         	String value = ((TextBox) metaTable.getWidget(row, 1)).getText().trim();
         	if (key.length() > 0 && value.length() > 0)
         		newMeta.put(key, value);
+        	else if ((key.length() > 0 && value.length() == 0) || (key.length() == 0 && value.length() > 0)) {
+        		app.displayError("You have empty keys or values");
+        		return false;
+        	}
         }
 
         if (newFilename != null) {
@@ -296,6 +303,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         }
         else
             updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta);
+        return true;
 	}
 
 	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta) {

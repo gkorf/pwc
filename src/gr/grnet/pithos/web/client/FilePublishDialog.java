@@ -221,15 +221,17 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
     }
 	/**
 	 * Accepts any change and updates the file
+	 * @return 
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
 			if (file.getOwner().equals(app.getUsername()))
                 published = readForAll.getValue();
         updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published);
+        return true;
 	}
 
 	protected void updateMetaData(String api, String owner, final String path, final Boolean published) {

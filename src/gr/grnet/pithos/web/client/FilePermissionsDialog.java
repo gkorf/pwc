@@ -244,8 +244,9 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
         updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", permList.getPermissions());
+        return true;
 	}
 
 	protected void updateMetaData(String api, String owner, final String path, final Map<String, Boolean[]> newPermissions) {
