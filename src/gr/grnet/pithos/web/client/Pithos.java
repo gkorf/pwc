@@ -356,7 +356,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeView = new FolderTreeView(folderTreeViewModel);
         treeViews.add(folderTreeView);
         
-        fileList = new FileList(this, images, folderTreeView);
+        fileList = new FileList(this, images);
         inner.add(fileList);
 
         trees = new VerticalPanel();
