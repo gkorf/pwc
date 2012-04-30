@@ -741,19 +741,3 @@ a.pithos-tag {
 .pithos-versionList {
 	padding-right: 5px;
 }
-
-.pithos-folderTreeSection {
-	padding-left: 10px;
-	width:100%;
-}
-
-.pithos-folderTreeSectionHeader {
-	background-color: #74aec9;
-	height: 25px;
-    width: 100%;
-}
-
-.pithos-folderTreeSectionContent {
-	padding: 4px 0px 4px 8px;
-	margin-left: 6px;
-}
