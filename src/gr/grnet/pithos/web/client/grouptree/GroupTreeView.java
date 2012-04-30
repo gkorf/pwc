@@ -162,7 +162,7 @@ public class GroupTreeView extends Composite implements TreeView {
         tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        panel.add(tree);
+        panel.setContent(tree);
         
         initWidget(panel);
     }
