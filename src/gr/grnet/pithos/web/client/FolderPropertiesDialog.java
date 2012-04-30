@@ -242,6 +242,8 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private void createFolder() {
 		String name = folderName.getText().trim();
+		if (name.length() == 0)
+			return;
         String path = folder.getUri() + "/" + name;
         PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
@@ -293,6 +295,8 @@ public class FolderPropertiesDialog extends DialogBox {
 
 	private void updateFolder() {
         final String newName = folderName.getText().trim();
+        if (newName.length() == 0)
+        	return;
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
