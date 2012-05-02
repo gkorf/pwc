@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.GroupCreateDialog;
 import gr.grnet.pithos.web.client.Pithos;
 
 import com.google.gwt.user.client.Command;
@@ -61,9 +62,7 @@ public class CreateGroupCommand implements Command {
 	public void execute() {
         if (containerPanel != null)
 		    containerPanel.hide();
-        String groupname = Window.prompt("Enter group name:", "");
-        if (groupname != null && groupname.length() > 0) {
-        	app.addGroup(groupname);
-        }
+        GroupCreateDialog dlg = new GroupCreateDialog(app);
+        dlg.center();
 	}
 }
