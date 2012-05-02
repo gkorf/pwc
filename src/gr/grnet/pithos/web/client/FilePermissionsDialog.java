@@ -173,9 +173,24 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         Button add = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
+            	if (app.getAccount().getGroups().isEmpty()) {
+                    new GroupCreateDialog(app, new Command() {
+						
+						@Override
+						public void execute() {
+			            	if (app.getAccount().getGroups().isEmpty())
+			            		return;
+			                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+			                dlg.center();
+			                permList.updatePermissionTable();
+						}
+					}).center();
+            	}
+            	else {
+	                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+	                dlg.center();
+	                permList.updatePermissionTable();
+            	}
             }
         });
         add.addStyleName("button");

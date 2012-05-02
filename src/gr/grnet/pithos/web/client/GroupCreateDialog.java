@@ -41,6 +41,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -57,6 +58,8 @@ public class GroupCreateDialog extends DialogBox {
 
     protected Pithos app;
 
+    private Command callback;
+    
 	/**
 	 * The widget that holds the folderName of the folder.
 	 */
@@ -64,11 +67,17 @@ public class GroupCreateDialog extends DialogBox {
 
 	final VerticalPanel inner;
 
+	public GroupCreateDialog(final Pithos app) {
+		this(app, null);
+	}
+	
 	/**
 	 * The widget's constructor.
 	 */
-	public GroupCreateDialog(final Pithos app) {
+	public GroupCreateDialog(final Pithos app, Command callback) {
         this.app = app;
+        this.callback = callback;
+        
 		Anchor close = new Anchor();
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
@@ -160,12 +169,14 @@ public class GroupCreateDialog extends DialogBox {
 	public void closeDialog() {
 		Pithos.preventIESelection();
 		hide();
+		if (callback != null)
+			callback.execute();
 	}
 
 	/**
 	 * Generate an RPC request to create a new folder.
 	 */
-	private void createGroup() {
+	void createGroup() {
 		String name = groupName.getText().trim();
 		if (name.length() == 0)
 			return;
