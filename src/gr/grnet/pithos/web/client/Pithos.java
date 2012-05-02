@@ -238,7 +238,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     OtherSharedTreeView otherSharedTreeView = null;
 
     GroupTreeViewModel groupTreeViewModel;
-    private GroupTreeView groupTreeView;
+    GroupTreeView groupTreeView;
 
     TreeView selectedTree;
     protected AccountResource account;
@@ -365,40 +365,33 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList = new FileList(this, images, folderTreeView);
         inner.add(fileList);
 
-        groupTreeViewModel = new GroupTreeViewModel(this);
-        groupTreeView = new GroupTreeView(groupTreeViewModel);
-        treeViews.add(groupTreeView);
-        
         trees = new VerticalPanel();
         trees.setWidth("100%");
-
         
-        HorizontalPanel treeHeader = new HorizontalPanel();
-        treeHeader.addStyleName("pithos-treeHeader");
-        treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        HorizontalPanel statistics = new HorizontalPanel();
-        statistics.addStyleName("pithos-statistics");
-        statistics.add(new HTML("Used:&nbsp;"));
-        usedBytes = new HTML();
-        statistics.add(usedBytes);
-        statistics.add(new HTML("&nbsp;of&nbsp;"));
-        totalBytes = new HTML();
-        statistics.add(totalBytes);
-        statistics.add(new HTML("&nbsp;("));
-        usedPercent = new HTML();
-        statistics.add(usedPercent);
-        statistics.add(new HTML(")"));
-        treeHeader.add(statistics);
-        treeHeader.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_LEFT);
-        trees.add(treeHeader);
-
         trees.add(folderTreeView);
-        trees.add(groupTreeView);
+        
+        HorizontalPanel separator = new HorizontalPanel();
+        separator.addStyleName("pithos-statisticsSeparator");
+        trees.add(separator);
+        
+        HorizontalPanel statistics = new HorizontalPanel();
+	    statistics.addStyleName("pithos-statistics");
+	    statistics.add(new HTML("Used:&nbsp;"));
+	    usedBytes = new HTML();
+	    statistics.add(usedBytes);
+	    statistics.add(new HTML("&nbsp;of&nbsp;"));
+	    totalBytes = new HTML();
+	    statistics.add(totalBytes);
+	    statistics.add(new HTML("&nbsp;("));
+	    usedPercent = new HTML();
+	    statistics.add(usedPercent);
+	    statistics.add(new HTML(")"));
+        trees.add(statistics);
+        
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
-        splitPanel.setSplitPosition("35%");
+        splitPanel.setSplitPosition("219px");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
         splitPanel.setWidth(contentWidth);
@@ -457,7 +450,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				                    createMySharedTree();
 								}
 							});
-		                    groupTreeViewModel.initialize();
+		                    groupTreeViewModel = new GroupTreeViewModel(Pithos.this);
+		                    groupTreeView = new GroupTreeView(groupTreeViewModel);
+		                    treeViews.add(groupTreeView);
+		                    trees.add(groupTreeView);
 		                    showStatistics();
 		                }
 					}
@@ -526,31 +522,25 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
 	private boolean parseUserCredentials() {
-        username = Window.Location.getParameter("user");
-        token = Window.Location.getParameter("token");
         Configuration conf = (Configuration) GWT.create(Configuration.class);
 		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        if (username == null || username.length() == 0 || token == null || token.length() == 0) {
-            String cookie = otherProperties.get("authCookie");
-            String auth = Cookies.getCookie(cookie);
-            if (auth == null) {
-                authenticateUser();
-                return false;
-            }
-            if (auth.startsWith("\""))
-            	auth = auth.substring(1);
-            if (auth.endsWith("\""))
-            	auth = auth.substring(0, auth.length() - 1);
-			String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
-			if (authSplit.length != 2) {
-			    authenticateUser();
-			    return false;
-			}
-			username = authSplit[0];
-			token = authSplit[1];
+        String cookie = otherProperties.get("authCookie");
+        String auth = Cookies.getCookie(cookie);
+        if (auth == null) {
+            authenticateUser();
+            return false;
         }
-        else
-        	Cookies.setCookie(otherProperties.get("authCookie"), username + conf.cookieSeparator() + token, null, "", "/", false);
+        if (auth.startsWith("\""))
+        	auth = auth.substring(1);
+        if (auth.endsWith("\""))
+        	auth = auth.substring(0, auth.length() - 1);
+		String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+		if (authSplit.length != 2) {
+		    authenticateUser();
+		    return false;
+		}
+		username = authSplit[0];
+		token = authSplit[1];
 
         String gotoUrl = Window.Location.getParameter("goto");
 		if (gotoUrl != null && gotoUrl.length() > 0) {
@@ -1145,7 +1135,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-				trees.insert(mysharedTreeView, 2);
+				trees.insert(mysharedTreeView, 3);
 				treeViews.add(mysharedTreeView);
 				createOtherSharedTree();
 			}

@@ -36,7 +36,9 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
@@ -50,12 +52,14 @@ import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Tree;
 
 public class GroupTreeView extends Composite implements TreeView {
 
     public void updateChildren(Group group) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         if (group != null)
         	updateChildren(root, group);
         else {
@@ -118,28 +122,49 @@ public class GroupTreeView extends Composite implements TreeView {
     }
 
     static Images images = GWT.create(Images.class);
+    
+    interface Style extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Style {
+    	@Override
+		String header();
+    }
+ 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("PithosGroupDisclosurePanel.css")
+		Style pithosDisclosurePanelCss();
 
-    static interface Templates extends SafeHtmlTemplates {
+		@Override
+		@Source("gr/grnet/pithos/resources/groups22.png")
+    	ImageResource icon();
+    }
+
+    public static interface Templates extends SafeHtmlTemplates {
         public Templates INSTANCE = GWT.create(Templates.class);
 
-        @Template("<span>{0}</span>")
+        @Template("<span style='margin-left:5px;'>{0}</span>")
         public SafeHtml nameSpan(String name);
       }
 
     private GroupTreeViewModel model;
+    
+    private CellTree tree;
 
     public GroupTreeView(GroupTreeViewModel viewModel) {
         this.model = viewModel;
+
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Groups", false);
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        
+        initWidget(panel);
     }
 
     public void updateGroupNode(Group group) {

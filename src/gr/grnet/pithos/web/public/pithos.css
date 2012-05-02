@@ -339,15 +339,19 @@ table.pithos-permList.props-labels {
 	padding-left: 4;
 }
 
-.pithos-treeHeader {
-	background-color: #74aec9;
-	height: 25px;
-    width: 100%;
+.pithos-statistics {
+	color: black;
+	padding: 10px;
 }
 
-.pithos-statistics {
-	color: white;
-	padding: 5px;
+.pithos-statistics .gwt-HTML {
+	font-size: smaller;
+}
+
+.pithos-statisticsSeparator {
+	background: url(images/separator.png) no-repeat;
+	width: 100%;
+	height: 3px;
 }
 
 .pithos-splitPanel {
@@ -377,8 +381,8 @@ table.pithos-permList.props-labels {
     text-align: center;
     height: auto;
     padding: 8px;
-    width: 146px;
-    border: none;
+    width: 134px;
+    border: 0px;
 }
 
 .pithos-uploadButton-loading {
@@ -734,7 +738,25 @@ a.pithos-tag {
 	padding-right: 5px;
 }
 
+<<<<<<< HEAD
 
 .glg5-e2bki {
     background: url(images/share.png) no-repeat 5px 9px !important;
 }
+=======
+.pithos-folderTreeSection {
+	padding-left: 10px;
+	width:100%;
+}
+
+.pithos-folderTreeSectionHeader {
+	background-color: #74aec9;
+	height: 25px;
+    width: 100%;
+}
+
+.pithos-folderTreeSectionContent {
+	padding: 4px 0px 4px 8px;
+	margin-left: 6px;
+}
+>>>>>>> master

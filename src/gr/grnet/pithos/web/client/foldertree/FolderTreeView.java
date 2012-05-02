@@ -36,7 +36,9 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
@@ -44,12 +46,20 @@ import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class FolderTreeView extends Composite implements TreeView {
 
@@ -72,7 +82,7 @@ public class FolderTreeView extends Composite implements TreeView {
 	}
 	
     public void openFolder(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         openFolder(root, folder);
     }
 
@@ -122,14 +132,11 @@ public class FolderTreeView extends Composite implements TreeView {
         @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder22.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
-
-        @Source("gr/grnet/pithos/resources/othersshared.png")
-        ImageResource othersShared();
 
         @Source("gr/grnet/pithos/resources/myshared22.png")
         ImageResource myShared();
@@ -153,20 +160,53 @@ public class FolderTreeView extends Composite implements TreeView {
         public SafeHtml imageSpan(String name);
     }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/home22.png")
+    	ImageResource icon();
+    }
+
     private FolderTreeViewModel model;
+    
+    private CellTree tree;
 
     public FolderTreeView(FolderTreeViewModel viewModel) {
         this.model = viewModel;
+
+        VerticalPanel panel = new VerticalPanel();
+        panel.addStyleName("pithos-folderTreeSection");
+        Resources resources = GWT.create(Resources.class);
+        
+        HorizontalPanel header = new HorizontalPanel();
+        
+//        SafeHtmlBuilder sb = new SafeHtmlBuilder();
+        Image img = new Image(resources.icon());
+        header.add(img);
+        header.setCellVerticalAlignment(img, HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setCellWidth(img, "32px");
+        HTML title = new HTML("My Files");
+        header.add(title);
+        header.setCellVerticalAlignment(title, HasVerticalAlignment.ALIGN_MIDDLE);
+        
+//        sb.appendHtmlConstant(AbstractImagePrototype.create(resources.icon()).getHTML());
+ //       sb.append(Templates.INSTANCE.nameSpan("My Files"));
+//        HTML header = new HTML(sb.toSafeHtml());
+        header.addStyleName("pithos-folderTreeSectionHeader");
+        panel.add(header);
+
+
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-
-        initWidget(tree);
+        tree.addStyleName("pithos-folderTreeSectionContent");
+        panel.add(tree);
+        
+        initWidget(panel);
     }
 
 

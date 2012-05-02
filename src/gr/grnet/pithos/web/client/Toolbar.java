@@ -174,6 +174,8 @@ public class Toolbar extends Composite {
 				    	if (!folder.isInTrash() && canWrite) {
 				    		if (isFolderTreeSelected || otherSharedTreeSelected)
 				    			newFolderButton.setVisible(true);
+				    		else
+				    			newFolderButton.setVisible(false);
 				    		if (isFolderTreeSelected && !folder.isContainer())
 				    			shareFolderButton.setVisible(true);
 				    		else

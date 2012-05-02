@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.othersharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -55,7 +56,7 @@ import com.google.gwt.user.client.ui.Tree;
 public class OtherSharedTreeView extends Composite implements TreeView {
 
     public void updateChildren(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         updateChildren(root, folder);
     }
 
@@ -105,13 +106,13 @@ public class OtherSharedTreeView extends Composite implements TreeView {
         @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder22.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
 
-        @Source("gr/grnet/pithos/resources/othersshared.png")
+        @Source("gr/grnet/pithos/resources/sharedtome22.png")
         ImageResource othersShared();
 
         @Source("gr/grnet/pithos/resources/myshared22.png")
@@ -133,20 +134,31 @@ public class OtherSharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    	@Override
+		@Source("gr/grnet/pithos/resources/sharedtome22.png")
+    	ImageResource icon();
+    }
+
     private OtherSharedTreeViewModel model;
 
+    private CellTree tree;
+    
     public OtherSharedTreeView(OtherSharedTreeViewModel viewModel) {
         this.model = viewModel;
+        
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared to me", false); 
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        initWidget(tree);
+        panel.add(tree);
+        initWidget(panel);
     }
 
 

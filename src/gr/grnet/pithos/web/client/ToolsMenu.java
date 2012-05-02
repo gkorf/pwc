@@ -237,13 +237,11 @@ public class ToolsMenu extends PopupPanel {
 	    	        contextMenu.addItem(deleteGroup);
 		        	empty = false;
 	        	}
-	        	else {
-	    	        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
-	    	        contextMenu.addItem(createGroup);
-		        	empty = false;
-	        	}
         	}
         }
+        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
+        contextMenu.addItem(createGroup);
+    	empty = false;
 		add(contextMenu);
 	}
 	
