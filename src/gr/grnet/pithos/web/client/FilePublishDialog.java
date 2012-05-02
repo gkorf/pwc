@@ -244,13 +244,16 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 						@Override
 						public void onSuccess(File _result) {
 							showLinkIfPublished();
-		                    app.updateFolder(file.getParent(), true, new Command() {
-								
-								@Override
-								public void execute() {
-									app.updateMySharedRoot();
-								}
-							}, true);
+							if (!app.isMySharedSelected())
+			                    app.updateFolder(file.getParent(), true, new Command() {
+									
+									@Override
+									public void execute() {
+										app.updateMySharedRoot();
+									}
+								}, true);
+							else
+								app.updateSharedFolder(file.getParent(), true);
 						}
 
 						@Override
@@ -285,7 +288,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("X-Object-Public", published.toString());
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else
+        else if (!app.isMySharedSelected())
             app.updateFolder(file.getParent(), true, new Command() {
 				
 				@Override
@@ -294,6 +297,8 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 						app.updateMySharedRoot();
 				}
 			}, true);
+        else
+        	app.updateSharedFolder(file.getParent(), true);
     }
 
 	@Override

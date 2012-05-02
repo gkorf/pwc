@@ -121,16 +121,22 @@ public class Toolbar extends Composite {
 		    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
 		    	Folder folder = app.getSelectedTree().getSelection();
 		    	
-		    	if (folder != null && (isFolderTreeSelected || otherSharedTreeSelected))
-		    		app.updateFolder(folder, true, new Command() {
+		    	if (folder != null) {
+		    		if (!app.isMySharedSelected()) {
+			    		app.updateFolder(folder, true, new Command() {
+			    			
+			    			@Override
+			    			public void execute() {
+			    				app.updateStatistics();
+			    			}
+			    		}, true);
+		    		}
+		    		else
+		    			app.updateSharedFolder(folder, true);
 		    			
-		    			@Override
-		    			public void execute() {
-		    				app.updateStatistics();
-		    			}
-		    		}, true);
+		    	}
 			}
-		});
+        });
         toolbar.add(refreshButton);
 
         toolsButton = new Anchor("<span class='ico'></span><span class='title'>More...</span>", true);
@@ -166,10 +172,7 @@ public class Toolbar extends Composite {
 				    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
 				    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
 				    	
-				    	if (isFolderTreeSelected || otherSharedTreeSelected)
-				    		refreshButton.setVisible(true);
-				    	else
-				    		refreshButton.setVisible(true);
+			    		refreshButton.setVisible(true);
 				    	
 				    	if (!folder.isInTrash() && canWrite) {
 				    		if (isFolderTreeSelected || otherSharedTreeSelected)

@@ -42,6 +42,8 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView.Templates;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -57,6 +59,7 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
@@ -77,7 +80,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
-    private Cell<Folder> folderCell = new AbstractCell<Folder>() {
+    private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
@@ -85,6 +88,24 @@ public class MysharedTreeViewModel implements TreeViewModel {
             safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
+
+       @Override
+       public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, final Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+           if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+           	final int x = event.getClientX();
+           	final int y = event.getClientY();
+               MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
+               app.scheduleFolderHeadCommand(folder, new Command() {
+					
+					@Override
+					public void execute() {
+		                FolderContextMenu menu = new FolderContextMenu(app, MysharedTreeView.images, app.getSelectedTree(), folder);
+		                menu.setPopupPosition(x, y);
+		                menu.show();
+					}
+				});
+           }
+       }
     };
 
     protected ListDataProvider<Folder> firstLevelDataProvider = new ListDataProvider<Folder>();
@@ -195,7 +216,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final boolean showfiles) {
         String path = "/" + f.getContainer() + "?format=json&shared=" + URL.encodeQueryString(f.getPrefix());
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, null) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if (showfiles)

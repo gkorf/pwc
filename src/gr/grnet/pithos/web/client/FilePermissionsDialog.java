@@ -259,13 +259,16 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 						@Override
 						public void onSuccess(File _result) {
 							showLinkIfShared();
-		                    app.updateFolder(file.getParent(), true, new Command() {
-								
-								@Override
-								public void execute() {
-									app.updateMySharedRoot();
-								}
-							}, true);
+							if (!app.isMySharedSelected())
+			                    app.updateFolder(file.getParent(), true, new Command() {
+									
+									@Override
+									public void execute() {
+										app.updateMySharedRoot();
+									}
+								}, true);
+							else
+								app.updateSharedFolder(file.getParent(), true);
 						}
 
 						@Override
@@ -323,7 +326,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("X-Object-Sharing", permHeader);
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else
+        else if (!app.isMySharedSelected())
             app.updateFolder(file.getParent(), true, new Command() {
 				
 				@Override
@@ -332,6 +335,8 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 						app.updateMySharedRoot();
 				}
 			}, true);
+        else
+        	app.updateSharedFolder(file.getParent(), true);
     }
 
 	@Override

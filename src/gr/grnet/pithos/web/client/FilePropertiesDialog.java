@@ -311,13 +311,16 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    app.updateFolder(file.getParent(), true, new Command() {
-						
-						@Override
-						public void execute() {
-							app.updateMySharedRoot();
-						}
-					}, true);
+                	if (!app.isMySharedSelected())
+	                    app.updateFolder(file.getParent(), true, new Command() {
+							
+							@Override
+							public void execute() {
+								app.updateMySharedRoot();
+							}
+						}, true);
+                	else
+                		app.updateSharedFolder(file.getParent(), true);
                 }
 
                 @Override
@@ -343,7 +346,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else
+        else if (!app.isMySharedSelected())
             app.updateFolder(file.getParent(), true, new Command() {
 				
 				@Override
@@ -352,5 +355,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 						app.updateMySharedRoot();
 				}
 			}, true);
+        else
+        	app.updateSharedFolder(file.getParent(), true);
     }
 }

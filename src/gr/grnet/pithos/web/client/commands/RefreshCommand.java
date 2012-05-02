@@ -62,12 +62,15 @@ public class RefreshCommand implements Command {
 	public void execute() {
 		if (containerPanel != null)
 			containerPanel.hide();
-		app.updateFolder(folder, true, new Command() {
-			
-			@Override
-			public void execute() {
-				app.updateStatistics();
-			}
-		}, true);
+		if (app.getSelectedTree().equals(app.getMySharedTreeView()))
+			app.updateSharedFolder(folder, true);
+		else
+			app.updateFolder(folder, true, new Command() {
+				
+				@Override
+				public void execute() {
+					app.updateStatistics();
+				}
+			}, true);
 	}
 }

@@ -437,20 +437,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-			
-			@Override
-			public boolean execute() {
-				Folder f = getSelection();
-				if (f != null) {
-					if (getSelectedTree().equals(folderTreeView))
-						updateFolder(f, true, null, false);
-					else if (getSelectedTree().equals(mysharedTreeView))
-						updateSharedFolder(f, true);
-				}
-				return true;
-			}
-		}, 3000);
+//        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+//			
+//			@Override
+//			public boolean execute() {
+//				Folder f = getSelection();
+//				if (f != null) {
+//					if (getSelectedTree().equals(folderTreeView))
+//						updateFolder(f, true, null, false);
+//					else if (getSelectedTree().equals(mysharedTreeView))
+//						updateSharedFolder(f, true);
+//				}
+//				return true;
+//			}
+//		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -1273,5 +1273,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		};
 		headFile.setHeader("X-Auth-Token", getToken());
 		Scheduler.get().scheduleDeferred(headFile);
+	}
+
+	public boolean isMySharedSelected() {
+		return getSelectedTree().equals(getMySharedTreeView());
 	}
 }

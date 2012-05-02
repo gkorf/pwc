@@ -288,10 +288,6 @@ public class FileList extends Composite {
 				SafeHtmlBuilder sb = new SafeHtmlBuilder();
 				if (!app.getSelectedTree().equals(app.mysharedTreeView)) {
 					sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
-					if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
-	        			sb.appendHtmlConstant("&nbsp;")
-	                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
-					}
 				}
 				else {
 					String name = object.getPath();
@@ -299,6 +295,10 @@ public class FileList extends Composite {
 						name = name.substring(name.lastIndexOf("/") + 1, name.length());
 					}
 					sb.append(Templates.INSTANCE.filenameSpan(name));
+				}
+				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
+        			sb.appendHtmlConstant("&nbsp;")
+                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
@@ -373,7 +373,7 @@ public class FileList extends Composite {
             @Override
             public void onContextMenu(final ContextMenuEvent event) {
             	final TreeView tree = app.getSelectedTree();
-            	if (tree != null && (tree.equals(app.getFolderTreeView()) || tree.equals(app.getOtherSharedTreeView()))) {
+            	if (tree != null) {
 	                final int x = event.getNativeEvent().getClientX();
 	                final int y = event.getNativeEvent().getClientY();
 	                final Folder selectedFolder = app.getSelection();
