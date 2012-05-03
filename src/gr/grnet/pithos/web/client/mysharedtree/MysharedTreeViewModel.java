@@ -80,12 +80,16 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
+    Folder dummy = new Folder("No files shared by me");
+    
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
-            String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
-            safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+           if (!folder.equals(dummy)) {
+        	   String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
+            	safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+           }
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
@@ -132,13 +136,14 @@ public class MysharedTreeViewModel implements TreeViewModel {
             @Override
             public void onSuccess(final AccountResource _result) {
 				firstLevelDataProvider.getList().clear();
-                Folder t = null;
                 for (Folder c : _result.getContainers()) {
                 	if (c.isHome())
                 		firstLevelDataProvider.getList().add(0, c); //Pithos is always first
                 	else if (!c.isTrash())
                 		firstLevelDataProvider.getList().add(c);
                 }
+                if (firstLevelDataProvider.getList().isEmpty())
+                	firstLevelDataProvider.getList().add(dummy);
 				if (callback != null)
 					callback.execute();
             }

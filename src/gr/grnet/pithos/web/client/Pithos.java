@@ -426,6 +426,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				                    createMySharedTree();
 								}
 							});
+
+		                    HorizontalPanel separator = new HorizontalPanel();
+		                    separator.addStyleName("pithos-statisticsSeparator");
+		                    separator.add(new HTML(""));
+		                    trees.add(separator);
+
 		                    groupTreeViewModel = new GroupTreeViewModel(Pithos.this);
 		                    groupTreeView = new GroupTreeView(groupTreeViewModel);
 		                    treeViews.add(groupTreeView);
@@ -1106,7 +1112,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-				trees.insert(mysharedTreeView, 1);
+				trees.insert(mysharedTreeView, 2);
 				treeViews.add(mysharedTreeView);
 				createOtherSharedTree();
 			}

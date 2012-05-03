@@ -42,7 +42,6 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -134,8 +133,17 @@ public class OtherSharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
-    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+    interface Style extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Style {
     	@Override
+		String disclosurePanel();
+    }
+
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("PithosOtherSharedDisclosurePanel.css")
+		Style pithosDisclosurePanelCss();
+
+		@Override
 		@Source("gr/grnet/pithos/resources/sharedtome22.png")
     	ImageResource icon();
     }

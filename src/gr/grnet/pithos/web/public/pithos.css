@@ -345,8 +345,8 @@ table.pithos-permList.props-labels {
 
 .pithos-statistics {
 	color: black;
-	padding: 10px;
-}
+/* 	padding: 10px;
+ */}
 
 .pithos-statistics .gwt-HTML {
 	font-size: smaller;
@@ -387,6 +387,7 @@ table.pithos-permList.props-labels {
     padding: 8px;
     width: 134px;
     border: 0px;
+    color: black;
 }
 
 .pithos-uploadButton-loading {

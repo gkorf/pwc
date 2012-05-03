@@ -156,7 +156,7 @@ public class FolderTreeView extends Composite implements TreeView {
     }
 
     interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
-    	@Override
+		@Override
 		@Source("gr/grnet/pithos/resources/home22.png")
     	ImageResource icon();
     }
@@ -190,7 +190,9 @@ public class FolderTreeView extends Composite implements TreeView {
 
         HorizontalPanel separator = new HorizontalPanel();
         separator.addStyleName("pithos-statisticsSeparator");
+        separator.add(new HTML(""));
         content.add(separator);
+//        content.setCellHeight(separator, "3px");
 
         HorizontalPanel statistics = new HorizontalPanel();
 	    statistics.addStyleName("pithos-statistics");
