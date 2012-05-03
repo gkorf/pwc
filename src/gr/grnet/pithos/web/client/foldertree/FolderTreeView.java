@@ -52,6 +52,7 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -192,7 +193,6 @@ public class FolderTreeView extends Composite implements TreeView {
         separator.addStyleName("pithos-statisticsSeparator");
         separator.add(new HTML(""));
         content.add(separator);
-//        content.setCellHeight(separator, "3px");
 
         HorizontalPanel statistics = new HorizontalPanel();
 	    statistics.addStyleName("pithos-statistics");

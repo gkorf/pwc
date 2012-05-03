@@ -345,8 +345,10 @@ table.pithos-permList.props-labels {
 
 .pithos-statistics {
 	color: black;
-/* 	padding: 10px;
- */}
+ 	padding-left: 20px;
+	padding-top: 10px;
+ 	padding-bottom: 10px;
+}
 
 .pithos-statistics .gwt-HTML {
 	font-size: smaller;
