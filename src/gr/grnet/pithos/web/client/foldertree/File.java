@@ -157,11 +157,11 @@ public class File extends Resource {
         this.owner = _owner;
         hash = unmarshallString(o, "hash");
         bytes = unmarshallLong(o, "bytes");
-        version = unmarshallInt(o, "version");
+        version = unmarshallInt(o, "x_object_version");
         contentType = unmarshallString(o, "content_type");
         lastModified = unmarshallDate(o, "last_modified");
-        modifiedBy = unmarshallString(o, "modified_by");
-        versionTimestamp = unmarshallDate(o, "version_timestamp");
+        modifiedBy = unmarshallString(o, "x_object_modified_by");
+        versionTimestamp = unmarshallDate(o, "x_object_version_timestamp");
         published = o.containsKey("x_object_public") ? true : false;
         publicUri = unmarshallString(o, "x_object_public");
         this.container = _container;
