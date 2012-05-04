@@ -63,8 +63,6 @@ public class File extends Resource {
 
     private String modifiedBy;
 
-    private Date versionTimestamp;
-
     private String path;
 
     private String owner;
@@ -106,10 +104,6 @@ public class File extends Resource {
 
     public int getVersion() {
         return version;
-    }
-
-    public Date getVersionTimestamp() {
-        return versionTimestamp;
     }
 
     public String getUri() {
@@ -161,7 +155,6 @@ public class File extends Resource {
         contentType = unmarshallString(o, "content_type");
         lastModified = unmarshallDate(o, "last_modified");
         modifiedBy = unmarshallString(o, "x_object_modified_by");
-        versionTimestamp = unmarshallDate(o, "x_object_version_timestamp");
         published = o.containsKey("x_object_public") ? true : false;
         publicUri = unmarshallString(o, "x_object_public");
         this.container = _container;
