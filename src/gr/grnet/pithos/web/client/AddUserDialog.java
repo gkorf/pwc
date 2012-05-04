@@ -79,7 +79,7 @@ public class AddUserDialog extends DialogBox {
         this.app = app;
         this.group = _group;
         
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

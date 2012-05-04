@@ -34,14 +34,16 @@
  */
 body {
 	color: black;
-	font: 13px Verdana, 'PT Sans', sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 13px;
 	margin: 8px;
 	margin-top: 3px;
 	background-color: transparent;
 }
 
 table td {
-	font: 13px Verdana, 'PT Sans', sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 13px;
 }
 
 .pithos-outer {
@@ -122,13 +124,13 @@ a.info:hover div {
 }
 
 .pithos-DialogBox .close {
-	background: url(images/close-popup.png) no-repeat;
 	cursor: pointer;
 	position: absolute;
 	width: 13px;
 	height: 13px;
 	top: 12px;
-	right: 7px;
+	right: 27px;
+	font-size: 0.8em;
 }
 
 .pithos-DialogBox .dialogMiddleCenter {

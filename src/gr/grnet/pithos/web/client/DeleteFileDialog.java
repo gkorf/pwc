@@ -78,7 +78,7 @@ public class DeleteFileDialog extends DialogBox {
 	public DeleteFileDialog(Pithos _app, Images images, List<File> _files) {
         app = _app;
         files = _files;
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

@@ -91,7 +91,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	public FolderPropertiesDialog(final Pithos app, boolean _create,  Folder selected) {
         this.app = app;
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

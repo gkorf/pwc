@@ -78,7 +78,7 @@ public class GroupCreateDialog extends DialogBox {
         this.app = app;
         this.callback = callback;
         
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

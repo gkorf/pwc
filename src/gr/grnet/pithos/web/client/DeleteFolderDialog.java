@@ -67,7 +67,7 @@ public class DeleteFolderDialog extends DialogBox {
         this.app = _app;
         this.folder = _folder;
 
-        Anchor close = new Anchor();
+        Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

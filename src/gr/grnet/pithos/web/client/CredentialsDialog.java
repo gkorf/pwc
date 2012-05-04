@@ -62,7 +62,7 @@ public class CredentialsDialog extends DialogBox {
 	 * The widget constructor.
 	 */
 	public CredentialsDialog(final Pithos app) {
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

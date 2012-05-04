@@ -68,7 +68,7 @@ public class FeedbackDialog extends DialogBox {
 	 */
 	public FeedbackDialog(final Pithos app, final String appData) {
 		// Set the dialog's caption.
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

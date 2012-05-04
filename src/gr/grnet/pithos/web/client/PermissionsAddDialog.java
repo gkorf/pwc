@@ -75,7 +75,7 @@ public class PermissionsAddDialog extends DialogBox {
 		userAdd = _userAdd;
 		permList = _permList;
 
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
