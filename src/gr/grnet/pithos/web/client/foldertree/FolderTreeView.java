@@ -207,6 +207,7 @@ public class FolderTreeView extends Composite implements TreeView {
 	    statistics.add(usedPercent);
 	    statistics.add(new HTML(")"));
 	    content.add(statistics);
+	    content.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_CENTER);
 
         panel.setContent(content);
         initWidget(panel);
