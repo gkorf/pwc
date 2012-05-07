@@ -480,12 +480,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	public void deselectOthers(TreeView _selectedTree, SingleSelectionModel model) {
     	selectedTree = _selectedTree;
     	
-    	for (Composite c : treeViews)
-    		if (c.equals(selectedTree))
-    			c.addStyleName("cellTreeWidget-selectedTree");
-    		else
-    			c.removeStyleName("cellTreeWidget-selectedTree");
-    	
         for (SingleSelectionModel s : selectionModels)
             if (!s.equals(model) && s.getSelectedObject() != null)
                 s.setSelected(s.getSelectedObject(), false);
@@ -1126,7 +1120,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		    public void onSelectionChange(SelectionChangeEvent event) {
 		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
-		            otherSharedTreeView.addStyleName("cellTreeWidget-selectedTree");
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
 		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
 					showRelevantToolbarButtons();

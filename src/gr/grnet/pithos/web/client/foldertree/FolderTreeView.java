@@ -175,7 +175,7 @@ public class FolderTreeView extends Composite implements TreeView {
     public FolderTreeView(FolderTreeViewModel viewModel) {
         this.model = viewModel;
 
-        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "My Files", true);
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "My Files", false);
 
         VerticalPanel content = new VerticalPanel();
         
