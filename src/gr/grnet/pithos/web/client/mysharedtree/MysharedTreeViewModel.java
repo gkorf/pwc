@@ -125,6 +125,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
         	fetchSharedContainers(null);
+        	if (firstLevelDataProvider.getList().get(0).equals(dummy))
+                return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, null, null);
             return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, selectionModel, null);
         }
         return null;
