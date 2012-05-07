@@ -174,6 +174,7 @@ public class PermissionsList extends Composite {
                         	changePermissionsCallback.execute();
                     }
                 });
+                removeButton.setTitle("Remove");
                 permTable.setWidget(i, 3, removeButton);
                 permTable.getFlexCellFormatter().setHorizontalAlignment(i, 3, HasHorizontalAlignment.ALIGN_CENTER);
             }

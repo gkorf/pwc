@@ -36,9 +36,11 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
@@ -49,7 +51,11 @@ import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSe
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class FolderTreeView extends Composite implements TreeView {
 
@@ -72,7 +78,7 @@ public class FolderTreeView extends Composite implements TreeView {
 	}
 	
     public void openFolder(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         openFolder(root, folder);
     }
 
@@ -122,14 +128,11 @@ public class FolderTreeView extends Composite implements TreeView {
         @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder22.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
-
-        @Source("gr/grnet/pithos/resources/othersshared.png")
-        ImageResource othersShared();
 
         @Source("gr/grnet/pithos/resources/myshared22.png")
         ImageResource myShared();
@@ -153,20 +156,61 @@ public class FolderTreeView extends Composite implements TreeView {
         public SafeHtml imageSpan(String name);
     }
 
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("gr/grnet/pithos/resources/home22.png")
+    	ImageResource icon();
+    }
+
     private FolderTreeViewModel model;
+    
+    private CellTree tree;
+    
+    private HTML usedBytes;
+    
+    private HTML totalBytes;
+    
+    private HTML usedPercent;
 
     public FolderTreeView(FolderTreeViewModel viewModel) {
         this.model = viewModel;
+
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "My Files", true);
+
+        VerticalPanel content = new VerticalPanel();
+        
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
         CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+        content.add(tree);
 
-        initWidget(tree);
+        HorizontalPanel separator = new HorizontalPanel();
+        separator.addStyleName("pithos-statisticsSeparator");
+        separator.add(new HTML(""));
+        content.add(separator);
+
+        HorizontalPanel statistics = new HorizontalPanel();
+	    statistics.addStyleName("pithos-statistics");
+	    statistics.add(new HTML("Used:&nbsp;"));
+	    usedBytes = new HTML();
+	    statistics.add(usedBytes);
+	    statistics.add(new HTML("&nbsp;of&nbsp;"));
+	    totalBytes = new HTML();
+	    statistics.add(totalBytes);
+	    statistics.add(new HTML("&nbsp;("));
+	    usedPercent = new HTML();
+	    statistics.add(usedPercent);
+	    statistics.add(new HTML(")"));
+	    content.add(statistics);
+	    content.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_CENTER);
+
+        panel.setContent(content);
+        initWidget(panel);
     }
 
 
@@ -178,4 +222,11 @@ public class FolderTreeView extends Composite implements TreeView {
     public void updateFolder(Folder folder, boolean showfiles, Command callback, final boolean openParent) {
         model.updateFolder(folder, showfiles, callback, openParent);
     }
+    
+	public void showStatistics(AccountResource account) {
+    	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
+    	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
+    	NumberFormat nf = NumberFormat.getPercentFormat();
+    	usedPercent.setHTML(nf.format(account.getUsedPercentage()));
+	}
 }

@@ -185,10 +185,11 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 
 	/**
 	 * Accepts any change and updates the file
+	 * @return 
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
         app.updateFolder(file.getParent(), true, new Command() {
 			
 			@Override
@@ -197,5 +198,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 					app.updateMySharedRoot();
 			}
 		}, true);
+        
+        return true;
 	}
 }

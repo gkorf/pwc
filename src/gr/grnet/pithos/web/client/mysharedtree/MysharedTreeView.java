@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.mysharedtree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -49,13 +50,14 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 
 public class MysharedTreeView extends Composite implements TreeView {
 
     public void updateChildren(Folder folder) {
-        TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
+        TreeNode root = tree.getRootTreeNode();
         updateChildren(root, folder);
     }
 
@@ -105,17 +107,17 @@ public class MysharedTreeView extends Composite implements TreeView {
         @Source("gr/grnet/pithos/resources/home22.png")
         ImageResource home();
 
-        @Source("gr/grnet/pithos/resources/folder22.png")
+        @Source("gr/grnet/pithos/resources/2folder22.png")
         public ImageResource folderYellow();
 
         @Source("gr/grnet/pithos/resources/mimetypes/document.png")
         ImageResource document();
 
-        @Source("gr/grnet/pithos/resources/othersshared.png")
-        ImageResource othersShared();
-
         @Source("gr/grnet/pithos/resources/myshared22.png")
         ImageResource myShared();
+
+        @Source("gr/grnet/pithos/resources/sharedbyme22.png")
+        ImageResource sharedByMe();
 
         @Source("gr/grnet/pithos/resources/folder_user.png")
         ImageResource sharedFolder();
@@ -130,21 +132,53 @@ public class MysharedTreeView extends Composite implements TreeView {
         public SafeHtml nameSpan(String name);
       }
 
+    interface Style extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Style {
+    	@Override
+		String header();
+    }
+
+    interface Resources extends gr.grnet.pithos.web.client.PithosDisclosurePanel.Resources {
+		@Override
+		@Source("PithosMySharedDisclosurePanel.css")
+		Style pithosDisclosurePanelCss();
+
+		@Override
+		@Source("gr/grnet/pithos/resources/sharedbyme22.png")
+    	ImageResource icon();
+    }
+
     private MysharedTreeViewModel model;
 
+    private PithosDisclosurePanel panel;
+    
+    private CellTree tree;
+    
+    private CellTree.Resources res = GWT.create(BasicResources.class);
+    
     public MysharedTreeView(MysharedTreeViewModel viewModel) {
         this.model = viewModel;
-        /*
+        
+        panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false);
+        createTree();
+
+        initWidget(panel);
+    }
+
+	/**
+	 * 
+	 */
+	void createTree() {
+		/*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
-        CellTree.Resources res = GWT.create(BasicResources.class);
-        CellTree tree = new CellTree(model, null, res);
+		if (tree != null)
+			tree.removeFromParent();
+        tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-
-        initWidget(tree);
-    }
+        panel.setContent(tree);
+	}
 
 
     @Override
@@ -157,8 +191,12 @@ public class MysharedTreeView extends Composite implements TreeView {
     }
 
 	public void updateRoot() {
-		TreeNode root = ((CellTree) getWidget()).getRootTreeNode();
-		root.setChildOpen(0, true);
-		root.setChildOpen(0, false);
+		model.initialize(new Command() {
+				
+				@Override
+				public void execute() {
+					createTree();
+				}
+		});
 	}
 }

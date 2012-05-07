@@ -87,16 +87,17 @@ public class FolderContextMenu extends PopupPanel {
     	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
     	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
     	boolean otherSharedTreeSelected = selectedTree.equals(app.getOtherSharedTreeView());
+    	boolean mysharedTreeSelected = selectedTree.equals(app.getMySharedTreeView());
     	
-    	if (isFolderTreeSelected || otherSharedTreeSelected) {
-	    	MenuItem refresh = new MenuItem("<span id = 'folderContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(app, this, folder));
-	        contextMenu.addItem(refresh);
-    	}
+    	MenuItem refresh = new MenuItem("<span id = 'folderContextMenu.refresh'>" + AbstractImagePrototype.create(images.refresh()).getHTML() + "&nbsp;Refresh</span>", true, new RefreshCommand(app, this, folder));
+        contextMenu.addItem(refresh);
 
         if (!folder.isInTrash()) {
         	if (canWrite) {
-		        MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder));
-		        contextMenu.addItem(newFolder);
+        		if (!mysharedTreeSelected) {
+        			MenuItem newFolder = new MenuItem("<span id = 'folderContextMenu.newFolder'>" + AbstractImagePrototype.create(newImages.folderNew()).getHTML() + "&nbsp;New Folder</span>", true, new NewFolderCommand(app, this, folder));
+        			contextMenu.addItem(newFolder);
+        		}
 
 		        if (isFolderTreeSelected && !folder.isContainer()) {
 		            MenuItem cut = new MenuItem("<span id = 'folderContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, folder));
@@ -110,7 +111,7 @@ public class FolderContextMenu extends PopupPanel {
         	}
 	
         	if (canWrite) {
-		        if (!app.getClipboard().isEmpty()) {
+		        if (!app.getClipboard().isEmpty() && !mysharedTreeSelected) {
 		        	Object item = app.getClipboard().getItem();
 		        	boolean showPaste = true;
 		        	if (item instanceof Folder) {

@@ -91,7 +91,7 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	public FolderPropertiesDialog(final Pithos app, boolean _create,  Folder selected) {
         this.app = app;
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -144,8 +144,11 @@ public class FolderPropertiesDialog extends DialogBox {
         if (create)
             generalTable.setText(1, 1, folder.getName());
         else
-            generalTable.setText(1, 1, folder.getPrefix());
-        generalTable.setText(2, 1, "");
+            generalTable.setText(1, 1, folder.getParent().getName());
+        if (create)
+        	generalTable.setText(2, 1, app.getUsername());
+        else
+        	generalTable.setText(2, 1, folder.getOwner());
         DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
         if(folder.getLastModified() != null)
             generalTable.setText(3, 1, formatter.format(folder.getLastModified()));
@@ -239,6 +242,8 @@ public class FolderPropertiesDialog extends DialogBox {
 	 */
 	private void createFolder() {
 		String name = folderName.getText().trim();
+		if (name.length() == 0)
+			return;
         String path = folder.getUri() + "/" + name;
         PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
             @Override
@@ -290,6 +295,8 @@ public class FolderPropertiesDialog extends DialogBox {
 
 	private void updateFolder() {
         final String newName = folderName.getText().trim();
+        if (newName.length() == 0)
+        	return;
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
             final String path = folder.getParent().getUri() + "/" + newName;
             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {

@@ -88,7 +88,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		@Source("gr/grnet/pithos/resources/groups22.png")
 		ImageResource permGroup();
 
-		@Source("gr/grnet/pithos/resources/editdelete.png")
+		@Source("gr/grnet/pithos/resources/delete.gif")
 		ImageResource delete();
 	}
 
@@ -173,9 +173,24 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         Button add = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
+            	if (app.getAccount().getGroups().isEmpty()) {
+                    new GroupCreateDialog(app, new Command() {
+						
+						@Override
+						public void execute() {
+			            	if (app.getAccount().getGroups().isEmpty())
+			            		return;
+			                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+			                dlg.center();
+			                permList.updatePermissionTable();
+						}
+					}).center();
+            	}
+            	else {
+	                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+	                dlg.center();
+	                permList.updatePermissionTable();
+            	}
             }
         });
         add.addStyleName("button");
@@ -244,8 +259,9 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
         updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", permList.getPermissions());
+        return true;
 	}
 
 	protected void updateMetaData(String api, String owner, final String path, final Map<String, Boolean[]> newPermissions) {
@@ -258,13 +274,16 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 						@Override
 						public void onSuccess(File _result) {
 							showLinkIfShared();
-		                    app.updateFolder(file.getParent(), true, new Command() {
-								
-								@Override
-								public void execute() {
-									app.updateMySharedRoot();
-								}
-							}, true);
+							if (!app.isMySharedSelected())
+			                    app.updateFolder(file.getParent(), true, new Command() {
+									
+									@Override
+									public void execute() {
+										app.updateMySharedRoot();
+									}
+								}, true);
+							else
+								app.updateSharedFolder(file.getParent(), true);
 						}
 
 						@Override
@@ -322,7 +341,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             updateFile.setHeader("X-Object-Sharing", permHeader);
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else
+        else if (!app.isMySharedSelected())
             app.updateFolder(file.getParent(), true, new Command() {
 				
 				@Override
@@ -331,6 +350,8 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 						app.updateMySharedRoot();
 				}
 			}, true);
+        else
+        	app.updateSharedFolder(file.getParent(), true);
     }
 
 	@Override

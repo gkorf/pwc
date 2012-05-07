@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.AddUserDialog;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -72,39 +73,7 @@ public class AddUserCommand implements Command {
 	public void execute() {
         if (containerPanel != null)
 		    containerPanel.hide();
-        String username = Window.prompt("Enter username:", "");
-        if (username != null && username.length() > 0) {
-        	group.addMember(username);
-        	String path = "?update=";
-        	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
-				
-				@Override
-				public void onSuccess(Resource result) {
-					app.updateGroupNode(group);
-				}
-				
-				@Override
-				public void onError(Throwable t) {
-					GWT.log("", t);
-					app.setError(t);
-					if (t instanceof RestException) {
-						app.displayError("Unable to update group:" + ((RestException) t).getHttpStatusText());
-					}
-					else 
-						app.displayError("System error updating group:" + t.getMessage());
-				}
-
-				@Override
-				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
-				}
-			};
-			updateGroup.setHeader("X-Auth-Token", app.getToken());
-			String groupMembers = "";
-			for (String u : group.getMembers())
-				groupMembers += (URL.encodePathSegment(u) + ",");
-			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), groupMembers);
-			Scheduler.get().scheduleDeferred(updateGroup);
-        }
+        AddUserDialog dlg = new AddUserDialog(app, group);
+        dlg.center();
 	}
 }

@@ -84,7 +84,7 @@ public class FileUploadDialog extends DialogBox {
 	 */
 	public FileUploadDialog(Pithos _app) {
 		app = _app;
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			

@@ -74,15 +74,16 @@ import com.google.gwt.view.client.TreeViewModel;
 
 public class OtherSharedTreeViewModel implements TreeViewModel {
 
-	private static final String treeTitle = "Shared to me";
     protected Pithos app;
+
+    String dummy = "No shares by others yet";
 
     private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
             String html = AbstractImagePrototype.create(OtherSharedTreeView.images.folderYellow()).getHTML();
-            safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+           	safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
@@ -121,43 +122,27 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            rootDataProvider.getList().add(treeTitle);
-            return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
-                @Override
-                public SafeHtml render(String object) {
+        	fetchSharingUsers(null);
+            return new DefaultNodeInfo<String>(userLevelDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
+
+				@Override
+				public SafeHtml render(String object) {
                     SafeHtmlBuilder builder = new SafeHtmlBuilder();
                     render(object, builder);
                     return builder.toSafeHtml();
-                }
+				}
 
-                @Override
-                public void render(String object, SafeHtmlBuilder builder) {
-                    String html = AbstractImagePrototype.create(OtherSharedTreeView.images.othersShared()).getHTML();
-                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+				@Override
+				public void render(String object, SafeHtmlBuilder builder) {
+                    if (!object.equals(dummy)) {
+                    	String html = AbstractImagePrototype.create(OtherSharedTreeView.images.myShared()).getHTML();
+                    	builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+                    }
                     builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
-                }
-            }),  null, null);
+				}
+			}), null, null);
         }
         else if (value instanceof String) {
-        	if (value.equals(treeTitle)) {
-	        	fetchSharingUsers(null);
-	            return new DefaultNodeInfo<String>(userLevelDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
-
-					@Override
-					public SafeHtml render(String object) {
-	                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
-	                    render(object, builder);
-	                    return builder.toSafeHtml();
-					}
-
-					@Override
-					public void render(String object, SafeHtmlBuilder builder) {
-	                    String html = AbstractImagePrototype.create(OtherSharedTreeView.images.user()).getHTML();
-	                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-	                    builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
-					}
-				}), null, null);
-        	}
 			String username = (String) value;
 			if (userDataProviderMap.get(username) == null) {
 				userDataProviderMap.put(username, new ListDataProvider<Folder>());
@@ -183,6 +168,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             public void onSuccess(final SharingUsers _result) {
                 userLevelDataProvider.getList().clear();
                 userLevelDataProvider.getList().addAll(_result.getUsers());
+                if (userLevelDataProvider.getList().isEmpty())
+                	userLevelDataProvider.getList().add(dummy);
                 Iterator<String> iter = _result.getUsers().iterator();
                 fetchSharedContainers(iter, callback);
             }
@@ -230,14 +217,12 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 	@Override
     public boolean isLeaf(Object o) {
 		if (o == null)
-			return false;
+			return userLevelDataProvider.getList().isEmpty();
 		else if (o instanceof Folder) {
             Folder f = (Folder) o;
             return f.getSubfolders().isEmpty();
         }
 		else {
-			if (o.equals(treeTitle))
-				return userLevelDataProvider.getList().isEmpty();
 			ListDataProvider<Folder> dp = userDataProviderMap.get(o);
 			if (dp != null)
 				return dp.getList().isEmpty();

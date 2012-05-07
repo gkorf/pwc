@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2012 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -32,45 +32,23 @@
  * interpreted as representing official policies, either expressed
  * or implied, of GRNET S.A.
  */
-package gr.grnet.pithos.web.client.commands;
+ 
+.disclosurePanel {
+	width: 100%;
+	margin-bottom: 20px;
+}
 
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.Folder;
+.header {
+	background-color: #74aec9;
+	height: 28px;
+    width: 100%;
+    padding-left: 6px;
+}
 
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.PopupPanel;
+.arrow { 
+	padding-right: 2px;
+}
 
-
-public class RefreshCommand implements Command {
-
-	private PopupPanel containerPanel;
-
-    Pithos app;
-
-    private Folder folder;
-    
-	/**
-	 * @param _containerPanel
-	 */
-	public RefreshCommand(Pithos _app, PopupPanel _containerPanel, Folder _folder) {
-        app = _app;
-		containerPanel = _containerPanel;
-		folder = _folder;
-	}
-
-	@Override
-	public void execute() {
-		if (containerPanel != null)
-			containerPanel.hide();
-		if (app.getSelectedTree().equals(app.getMySharedTreeView()))
-			app.updateSharedFolder(folder, true);
-		else
-			app.updateFolder(folder, true, new Command() {
-				
-				@Override
-				public void execute() {
-					app.updateStatistics();
-				}
-			}, true);
-	}
+.content {
+	width: 100%;
 }

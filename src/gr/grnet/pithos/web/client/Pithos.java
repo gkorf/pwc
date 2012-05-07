@@ -238,7 +238,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     OtherSharedTreeView otherSharedTreeView = null;
 
     GroupTreeViewModel groupTreeViewModel;
-    private GroupTreeView groupTreeView;
+    GroupTreeView groupTreeView;
 
     TreeView selectedTree;
     protected AccountResource account;
@@ -250,12 +250,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     @SuppressWarnings("rawtypes") List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
     
     Button upload;
-    
-    private HTML usedBytes;
-    
-    private HTML totalBytes;
-    
-    private HTML usedPercent;
     
     private HTML numOfFiles;
     
@@ -362,43 +356,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeView = new FolderTreeView(folderTreeViewModel);
         treeViews.add(folderTreeView);
         
-        fileList = new FileList(this, images, folderTreeView);
+        fileList = new FileList(this, images);
         inner.add(fileList);
 
-        groupTreeViewModel = new GroupTreeViewModel(this);
-        groupTreeView = new GroupTreeView(groupTreeViewModel);
-        treeViews.add(groupTreeView);
-        
         trees = new VerticalPanel();
         trees.setWidth("100%");
-
         
-        HorizontalPanel treeHeader = new HorizontalPanel();
-        treeHeader.addStyleName("pithos-treeHeader");
-        treeHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        treeHeader.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        HorizontalPanel statistics = new HorizontalPanel();
-        statistics.addStyleName("pithos-statistics");
-        statistics.add(new HTML("Used:&nbsp;"));
-        usedBytes = new HTML();
-        statistics.add(usedBytes);
-        statistics.add(new HTML("&nbsp;of&nbsp;"));
-        totalBytes = new HTML();
-        statistics.add(totalBytes);
-        statistics.add(new HTML("&nbsp;("));
-        usedPercent = new HTML();
-        statistics.add(usedPercent);
-        statistics.add(new HTML(")"));
-        treeHeader.add(statistics);
-        treeHeader.setCellHorizontalAlignment(statistics, HasHorizontalAlignment.ALIGN_LEFT);
-        trees.add(treeHeader);
-
         trees.add(folderTreeView);
-        trees.add(groupTreeView);
+        
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
-        splitPanel.setSplitPosition("35%");
+        splitPanel.setSplitPosition("219px");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
         splitPanel.setWidth(contentWidth);
@@ -457,8 +426,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				                    createMySharedTree();
 								}
 							});
-		                    groupTreeViewModel.initialize();
-		                    showStatistics();
+
+		                    HorizontalPanel separator = new HorizontalPanel();
+		                    separator.addStyleName("pithos-statisticsSeparator");
+		                    separator.add(new HTML(""));
+		                    trees.add(separator);
+
+		                    groupTreeViewModel = new GroupTreeViewModel(Pithos.this);
+		                    groupTreeView = new GroupTreeView(groupTreeViewModel);
+		                    treeViews.add(groupTreeView);
+		                    trees.add(groupTreeView);
+		                    folderTreeView.showStatistics(account);
 		                }
 					}
 				});
@@ -526,31 +504,25 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 * Parse and store the user credentials to the appropriate fields.
 	 */
 	private boolean parseUserCredentials() {
-        username = Window.Location.getParameter("user");
-        token = Window.Location.getParameter("token");
         Configuration conf = (Configuration) GWT.create(Configuration.class);
 		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        if (username == null || username.length() == 0 || token == null || token.length() == 0) {
-            String cookie = otherProperties.get("authCookie");
-            String auth = Cookies.getCookie(cookie);
-            if (auth == null) {
-                authenticateUser();
-                return false;
-            }
-            if (auth.startsWith("\""))
-            	auth = auth.substring(1);
-            if (auth.endsWith("\""))
-            	auth = auth.substring(0, auth.length() - 1);
-			String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
-			if (authSplit.length != 2) {
-			    authenticateUser();
-			    return false;
-			}
-			username = authSplit[0];
-			token = authSplit[1];
+        String cookie = otherProperties.get("authCookie");
+        String auth = Cookies.getCookie(cookie);
+        if (auth == null) {
+            authenticateUser();
+            return false;
         }
-        else
-        	Cookies.setCookie(otherProperties.get("authCookie"), username + conf.cookieSeparator() + token, null, "", "/", false);
+        if (auth.startsWith("\""))
+        	auth = auth.substring(1);
+        if (auth.endsWith("\""))
+        	auth = auth.substring(0, auth.length() - 1);
+		String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+		if (authSplit.length != 2) {
+		    authenticateUser();
+		    return false;
+		}
+		username = authSplit[0];
+		token = authSplit[1];
 
         String gotoUrl = Window.Location.getParameter("goto");
 		if (gotoUrl != null && gotoUrl.length() > 0) {
@@ -603,7 +575,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 			@Override
 			public void onSuccess(AccountResource _result) {
-				showStatistics();
+				folderTreeView.showStatistics(account);
 			}
 
 			@Override
@@ -623,13 +595,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		};
 		headAccount.setHeader("X-Auth-Token", token);
 		Scheduler.get().scheduleDeferred(headAccount);
-	}
-
-	protected void showStatistics() {
-    	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
-    	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
-    	NumberFormat nf = NumberFormat.getPercentFormat();
-    	usedPercent.setHTML(nf.format(account.getUsedPercentage()));
 	}
 
 	protected void createHomeContainer(final AccountResource _account, final Command callback) {
@@ -1100,7 +1065,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public Folder getSelection() {
-		return selectedTree.getSelection();
+		if (selectedTree != null)
+			return selectedTree.getSelection();
+		return null;
 	}
 
 	public void showFolderStatistics(int folderFileCount) {
@@ -1179,7 +1146,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-				trees.insert(otherSharedTreeView, 3);
+				trees.insert(otherSharedTreeView, 1);
 				treeViews.add(otherSharedTreeView);
 			}
 		});
@@ -1312,5 +1279,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		};
 		headFile.setHeader("X-Auth-Token", getToken());
 		Scheduler.get().scheduleDeferred(headFile);
+	}
+
+	public boolean isMySharedSelected() {
+		return getSelectedTree().equals(getMySharedTreeView());
 	}
 }

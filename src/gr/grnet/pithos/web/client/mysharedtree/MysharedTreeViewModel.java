@@ -42,6 +42,8 @@ import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView.Templates;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
+import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -57,6 +59,7 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
@@ -77,22 +80,26 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
     protected Pithos app;
 
-    private Cell<Folder> folderCell = new AbstractCell<Folder>() {
+    Folder dummy = new Folder("No files shared by me");
+    
+    private Cell<Folder> folderCell = new AbstractCell<Folder>(ContextMenuEvent.getType().getName()) {
 
        @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
-            String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
-            safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+           if (!folder.equals(dummy)) {
+        	   String html = AbstractImagePrototype.create(MysharedTreeView.images.folderYellow()).getHTML();
+            	safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
+           }
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
         }
 
-        @Override
-        public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, final Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
-            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
-            	final int x = event.getClientX();
-            	final int y = event.getClientY();
-                MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
-                app.scheduleFolderHeadCommand(folder, new Command() {
+       @Override
+       public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, final Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+           if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+           	final int x = event.getClientX();
+           	final int y = event.getClientY();
+               MysharedTreeViewModel.this.selectionModel.setSelected(folder, true);
+               app.scheduleFolderHeadCommand(folder, new Command() {
 					
 					@Override
 					public void execute() {
@@ -101,14 +108,12 @@ public class MysharedTreeViewModel implements TreeViewModel {
 		                menu.show();
 					}
 				});
-            }
-        }
+           }
+       }
     };
 
     protected ListDataProvider<Folder> firstLevelDataProvider = new ListDataProvider<Folder>();
-
-    private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
-    
+ 
     protected SingleSelectionModel<Folder> selectionModel;
 
     public MysharedTreeViewModel(Pithos _app, SingleSelectionModel<Folder> selectionModel) {
@@ -119,37 +124,10 @@ public class MysharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
-            rootDataProvider.getList().add("Shared by me");
-            return new DefaultNodeInfo<String>(rootDataProvider, new TextCell(new SafeHtmlRenderer<String>() {
-                @Override
-                public SafeHtml render(String object) {
-                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                    render(object, builder);
-                    return builder.toSafeHtml();
-                }
-
-                @Override
-                public void render(String object, SafeHtmlBuilder builder) {
-                    String html = AbstractImagePrototype.create(MysharedTreeView.images.myShared()).getHTML();
-                    builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-                    builder.append(MysharedTreeView.Templates.INSTANCE.nameSpan(object));
-                }
-            }),  null, null);
-        }
-        else if (value instanceof String) {
         	fetchSharedContainers(null);
             return new DefaultNodeInfo<Folder>(firstLevelDataProvider, folderCell, selectionModel, null);
         }
-        else {
-            final Folder f = (Folder) value;
-            if (dataProviderMap.get(f) == null) {
-                dataProviderMap.put(f, new ListDataProvider<Folder>());
-            }
-            final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-            fetchFolder(f, dataProvider, false);
-            return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
-        }
+        return null;
     }
 
 	private void fetchSharedContainers(final Command callback) {
@@ -157,23 +135,17 @@ public class MysharedTreeViewModel implements TreeViewModel {
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(final AccountResource _result) {
-            	Iterator<Folder> iter = _result.getContainers().listIterator();
-            	fetchFolder(iter, new Command() {
-					
-					@Override
-					public void execute() {
-						firstLevelDataProvider.getList().clear();
-		                Folder t = null;
-		                for (Folder c : _result.getContainers()) {
-		                	if (c.isHome())
-		                		firstLevelDataProvider.getList().add(0, c); //Pithos is always first
-		                	else if (!c.isTrash())
-		                		firstLevelDataProvider.getList().add(c);
-		                }
-						if (callback != null)
-							callback.execute();
-					}
-				});
+				firstLevelDataProvider.getList().clear();
+                for (Folder c : _result.getContainers()) {
+                	if (c.isHome())
+                		firstLevelDataProvider.getList().add(0, c); //Pithos is always first
+                	else if (!c.isTrash())
+                		firstLevelDataProvider.getList().add(c);
+                }
+                if (firstLevelDataProvider.getList().isEmpty())
+                	firstLevelDataProvider.getList().add(dummy);
+				if (callback != null)
+					callback.execute();
             }
 
             @Override
@@ -198,14 +170,8 @@ public class MysharedTreeViewModel implements TreeViewModel {
 	@Override
     public boolean isLeaf(Object o) {
 		if (o == null)
-			return false;
-		else if (o instanceof Folder) {
-            Folder f = (Folder) o;
-            return f.getSubfolders().isEmpty();
-        }
-		else {
 			return firstLevelDataProvider.getList().isEmpty();
-		}
+		return true;
     }
 	
 	private native void log(String msg) /*-{
@@ -250,29 +216,16 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
     public void updateFolder(Folder folder, boolean showfiles) {
-        if (dataProviderMap.get(folder) == null) {
-            dataProviderMap.put(folder, new ListDataProvider<Folder>());
-        }
-        final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
-        fetchFolder(folder, dataProvider, showfiles);
+        fetchFolder(folder,showfiles);
     }
 
-    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
-        String path = "/" + f.getContainer() + "?format=json&shared=&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
+    public void fetchFolder(final Folder f, final boolean showfiles) {
+        String path = "/" + f.getContainer() + "?format=json&shared=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if (showfiles)
                     app.showFiles(_result);
-                Iterator<Folder> iter = new ArrayList<Folder>(_result.getSubfolders()).listIterator();
-                fetchFolder(iter, new Command() {
-                    @Override
-                    public void execute() {
-                        dataProvider.getList().clear();
-                   		dataProvider.getList().addAll(_result.getSubfolders());
-                        app.getMySharedTreeView().updateChildren(f);
-                    }
-                });
             }
 
             @Override

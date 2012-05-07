@@ -140,9 +140,11 @@ public class FilesPropertiesDialog extends AbstractPropertiesDialog {
 
 	/**
 	 * Accepts any change and updates the file
+	 * @return 
 	 *
 	 */
 	@Override
-	protected void accept() {
+	protected boolean accept() {
+		return true;
 	}
 }

@@ -100,6 +100,7 @@ public class ToolsMenu extends PopupPanel {
 	        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
 	    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
+	    	boolean isMysharedTreeSelected = app.isMySharedSelected();
 	    	
 	        if (!folder.isInTrash()) {
 	        	if (canWrite) {
@@ -119,18 +120,20 @@ public class ToolsMenu extends PopupPanel {
 			        }
 	        	}
 	
-        		MenuItem copy = null;
-	        	if (files != null && !files.isEmpty())
-	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
-	        	else if (isFolderTreeSelected && !folder.isContainer())
-	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
-	        	if (copy != null) {
-	        		contextMenu.addItem(copy);
-		        	empty = false;
+	        	if (!isMysharedTreeSelected) {
+	        		MenuItem copy = null;
+		        	if (files != null && !files.isEmpty())
+		        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
+		        	else if (isFolderTreeSelected && !folder.isContainer())
+		        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
+		        	if (copy != null) {
+		        		contextMenu.addItem(copy);
+			        	empty = false;
+		        	}
 	        	}
 		
 	        	if (canWrite) {
-			        if (!app.getClipboard().isEmpty()) {
+			        if (!isMysharedTreeSelected && !app.getClipboard().isEmpty()) {
 			        	Object item = app.getClipboard().getItem();
 			        	boolean showPaste = false;
 			        	if (item instanceof List) {
@@ -174,12 +177,14 @@ public class ToolsMenu extends PopupPanel {
 				        	contextMenu.addItem(delete);
 				        	empty = false;
 				        }
-				
+				    }
+				    if (isFolderTreeSelected || isMysharedTreeSelected) {
 				        if (files != null && files.size() == 1) {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PROPERTIES)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PUBLISH)));
-				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
+				        	if (!isMysharedTreeSelected)
+				        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
 				        	empty = false;
 				        }
 				        else if (!folder.isContainer()) {
@@ -237,13 +242,11 @@ public class ToolsMenu extends PopupPanel {
 	    	        contextMenu.addItem(deleteGroup);
 		        	empty = false;
 	        	}
-	        	else {
-	    	        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
-	    	        contextMenu.addItem(createGroup);
-		        	empty = false;
-	        	}
         	}
         }
+        MenuItem createGroup = new MenuItem("<span>" + AbstractImagePrototype.create(images.group()).getHTML() + "&nbsp;Create Group</span>", true, new CreateGroupCommand(app, this));
+        contextMenu.addItem(createGroup);
+    	empty = false;
 		add(contextMenu);
 	}
 	

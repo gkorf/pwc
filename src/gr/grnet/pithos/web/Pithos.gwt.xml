@@ -38,6 +38,7 @@
     <inherits name="com.google.gwt.user.theme.standard.Standard"/>
 	<inherits name="com.google.gwt.http.HTTP"/>
 	<inherits name="com.google.gwt.json.JSON"/>
+	<inherits name="com.google.gwt.resources.Resources"/>
 
     <entry-point class='gr.grnet.pithos.web.client.Pithos' />
  	<stylesheet src='pithos.css' />

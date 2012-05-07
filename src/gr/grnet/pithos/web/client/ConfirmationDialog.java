@@ -60,7 +60,7 @@ public abstract class ConfirmationDialog extends DialogBox {
 	 * @param buttonLabel the label of the confirmation button
 	 */
 	public ConfirmationDialog(String message, String buttonLabel) {
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
