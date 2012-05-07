@@ -362,8 +362,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         trees = new VerticalPanel();
         trees.setWidth("100%");
         
-        trees.add(folderTreeView);
-        
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
         splitPanel.setRightWidget(inner);
@@ -419,6 +417,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		                			trash = f;
 		                			break;
 		                		}
+		                    trees.add(folderTreeView);
 		                    folderTreeViewModel.initialize(account, new Command() {
 								
 								@Override
