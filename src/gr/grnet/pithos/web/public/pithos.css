@@ -34,14 +34,16 @@
  */
 body {
 	color: black;
-	font: 13px Verdana, 'PT Sans', sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 13px;
 	margin: 8px;
 	margin-top: 3px;
 	background-color: transparent;
 }
 
 table td {
-	font: 13px Verdana, 'PT Sans', sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 13px;
 }
 
 .pithos-outer {
@@ -122,13 +124,13 @@ a.info:hover div {
 }
 
 .pithos-DialogBox .close {
-	background: url(images/close-popup.png) no-repeat;
 	cursor: pointer;
 	position: absolute;
 	width: 13px;
 	height: 13px;
 	top: 12px;
-	right: 7px;
+	right: 27px;
+	font-size: 0.8em;
 }
 
 .pithos-DialogBox .dialogMiddleCenter {
@@ -178,12 +180,16 @@ table.pithos-permList.props-labels {
 .props-labels {
 	font-size: 80%;
 	font-weight: bold;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .props-toplabels {
 	font-size: 80%;
 	font-weight: bold;
 	font-style: italic;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .props-values {
@@ -341,7 +347,8 @@ table.pithos-permList.props-labels {
 
 .pithos-statistics {
 	color: black;
-	padding: 10px;
+	padding-top: 10px;
+ 	padding-bottom: 10px;
 }
 
 .pithos-statistics .gwt-HTML {
@@ -383,6 +390,7 @@ table.pithos-permList.props-labels {
     padding: 8px;
     width: 134px;
     border: 0px;
+    color: black;
 }
 
 .pithos-uploadButton-loading {
@@ -737,26 +745,3 @@ a.pithos-tag {
 .pithos-versionList {
 	padding-right: 5px;
 }
-
-<<<<<<< HEAD
-
-.glg5-e2bki {
-    background: url(images/share.png) no-repeat 5px 9px !important;
-}
-=======
-.pithos-folderTreeSection {
-	padding-left: 10px;
-	width:100%;
-}
-
-.pithos-folderTreeSectionHeader {
-	background-color: #74aec9;
-	height: 25px;
-    width: 100%;
-}
-
-.pithos-folderTreeSectionContent {
-	padding: 4px 0px 4px 8px;
-	margin-left: 6px;
-}
->>>>>>> master

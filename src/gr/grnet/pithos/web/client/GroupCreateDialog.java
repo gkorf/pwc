@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.dom.client.NativeEvent;
@@ -42,32 +41,44 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
- * The 'delete folder' dialog box.
+ * The 'Folder properties' dialog box implementation.
  */
-public class DeleteFolderDialog extends DialogBox {
+public class GroupCreateDialog extends DialogBox {
 
-	protected Pithos app;
-	protected Folder folder;
+    protected Pithos app;
+
+    private Command callback;
     
 	/**
-	 * The widget's constructor.
-	 * @param images the supplied images
+	 * The widget that holds the folderName of the folder.
 	 */
-	public DeleteFolderDialog(Pithos _app, Images images, Folder _folder) {
-        this.app = _app;
-        this.folder = _folder;
+	TextBox groupName = new TextBox();
 
-        Anchor close = new Anchor("close");
+	final VerticalPanel inner;
+
+	public GroupCreateDialog(final Pithos app) {
+		this(app, null);
+	}
+	
+	/**
+	 * The widget's constructor.
+	 */
+	public GroupCreateDialog(final Pithos app, Command callback) {
+        this.app = app;
+        this.callback = callback;
+        
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -77,39 +88,58 @@ public class DeleteFolderDialog extends DialogBox {
 			}
 		});
 
-		// Set the dialog's caption.
-		setText("Confirmation");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
-		// Create a VerticalPanel to contain the HTML label and the buttons.
+
+		// Enable IE selection for the dialog (must disable it upon closing it)
+		Pithos.enableIESelection();
+
+		// Use this opportunity to set the dialog's caption.
+		setText("Create group");
+
+		// Outer contains inner and buttons
 		VerticalPanel outer = new VerticalPanel();
 		outer.add(close);
-		
-		VerticalPanel inner = new VerticalPanel();
+		// Inner contains generalPanel and permPanel
+		inner = new VerticalPanel();
 		inner.addStyleName("inner");
 
-		HTML text = new HTML("<table><tr><td rowspan='2'>" + AbstractImagePrototype.create(images.warn()).getHTML() +
-					"</td><td>" + "Are you sure you want to <b>permanently</b> delete folder '" + folder.getName() +
-					"'?</td></tr></table>");
-		text.setStyleName("pithos-warnMessage");
-		inner.add(text);
-		inner.setCellHorizontalAlignment(text, HasHorizontalAlignment.ALIGN_CENTER);
+		VerticalPanel generalPanel = new VerticalPanel();
+        FlexTable generalTable = new FlexTable();
+        generalTable.setText(0, 0, "Name");
 
-		// Create the 'Delete' button, along with a listener that hides the dialog
-		// when the button is clicked and deletes the folder.
-		Button ok = new Button("Delete", new ClickHandler() {
+        generalTable.setWidget(0, 1, groupName);
+
+        generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
+        generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
+        generalTable.setCellSpacing(4);
+        generalPanel.add(generalTable);
+        inner.add(generalPanel);
+
+        outer.add(inner);
+
+		// Create the 'Create/Update' button, along with a listener that hides the dialog
+		// when the button is clicked and quits the application.
+		String okLabel = "Create";
+		final Button ok = new Button(okLabel, new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				app.deleteFolder(folder, null);
-				hide();
+				createGroup();
+				closeDialog();
 			}
 		});
 		ok.addStyleName("button");
-		inner.add(ok);
-		outer.add(inner);
-		outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
-		setWidget(outer);
+		outer.add(ok);
+        outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+
+        setWidget(outer);
+	}
+
+	@Override
+	public void center() {
+		super.center();
+		groupName.setFocus(true);
 	}
 
 	@Override
@@ -122,13 +152,34 @@ public class DeleteFolderDialog extends DialogBox {
 			// enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
-					hide();
-					app.deleteFolder(folder, null);
+					createGroup();
+                    closeDialog();
 					break;
 				case KeyCodes.KEY_ESCAPE:
-					hide();
+					closeDialog();
 					break;
 			}
 	}
 
+
+	/**
+	 * Enables IE selection prevention and hides the dialog
+	 * (we disable the prevention on creation of the dialog)
+	 */
+	public void closeDialog() {
+		Pithos.preventIESelection();
+		hide();
+		if (callback != null)
+			callback.execute();
+	}
+
+	/**
+	 * Generate an RPC request to create a new folder.
+	 */
+	void createGroup() {
+		String name = groupName.getText().trim();
+		if (name.length() == 0)
+			return;
+		app.addGroup(name);
+	}
 }

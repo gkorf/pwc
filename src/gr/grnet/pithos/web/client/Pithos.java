@@ -251,12 +251,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     Button upload;
     
-    private HTML usedBytes;
-    
-    private HTML totalBytes;
-    
-    private HTML usedPercent;
-    
     private HTML numOfFiles;
     
     private Toolbar toolbar;
@@ -362,31 +356,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         folderTreeView = new FolderTreeView(folderTreeViewModel);
         treeViews.add(folderTreeView);
         
-        fileList = new FileList(this, images, folderTreeView);
+        fileList = new FileList(this, images);
         inner.add(fileList);
 
         trees = new VerticalPanel();
         trees.setWidth("100%");
         
         trees.add(folderTreeView);
-        
-        HorizontalPanel separator = new HorizontalPanel();
-        separator.addStyleName("pithos-statisticsSeparator");
-        trees.add(separator);
-        
-        HorizontalPanel statistics = new HorizontalPanel();
-	    statistics.addStyleName("pithos-statistics");
-	    statistics.add(new HTML("Used:&nbsp;"));
-	    usedBytes = new HTML();
-	    statistics.add(usedBytes);
-	    statistics.add(new HTML("&nbsp;of&nbsp;"));
-	    totalBytes = new HTML();
-	    statistics.add(totalBytes);
-	    statistics.add(new HTML("&nbsp;("));
-	    usedPercent = new HTML();
-	    statistics.add(usedPercent);
-	    statistics.add(new HTML(")"));
-        trees.add(statistics);
         
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
@@ -450,11 +426,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				                    createMySharedTree();
 								}
 							});
+
+		                    HorizontalPanel separator = new HorizontalPanel();
+		                    separator.addStyleName("pithos-statisticsSeparator");
+		                    separator.add(new HTML(""));
+		                    trees.add(separator);
+
 		                    groupTreeViewModel = new GroupTreeViewModel(Pithos.this);
 		                    groupTreeView = new GroupTreeView(groupTreeViewModel);
 		                    treeViews.add(groupTreeView);
 		                    trees.add(groupTreeView);
-		                    showStatistics();
+		                    folderTreeView.showStatistics(account);
 		                }
 					}
 				});
@@ -593,7 +575,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 			@Override
 			public void onSuccess(AccountResource _result) {
-				showStatistics();
+				folderTreeView.showStatistics(account);
 			}
 
 			@Override
@@ -613,13 +595,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		};
 		headAccount.setHeader("X-Auth-Token", token);
 		Scheduler.get().scheduleDeferred(headAccount);
-	}
-
-	protected void showStatistics() {
-    	usedBytes.setHTML(String.valueOf(account.getFileSizeAsString()));
-    	totalBytes.setHTML(String.valueOf(account.getQuotaAsString()));
-    	NumberFormat nf = NumberFormat.getPercentFormat();
-    	usedPercent.setHTML(nf.format(account.getUsedPercentage()));
 	}
 
 	protected void createHomeContainer(final AccountResource _account, final Command callback) {
@@ -1090,7 +1065,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public Folder getSelection() {
-		return selectedTree.getSelection();
+		if (selectedTree != null)
+			return selectedTree.getSelection();
+		return null;
 	}
 
 	public void showFolderStatistics(int folderFileCount) {
@@ -1135,7 +1112,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    mysharedTreeView = new MysharedTreeView(mysharedTreeViewModel);
-				trees.insert(mysharedTreeView, 3);
+				trees.insert(mysharedTreeView, 2);
 				treeViews.add(mysharedTreeView);
 				createOtherSharedTree();
 			}
@@ -1169,7 +1146,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			@Override
 			public void execute() {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
-				trees.insert(otherSharedTreeView, 3);
+				trees.insert(otherSharedTreeView, 1);
 				treeViews.add(otherSharedTreeView);
 			}
 		});
@@ -1302,5 +1279,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		};
 		headFile.setHeader("X-Auth-Token", getToken());
 		Scheduler.get().scheduleDeferred(headFile);
+	}
+
+	public boolean isMySharedSelected() {
+		return getSelectedTree().equals(getMySharedTreeView());
 	}
 }

@@ -36,13 +36,13 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -69,12 +69,14 @@ public class GroupTreeViewModel implements TreeViewModel {
 		
         @Override
         public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Group group, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Group> valueUpdater) {
-            GroupTreeViewModel.this.groupSelectionModel.setSelected(group, true);
-            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
-                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
-                menu.setPopupPosition(event.getClientX(), event.getClientY());
-                menu.show();
-            }
+        	if (!group.equals(createGroup)) {
+	            GroupTreeViewModel.this.groupSelectionModel.setSelected(group, true);
+	            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+	                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
+	                menu.setPopupPosition(event.getClientX(), event.getClientY());
+	                menu.show();
+	            }
+        	}
         }
 	};
 
@@ -104,6 +106,8 @@ public class GroupTreeViewModel implements TreeViewModel {
     
     SingleSelectionModel<Group> groupSelectionModel;
     SingleSelectionModel<User> userSelectionModel;
+    
+    final Group createGroup = new Group("Create new group...");
 
     public GroupTreeViewModel(Pithos _app) {
         app = _app;
@@ -114,10 +118,15 @@ public class GroupTreeViewModel implements TreeViewModel {
 			
 			@Override
 			public void onSelectionChange(SelectionChangeEvent event) {
-				if (groupSelectionModel.getSelectedObject() != null) {
+				Group selected = groupSelectionModel.getSelectedObject();
+				if (selected != null) {
 					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
 					app.showFiles(new HashSet<File>());
 					app.showRelevantToolbarButtons();
+					if (selected.equals(createGroup)) {
+						new CreateGroupCommand(app, null).execute();
+						groupSelectionModel.setSelected(createGroup, false);
+					}
 				}
 				else {
 					if (app.getSelectedTree().equals(app.getGroupTreeView()))
@@ -153,7 +162,8 @@ public class GroupTreeViewModel implements TreeViewModel {
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
         	groupsDataProvider.getList().clear();
-        	groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(createGroup);
             return new DefaultNodeInfo<Group>(groupsDataProvider, groupCell, groupSelectionModel, null);
         }
     	Group g = (Group) value;
@@ -169,13 +179,11 @@ public class GroupTreeViewModel implements TreeViewModel {
 
 	@Override
     public boolean isLeaf(Object o) {
-        if (o instanceof String) {
-       		return ((String) o).length() == 0 || app.getAccount().getGroups().isEmpty();
+        if (o instanceof User) {
+       		return true;
         }
         else if (o instanceof Group)
         	return ((Group) o).getMembers().isEmpty();
-        else if (o != null)
-        	return true;
         return false;
     }
 	
@@ -183,6 +191,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		if (group == null) {
 			groupsDataProvider.getList().clear();
 			groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(createGroup);
 		}
 		else {
 			if (userDataProviderMap.get(group) == null) {

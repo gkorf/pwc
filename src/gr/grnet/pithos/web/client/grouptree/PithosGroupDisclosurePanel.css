@@ -34,15 +34,15 @@
  */
  
 .disclosurePanel {
-	padding-left: 10px;
 	width: 100%;
+	margin-bottom: 5px;
 }
 
 .header {
  	background-color: #cdde87;
-	height: 25px;
+	height: 28px;
     width: 100%;
-    margin-bottom: 5px;
+    padding-left: 6px;
 }
 
 .arrow { 
@@ -50,6 +50,5 @@
 }
 
 .content {
-	padding: 4px 0px 4px 8px;
-	margin-left: 6px;
+	width: 100%;
 }

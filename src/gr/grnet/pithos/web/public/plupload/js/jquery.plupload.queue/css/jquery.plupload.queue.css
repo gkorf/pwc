@@ -13,7 +13,7 @@
 	padding: 5px 6px;
 	margin-right: 4px;
 /*    background: #f3f3f3 url('../img/buttons.png') no-repeat 0 center;*/
-	background-color: #4085A5;
+	background-color: #0A0;
 	outline: 0;
 
     /* Optional rounded corners for browsers that support it */
@@ -37,10 +37,12 @@
 
 .plupload_add {
 /*	background-position: -181px center;*/
+	background-color: #0A0;
 }
 
 .plupload_wrapper {
-	font: normal 11px Verdana,sans-serif;
+	font-family: Verdana, 'PT Sans', sans-serif;
+	font-size: 100%;
 	width: 100%;
 }
 
@@ -64,11 +66,14 @@
 /*	color: #FFF;*/
 }
 .plupload_header_title {
-	font: normal 18px sans-serif;
-	padding: 6px 0 3px;
+	font-size: 1.2em;
+	color: white;
+	padding: 6px 14px 3px;
 }
 .plupload_header_text {
-	font: normal 12px sans-serif;
+	font-size: 0.8em;
+	color: #4085A5;
+	padding-left: 14px;
 }
 
 .plupload_filelist {
@@ -79,35 +84,33 @@
 
 .plupload_scroll .plupload_filelist {
 	height: 185px;
-	background: #F5F5F5;
 	overflow-y: scroll;
 }
 
 .plupload_filelist li {
 	padding: 10px 8px;
-	background: #F5F5F5 url('../img/backgrounds.gif') repeat-x 0 -156px;
-	border-bottom: 1px solid #DDD;
+	background: #EEE
 }
 
 .plupload_filelist_header, .plupload_filelist_footer {
-/*	background: #DFDFDF;*/
-	background: #74aec9;
 	padding: 8px 8px;
-/*	color: #42454A;*/
-}
-.plupload_filelist_header {	
-	border-top: 1px solid #EEE;
-	border-bottom: 1px solid #CDCDCD;
+	color: #4085A5;
+	border-top: 1px solid #AAA;
 }
 
 .plupload_filelist_footer {/*border-top: 1px solid #FFF; height: 22px; line-height: 20px;*/ vertical-align: middle;}
 .plupload_file_name {float: left; overflow: hidden}
-.plupload_file_status {/*color: #777;*/}
-.plupload_file_status span {/*color: #42454A;*/}
+.plupload_file_status {}
+.plupload_file_size span {color: #FF7F2A;}
 .plupload_file_size, .plupload_file_status, .plupload_progress {
 	float: right;
 	width: 80px;
 }
+
+.plupload_total_status {
+	color: #FF7F2A;
+}
+
 .plupload_file_size, .plupload_file_status, .plupload_file_action {text-align: right;}
 
 .plupload_filelist .plupload_file_name {width: 205px}
@@ -126,7 +129,7 @@
 }
 
 li.plupload_uploading {
-	background: #ECF3DC url('../img/backgrounds.gif') repeat-x 0 -238px;
+	background: #EEE;
 }
 li.plupload_done {color:#AAA}
 
@@ -146,6 +149,7 @@ li.plupload_done a {
 
 .plupload_progress, .plupload_upload_status {
 	display: none;
+	color: #FF7F2A;
 }
 
 .plupload_progress_container {
@@ -157,7 +161,7 @@ li.plupload_done a {
 .plupload_progress_bar {
 	width: 0px;
 	height: 7px;
-	background: #CDEB8B;
+	background: #FF7F2A;
 }
 
 .plupload_scroll .plupload_filelist_header .plupload_file_action, .plupload_scroll .plupload_filelist_footer .plupload_file_action {

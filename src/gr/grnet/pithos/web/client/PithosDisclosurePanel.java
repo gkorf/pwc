@@ -35,10 +35,6 @@
 
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.grouptree.GroupTreeView;
-import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
-
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -46,9 +42,6 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.CssResource.ImportedWithPrefix;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -56,7 +49,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
 public class PithosDisclosurePanel extends Composite {
@@ -135,8 +127,8 @@ public class PithosDisclosurePanel extends Composite {
 		return header;
 	}
 	
-	public void add(IsWidget widget) {
-		panel.add(widget);
+	public void setContent(Widget widget) {
+		panel.setContent(widget);
 		panel.getContent().removeStyleName("content");
 		panel.getContent().addStyleName(resources.pithosDisclosurePanelCss().content());
 	}

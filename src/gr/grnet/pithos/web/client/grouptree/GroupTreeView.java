@@ -62,7 +62,7 @@ public class GroupTreeView extends Composite implements TreeView {
         TreeNode root = tree.getRootTreeNode();
         if (group != null)
         	updateChildren(root, group);
-        else {
+        else if (root.getChildCount() > 0) {
         	root.setChildOpen(0, false, true);
         	root.setChildOpen(0, true, true);
         }
@@ -162,7 +162,7 @@ public class GroupTreeView extends Composite implements TreeView {
         tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
-        panel.add(tree);
+        panel.setContent(tree);
         
         initWidget(panel);
     }

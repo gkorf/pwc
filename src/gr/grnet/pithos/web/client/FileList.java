@@ -224,11 +224,13 @@ public class FileList extends Composite {
 
 	private final MultiSelectionModel<File> selectionModel;
 
+	Column<File, String> pathColumn;
+
 	protected final List<SortableHeader> allHeaders = new ArrayList<SortableHeader>();
 
 	SortableHeader nameHeader;
 
-    FolderTreeView treeView;
+	SortableHeader pathHeader;
 
     protected Pithos app;
 
@@ -240,10 +242,9 @@ public class FileList extends Composite {
 	 *
 	 * @param _images
 	 */
-	public FileList(final Pithos _app, Images _images, FolderTreeView _treeView) {
+	public FileList(final Pithos _app, Images _images) {
         app = _app;
 		images = _images;
-        this.treeView = _treeView;
 
         final CellTable.Resources resources = GWT.create(TableResources.class);
 
@@ -285,7 +286,16 @@ public class FileList extends Composite {
 			@Override
 			public SafeHtml getValue(File object) {
 				SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
+				if (!app.getSelectedTree().equals(app.mysharedTreeView)) {
+					sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
+				}
+				else {
+					String name = object.getPath();
+					if (name.lastIndexOf("/") != -1) {
+						name = name.substring(name.lastIndexOf("/") + 1, name.length());
+					}
+					sb.append(Templates.INSTANCE.filenameSpan(name));
+				}
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
                       .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
@@ -302,6 +312,31 @@ public class FileList extends Composite {
 		nameHeader.setReverseSort(true);
 
 		celltable.redrawHeaders();
+		
+		pathColumn = new Column<File, String>(new TextCell()) {
+
+			@Override
+			public String getValue(File f) {
+				String path;
+				if (!app.getSelectedTree().equals(app.mysharedTreeView)) {
+					path = f.getParent().getPrefix();
+					if (path.length() == 0)
+						path = "/";
+				}
+				else {
+					path = f.getPath();
+					if (path.lastIndexOf("/") != -1)
+						path = path.substring(0, path.lastIndexOf("/"));
+					else
+						path = "/";
+				}
+				return path;
+			}
+		};
+		pathHeader = new SortableHeader("Path", "path");
+		celltable.addColumn(pathColumn, pathHeader);
+		allHeaders.add(pathHeader);
+		pathHeader.setUpdater(new FileValueUpdater(pathHeader));
 		
         Column<File,String> aColumn = new Column<File,String>(new TextCell()) {
 			@Override
@@ -338,7 +373,7 @@ public class FileList extends Composite {
             @Override
             public void onContextMenu(final ContextMenuEvent event) {
             	final TreeView tree = app.getSelectedTree();
-            	if (tree != null && (tree.equals(app.getFolderTreeView()) || tree.equals(app.getOtherSharedTreeView()))) {
+            	if (tree != null) {
 	                final int x = event.getNativeEvent().getClientX();
 	                final int y = event.getNativeEvent().getClientY();
 	                final Folder selectedFolder = app.getSelection();
@@ -473,6 +508,14 @@ public class FileList extends Composite {
 	 * Fill the file cache with data.
 	 */
 	public void setFiles(final List<File> _files) {
+		if (!app.getSelectedTree().equals(app.mysharedTreeView)) {
+			if (celltable.getColumnIndex(pathColumn) != -1)
+				celltable.removeColumn(pathColumn);
+		}
+		else {
+			if (celltable.getColumnIndex(pathColumn) == -1)
+				celltable.insertColumn(2, pathColumn, pathHeader);
+		}
 		files = new ArrayList<File>();
     	for (File fres : _files) {
 			files.add(fres);

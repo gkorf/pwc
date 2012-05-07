@@ -50,6 +50,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
 
@@ -148,24 +149,36 @@ public class MysharedTreeView extends Composite implements TreeView {
 
     private MysharedTreeViewModel model;
 
+    private PithosDisclosurePanel panel;
+    
     private CellTree tree;
+    
+    private CellTree.Resources res = GWT.create(BasicResources.class);
     
     public MysharedTreeView(MysharedTreeViewModel viewModel) {
         this.model = viewModel;
         
-        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false);
-        /*
+        panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false);
+        createTree();
+
+        initWidget(panel);
+    }
+
+	/**
+	 * 
+	 */
+	void createTree() {
+		/*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
          * CustomTreeModel#getNodeInfo();
          */
-        CellTree.Resources res = GWT.create(BasicResources.class);
+		if (tree != null)
+			tree.removeFromParent();
         tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-
-        panel.add(tree);
-        initWidget(panel);
-    }
+        panel.setContent(tree);
+	}
 
 
     @Override
@@ -178,8 +191,12 @@ public class MysharedTreeView extends Composite implements TreeView {
     }
 
 	public void updateRoot() {
-		TreeNode root = tree.getRootTreeNode();
-		root.setChildOpen(0, true);
-		root.setChildOpen(0, false);
+		model.initialize(new Command() {
+				
+				@Override
+				public void execute() {
+					createTree();
+				}
+		});
 	}
 }

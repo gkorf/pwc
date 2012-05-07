@@ -204,14 +204,15 @@ public class FileContextMenu extends PopupPanel {
         	}
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
+        boolean isMysharedSelected = selectedTree.equals(app.getMySharedTreeView());
         if (selectedFolder != null) {
 		    if (!selectedFolder.isInTrash()) {
-		        if (canWrite && app.getClipboard().hasFiles()) {
+		        if (canWrite && app.getClipboard().hasFiles() && !isMysharedSelected) {
 	        		pasteItem = new MenuItem("<span>" + AbstractImagePrototype.create(images.paste()).getHTML() + "&nbsp;Paste</span>", true, new PasteCommand(app, this, selectedFolder));
 	        		contextMenu.addItem(pasteItem);
 		        }
 		
-		        if (canWrite) {
+		        if (canWrite && !isMysharedSelected) {
 			        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
 			        contextMenu.addItem(upload);
 		        }
@@ -231,8 +232,10 @@ public class FileContextMenu extends PopupPanel {
 				contextMenu.addItem(restore);
 		    }
         }
-		copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
-        contextMenu.addItem(copyItem);
+        if (!isMysharedSelected) {
+			copyItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy</span>", true, new CopyCommand(app, this, selectedFiles));
+	        contextMenu.addItem(copyItem);
+        }
 
         if (isFolderTreeSelected) {
 			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
@@ -240,11 +243,12 @@ public class FileContextMenu extends PopupPanel {
         }
 
         if (selectedFolder != null && !selectedFolder.isInTrash()) {
-        	if (isFolderTreeSelected && selectedFiles.size() == 1) {
+        	if ((isFolderTreeSelected || isMysharedSelected) && selectedFiles.size() == 1) {
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PROPERTIES)));
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PERMISSIONS)));
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PUBLISH)));
-        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.VERSIONS)));
+        		if (!isMysharedSelected)
+        			contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.VERSIONS)));
         	}
 
         }
