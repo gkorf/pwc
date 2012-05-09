@@ -278,4 +278,8 @@ public class File extends Resource {
     public String getInheritedPermissionsFrom() {
         return inheritedPermissionsFrom;
     }
+
+	public void setName(String _name) {
+		name = _name;
+	}
 }
