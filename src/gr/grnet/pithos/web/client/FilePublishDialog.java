@@ -103,7 +103,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
         super(_app);
         file = _file;
 
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
