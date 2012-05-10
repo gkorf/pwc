@@ -1058,10 +1058,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		groupTreeView.updateGroupNode(null);
 	}
 
-	public void addGroup(String groupname) {
+	public Group addGroup(String groupname) {
 		Group newGroup = new Group(groupname);
 		account.addGroup(newGroup);
 		groupTreeView.updateGroupNode(null);
+		return newGroup;
 	}
 
 	public void removeGroup(Group group) {

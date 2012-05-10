@@ -34,7 +34,9 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.commands.AddUserCommand;
 import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.grouptree.Group;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -180,6 +182,8 @@ public class GroupCreateDialog extends DialogBox {
 		String name = groupName.getText().trim();
 		if (name.length() == 0)
 			return;
-		app.addGroup(name);
+		Group group = app.addGroup(name);
+		
+		new AddUserCommand(app, null, group).execute();
 	}
 }
