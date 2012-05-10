@@ -88,7 +88,6 @@ public class PithosDisclosurePanel extends Composite {
 		panel.addStyleName(resources.pithosDisclosurePanelCss().disclosurePanel());
 		panel.setHeader(createHeader(resources, title, open));
 		panel.setOpen(open);
-		panel.setAnimationEnabled(true);
 		panel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
 			
 			@Override

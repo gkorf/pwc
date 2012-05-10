@@ -352,7 +352,7 @@ table.pithos-permList.props-labels {
 }
 
 .pithos-statistics .gwt-HTML {
-	font-size: smaller;
+	font-size: 85%;
 }
 
 .pithos-statisticsSeparator {
@@ -441,10 +441,6 @@ table.pithos-permList.props-labels {
 .pithos-header-noframe {
 	margin-top: 0;
 }
-
-/*.cellTreeWidget-selectedTree {
-    background-color: #BCD7E3;
-}*/
 
 .pithos-list thead th img {
     top: 5px !important;
@@ -715,23 +711,6 @@ a.pithos-tag {
 
 .pithos-metaTitle {
 	font-weight: bold;
-}
-
-.pithos-addMetaImg {
-	background-image: url(images/plus.png);
-	background-color: #4085A5;
-	background-repeat: no-repeat;
-	background-position: center;
-	padding: 8px;
-	cursor: pointer;
-}
-
-.pithos-metaDeleteImg {
-	background: url(images/delete.png);
-	background-repeat: no-repeat;
-	background-position: center;
-	padding: 10px;
-	cursor: pointer;
 }
 
 .pithos-metaName {

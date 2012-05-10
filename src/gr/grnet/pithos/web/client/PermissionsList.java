@@ -45,6 +45,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -164,7 +165,9 @@ public class PermissionsList extends Composite {
                         	changePermissionsCallback.execute();
                     }
                 });
-                PushButton removeButton = new PushButton(AbstractImagePrototype.create(images.delete()).createImage(), new ClickHandler() {
+                Anchor removeButton = new Anchor("remove");
+                removeButton.addStyleName(Pithos.resources.pithosCss().commandAnchor());
+                removeButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         permissions.remove(user);
@@ -174,7 +177,6 @@ public class PermissionsList extends Composite {
                         	changePermissionsCallback.execute();
                     }
                 });
-                removeButton.setTitle("Remove");
                 permTable.setWidget(i, 3, removeButton);
                 permTable.getFlexCellFormatter().setHorizontalAlignment(i, 3, HasHorizontalAlignment.ALIGN_CENTER);
             }

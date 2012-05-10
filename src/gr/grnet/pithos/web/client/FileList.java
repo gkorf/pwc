@@ -286,16 +286,7 @@ public class FileList extends Composite {
 			@Override
 			public SafeHtml getValue(File object) {
 				SafeHtmlBuilder sb = new SafeHtmlBuilder();
-				if (!app.getSelectedTree().equals(app.mysharedTreeView)) {
-					sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
-				}
-				else {
-					String name = object.getPath();
-					if (name.lastIndexOf("/") != -1) {
-						name = name.substring(name.lastIndexOf("/") + 1, name.length());
-					}
-					sb.append(Templates.INSTANCE.filenameSpan(name));
-				}
+				sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
                       .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
