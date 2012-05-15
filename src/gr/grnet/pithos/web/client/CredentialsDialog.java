@@ -130,7 +130,7 @@ public class CredentialsDialog extends DialogBox {
 
 		// Create the 'OK' button, along with a listener that hides the dialog
 		// when the button is clicked.
-		Button confirm = new Button("Close", new ClickHandler() {
+		Button confirm = new Button("OK", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				hide();

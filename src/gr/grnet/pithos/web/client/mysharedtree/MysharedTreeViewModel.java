@@ -217,17 +217,26 @@ public class MysharedTreeViewModel implements TreeViewModel {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(Folder folder, boolean showfiles) {
-        fetchFolder(folder,showfiles);
+    public void updateFolder(Folder folder, boolean showfiles, Command callback) {
+        fetchFolder(folder, showfiles, callback);
     }
 
-    public void fetchFolder(final Folder f, final boolean showfiles) {
+    public void fetchFolder(final Folder f, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&shared=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
+            	for (File file : _result.getFiles()) {
+            		String name = file.getName();
+					if (name.lastIndexOf("/") != -1) {
+						file.setName(name.substring(name.lastIndexOf("/") + 1, name.length()));
+					}
+            	}
+
                 if (showfiles)
                     app.showFiles(_result);
+                if (callback != null)
+                	callback.execute();
             }
 
             @Override

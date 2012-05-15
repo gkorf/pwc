@@ -81,7 +81,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         super(_app);
         file = _file;
 
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -163,8 +163,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         meta.addStyleName("pithos-metaTitle");
         metaTitlePanel.add(meta);
         
-		Image plus = new Image();
-		plus.addStyleName("pithos-addMetaImg");
+		Anchor plus = new Anchor("add");
+		plus.addStyleName(Pithos.resources.pithosCss().commandAnchor());
 		metaTitlePanel.add(plus);
 		
 		generalPanel.add(metaTitlePanel);
@@ -208,8 +208,8 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		table.setWidget(row, 1, valueBox);
 		table.getFlexCellFormatter().setStyleName(1, 1, "props-values");
 		
-		Image delete = new Image();
-		delete.addStyleName("pithos-metaDeleteImg");
+		Anchor delete = new Anchor("remove");
+		delete.addStyleName(Pithos.resources.pithosCss().commandAnchor());
 		delete.addClickHandler(new ClickHandler() {
 			
 			@Override

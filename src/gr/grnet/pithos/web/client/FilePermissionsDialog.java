@@ -103,7 +103,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         super(_app);
         file = _file;
 
-		Anchor close = new Anchor();
+		Anchor close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -130,7 +130,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
         outer.add(inner);
 
-		final Button ok = new Button("Close", new ClickHandler() {
+		final Button ok = new Button("OK", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				closeDialog();

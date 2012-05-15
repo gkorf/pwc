@@ -81,13 +81,23 @@ public class ToTrashCommand implements Command{
                 @SuppressWarnings("unchecked")
 				@Override
                 public void execute() {
-                    app.updateFolder(((List<File>) resource).get(0).getParent(), true, new Command() {
-						
-						@Override
-						public void execute() {
-							app.updateTrash(false, null);
-						}
-					}, true);
+                	Folder f = ((List<File>) resource).get(0).getParent();
+                	if (app.isMySharedSelected())
+                		app.updateSharedFolder(f, true, new Command() {
+							
+							@Override
+							public void execute() {
+								app.updateTrash(false, null);
+							}
+						});
+                	else
+	                    app.updateFolder(f, true, new Command() {
+							
+							@Override
+							public void execute() {
+								app.updateTrash(false, null);
+							}
+						}, true);
                 }
             });
         }

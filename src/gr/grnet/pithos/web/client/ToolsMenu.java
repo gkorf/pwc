@@ -105,7 +105,7 @@ public class ToolsMenu extends PopupPanel {
 	        if (!folder.isInTrash()) {
 	        	if (canWrite) {
 
-			        if (isFolderTreeSelected) {
+			        if (isFolderTreeSelected || isMysharedTreeSelected) {
 			        	MenuItem cut = null;
 				        if (files != null && !files.isEmpty()) {
 							cut = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut files</span>", true, new CutCommand(app, this, files));
@@ -120,16 +120,14 @@ public class ToolsMenu extends PopupPanel {
 			        }
 	        	}
 	
-	        	if (!isMysharedTreeSelected) {
-	        		MenuItem copy = null;
-		        	if (files != null && !files.isEmpty())
-		        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
-		        	else if (isFolderTreeSelected && !folder.isContainer())
-		        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
-		        	if (copy != null) {
-		        		contextMenu.addItem(copy);
-			        	empty = false;
-		        	}
+        		MenuItem copy = null;
+	        	if (files != null && !files.isEmpty())
+	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy files</span>", true, new CopyCommand(app, this, files));
+	        	else if (isFolderTreeSelected && !folder.isContainer())
+	        		copy = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.copy()).getHTML() + "&nbsp;Copy folder</span>", true, new CopyCommand(app, this, folder));
+	        	if (copy != null) {
+	        		contextMenu.addItem(copy);
+		        	empty = false;
 	        	}
 		
 	        	if (canWrite) {
@@ -154,7 +152,7 @@ public class ToolsMenu extends PopupPanel {
 			        	}
 			        }
 	
-				    if (isFolderTreeSelected) {
+				    if (isFolderTreeSelected || isMysharedTreeSelected) {
 				    	MenuItem moveToTrash = null;
 				    	if (files != null && !files.isEmpty()) {
 				    		moveToTrash = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move files to Trash</span>", true, new ToTrashCommand(app, this, files));
@@ -183,8 +181,7 @@ public class ToolsMenu extends PopupPanel {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;File properties</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PROPERTIES)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.group()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PERMISSIONS)));
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.PUBLISH)));
-				        	if (!isMysharedTreeSelected)
-				        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
+			        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, files, PropertiesCommand.VERSIONS)));
 				        	empty = false;
 				        }
 				        else if (!folder.isContainer()) {

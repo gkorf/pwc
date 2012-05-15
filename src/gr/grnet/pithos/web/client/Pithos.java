@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
+import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -82,7 +83,10 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
@@ -115,6 +119,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public static final Configuration config = GWT.create(Configuration.class);
 	
+	public interface Style extends CssResource {
+		String commandAnchor();
+	}
+	
+	public interface Resources extends ClientBundle {
+		@Source("Pithos.css")
+		Style pithosCss();
+	}
+
+	public static Resources resources = GWT.create(Resources.class);
+	
 	/**
 	 * Instantiate an application-level image bundle. This object will provide
 	 * programmatic access to all the images needed by widgets.
@@ -145,10 +160,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	mysharedTreeView.updateRoot();
     }
     
-    public void updateSharedFolder(Folder f, boolean showfiles) {
-    	mysharedTreeView.updateFolder(f, showfiles);
+    public void updateSharedFolder(Folder f, boolean showfiles, Command callback) {
+    	mysharedTreeView.updateFolder(f, showfiles, callback);
     }
     
+    public void updateSharedFolder(Folder f, boolean showfiles) {
+    	updateSharedFolder(f, showfiles, null);
+    }
+
     public void updateOtherSharedFolder(Folder f, boolean showfiles) {
     	otherSharedTreeView.updateFolder(f, showfiles);
     }
@@ -265,6 +284,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void initialize() {
+    	resources.pithosCss().ensureInjected();
     	boolean bareContent = Window.Location.getParameter("noframe") != null;
     	String contentWidth = bareContent ? "100%" : "75%";
 
@@ -1048,10 +1068,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		groupTreeView.updateGroupNode(null);
 	}
 
-	public void addGroup(String groupname) {
+	public Group addGroup(String groupname) {
 		Group newGroup = new Group(groupname);
 		account.addGroup(newGroup);
 		groupTreeView.updateGroupNode(null);
+		return newGroup;
 	}
 
 	public void removeGroup(Group group) {

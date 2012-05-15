@@ -189,11 +189,6 @@ public class FolderTreeView extends Composite implements TreeView {
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
         content.add(tree);
 
-        HorizontalPanel separator = new HorizontalPanel();
-        separator.addStyleName("pithos-statisticsSeparator");
-        separator.add(new HTML(""));
-        content.add(separator);
-
         HorizontalPanel statistics = new HorizontalPanel();
 	    statistics.addStyleName("pithos-statistics");
 	    statistics.add(new HTML("Used:&nbsp;"));
