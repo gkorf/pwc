@@ -36,6 +36,7 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -162,13 +163,23 @@ public class DeleteFileDialog extends DialogBox {
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {
-            app.updateFolder(files.get(0).getParent(), true, new Command() {
-				
-				@Override
-				public void execute() {
-					app.updateStatistics();
-				}
-			}, true);
+        	Folder f = files.get(0).getParent();
+        	if (app.isMySharedSelected())
+        		app.updateSharedFolder(f, true, new Command() {
+					
+					@Override
+					public void execute() {
+						app.updateStatistics();
+					}
+				});
+        	else
+	            app.updateFolder(files.get(0).getParent(), true, new Command() {
+					
+					@Override
+					public void execute() {
+						app.updateStatistics();
+					}
+				}, true);
         }
     }
 

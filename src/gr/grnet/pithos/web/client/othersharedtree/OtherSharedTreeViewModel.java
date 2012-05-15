@@ -106,7 +106,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
     };
 
-    private ListDataProvider<String> rootDataProvider = new ListDataProvider<String>();
     protected ListDataProvider<String> userLevelDataProvider = new ListDataProvider<String>();
 
     protected Map<String, ListDataProvider<Folder>> userDataProviderMap = new HashMap<String, ListDataProvider<Folder>>();
