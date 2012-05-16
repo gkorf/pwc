@@ -42,6 +42,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -139,7 +140,12 @@ public class PermissionsAddDialog extends DialogBox {
 	protected void addPermission() {
         String selected = null;
 		if (userAdd) {
-			selected = userBox.getText();
+			selected = userBox.getText().trim();
+			RegExp emailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$", "i");
+			if (!emailValidator.test(selected)) {
+				app.displayWarning("Username must be a valid email address");
+				return;
+			}
 		} else if (groupBox.getSelectedIndex() > -1) {
 			String groupName = groupBox.getValue(groupBox.getSelectedIndex());
 			selected = app.getUsername() + ":" + groupName;
@@ -148,9 +154,10 @@ public class PermissionsAddDialog extends DialogBox {
             return;
         }
         if (selected == null || selected.length() == 0 || selected.equals(app.getUsername() + ":")) {
-        	app.displayError("You have to select o username or group");
+        	app.displayWarning("You have to select a username or group");
         	return;
         }
+
 		boolean readValue = read.getValue();
 		boolean writeValue = write.getValue();
 
