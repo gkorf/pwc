@@ -79,7 +79,12 @@ public class RemoveUserCommand implements Command {
 			
 			@Override
 			public void onSuccess(Resource result) {
-				app.updateGroupNode(group);
+				if (!group.getMembers().isEmpty())
+					app.updateGroupNode(group);
+				else {
+					app.getAccount().getGroups().remove(group);
+					app.updateGroupNode(null);
+				}
 			}
 			
 			@Override
