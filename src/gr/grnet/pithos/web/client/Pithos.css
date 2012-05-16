@@ -42,3 +42,15 @@
 	color: #4085A5;
 	text-decoration: underline;
 }
+
+.statistics {
+	color: black;
+	padding-top: 10px;
+ 	padding-bottom: 10px;
+}
+
+@external gwt-HTML;
+
+.statistics .gwt-HTML {
+	font-size: 80%;
+}

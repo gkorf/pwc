@@ -121,6 +121,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	
 	public interface Style extends CssResource {
 		String commandAnchor();
+		
+		String statistics();
+		
+		@ClassName("gwt-HTML")
+		String html();
 	}
 	
 	public interface Resources extends ClientBundle {
