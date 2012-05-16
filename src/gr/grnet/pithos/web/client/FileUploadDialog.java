@@ -62,6 +62,8 @@ public class FileUploadDialog extends DialogBox {
 
     public static final boolean DONE = true;
 
+    Anchor close;
+    
 	/**
 	 * The Form element that performs the file upload.
 	 */
@@ -78,13 +80,15 @@ public class FileUploadDialog extends DialogBox {
 	protected Folder folder;
 
     protected Pithos app;
+    
+    private boolean inProgress = false;
 
 	/**
 	 * The widget's constructor.
 	 */
 	public FileUploadDialog(Pithos _app) {
 		app = _app;
-		Anchor close = new Anchor("close");
+		close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -188,6 +192,14 @@ public class FileUploadDialog extends DialogBox {
 					FilesAdded: function(up, files) {
 						for (var j=0; j<files.length; j++)
 							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
+					},
+					
+					FilesRemoved: function(up, files) {
+						if (up.files.length == 0)
+							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
+						else
+							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 					},
 					
 					BeforeUpload: function(up, file) {
@@ -206,6 +218,7 @@ public class FileUploadDialog extends DialogBox {
 					UploadComplete: function(up, files) {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log('All files finished');
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
 					},
@@ -243,6 +256,10 @@ public class FileUploadDialog extends DialogBox {
 				uploader = createUploader();
 				if ($wnd.console && $wnd.console.log)
 					$wnd.console.log(uploader);
+				dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
+			}
+			else {
+				dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 			}
 		}
 		uploader.path = path;
@@ -300,5 +317,13 @@ public class FileUploadDialog extends DialogBox {
 		setModal(false);
 		if (isUploading())
 			app.showUploadIndicator();
+	}
+	
+	private void setInProgress(boolean _inProgress) {
+		inProgress = _inProgress;
+		if (inProgress)
+			close.setText("hide");
+		else
+			close.setText("close");
 	}
 }
