@@ -385,7 +385,7 @@ table.pithos-permList.props-labels {
 
 .pithos-uploadButton-loading {
 	background: url(images/ajax-loader.gif) no-repeat;
-	background-position: 110px 0px;
+	background-position: 100px 0px;
 	background-color: #ff7f2a;
 }
 
