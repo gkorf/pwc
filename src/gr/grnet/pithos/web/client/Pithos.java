@@ -280,7 +280,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     
     private Toolbar toolbar;
     
-    private FileUploadDialog fileUploadDialog;
+    private FileUploadDialog fileUploadDialog = new FileUploadDialog(this);
     
 	@Override
 	public void onModuleLoad() {
@@ -347,7 +347,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setCellWidth(folderStatistics, "40px");
         outer.add(header);
         outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
-        // Inner contains the various lists.nner
+        // Inner contains the various lists
         inner.sinkEvents(Event.ONCONTEXTMENU);
         inner.setWidth("100%");
 
@@ -392,7 +392,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
-        splitPanel.setRightWidget(inner);
+        FlowPanel right = new FlowPanel();
+        right.getElement().setId("rightPanel");
+        right.add(inner);
+        splitPanel.setRightWidget(right);
         splitPanel.setSplitPosition("219px");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
@@ -490,23 +493,23 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	if (f != null) {
     		if (f.isInTrash()) {
     			upload.setEnabled(false);
-    			hideUploadArea();
+    			disableUploadArea();
     		}
     		else {
 		    	Boolean[] perms = f.getPermissions().get(username);
 		    	if (f.getOwner().equals(username) || (perms != null && perms[1] != null && perms[1])) {
 		    		upload.setEnabled(true);
-		    		showUploadArea();
+		    		enableUploadArea();
 		    	}
 		    	else {
 		    		upload.setEnabled(false);
-		    		hideUploadArea();
+		    		disableUploadArea();
 		    	}
     		}
     	}
     	else {
     		upload.setEnabled(false);
-    		hideUploadArea();
+    		disableUploadArea();
     	}
 	}
 
@@ -1123,7 +1126,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		        if (mysharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
-		            hideUploadArea();
+		            disableUploadArea();
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
 					showRelevantToolbarButtons();
 		        }
@@ -1324,92 +1327,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			
 			@Override
 			public void execute() {
-				setupUploadArea(Pithos.this, getToken());
+//				setupUploadArea(Pithos.this, getToken());
 			}
 		});
 		
 		return area;
 	}
-	
-	native void setupUploadArea(Pithos app, String token) /*-{
-		$wnd.$("#container").pluploadQueue({
-			// General settings
-			runtimes : 'html5',
-			unique_names : true,
-			multiple_queues: true,
-			drop_element: 'filelist',
-			
-			preinit: {
-				Init: function(up, info) {
-					if ($wnd.console && $wnd.console.log)
-						$wnd.console.log("Init fired");
-					up.settings.file_data_name = "X-Object-Data";				
-				}
-			},
-			
-			init: {
-				FilesAdded: function(up, files) {
-					$wnd.$('#container').css('border', '');
-					var api = app.@gr.grnet.pithos.web.client.Pithos::getApiPath()();
-					var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
-					var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwner()();
-					var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();
-					var path = api + owner + uri;
-					for (var j=0; j<files.length; j++) {
-						files[j].folder = folder;
-						files[j].url = path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
-					}
-					up.start();
-				},
-				
-				BeforeUpload: function(up, file) {
-					if ($wnd.console && $wnd.console.log)
-						$wnd.console.log('About to upload ' + file.url);
-					up.settings.url = file.url;
-				},
-				
-				FileUploaded: function(up, file, response) {
-					if ($wnd.console && $wnd.console.log) {
-						$wnd.console.log('File ' + file.name + ' uploaded');
-						$wnd.console.log('Response: ' + response);
-					}
-					up.removeFile(file);
-					var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
-					if (folder == file.folder)
-						app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder()();
-				},
-				
-				UploadComplete: function(up, files) {
-					if ($wnd.console && $wnd.console.log)
-						$wnd.console.log('All files finished');
-				},
-				
-				Error: function(up, error) {
-					if ($wnd.console && $wnd.console.log)
-						$wnd.console.log("Error occured:" + error);
-				}
-			}
-		});
-		var uploader = $wnd.$("#container").pluploadQueue();
-		if (uploader.runtime != 'html5')
-			$wnd.$("#container").hide();
-		else {
-			if ($wnd.console && $wnd.console.log) {
-				$wnd.console.log(uploader);
-				$wnd.console.log($wnd.plupload);
-			}
-			$wnd.$('.plupload_header').hide();
-			$wnd.$('.plupload_filelist_header').hide();
-			$wnd.$('#container_filelist').css('overflow-y', 'auto');
-			$wnd.$('.plupload_filelist_footer').hide();
-			$wnd.document.getElementById('container').addEventListener('dragenter', function(event) {
-				$wnd.$('#container').css('border', '3px inset');
-			}, false);
-			$wnd.document.getElementById('container').addEventListener('dragleave', function(event) {
-				$wnd.$('#container').css('border', '');
-			}, false);
-		}
-	}-*/;
 	
 	private Folder getUploadFolder() {
 		if (folderTreeView.equals(getSelectedTree()) || otherSharedTreeView.equals(getSelectedTree())) {
@@ -1434,11 +1357,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		}
 	}
 
-	public native void hideUploadArea() /*-{
-		$wnd.$("#container").hide();
+	public native void disableUploadArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var dropElm = $wnd.document.getElementById('rightPanel');
+		$wnd.plupload.removeAllEvents(dropElm, uploader.id);
 	}-*/;
 
-	public native void showUploadArea() /*-{
-		$wnd.$("#container").show();
+	public native void enableUploadArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		if (uploader.runtime == 'html5') {
+			uploader.settings.drop_element = 'rightPanel';
+			var dropElm = $wnd.document.getElementById(uploader.settings.drop_element);
+			uploader.trigger('PostInit');
+		}
 	}-*/;
 }

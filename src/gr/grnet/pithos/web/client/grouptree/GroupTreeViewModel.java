@@ -122,7 +122,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 				if (selected != null) {
 					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
 					app.showFiles(new HashSet<File>());
-					app.hideUploadArea();
+					app.disableUploadArea();
 					app.upload.setEnabled(false);
 					app.showRelevantToolbarButtons();
 					if (selected.equals(createGroup)) {

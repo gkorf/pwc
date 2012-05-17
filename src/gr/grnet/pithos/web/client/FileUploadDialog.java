@@ -36,6 +36,7 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -100,7 +101,7 @@ public class FileUploadDialog extends DialogBox {
 		// Set the dialog's caption.
 		setText("File upload");
 		setAnimationEnabled(true);
-		setGlassEnabled(true);
+//		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		setVisible(false);
 		
@@ -148,6 +149,15 @@ public class FileUploadDialog extends DialogBox {
 		panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		
 		setWidget(form);
+		
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			
+			@Override
+			public void execute() {
+				center();
+				close();
+			}
+		});
 	}
 
 	private void refreshFolder() {
@@ -163,7 +173,7 @@ public class FileUploadDialog extends DialogBox {
 			app.updateOtherSharedFolder(folder, true);
 	}
 	
-	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
+	native void setupUpload(FileUploadDialog dlg, Pithos app, String token) /*-{
 		var uploader = $wnd.$('#uploader').pluploadQueue();
 		var createUploader = function() {
 			$wnd.$("#uploader").pluploadQueue({
@@ -190,9 +200,16 @@ public class FileUploadDialog extends DialogBox {
 				
 				init: {
 					FilesAdded: function(up, files) {
+						var api = app.@gr.grnet.pithos.web.client.Pithos::getApiPath()();
+						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
+						var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwner()();
+						var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();
+						var path = api + owner + uri;
 						for (var j=0; j<files.length; j++)
-							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
+							files[j].url = path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
+						up.start();
+						app.@gr.grnet.pithos.web.client.Pithos::showUploadIndicator()();
 					},
 					
 					FilesRemoved: function(up, files) {
@@ -213,6 +230,9 @@ public class FileUploadDialog extends DialogBox {
 							$wnd.console.log('File ' + file.name + ' uploaded');
 							$wnd.console.log('Response: ' + response);
 						}
+						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
+						if (folder == file.folder)
+							app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder()();
 					},
 					
 					UploadComplete: function(up, files) {
@@ -220,7 +240,6 @@ public class FileUploadDialog extends DialogBox {
 							$wnd.console.log('All files finished');
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
-						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
 					},
 					
 					Error: function(up, error) {
@@ -238,6 +257,8 @@ public class FileUploadDialog extends DialogBox {
 			uploader = createUploader();
 		}
 		else {
+			var dropElm = $wnd.document.getElementById('rightPanel');
+			$wnd.plupload.removeAllEvents(dropElm, uploader.id);
 			var removeAll = true;
 			var files = uploader.files;
 			if ($wnd.console && $wnd.console.log)
@@ -262,7 +283,6 @@ public class FileUploadDialog extends DialogBox {
 				dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 			}
 		}
-		uploader.path = path;
 	}-*/;
 	
 	native boolean isUploading()/*-{
@@ -303,8 +323,7 @@ public class FileUploadDialog extends DialogBox {
 		setVisible(true);
 		setModal(true);
 		super.center();
-		String path = app.getApiPath() + folder.getOwner() + folder.getUri();
-		setupUpload(this, path, app.getToken());
+		setupUpload(this, app, app.getToken());
 		super.center();
 	}
 	
@@ -317,8 +336,18 @@ public class FileUploadDialog extends DialogBox {
 		setModal(false);
 		if (isUploading())
 			app.showUploadIndicator();
+		setGlobalDropArea();
 	}
 	
+	native void setGlobalDropArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		if (uploader.runtime == 'html5') {
+			uploader.settings.drop_element = 'rightPanel';
+			var dropElm = $wnd.document.getElementById(uploader.settings.drop_element);
+			uploader.trigger('PostInit');
+		}
+	}-*/;
+
 	private void setInProgress(boolean _inProgress) {
 		inProgress = _inProgress;
 		if (inProgress)
