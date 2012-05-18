@@ -170,7 +170,7 @@ public class FileUploadDialog extends DialogBox {
 				}
 			}, true);
 		else
-			app.updateOtherSharedFolder(folder, true);
+			app.updateOtherSharedFolder(folder, true, null);
 	}
 	
 	native void setupUpload(FileUploadDialog dlg, Pithos app, String token) /*-{
@@ -206,10 +206,11 @@ public class FileUploadDialog extends DialogBox {
 						var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();
 						var path = api + owner + uri;
 						for (var j=0; j<files.length; j++)
-							files[j].url = path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
+							files[j].url = path + "/" + files[j].name;
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 						up.start();
 						app.@gr.grnet.pithos.web.client.Pithos::showUploadIndicator()();
+						app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(files.length);
 					},
 					
 					FilesRemoved: function(up, files) {
@@ -222,7 +223,7 @@ public class FileUploadDialog extends DialogBox {
 					BeforeUpload: function(up, file) {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log('About to upload ' + file.url);
-						up.settings.url = file.url;
+						up.settings.url = file.url + + "?X-Auth-Token=" + encodeURIComponent(token);
 					},
 					
 					FileUploaded: function(up, file, response) {
@@ -240,6 +241,11 @@ public class FileUploadDialog extends DialogBox {
 							$wnd.console.log('All files finished');
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
+						app.@gr.grnet.pithos.web.client.Pithos::hideUploadAlert()();
+						var uris = [];
+						for (var i = 0; i<files.length; i++)
+							uris.push(files[i].url);
+						app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder(Lcom/google/gwt/core/client/JsArrayString;)(uris);
 					},
 					
 					Error: function(up, error) {
@@ -343,7 +349,6 @@ public class FileUploadDialog extends DialogBox {
 		var uploader = $wnd.$("#uploader").pluploadQueue();
 		if (uploader.runtime == 'html5') {
 			uploader.settings.drop_element = 'rightPanel';
-			var dropElm = $wnd.document.getElementById(uploader.settings.drop_element);
 			uploader.trigger('PostInit');
 		}
 	}-*/;

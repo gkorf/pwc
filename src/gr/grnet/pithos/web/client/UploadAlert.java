@@ -32,45 +32,53 @@
  * interpreted as representing official policies, either expressed
  * or implied, of GRNET S.A.
  */
+package gr.grnet.pithos.web.client;
 
-.commandAnchor {
-	color: #4085A5;
-	text-decoration: underline;
-}
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.PopupPanel;
 
-.commandAnchor:HOVER {
-	color: #4085A5;
-	text-decoration: underline;
-}
-
-.statistics {
-	color: black;
-	padding-top: 10px;
- 	padding-bottom: 10px;
-}
-
-@external gwt-HTML;
-
-.statistics .gwt-HTML {
-	font-size: 80%;
-}
-
-.uploadAlert {
-	background-color: #4085a5;
-	border: none;
-	width: 350px;
-}
-
-.uploadAlertLink {
-	text-decoration: underline;
-	position: absolute;
-	left: 200px;
-	top: 2px;
-}
-
-.uploadAlertClose {
-	cursor: pointer;
-	position: absolute;
-	right: 1px;
-	top: 2px;
+/**
+ * The 'Folder Context' menu implementation.
+ */
+public class UploadAlert extends PopupPanel {
+	
+	/**
+	 * The widget's constructor.
+	 */
+	public UploadAlert(final Pithos app, int numOfFiles) {
+		// The popup's constructor's argument is a boolean specifying that it
+		// auto-close itself when the user clicks outside of it.
+		super(false);
+		setAnimationEnabled(true);
+		addStyleName(Pithos.resources.pithosCss().uploadAlert());
+		FlowPanel content = new FlowPanel();
+		String label = String.valueOf(numOfFiles) + " " + (numOfFiles > 1 ? "files are" : "file is") + " being uploaded";
+		content.add(new HTML(label));
+		Anchor a = new Anchor("Click for details");
+		a.addStyleName(Pithos.resources.pithosCss().uploadAlertLink());
+		a.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+		        app.getFileUploadDialog().center();
+			}
+		});
+		content.add(a);
+		Image close = new Image(Pithos.resources.closePopup());
+		close.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				hide();
+			}
+		});
+		close.addStyleName(Pithos.resources.pithosCss().uploadAlertClose());
+		content.add(close);
+		add(content);
+	}
 }

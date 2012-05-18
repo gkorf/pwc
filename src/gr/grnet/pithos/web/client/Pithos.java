@@ -63,6 +63,9 @@ import java.util.Set;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -102,6 +105,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -126,11 +130,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		
 		@ClassName("gwt-HTML")
 		String html();
+		
+		String uploadAlert();
+
+		String uploadAlertLink();
+
+		String uploadAlertClose();
 	}
 	
 	public interface Resources extends ClientBundle {
 		@Source("Pithos.css")
 		Style pithosCss();
+		
+		@Source("gr/grnet/pithos/resources/close-popup.png")
+		ImageResource closePopup();
 	}
 
 	public static Resources resources = GWT.create(Resources.class);
@@ -173,8 +186,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	updateSharedFolder(f, showfiles, null);
     }
 
-    public void updateOtherSharedFolder(Folder f, boolean showfiles) {
-    	otherSharedTreeView.updateFolder(f, showfiles);
+    public void updateOtherSharedFolder(Folder f, boolean showfiles, Command callback) {
+    	otherSharedTreeView.updateFolder(f, showfiles, callback);
     }
 
     public MysharedTreeView getMySharedTreeView() {
@@ -281,7 +294,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private Toolbar toolbar;
     
     private FileUploadDialog fileUploadDialog = new FileUploadDialog(this);
-    
+
+	UploadAlert uploadAlert;
+
 	@Override
 	public void onModuleLoad() {
 		if (parseUserCredentials())
@@ -1160,7 +1175,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
-		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true, null);
 					showRelevantToolbarButtons();
 		        }
 				else {
@@ -1342,6 +1357,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 	
 	private void updateUploadFolder() {
+		updateUploadFolder(null);
+	}
+	
+	private void updateUploadFolder(final JsArrayString urls) {
 		if (folderTreeView.equals(getSelectedTree()) || otherSharedTreeView.equals(getSelectedTree())) {
 			Folder f = getSelection();
 			if (getSelectedTree().equals(getFolderTreeView()))
@@ -1350,10 +1369,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 					@Override
 					public void execute() {
 						updateStatistics();
+						if (urls != null)
+							selectUploadedFiles(urls);
 					}
 				}, false);
 			else
-				updateOtherSharedFolder(f, true);
+				updateOtherSharedFolder(f, true, null);
 		}
 	}
 
@@ -1365,10 +1386,33 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public native void enableUploadArea() /*-{
 		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var dropElm = $wnd.document.getElementById('rightPanel');
+		$wnd.plupload.removeAllEvents(dropElm, uploader.id);
 		if (uploader.runtime == 'html5') {
 			uploader.settings.drop_element = 'rightPanel';
-			var dropElm = $wnd.document.getElementById(uploader.settings.drop_element);
 			uploader.trigger('PostInit');
 		}
 	}-*/;
+	
+	public void showUploadAlert(int numOfFiles) {
+		uploadAlert = new UploadAlert(this, numOfFiles);
+		uploadAlert.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+			
+			@Override
+			public void setPosition(int offsetWidth, int offsetHeight) {
+				uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, Window.getClientHeight() - offsetHeight);
+			}
+		});
+	}
+	
+	public void hideUploadAlert() {
+		uploadAlert.hide();
+	}
+	
+	public void selectUploadedFiles(JsArrayString urls) {
+		List<String> selectedUrls = new ArrayList<String>();
+		for (int i=0; i<urls.length(); i++)
+			selectedUrls.add(urls.get(i));
+		fileList.selectByUrl(selectedUrls);
+	}
 }
