@@ -135,6 +135,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 		String uploadAlertLink();
 
+		String uploadAlertProgress();
+		
+		String uploadAlertPercent();
+		
 		String uploadAlertClose();
 	}
 	

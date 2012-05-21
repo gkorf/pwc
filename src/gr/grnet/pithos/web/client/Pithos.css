@@ -74,3 +74,13 @@
 	right: 1px;
 	top: 2px;
 }
+
+.uploadAlertProgress {
+	display: block;
+	float: left;	
+}
+
+.uploadAlertPercent {
+	position: absolute;
+	left: 90px;
+}

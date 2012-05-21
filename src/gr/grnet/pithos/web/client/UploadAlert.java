@@ -79,6 +79,24 @@ public class UploadAlert extends PopupPanel {
 		});
 		close.addStyleName(Pithos.resources.pithosCss().uploadAlertClose());
 		content.add(close);
+		
+		FlowPanel progress = new FlowPanel();
+		progress.addStyleName("plupload_progress");
+		progress.addStyleName(Pithos.resources.pithosCss().uploadAlertProgress());
+		FlowPanel progress_container = new FlowPanel();
+		progress_container.addStyleName("plupload_progress_container");
+		progress.add(progress_container);
+		FlowPanel progress_bar = new FlowPanel();
+		progress_bar.getElement().setId("upload_alert_progress_bar");
+		progress_bar.addStyleName("plupload_progress_bar");
+		progress_container.add(progress_bar);
+		content.add(progress);
+
+		HTML percent = new HTML();
+		percent.getElement().setId("upload_alert_percent");
+		percent.addStyleName(Pithos.resources.pithosCss().uploadAlertPercent());
+		content.add(percent);
+		
 		add(content);
 	}
 }

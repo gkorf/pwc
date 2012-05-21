@@ -210,7 +210,8 @@ public class FileUploadDialog extends DialogBox {
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 						up.start();
 						app.@gr.grnet.pithos.web.client.Pithos::showUploadIndicator()();
-						app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(files.length);
+						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
+							app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(files.length);
 					},
 					
 					FilesRemoved: function(up, files) {
@@ -224,6 +225,11 @@ public class FileUploadDialog extends DialogBox {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log('About to upload ' + file.url);
 						up.settings.url = file.url + + "?X-Auth-Token=" + encodeURIComponent(token);
+					},
+					
+					UploadProgress: function(up, file) {
+						$wnd.$('#upload_alert_progress_bar').css('width', up.total.percent + '%');
+						$wnd.$('#upload_alert_percent').html(up.total.percent + '%');
 					},
 					
 					FileUploaded: function(up, file, response) {
