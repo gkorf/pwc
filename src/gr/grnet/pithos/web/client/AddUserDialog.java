@@ -180,7 +180,7 @@ public class AddUserDialog extends DialogBox {
 		String name = userName.getText().trim();
 		if (name.length() == 0)
 			return;
-		RegExp emailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$", "i");
+		RegExp emailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
 		if (!emailValidator.test(name)) {
 			app.displayWarning("Username must be a valid email address");
 			return;
