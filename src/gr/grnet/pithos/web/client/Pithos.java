@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -63,8 +62,6 @@ import java.util.Set;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
@@ -80,7 +77,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -89,7 +85,6 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
@@ -404,8 +399,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList = new FileList(this, images);
         inner.add(fileList);
 
-        inner.add(createUploadArea());
-        
         trees = new VerticalPanel();
         trees.setWidth("100%");
         
@@ -442,14 +435,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
         // Call the window resized handler to get the initial sizes setup. Doing
         // this in a deferred command causes it to occur after all widgets'
         // sizes have been computed by the browser.
-        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-
-            @Override
-            public void execute() {
+        Scheduler.get().scheduleIncremental(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				if (!isCloudbarReady())
+					return true;
                 onWindowResized(Window.getClientHeight());
-            }
-        });
-
+				return false;
+			}
+		});
+        
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
@@ -722,13 +718,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	protected void onWindowResized(int height) {
 		// Adjust the split panel to take up the available room in the window.
-		int newHeight = height - splitPanel.getAbsoluteTop();
+		int newHeight = height - splitPanel.getAbsoluteTop() - 153;
 		if (newHeight < 1)
 			newHeight = 1;
 		splitPanel.setHeight("" + newHeight);
 		inner.setHeight("" + newHeight);
 	}
-
+	
+	native boolean isCloudbarReady()/*-{
+		if ($wnd.$("div.servicesbar") && $wnd.$("div.servicesbar").height() > 0)
+			return true;
+		return false;
+	}-*/;
+	
 	@Override
 	public void onResize(ResizeEvent event) {
 		int height = event.getHeight();
@@ -1334,23 +1336,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public boolean isMySharedSelected() {
 		return getSelectedTree().equals(getMySharedTreeView());
-	}
-	
-	private FlowPanel createUploadArea() {
-		FlowPanel area = new FlowPanel();
-		area.getElement().setId("container");
-		HTML list = new HTML();
-		list.getElement().setId("filelist");
-		area.add(list);
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			
-			@Override
-			public void execute() {
-//				setupUploadArea(Pithos.this, getToken());
-			}
-		});
-		
-		return area;
 	}
 	
 	private Folder getUploadFolder() {
