@@ -72,19 +72,28 @@ public class RemoveUserCommand implements Command {
 	public void execute() {
         if (containerPanel != null)
 		    containerPanel.hide();
-    	final Group group = user.getGroup();
+    	final String groupName = user.getGroup();
+    	final Group group = app.getAccount().getGroup(groupName);
+    	if (group == null)
+    		return;
     	group.removeMember(user.getName());
     	String path = "?update=";
     	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {
-				if (!group.getMembers().isEmpty())
-					app.updateGroupNode(group);
-				else {
-					app.getAccount().getGroups().remove(group);
-					app.updateGroupNode(null);
-				}
+				app.fetchAccount(new Command() {
+					
+					@Override
+					public void execute() {
+						Group updatedGroup2 = app.getAccount().getGroup(groupName);
+						if (updatedGroup2 != null)
+							app.updateGroupNode(updatedGroup2);
+						else {
+							app.updateGroupNode(null);
+						}
+					}
+				});
 			}
 			
 			@Override

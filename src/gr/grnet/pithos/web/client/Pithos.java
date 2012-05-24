@@ -590,7 +590,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Window.Location.assign(otherProperties.get("loginUrl") + Window.Location.getHref());
 	}
 
-	protected void fetchAccount(final Command callback) {
+	public void fetchAccount(final Command callback) {
         String path = "?format=json";
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), username, path) {
