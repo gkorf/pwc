@@ -744,6 +744,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayError(String msg) {
 		messagePanel.displayError(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
@@ -753,6 +754,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayWarning(String msg) {
 		messagePanel.displayWarning(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
@@ -762,6 +764,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayInformation(String msg) {
 		messagePanel.displayInformation(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
