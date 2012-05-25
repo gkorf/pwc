@@ -673,10 +673,14 @@ public class FileList extends Composite {
 			selectionModel.setSelected(f, false);
 		
 		int i = 0;
+		boolean scrolled = false;
 		for (File f : files) {
 			if (selectedUrls.contains(app.getApiPath() + f.getOwner() + f.getUri())) {
 				selectionModel.setSelected(f, true);
-				celltable.getRowElement(i).scrollIntoView();
+				if (!scrolled) {
+					celltable.getRowElement(i).getCells().getItem(0).scrollIntoView();
+					scrolled = true;
+				}
 			}
 			i++;
 		}
