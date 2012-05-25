@@ -208,10 +208,11 @@ public class FileUploadDialog extends DialogBox {
 						for (var j=0; j<files.length; j++)
 							files[j].url = path + "/" + files[j].name;
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
-						up.start();
+						if (up.state == $wnd.plupload.STOPPED)
+							up.start();
 						app.@gr.grnet.pithos.web.client.Pithos::showUploadIndicator()();
 						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
-							app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(files.length);
+							app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(up.files.length);
 					},
 					
 					FilesRemoved: function(up, files) {

@@ -1386,15 +1386,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		}
 	}-*/;
 	
-	public void showUploadAlert(int numOfFiles) {
-		uploadAlert = new UploadAlert(this, numOfFiles);
-		uploadAlert.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
-			
-			@Override
-			public void setPosition(int offsetWidth, int offsetHeight) {
-				uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, Window.getClientHeight() - offsetHeight);
-			}
-		});
+	public void showUploadAlert(int nOfFiles) {
+		if (uploadAlert == null)
+			uploadAlert = new UploadAlert(this, nOfFiles);
+		if (!uploadAlert.isShowing())
+			uploadAlert.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				
+				@Override
+				public void setPosition(int offsetWidth, int offsetHeight) {
+					uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, Window.getClientHeight() - offsetHeight);
+				}
+			});
+		else
+			uploadAlert.setNumOfFiles(nOfFiles);
 	}
 	
 	public void hideUploadAlert() {

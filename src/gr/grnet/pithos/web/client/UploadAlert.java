@@ -47,18 +47,20 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class UploadAlert extends PopupPanel {
 	
+	private HTML label = new HTML();
+	
 	/**
 	 * The widget's constructor.
 	 */
-	public UploadAlert(final Pithos app, int numOfFiles) {
+	public UploadAlert(final Pithos app, int _numOfFiles) {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(false);
 		setAnimationEnabled(true);
 		addStyleName(Pithos.resources.pithosCss().uploadAlert());
 		FlowPanel content = new FlowPanel();
-		String label = String.valueOf(numOfFiles) + " " + (numOfFiles > 1 ? "files are" : "file is") + " being uploaded";
-		content.add(new HTML(label));
+		setNumOfFiles(_numOfFiles);
+		content.add(label);
 		Anchor a = new Anchor("Click for details");
 		a.addStyleName(Pithos.resources.pithosCss().uploadAlertLink());
 		a.addClickHandler(new ClickHandler() {
@@ -98,5 +100,9 @@ public class UploadAlert extends PopupPanel {
 		content.add(percent);
 		
 		add(content);
+	}
+	
+	public void setNumOfFiles(int n) {
+		label.setText(String.valueOf(n) + " " + (n > 1 ? "files are" : "file is") + " being uploaded");
 	}
 }
