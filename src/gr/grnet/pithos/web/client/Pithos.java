@@ -1398,7 +1398,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 	
 	public void hideUploadAlert() {
-		uploadAlert.hide();
+		if (uploadAlert != null && uploadAlert.isShowing())
+			uploadAlert.hide();
 	}
 	
 	public void selectUploadedFiles(JsArrayString urls) {

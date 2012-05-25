@@ -243,14 +243,21 @@ public class FileUploadDialog extends DialogBox {
 					},
 					
 					UploadComplete: function(up, files) {
-						if ($wnd.console && $wnd.console.log)
+						if ($wnd.console && $wnd.console.log) {
 							$wnd.console.log('All files finished');
+						}
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
 						app.@gr.grnet.pithos.web.client.Pithos::hideUploadAlert()();
 						var uris = [];
-						for (var i = 0; i<files.length; i++)
-							uris.push(files[i].url);
+						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
+							while (files.length > 0) {
+								uris.push(files[0].url);
+								up.removeFile(files[0]);
+							}
+						else
+							for (var i=0; i<files.length; i++)
+								uris.push(files[i].url);
 						app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder(Lcom/google/gwt/core/client/JsArrayString;)(uris);
 					},
 					
@@ -346,10 +353,18 @@ public class FileUploadDialog extends DialogBox {
 	void close() {
 		setVisible(false);
 		setModal(false);
+		clearUploader();
 		if (isUploading())
 			app.showUploadIndicator();
 		setGlobalDropArea();
 	}
+
+	private native void clearUploader() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var files = uploader.files;
+		while (files.length > 0)
+			uploader.removeFile(files[0]);
+	}-*/;
 	
 	native void setGlobalDropArea() /*-{
 		var uploader = $wnd.$("#uploader").pluploadQueue();
