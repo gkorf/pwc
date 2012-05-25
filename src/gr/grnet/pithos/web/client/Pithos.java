@@ -227,7 +227,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	/**
 	 * The bottom panel that contains the status bar.
 	 */
-	private StatusPanel statusPanel = null;
+	StatusPanel statusPanel = null;
 
 	/**
 	 * The file list widget.
@@ -1394,11 +1394,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				
 				@Override
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, Window.getClientHeight() - offsetHeight);
+					uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, statusPanel.getAbsoluteTop() - offsetHeight);
 				}
 			});
-		else
-			uploadAlert.setNumOfFiles(nOfFiles);
+		uploadAlert.setNumOfFiles(nOfFiles);
 	}
 	
 	public void hideUploadAlert() {
