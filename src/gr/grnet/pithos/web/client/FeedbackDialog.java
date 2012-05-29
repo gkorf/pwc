@@ -108,7 +108,7 @@ public class FeedbackDialog extends DialogBox {
 		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback-msg=" + msg.getText() + "&feedback-data=" + appData) {
+				PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getToken()) {
 					
 					@Override
 					protected void onUnauthorized(Response response) {
@@ -125,7 +125,6 @@ public class FeedbackDialog extends DialogBox {
 						GWT.log("", t);
 					}
 				};
-				sendFeedback.setHeader("X-Auth-Token", app.getToken());
 				Scheduler.get().scheduleDeferred(sendFeedback);
 				hide();
 			}
