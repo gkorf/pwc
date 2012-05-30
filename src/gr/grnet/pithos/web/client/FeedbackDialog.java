@@ -39,7 +39,10 @@ import gr.grnet.pithos.web.client.rest.PostRequest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -63,10 +66,19 @@ public class FeedbackDialog extends DialogBox {
 
 	Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
 	
+	Pithos app;
+	
+	String appData;
+	
+	TextArea msg;
+	
 	/**
 	 * The widget constructor.
 	 */
-	public FeedbackDialog(final Pithos app, final String appData) {
+	public FeedbackDialog(final Pithos _app, final String _appData) {
+		app = _app;
+		appData = _appData;
+		
 		// Set the dialog's caption.
 		Anchor close = new Anchor("close");
 		close.addStyleName("close");
@@ -94,7 +106,7 @@ public class FeedbackDialog extends DialogBox {
 		inner.add(text);
 		FlexTable table = new FlexTable();
 		table.setText(0, 0, "Please describe your problem here, provide as many details as possible");
-		final TextArea msg = new TextArea();
+		msg = new TextArea();
 		msg.setWidth("100%");
 		msg.setHeight("100px");
 		table.setWidget(1, 0, msg);
@@ -108,24 +120,7 @@ public class FeedbackDialog extends DialogBox {
 		Button confirm = new Button("Submit feedback", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getToken()) {
-					
-					@Override
-					protected void onUnauthorized(Response response) {
-						app.sessionExpired();
-					}
-					
-					@Override
-					public void onSuccess(Resource result) {
-						app.displayInformation("Feedback sent");
-					}
-					
-					@Override
-					public void onError(Throwable t) {
-						GWT.log("", t);
-					}
-				};
-				Scheduler.get().scheduleDeferred(sendFeedback);
+				sendFeedback();
 				hide();
 			}
 		});
@@ -140,14 +135,41 @@ public class FeedbackDialog extends DialogBox {
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
 		super.onPreviewNativeEvent(preview);
 		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
+		if (evt.getType().equals("keydown")) {
 			// Use the popup's key preview hooks to close the dialog when
 			// either enter or escape is pressed.
 			switch (evt.getKeyCode()) {
 				case KeyCodes.KEY_ENTER:
+					sendFeedback();
+					hide();
+					break;
 				case KeyCodes.KEY_ESCAPE:
 					hide();
 					break;
 			}
+		}
+	}
+
+	/**
+	 */
+	void sendFeedback() {
+		PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getToken()) {
+			
+			@Override
+			protected void onUnauthorized(Response response) {
+				app.sessionExpired();
+			}
+			
+			@Override
+			public void onSuccess(Resource result) {
+				app.displayInformation("Feedback sent");
+			}
+			
+			@Override
+			public void onError(Throwable t) {
+				GWT.log("", t);
+			}
+		};
+		Scheduler.get().scheduleDeferred(sendFeedback);
 	}
 }
