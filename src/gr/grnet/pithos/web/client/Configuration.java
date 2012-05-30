@@ -56,12 +56,6 @@ public interface Configuration extends Constants {
 	@DefaultStringValue("/v1/")
 	String apiPath();
 
-	/**
-	 * @return the version string
-	 */
-	@DefaultStringValue("")
-	String version();
-
 	@DefaultStringValue("X-Auth-Token")
 	String authTokenCookie();
 	

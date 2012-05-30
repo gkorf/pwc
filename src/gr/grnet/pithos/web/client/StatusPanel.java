@@ -35,6 +35,7 @@
 package gr.grnet.pithos.web.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -51,7 +52,8 @@ public class StatusPanel extends Composite {
 	 * The constructor of the status panel.
 	 */
 	public StatusPanel() {
-		Configuration conf = GWT.create(Configuration.class);
+		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+
 		HorizontalPanel outer = new HorizontalPanel();
 		outer.setWidth("100%");
 		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -72,7 +74,7 @@ public class StatusPanel extends Composite {
 		inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("Pithos Web Client v" + conf.version() + " <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
+        secondLine.add(new HTML("Pithos Web Client v" + otherProperties.get("version") + " <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
         secondLine.addStyleName("grnet-sign");
         inner.add(secondLine);
         outer.add(inner);
