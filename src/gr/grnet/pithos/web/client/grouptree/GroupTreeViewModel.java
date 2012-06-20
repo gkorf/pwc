@@ -122,6 +122,8 @@ public class GroupTreeViewModel implements TreeViewModel {
 				if (selected != null) {
 					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
 					app.showFiles(new HashSet<File>());
+					app.disableUploadArea();
+					app.upload.setEnabled(false);
 					app.showRelevantToolbarButtons();
 					if (selected.equals(createGroup)) {
 						new CreateGroupCommand(app, null).execute();
@@ -173,7 +175,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
 		dataProvider.getList().clear();
 		for (String u : g.getMembers())
-			dataProvider.getList().add(new User(u, g));
+			dataProvider.getList().add(new User(u, g.getName()));
     	return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
     }
 
@@ -200,7 +202,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 			final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
 			dataProvider.getList().clear();
 			for (String u : group.getMembers())
-				dataProvider.getList().add(new User(u, group));
+				dataProvider.getList().add(new User(u, group.getName()));
 		}
 	}
 

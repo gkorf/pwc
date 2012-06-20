@@ -36,6 +36,7 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -62,6 +63,8 @@ public class FileUploadDialog extends DialogBox {
 
     public static final boolean DONE = true;
 
+    Anchor close;
+    
 	/**
 	 * The Form element that performs the file upload.
 	 */
@@ -78,13 +81,15 @@ public class FileUploadDialog extends DialogBox {
 	protected Folder folder;
 
     protected Pithos app;
+    
+    private boolean inProgress = false;
 
 	/**
 	 * The widget's constructor.
 	 */
 	public FileUploadDialog(Pithos _app) {
 		app = _app;
-		Anchor close = new Anchor("close");
+		close = new Anchor("close");
 		close.addStyleName("close");
 		close.addClickHandler(new ClickHandler() {
 			
@@ -96,7 +101,7 @@ public class FileUploadDialog extends DialogBox {
 		// Set the dialog's caption.
 		setText("File upload");
 		setAnimationEnabled(true);
-		setGlassEnabled(true);
+//		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		setVisible(false);
 		
@@ -144,6 +149,15 @@ public class FileUploadDialog extends DialogBox {
 		panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 		
 		setWidget(form);
+		
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			
+			@Override
+			public void execute() {
+				center();
+				close();
+			}
+		});
 	}
 
 	private void refreshFolder() {
@@ -156,10 +170,10 @@ public class FileUploadDialog extends DialogBox {
 				}
 			}, true);
 		else
-			app.updateOtherSharedFolder(folder, true);
+			app.updateOtherSharedFolder(folder, true, null);
 	}
 	
-	native void setupUpload(FileUploadDialog dlg, String path, String token) /*-{
+	native void setupUpload(FileUploadDialog dlg, Pithos app, String token) /*-{
 		var uploader = $wnd.$('#uploader').pluploadQueue();
 		var createUploader = function() {
 			$wnd.$("#uploader").pluploadQueue({
@@ -186,14 +200,37 @@ public class FileUploadDialog extends DialogBox {
 				
 				init: {
 					FilesAdded: function(up, files) {
+						var api = app.@gr.grnet.pithos.web.client.Pithos::getApiPath()();
+						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
+						var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwner()();
+						var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();
+						var path = api + owner + uri;
 						for (var j=0; j<files.length; j++)
-							files[j].url = up.path + "/" + files[j].name + "?X-Auth-Token=" + encodeURIComponent(token);
+							files[j].url = path + "/" + files[j].name;
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
+						if (up.state == $wnd.plupload.STOPPED)
+							up.start();
+						app.@gr.grnet.pithos.web.client.Pithos::showUploadIndicator()();
+						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
+							app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(up.files.length);
+					},
+					
+					FilesRemoved: function(up, files) {
+						if (up.files.length == 0)
+							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
+						else
+							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 					},
 					
 					BeforeUpload: function(up, file) {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log('About to upload ' + file.url);
-						up.settings.url = file.url;
+						up.settings.url = file.url + + "?X-Auth-Token=" + encodeURIComponent(token);
+					},
+					
+					UploadProgress: function(up, file) {
+						$wnd.$('#upload_alert_progress_bar').css('width', up.total.percent + '%');
+						$wnd.$('#upload_alert_percent').html(up.total.percent + '%');
 					},
 					
 					FileUploaded: function(up, file, response) {
@@ -201,13 +238,28 @@ public class FileUploadDialog extends DialogBox {
 							$wnd.console.log('File ' + file.name + ' uploaded');
 							$wnd.console.log('Response: ' + response);
 						}
+						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
+						if (folder == file.folder)
+							app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder()();
 					},
 					
 					UploadComplete: function(up, files) {
-						if ($wnd.console && $wnd.console.log)
+						if ($wnd.console && $wnd.console.log) {
 							$wnd.console.log('All files finished');
+						}
+						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::hideUploadIndicator()();
-						dlg.@gr.grnet.pithos.web.client.FileUploadDialog::refreshFolder()();
+						app.@gr.grnet.pithos.web.client.Pithos::hideUploadAlert()();
+						var uris = [];
+						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
+							while (files.length > 0) {
+								uris.push(files[0].url);
+								up.removeFile(files[0]);
+							}
+						else
+							for (var i=0; i<files.length; i++)
+								uris.push(files[i].url);
+						app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder(Lcom/google/gwt/core/client/JsArrayString;)(uris);
 					},
 					
 					Error: function(up, error) {
@@ -225,6 +277,8 @@ public class FileUploadDialog extends DialogBox {
 			uploader = createUploader();
 		}
 		else {
+			var dropElm = $wnd.document.getElementById('rightPanel');
+			$wnd.plupload.removeAllEvents(dropElm, uploader.id);
 			var removeAll = true;
 			var files = uploader.files;
 			if ($wnd.console && $wnd.console.log)
@@ -243,9 +297,12 @@ public class FileUploadDialog extends DialogBox {
 				uploader = createUploader();
 				if ($wnd.console && $wnd.console.log)
 					$wnd.console.log(uploader);
+				dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
+			}
+			else {
+				dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 			}
 		}
-		uploader.path = path;
 	}-*/;
 	
 	native boolean isUploading()/*-{
@@ -286,8 +343,7 @@ public class FileUploadDialog extends DialogBox {
 		setVisible(true);
 		setModal(true);
 		super.center();
-		String path = app.getApiPath() + folder.getOwner() + folder.getUri();
-		setupUpload(this, path, app.getToken());
+		setupUpload(this, app, app.getToken());
 		super.center();
 	}
 	
@@ -298,7 +354,32 @@ public class FileUploadDialog extends DialogBox {
 	void close() {
 		setVisible(false);
 		setModal(false);
+		clearUploader();
 		if (isUploading())
 			app.showUploadIndicator();
+		setGlobalDropArea();
+	}
+
+	private native void clearUploader() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var files = uploader.files;
+		while (files.length > 0)
+			uploader.removeFile(files[0]);
+	}-*/;
+	
+	native void setGlobalDropArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		if (uploader.runtime == 'html5') {
+			uploader.settings.drop_element = 'rightPanel';
+			uploader.trigger('PostInit');
+		}
+	}-*/;
+
+	private void setInProgress(boolean _inProgress) {
+		inProgress = _inProgress;
+		if (inProgress)
+			close.setText("hide");
+		else
+			close.setText("close");
 	}
 }

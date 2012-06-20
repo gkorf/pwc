@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
@@ -63,6 +62,7 @@ import java.util.Set;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -77,7 +77,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -86,7 +85,6 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
@@ -96,11 +94,13 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -120,11 +120,29 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	
 	public interface Style extends CssResource {
 		String commandAnchor();
+		
+		String statistics();
+		
+		@ClassName("gwt-HTML")
+		String html();
+		
+		String uploadAlert();
+
+		String uploadAlertLink();
+
+		String uploadAlertProgress();
+		
+		String uploadAlertPercent();
+		
+		String uploadAlertClose();
 	}
 	
 	public interface Resources extends ClientBundle {
 		@Source("Pithos.css")
 		Style pithosCss();
+		
+		@Source("gr/grnet/pithos/resources/close-popup.png")
+		ImageResource closePopup();
 	}
 
 	public static Resources resources = GWT.create(Resources.class);
@@ -167,8 +185,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     	updateSharedFolder(f, showfiles, null);
     }
 
-    public void updateOtherSharedFolder(Folder f, boolean showfiles) {
-    	otherSharedTreeView.updateFolder(f, showfiles);
+    public void updateOtherSharedFolder(Folder f, boolean showfiles, Command callback) {
+    	otherSharedTreeView.updateFolder(f, showfiles, callback);
     }
 
     public MysharedTreeView getMySharedTreeView() {
@@ -209,7 +227,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	/**
 	 * The bottom panel that contains the status bar.
 	 */
-	private StatusPanel statusPanel = null;
+	StatusPanel statusPanel = null;
 
 	/**
 	 * The file list widget.
@@ -268,14 +286,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     @SuppressWarnings("rawtypes") List<SingleSelectionModel> selectionModels = new ArrayList<SingleSelectionModel>();
     
-    Button upload;
+    public Button upload;
     
     private HTML numOfFiles;
     
     private Toolbar toolbar;
     
-    private FileUploadDialog fileUploadDialog;
-    
+    private FileUploadDialog fileUploadDialog = new FileUploadDialog(this);
+
+	UploadAlert uploadAlert;
+
 	@Override
 	public void onModuleLoad() {
 		if (parseUserCredentials())
@@ -341,7 +361,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         header.setCellWidth(folderStatistics, "40px");
         outer.add(header);
         outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
-        // Inner contains the various lists.nner
+        // Inner contains the various lists
         inner.sinkEvents(Event.ONCONTEXTMENU);
         inner.setWidth("100%");
 
@@ -384,7 +404,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
-        splitPanel.setRightWidget(inner);
+        FlowPanel right = new FlowPanel();
+        right.getElement().setId("rightPanel");
+        right.add(inner);
+        splitPanel.setRightWidget(right);
         splitPanel.setSplitPosition("219px");
         splitPanel.setSize("100%", "100%");
         splitPanel.addStyleName("pithos-splitPanel");
@@ -412,14 +435,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
         // Call the window resized handler to get the initial sizes setup. Doing
         // this in a deferred command causes it to occur after all widgets'
         // sizes have been computed by the browser.
-        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-
-            @Override
-            public void execute() {
+        Scheduler.get().scheduleIncremental(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				if (!isCloudbarReady())
+					return true;
                 onWindowResized(Window.getClientHeight());
-            }
-        });
-
+				return false;
+			}
+		});
+        
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
@@ -480,19 +506,26 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void applyPermissions(Folder f) {
     	if (f != null) {
-    		if (f.isInTrash())
+    		if (f.isInTrash()) {
     			upload.setEnabled(false);
+    			disableUploadArea();
+    		}
     		else {
 		    	Boolean[] perms = f.getPermissions().get(username);
 		    	if (f.getOwner().equals(username) || (perms != null && perms[1] != null && perms[1])) {
 		    		upload.setEnabled(true);
+		    		enableUploadArea();
 		    	}
-		    	else
+		    	else {
 		    		upload.setEnabled(false);
+		    		disableUploadArea();
+		    	}
     		}
     	}
-    	else
+    	else {
     		upload.setEnabled(false);
+    		disableUploadArea();
+    	}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -553,7 +586,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Window.Location.assign(otherProperties.get("loginUrl") + Window.Location.getHref());
 	}
 
-	protected void fetchAccount(final Command callback) {
+	public void fetchAccount(final Command callback) {
         String path = "?format=json";
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), username, path) {
@@ -685,13 +718,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	protected void onWindowResized(int height) {
 		// Adjust the split panel to take up the available room in the window.
-		int newHeight = height - splitPanel.getAbsoluteTop();
+		int newHeight = height - splitPanel.getAbsoluteTop() - 153;
 		if (newHeight < 1)
 			newHeight = 1;
 		splitPanel.setHeight("" + newHeight);
 		inner.setHeight("" + newHeight);
 	}
-
+	
+	native boolean isCloudbarReady()/*-{
+		if ($wnd.$("div.servicesbar") && $wnd.$("div.servicesbar").height() > 0)
+			return true;
+		return false;
+	}-*/;
+	
 	@Override
 	public void onResize(ResizeEvent event) {
 		int height = event.getHeight();
@@ -705,6 +744,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayError(String msg) {
 		messagePanel.displayError(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
@@ -714,6 +754,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayWarning(String msg) {
 		messagePanel.displayWarning(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
@@ -723,6 +764,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	 */
 	public void displayInformation(String msg) {
 		messagePanel.displayInformation(msg);
+		onWindowResized(Window.getClientHeight());
 	}
 
 	/**
@@ -1108,6 +1150,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		        if (mysharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(mysharedTreeView, mysharedTreeSelectionModel);
 		            upload.setEnabled(false);
+		            disableUploadArea();
 		            updateSharedFolder(mysharedTreeSelectionModel.getSelectedObject(), true);
 					showRelevantToolbarButtons();
 		        }
@@ -1141,7 +1184,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		        if (otherSharedTreeSelectionModel.getSelectedObject() != null) {
 		            deselectOthers(otherSharedTreeView, otherSharedTreeSelectionModel);
 		            applyPermissions(otherSharedTreeSelectionModel.getSelectedObject());
-		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true);
+		            updateOtherSharedFolder(otherSharedTreeSelectionModel.getSelectedObject(), true, null);
 					showRelevantToolbarButtons();
 		        }
 				else {
@@ -1296,5 +1339,76 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
 	public boolean isMySharedSelected() {
 		return getSelectedTree().equals(getMySharedTreeView());
+	}
+	
+	private Folder getUploadFolder() {
+		if (folderTreeView.equals(getSelectedTree()) || otherSharedTreeView.equals(getSelectedTree())) {
+			return getSelection();
+		}
+		return null;
+	}
+	
+	private void updateUploadFolder() {
+		updateUploadFolder(null);
+	}
+	
+	private void updateUploadFolder(final JsArrayString urls) {
+		if (folderTreeView.equals(getSelectedTree()) || otherSharedTreeView.equals(getSelectedTree())) {
+			Folder f = getSelection();
+			if (getSelectedTree().equals(getFolderTreeView()))
+				updateFolder(f, true, new Command() {
+				
+					@Override
+					public void execute() {
+						updateStatistics();
+						if (urls != null)
+							selectUploadedFiles(urls);
+					}
+				}, false);
+			else
+				updateOtherSharedFolder(f, true, null);
+		}
+	}
+
+	public native void disableUploadArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var dropElm = $wnd.document.getElementById('rightPanel');
+		$wnd.plupload.removeAllEvents(dropElm, uploader.id);
+	}-*/;
+
+	public native void enableUploadArea() /*-{
+		var uploader = $wnd.$("#uploader").pluploadQueue();
+		var dropElm = $wnd.document.getElementById('rightPanel');
+		$wnd.plupload.removeAllEvents(dropElm, uploader.id);
+		if (uploader.runtime == 'html5') {
+			uploader.settings.drop_element = 'rightPanel';
+			uploader.trigger('PostInit');
+		}
+	}-*/;
+	
+	public void showUploadAlert(int nOfFiles) {
+		if (uploadAlert == null)
+			uploadAlert = new UploadAlert(this, nOfFiles);
+		if (!uploadAlert.isShowing())
+			uploadAlert.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				
+				@Override
+				public void setPosition(int offsetWidth, int offsetHeight) {
+					uploadAlert.setPopupPosition((Window.getClientWidth() - offsetWidth)/2, statusPanel.getAbsoluteTop() - offsetHeight);
+				}
+			});
+		uploadAlert.setNumOfFiles(nOfFiles);
+	}
+	
+	public void hideUploadAlert() {
+		if (uploadAlert != null && uploadAlert.isShowing())
+			uploadAlert.hide();
+	}
+	
+	public void selectUploadedFiles(JsArrayString urls) {
+		List<String> selectedUrls = new ArrayList<String>();
+		for (int i=0; i<urls.length(); i++)
+			selectedUrls.add(urls.get(i));
+		fileList.selectByUrl(selectedUrls);
 	}
 }

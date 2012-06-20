@@ -126,7 +126,7 @@ public class PermissionsList extends Composite {
                 permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;" + user + "</span>");
             else
                 permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;" + user.split(":")[1].trim() + "</span>");
-            permTable.getFlexCellFormatter().setStyleName(i, 0, "props-labels");
+            permTable.getFlexCellFormatter().setStyleName(i, 0, "props-values");
 
             Boolean[] userPerms = permissions.get(user);
             Boolean readP = userPerms[0];

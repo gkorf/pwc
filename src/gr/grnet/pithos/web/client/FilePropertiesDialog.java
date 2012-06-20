@@ -39,6 +39,7 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -253,7 +254,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwner(), path + "?update=", newMeta);
+                    updateMetaData(app.getApiPath(), file.getOwner(), path, newMeta);
                 }
 
                 @Override
@@ -302,13 +303,13 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", newMeta);
+            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri(), newMeta);
         return true;
 	}
 
-	protected void updateMetaData(String api, String owner, String path, Map<String, String> newMeta) {
+	protected void updateMetaData(final String api, final String owner, final String path, Map<String, String> newMeta) {
         if (newMeta != null) {
-            PostRequest updateFile = new PostRequest(api, owner, path) {
+            PostRequest updateFile = new PostRequest(api, owner, path + "?update=") {
                 @Override
                 public void onSuccess(Resource result) {
                 	if (!app.isMySharedSelected())
@@ -316,11 +317,19 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 							
 							@Override
 							public void execute() {
+								app.getFileList().selectByUrl(Arrays.asList(api + owner + path));
 								app.updateMySharedRoot();
 							}
 						}, true);
-                	else
-                		app.updateSharedFolder(file.getParent(), true);
+                	else {
+                		app.updateSharedFolder(file.getParent(), true, new Command() {
+                			
+							@Override
+							public void execute() {
+								app.getFileList().selectByUrl(Arrays.asList(api + owner + path));
+							}
+                		});
+                	}
                 }
 
                 @Override
@@ -351,11 +360,14 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 				
 				@Override
 				public void execute() {
+					app.getFileList().selectByUrl(Arrays.asList(api + owner + path));
 					if (file.isSharedOrPublished())
 						app.updateMySharedRoot();
 				}
 			}, true);
-        else
+        else {
+			app.getFileList().selectByUrl(Arrays.asList(api + owner + path));
         	app.updateSharedFolder(file.getParent(), true);
+        }
     }
 }

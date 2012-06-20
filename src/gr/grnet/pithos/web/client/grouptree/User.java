@@ -39,9 +39,9 @@ package gr.grnet.pithos.web.client.grouptree;
 public class User {
     private String name;
     
-    private Group group;
+    private String group;
 
-    public User(String _name, Group _group) {
+    public User(String _name, String _group) {
         name = _name;
         group = _group;
     }
@@ -50,7 +50,7 @@ public class User {
         return name;
     }
 
-	public Group getGroup() {
+	public String getGroup() {
 		return group;
 	}
 }

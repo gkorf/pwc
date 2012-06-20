@@ -110,7 +110,12 @@
    	    />
    	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
    	                   match="authCookie: (.*)"
-   	                   replace="authCookie: &quot;${authCookie}&quot;"
+   	                   replace="authCookie: &quot;${authCookie}&quot;,"
+   	                   byline="true"
+   	    />
+   	    <replaceregexp file="${gwt.www.dir}/${gwt.module}/index.html"
+   	                   match="version: (.*)"
+   	                   replace="version: &quot;${version}&quot;"
    	                   byline="true"
    	    />
     </target>

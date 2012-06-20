@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.PithosDisclosurePanel;
 import gr.grnet.pithos.web.client.TreeView;
 
@@ -190,7 +191,7 @@ public class FolderTreeView extends Composite implements TreeView {
         content.add(tree);
 
         HorizontalPanel statistics = new HorizontalPanel();
-	    statistics.addStyleName("pithos-statistics");
+	    statistics.addStyleName(Pithos.resources.pithosCss().statistics());
 	    statistics.add(new HTML("Used:&nbsp;"));
 	    usedBytes = new HTML();
 	    statistics.add(usedBytes);

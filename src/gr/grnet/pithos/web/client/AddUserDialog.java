@@ -48,6 +48,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -179,6 +180,12 @@ public class AddUserDialog extends DialogBox {
 		String name = userName.getText().trim();
 		if (name.length() == 0)
 			return;
+		RegExp emailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
+		if (!emailValidator.test(name)) {
+			app.displayWarning("Username must be a valid email address");
+			return;
+		}
+			
     	group.addMember(name);
     	String path = "?update=";
     	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {

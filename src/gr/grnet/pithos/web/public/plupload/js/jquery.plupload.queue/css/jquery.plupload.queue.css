@@ -40,6 +40,10 @@
 	background-color: #0A0;
 }
 
+.plupload_start {
+	display: none;
+}
+
 .plupload_wrapper {
 	font-family: Verdana, 'PT Sans', sans-serif;
 	font-size: 100%;
