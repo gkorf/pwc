@@ -133,7 +133,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
 	private void fetchSharedContainers(final Command callback) {
-        String path = "?format=json&shared=";
+        String path = "?format=json&shared=&public=";
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUsername(), path) {
             @Override
             public void onSuccess(final AccountResource _result) {
@@ -184,7 +184,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
-            String path = "/" + f.getContainer() + "?format=json&shared=&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
+            String path = "/" + f.getContainer() + "?format=json&shared=&public=&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
             GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
@@ -222,7 +222,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
     public void fetchFolder(final Folder f, final boolean showfiles, final Command callback) {
-        String path = "/" + f.getContainer() + "?format=json&shared=" + URL.encodeQueryString(f.getPrefix());
+        String path = "/" + f.getContainer() + "?format=json&shared=&public=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {

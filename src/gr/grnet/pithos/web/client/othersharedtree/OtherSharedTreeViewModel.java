@@ -156,7 +156,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 dataProviderMap.put(f, new ListDataProvider<Folder>());
             }
             final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
-            fetchFolder(f, dataProvider, false);
+            fetchFolder(f, dataProvider, false, null);
             return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
         }
     }
@@ -305,15 +305,15 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         return selectionModel.getSelectedObject();
     }
 
-    public void updateFolder(Folder folder, boolean showfiles) {
+    public void updateFolder(Folder folder, boolean showfiles, Command callback) {
         if (dataProviderMap.get(folder) == null) {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
         final ListDataProvider<Folder> dataProvider = dataProviderMap.get(folder);
-        fetchFolder(folder, dataProvider, showfiles);
+        fetchFolder(folder, dataProvider, showfiles, callback);
     }
 
-    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles) {
+    public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
             @Override
@@ -327,6 +327,8 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                         dataProvider.getList().clear();
                         dataProvider.getList().addAll(_result.getSubfolders());
                         app.getOtherSharedTreeView().updateChildren(f);
+                        if (callback != null)
+                        	callback.execute();
                     }
                 });
             }

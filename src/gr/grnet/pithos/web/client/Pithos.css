@@ -42,3 +42,45 @@
 	color: #4085A5;
 	text-decoration: underline;
 }
+
+.statistics {
+	color: black;
+	padding-top: 10px;
+ 	padding-bottom: 10px;
+}
+
+@external gwt-HTML;
+
+.statistics .gwt-HTML {
+	font-size: 80%;
+}
+
+.uploadAlert {
+	background-color: #4085a5;
+	border: none;
+	width: 350px;
+}
+
+.uploadAlertLink {
+	text-decoration: underline;
+	position: absolute;
+	left: 200px;
+	top: 2px;
+}
+
+.uploadAlertClose {
+	cursor: pointer;
+	position: absolute;
+	right: 1px;
+	top: 2px;
+}
+
+.uploadAlertProgress {
+	display: block;
+	float: left;	
+}
+
+.uploadAlertPercent {
+	position: absolute;
+	left: 90px;
+}

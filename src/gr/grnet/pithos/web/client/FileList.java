@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.ImageResourceCell;
@@ -664,5 +665,24 @@ public class FileList extends Composite {
 		}
 		else if (callback != null)
 			callback.execute();
+	}
+
+	public void selectByUrl(List<String> selectedUrls) {
+		Set<File> previous = selectionModel.getSelectedSet();
+		for (File f : previous)
+			selectionModel.setSelected(f, false);
+		
+		int i = 0;
+		boolean scrolled = false;
+		for (File f : files) {
+			if (selectedUrls.contains(app.getApiPath() + f.getOwner() + f.getUri())) {
+				selectionModel.setSelected(f, true);
+				if (!scrolled) {
+					celltable.getRowElement(i).getCells().getItem(0).scrollIntoView();
+					scrolled = true;
+				}
+			}
+			i++;
+		}
 	}
 }

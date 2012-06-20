@@ -345,16 +345,6 @@ table.pithos-permList.props-labels {
 	padding-left: 4;
 }
 
-.pithos-statistics {
-	color: black;
-	padding-top: 10px;
- 	padding-bottom: 10px;
-}
-
-.pithos-statistics .gwt-HTML {
-	font-size: 85%;
-}
-
 .pithos-statisticsSeparator {
 	background: url(images/separator.png) no-repeat;
 	width: 100%;
@@ -395,7 +385,7 @@ table.pithos-permList.props-labels {
 
 .pithos-uploadButton-loading {
 	background: url(images/ajax-loader.gif) no-repeat;
-	background-position: 110px 0px;
+	background-position: 100px 0px;
 	background-color: #ff7f2a;
 }
 

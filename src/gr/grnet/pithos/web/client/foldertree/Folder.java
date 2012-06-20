@@ -246,7 +246,7 @@ public class Folder extends Resource {
     public boolean equals(Object other) {
         if (other instanceof Folder) {
             Folder o = (Folder) other;
-            return getUri().equals(o.getUri());
+            return owner.equals(o.getOwner()) && getUri().equals(o.getUri());
         }
         return false;
     }

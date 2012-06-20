@@ -42,6 +42,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -93,12 +94,16 @@ public class MessagePanel extends Composite {
 	 * A link to send feedBack about the error.
 	 */
 	private HTML feedbackLink;
+	
+	Pithos app;
+	
 	/**
 	 * The widget's constructor.
 	 *
 	 * @param newImages a bundle that provides the images for this widget
 	 */
-	public MessagePanel(final Pithos app, final Images newImages) {
+	public MessagePanel(Pithos _app, final Images newImages) {
+		app = _app;
 		images = newImages;
 		simplePanel = new SimplePanel();
 		simplePanel.setStyleName("effectPanel");
@@ -212,6 +217,6 @@ public class MessagePanel extends Composite {
 	public void hideMessage() {
 		message = new HTML("&nbsp;");
 		this.setVisible(false);
+		app.onWindowResized(Window.getClientHeight());
 	}
-
 }

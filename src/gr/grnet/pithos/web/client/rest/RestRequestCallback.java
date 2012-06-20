@@ -60,8 +60,10 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
         try {
             if (response.getStatusCode() == HTTP_OK || (okcode !=-1 && response.getStatusCode() == okcode))
                 onSuccess(deserialize(response));
-            else if (response.getStatusCode() == Response.SC_UNAUTHORIZED)
+            else if (response.getStatusCode() == Response.SC_UNAUTHORIZED) {
+            	log(request, response);
             	onUnauthorized(response);
+            }
             else {
                 String statusText = "";
                 String text = "";
@@ -83,6 +85,18 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
         }
     }
 
+    private native void log(Request req, Response resp)/*-{
+    	if ($wnd.console && $wnd.console.log) {
+    		$wnd.console.log(req.@com.google.gwt.http.client.Request::toString()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::toString()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::getStatusCode()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::getStatusText()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::getStatusCode()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::getText()());
+    		$wnd.console.log(resp.@com.google.gwt.http.client.Response::getHeadersAsString()());
+    	}
+    }-*/;
+    
     public abstract void onSuccess(T result);
 
     public abstract T deserialize(Response response);

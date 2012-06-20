@@ -272,4 +272,11 @@ public class AccountResource extends Resource {
 				return f;
 		return null;
 	}
+
+	public Group getGroup(String groupName) {
+		for (Group g : groups)
+			if (g.getName().equalsIgnoreCase(groupName))
+				return g;
+		return null;
+	}
 }
