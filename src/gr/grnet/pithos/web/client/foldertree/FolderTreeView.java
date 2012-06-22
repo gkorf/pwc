@@ -165,7 +165,7 @@ public class FolderTreeView extends Composite implements TreeView {
 
     private FolderTreeViewModel model;
     
-    private CellTree tree;
+    CellTree tree;
     
     private HTML usedBytes;
     
@@ -188,6 +188,7 @@ public class FolderTreeView extends Composite implements TreeView {
         CellTree.Resources res = GWT.create(BasicResources.class);
         tree = new CellTree(model, null, res);
         tree.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+        tree.setDefaultNodeSize(5000);
         content.add(tree);
 
         HorizontalPanel statistics = new HorizontalPanel();
