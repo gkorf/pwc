@@ -363,8 +363,13 @@ public class FileUploadDialog extends DialogBox {
 	private native void clearUploader() /*-{
 		var uploader = $wnd.$("#uploader").pluploadQueue();
 		var files = uploader.files;
-		while (files.length > 0)
-			uploader.removeFile(files[0]);
+		var clear = true;
+		for (var i=0; i<files.length; i++)
+			if (files[i].status == $wnd.plupload.UPLOADING)
+				clear = false;
+		if (clear)
+			while (files.length > 0)
+				uploader.removeFile(files[0]);
 	}-*/;
 	
 	native void setGlobalDropArea() /*-{
