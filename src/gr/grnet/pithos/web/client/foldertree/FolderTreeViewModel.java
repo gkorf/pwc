@@ -234,6 +234,10 @@ public class FolderTreeViewModel implements TreeViewModel {
             public void onSuccess(final Folder _result) {
                 if (showfiles)
                     app.showFiles(_result);
+                int defaultSize = app.getFolderTreeView().tree.getDefaultNodeSize();
+                int size = _result.getSubfolders().size();
+                if (size > defaultSize)
+                	app.getFolderTreeView().tree.setDefaultNodeSize(size);
                 Iterator<Folder> iter = new ArrayList<Folder>(_result.getSubfolders()).listIterator();
                 fetchFolder(iter, new Command() {
                     @Override
