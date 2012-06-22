@@ -34,6 +34,7 @@
 from django.views.generic.simple import direct_to_template
 
 from pithos_webclient import settings
+from pithos_webclient.version import  __version__
 from django.conf import settings as django_settings
 
 MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
@@ -41,6 +42,9 @@ MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
 
 def index(request):
     return direct_to_template(request, 'pithos_webclient/index.html', \
-            {'settings': settings, 'MEDIA_URL': MEDIA_URL,
-             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE': settings.CLOUDBAR_ACTIVE_SERVICE})
+            {'settings': settings,
+             'MEDIA_URL': MEDIA_URL,
+             'CLIENT_VERSION': __version__,
+             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE': settings.CLOUDBAR_ACTIVE_SERVICE
+            })
 
