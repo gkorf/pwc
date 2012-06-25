@@ -160,17 +160,26 @@ public class FolderTreeViewModel implements TreeViewModel {
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("Error getting folder", t);
-					app.setError(t);
-                    if (t instanceof RestException)
-                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                    else
-                        app.displayError("System error fetching folder: " + t.getMessage());
+                	if (retries >= MAX_RETRIES) {
+	                    GWT.log("Error getting folder", t);
+						app.setError(t);
+	                    if (t instanceof RestException)
+	                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+	                    else
+	                        app.displayError("System error fetching folder: " + t.getMessage());
+                	}
+                	else {//retry
+                		GWT.log("Retry " + retries);
+                		Scheduler.get().scheduleDeferred(this);
+                	}
                 }
 
 				@Override
 				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
+					if (retries >= MAX_RETRIES)
+						app.sessionExpired();
+	            	else //retry
+	            		Scheduler.get().scheduleDeferred(this);
 				}
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());
