@@ -245,6 +245,7 @@ public class ToTrashCommand implements Command{
             };
             trashFile.setHeader("X-Auth-Token", app.getToken());
             trashFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
+            trashFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(trashFile);
         }
         else if (callback != null) {

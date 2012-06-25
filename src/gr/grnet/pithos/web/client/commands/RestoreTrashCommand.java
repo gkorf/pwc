@@ -232,6 +232,8 @@ public class RestoreTrashCommand implements Command {
             };
             untrashFile.setHeader("X-Auth-Token", app.getToken());
             untrashFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
+            untrashFile.setHeader("Content-Type", file.getContentType());
+            
             Scheduler.get().scheduleDeferred(untrashFile);
         }
         else if (callback != null) {
