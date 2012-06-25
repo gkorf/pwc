@@ -879,6 +879,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         GWT.log("", t);
 						setError(t);
                         displayError("System error unable to delete folder: " + t.getMessage());
+                        deleteObject(folder, i + 1, array, callback);
                     }
 
     				@Override
@@ -1429,10 +1430,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			
 			@Override
 			protected void onUnauthorized(Response response) {
-				if (retries >= MAX_RETRIES)
-					sessionExpired();
-            	else //retry
-            		Scheduler.get().scheduleDeferred(this);
+				sessionExpired();
 			}
 			
 			@Override
@@ -1442,18 +1440,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			
 			@Override
 			public void onError(Throwable t) {
-            	if (retries >= MAX_RETRIES) {
-	                GWT.log("Error deleting trash", t);
-					setError(t);
-	                if (t instanceof RestException)
-	                    displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());
-	                else
-	                    displayError("System error deleting trash: " + t.getMessage());
-            	}
-            	else {//retry
-            		GWT.log("Retry " + retries);
-            		Scheduler.get().scheduleDeferred(this);
-            	}
+                GWT.log("Error deleting trash", t);
+				setError(t);
+                if (t instanceof RestException)
+                    displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());
+                else
+                    displayError("System error deleting trash: " + t.getMessage());
 			}
 		};
 		delete.setHeader("X-Auth-Token", getToken());
