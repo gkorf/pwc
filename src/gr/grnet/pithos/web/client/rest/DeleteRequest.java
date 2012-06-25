@@ -51,7 +51,12 @@ import com.google.gwt.http.client.Response;
  * Templates.
  */
 public abstract class DeleteRequest implements ScheduledCommand {
-    private String api;
+	
+	protected static final int MAX_RETRIES = 3; 
+
+	protected int retries = 0; 
+
+	private String api;
 
     protected String owner;
 

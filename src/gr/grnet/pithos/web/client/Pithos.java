@@ -1423,4 +1423,40 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			selectedUrls.add(urls.get(i));
 		fileList.selectByUrl(selectedUrls);
 	}
+	
+	public void deleteAndCreateTrash() {
+		DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), "/trash") {
+			
+			@Override
+			protected void onUnauthorized(Response response) {
+				if (retries >= MAX_RETRIES)
+					sessionExpired();
+            	else //retry
+            		Scheduler.get().scheduleDeferred(this);
+			}
+			
+			@Override
+			public void onSuccess(Resource result) {
+				createTrashContainer(null);
+			}
+			
+			@Override
+			public void onError(Throwable t) {
+            	if (retries >= MAX_RETRIES) {
+	                GWT.log("Error deleting trash", t);
+					setError(t);
+	                if (t instanceof RestException)
+	                    displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());
+	                else
+	                    displayError("System error deleting trash: " + t.getMessage());
+            	}
+            	else {//retry
+            		GWT.log("Retry " + retries);
+            		Scheduler.get().scheduleDeferred(this);
+            	}
+			}
+		};
+		delete.setHeader("X-Auth-Token", getToken());
+		Scheduler.get().scheduleDeferred(delete);
+	}
 }
