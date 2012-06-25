@@ -130,8 +130,6 @@ public class FolderTreeViewModel implements TreeViewModel {
 		}
 		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
 		//This prevents the loading indicator
-//		dataProvider.getList().clear();
-//		dataProvider.getList().addAll(f.getSubfolders());
 		fetchFolder(f, dataProvider, false, null);
 		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }

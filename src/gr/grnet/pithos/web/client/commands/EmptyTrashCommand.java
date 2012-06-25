@@ -72,27 +72,7 @@ public class EmptyTrashCommand implements Command{
 		
 		final Folder trash = app.getAccount().getTrash();
 		if (trash != null) {
-			Iterator<File> iter = trash.getFiles().iterator();
-			deleteFile(iter, new Command() {
-				
-				@Override
-				public void execute() {
-					Iterator<Folder> iter2 = trash.getSubfolders().iterator();
-					deleteSubfolder(iter2, new Command() {
-						
-						@Override
-						public void execute() {
-							app.updateTrash(true, new Command() {
-								
-								@Override
-								public void execute() {
-									app.updateStatistics();
-								}
-							});
-						}
-					});
-				}
-			});
+			app.deleteFolder(trash, null); //deleteFolder will not delete the folder itself if it is a container
 		}
 	}
 

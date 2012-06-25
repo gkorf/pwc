@@ -488,20 +488,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         });
         
-        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-			
-			@Override
-			public boolean execute() {
-				Folder f = getSelection();
-				if (f != null) {
-					if (getSelectedTree().equals(folderTreeView))
-						updateFolder(f, true, null, false);
-					else if (getSelectedTree().equals(mysharedTreeView))
-						updateSharedFolder(f, true);
-				}
-				return true;
-			}
-		}, 3000);
+//        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+//			
+//			@Override
+//			public boolean execute() {
+//				Folder f = getSelection();
+//				if (f != null) {
+//					if (getSelectedTree().equals(folderTreeView))
+//						updateFolder(f, true, null, false);
+//					else if (getSelectedTree().equals(mysharedTreeView))
+//						updateSharedFolder(f, true);
+//				}
+//				return true;
+//			}
+//		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -892,7 +892,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             else if (o != null) {
                 String subdir = o.get("subdir").isString().stringValue();
                 subdir = subdir.substring(0, subdir.length() - 1);
-                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(subdir) + "&t=" + System.currentTimeMillis();
+                String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(subdir) + "&t=" + System.currentTimeMillis();
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
                 builder.setHeader("X-Auth-Token", getToken());
                 try {
@@ -924,6 +924,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
+        	if (folder.isContainer()) {
+        		updateFolder(folder, true, new Command() {
+					
+					@Override
+					public void execute() {
+						updateStatistics();
+						if (callback != null)
+							callback.execute();
+					}
+				}, false);
+        		return;
+        	}
             String path = folder.getUri();
             DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), URL.encode(path)) {
                 @Override
