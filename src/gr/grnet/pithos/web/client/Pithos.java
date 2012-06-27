@@ -55,10 +55,13 @@ import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.http.HttpStatus;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -76,7 +79,12 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.i18n.client.TimeZone;
+import com.google.gwt.i18n.client.TimeZoneInfo;
+import com.google.gwt.i18n.client.constants.TimeZoneConstants;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -295,6 +303,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private FileUploadDialog fileUploadDialog = new FileUploadDialog(this);
 
 	UploadAlert uploadAlert;
+	
+	Date lastModified;
 
 	@Override
 	public void onModuleLoad() {
@@ -303,6 +313,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void initialize() {
+    	lastModified = new Date(); //Initialize if-modified-since value with now.
     	resources.pithosCss().ensureInjected();
     	boolean bareContent = Window.Location.getParameter("noframe") != null;
     	String contentWidth = bareContent ? "100%" : "75%";
@@ -487,21 +498,74 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				});
             }
         });
-        
-//        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-//			
-//			@Override
-//			public boolean execute() {
-//				Folder f = getSelection();
-//				if (f != null) {
-//					if (getSelectedTree().equals(folderTreeView))
-//						updateFolder(f, true, null, false);
-//					else if (getSelectedTree().equals(mysharedTreeView))
-//						updateSharedFolder(f, true);
-//				}
-//				return true;
-//			}
-//		}, 3000);
+    }
+    
+    public void scheduleResfresh() {
+		Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				final Folder f = getSelection();
+				if (f == null)
+					return true;
+				
+		    	HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), getUsername(), "/" + f.getContainer()) {
+
+					@Override
+					public void onSuccess(Folder _result) {
+						lastModified = new Date();
+						if (getSelectedTree().equals(folderTreeView))
+							updateFolder(f, true, new Command() {
+	
+								@Override
+								public void execute() {
+									scheduleResfresh();
+								}
+								
+							}, false);
+						else if (getSelectedTree().equals(mysharedTreeView))
+							updateSharedFolder(f, true, new Command() {
+	
+								@Override
+								public void execute() {
+									scheduleResfresh();
+								}
+							});
+					}
+
+					@Override
+					public void onError(Throwable t) {
+						if (t instanceof RestException && ((RestException) t).getHttpStatusCode() == HttpStatus.SC_NOT_MODIFIED)
+							scheduleResfresh();
+						else if (retries >= MAX_RETRIES) {
+			                GWT.log("Error heading folder", t);
+							setError(t);
+			                if (t instanceof RestException)
+			                    displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
+			                else
+			                    displayError("System error heading folder: " + t.getMessage());
+		            	}
+		            	else {//retry
+		            		GWT.log("Retry " + retries);
+		            		Scheduler.get().scheduleDeferred(this);
+		            	}
+					}
+
+					@Override
+					protected void onUnauthorized(Response response) {
+						if (retries >= MAX_RETRIES)
+							sessionExpired();
+		            	else //retry
+		            		Scheduler.get().scheduleDeferred(this);
+					}
+				};
+				head.setHeader("X-Auth-Token", getToken());
+				head.setHeader("If-Modified-Since", DateTimeFormat.getFormat("EEE, dd MMM yyyy HH:mm:ss").format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
+				Scheduler.get().scheduleDeferred(head);
+				
+				return false;
+			}
+		}, 3000);
     }
 
     public void applyPermissions(Folder f) {
@@ -803,12 +867,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public static native void preventIESelection() /*-{
-		$doc.body.onselectstart = function () { return false; };
+		$doc.body.onselectstart = function() {
+			return false;
+		};
 	}-*/;
 
 	public static native void enableIESelection() /*-{
 		if ($doc.body.onselectstart != null)
-		$doc.body.onselectstart = null;
+			$doc.body.onselectstart = null;
 	}-*/;
 
 	/**
@@ -1217,6 +1283,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
 				trees.insert(otherSharedTreeView, 1);
 				treeViews.add(otherSharedTreeView);
+				scheduleResfresh();
 			}
 		});
 	}
