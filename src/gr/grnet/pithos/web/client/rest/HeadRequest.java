@@ -49,6 +49,10 @@ import com.google.gwt.http.client.Response;
 
 public abstract class HeadRequest<T extends Resource> implements ScheduledCommand {
 
+	protected static final int MAX_RETRIES = 3; 
+
+	protected int retries = 0; 
+
 	protected Class<T> aClass;
 
     private String api;
@@ -125,6 +129,7 @@ public abstract class HeadRequest<T extends Resource> implements ScheduledComman
 					HeadRequest.this.onUnauthorized(response);
 				}
             });
+            retries++;
         }
         catch (RequestException e) {
         }
