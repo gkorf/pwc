@@ -999,42 +999,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void copyFolder(final Folder f, final String targetUsername, final String targetUri, final Command callback) {
-        String path = targetUri + "/" + f.getName();
-        PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
+        String path = targetUri + "/" + f.getName() + "?delimiter=/";
+        PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
-            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
-
-					@Override
-					public void onSuccess(final Folder _f) {
-		                Iterator<File> iter = _f.getFiles().iterator();
-		                copyFiles(iter, targetUsername, targetUri + "/" + _f.getName(), new Command() {
-		                    @Override
-		                    public void execute() {
-		                        Iterator<Folder> iterf = _f.getSubfolders().iterator();
-		                        copySubfolders(iterf, targetUsername, targetUri + "/" + _f.getName(), callback);
-		                    }
-		                });
-					}
-
-					@Override
-					public void onError(Throwable t) {
-		                GWT.log("", t);
-						setError(t);
-		                if (t instanceof RestException) {
-		                    displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
-		                }
-		                else
-		                    displayError("System error getting folder: " + t.getMessage());
-					}
-
-					@Override
-					protected void onUnauthorized(Response response) {
-						sessionExpired();
-					}
-				};
-				getFolder.setHeader("X-Auth-Token", getToken());
-				Scheduler.get().scheduleDeferred(getFolder);
+            	if (callback != null)
+            		callback.execute();
             }
 
             @Override
@@ -1042,10 +1012,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 GWT.log("", t);
 				setError(t);
                if (t instanceof RestException) {
-                    displayError("Unable to create folder: " + ((RestException) t).getHttpStatusText());
+                    displayError("Unable to copy folder: " + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    displayError("System error creating folder: " + t.getMessage());
+                    displayError("System error copying folder: " + t.getMessage());
             }
 
 			@Override
@@ -1053,11 +1023,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				sessionExpired();
 			}
         };
-        createFolder.setHeader("X-Auth-Token", getToken());
-        createFolder.setHeader("Accept", "*/*");
-        createFolder.setHeader("Content-Length", "0");
-        createFolder.setHeader("Content-Type", "application/folder");
-        Scheduler.get().scheduleDeferred(createFolder);
+        copyFolder.setHeader("X-Auth-Token", getToken());
+        copyFolder.setHeader("Accept", "*/*");
+        copyFolder.setHeader("Content-Length", "0");
+        copyFolder.setHeader("Content-Type", "application/directory");
+        if (!f.getOwner().equals(targetUsername))
+        	copyFolder.setHeader("X-Source-Account", f.getOwner());
+        copyFolder.setHeader("X-Copy-From", URL.encodePathSegment(f.getUri()));
+        Scheduler.get().scheduleDeferred(copyFolder);
     }
     
     public void addSelectionModel(@SuppressWarnings("rawtypes") SingleSelectionModel model) {
