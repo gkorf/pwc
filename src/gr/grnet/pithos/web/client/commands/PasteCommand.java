@@ -76,7 +76,8 @@ public class PasteCommand implements Command {
         if (clipboardItem instanceof Folder) {
             final Folder tobeCopied = (Folder) clipboardItem;
             if (operation == Clipboard.COPY) {
-                app.copyFolder(tobeCopied, folder.getOwner(), folder.getUri(), new Command() {
+            	String targetUri = folder.getUri() + "/" + tobeCopied.getName();
+                app.copyFolder(tobeCopied, folder.getOwner(), targetUri, false, new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -91,11 +92,11 @@ public class PasteCommand implements Command {
                 });
             }
             else {
-                app.copyFolder(tobeCopied, folder.getOwner(), folder.getUri(), new Command() {
+            	String targetUri = folder.getUri() + "/" + tobeCopied.getName();
+                app.copyFolder(tobeCopied, folder.getOwner(), targetUri, true, new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
-                        app.deleteFolder(tobeCopied, null);
                         app.updateFolder(folder, true, null, true);
                     }
                 });

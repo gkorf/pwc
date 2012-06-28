@@ -120,103 +120,10 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-        String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
-        PutRequest createFolder = new PutRequest(app.getApiPath(), app.getUsername(), path) {
-            @Override
-            public void onSuccess(Resource result) {
-            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
-
-					@Override
-					public void onSuccess(final Folder _f) {
-					    Iterator<File> iter = _f.getFiles().iterator();
-					    trashFiles(iter, new Command() {
-					        @Override
-					        public void execute() {
-					            Iterator<Folder> iterf = _f.getSubfolders().iterator();
-					            trashSubfolders(iterf, new Command() {
-									
-									@Override
-									public void execute() {
-										DeleteRequest deleteFolder = new DeleteRequest(app.getApiPath(), _f.getOwner(), URL.encode(_f.getUri())) {
-											
-											@Override
-											public void onSuccess(Resource _result) {
-												if (callback != null)
-													callback.execute();
-											}
-											
-											@Override
-											public void onError(Throwable t) {
-							                    GWT.log("", t);
-												app.setError(t);
-							                    if (t instanceof RestException) {
-							                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND)
-							                    		onSuccess(null);
-							                    	else
-							                    		app.displayError("Unable to delete folder: " + ((RestException) t).getHttpStatusText());
-							                    }
-							                    else
-							                        app.displayError("System error unable to delete folder: "+t.getMessage());
-											}
-
-											@Override
-											protected void onUnauthorized(Response response) {
-												app.sessionExpired();
-											}
-										};
-										deleteFolder.setHeader("X-Auth-Token", app.getToken());
-										Scheduler.get().scheduleDeferred(deleteFolder);
-									}
-								});
-					        }
-					    });
-					}
-
-					@Override
-					public void onError(Throwable t) {
-		                GWT.log("", t);
-						app.setError(t);
-		                if (t instanceof RestException) {
-		                    app.displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
-		                }
-		                else
-		                    app.displayError("System error getting folder: " + t.getMessage());
-					}
-
-					@Override
-					protected void onUnauthorized(Response response) {
-						app.sessionExpired();
-					}
-				};
-				getFolder.setHeader("X-Auth-Token", app.getToken());
-				Scheduler.get().scheduleDeferred(getFolder);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                GWT.log("", t);
-				app.setError(t);
-                if (t instanceof RestException) {
-                    app.displayError("Unable to create folder:" + ((RestException) t).getHttpStatusText());
-                }
-                else
-                    app.displayError("System error creating folder:" + t.getMessage());
-            }
-
-			@Override
-			protected void onUnauthorized(Response response) {
-				app.sessionExpired();
-			}
-        };
-        createFolder.setHeader("X-Auth-Token", app.getToken());
-        createFolder.setHeader("Accept", "*/*");
-        createFolder.setHeader("Content-Length", "0");
-        createFolder.setHeader("Content-Type", "application/folder");
-        Scheduler.get().scheduleDeferred(createFolder);
+    	String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
+    	app.copyFolder(f, app.getUsername(), path, true, callback);
     }
-
-
-    
+  
     protected void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();

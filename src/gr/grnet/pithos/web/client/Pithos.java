@@ -982,24 +982,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    public void copySubfolders(final Iterator<Folder> iter, final String targetUsername, final String targetUri, final Command callback) {
-        if (iter.hasNext()) {
-            final Folder f = iter.next();
-            copyFolder(f, targetUsername, targetUri, new Command() {
-				
-				@Override
-				public void execute() {
-					copySubfolders(iter, targetUsername, targetUri, callback);
-				}
-			});
-        }
-        else  if (callback != null) {
-            callback.execute();
-        }
-    }
-
-    public void copyFolder(final Folder f, final String targetUsername, final String targetUri, final Command callback) {
-        String path = targetUri + "/" + f.getName() + "?delimiter=/";
+    public void copyFolder(final Folder f, final String targetUsername, final String targetUri, boolean move, final Command callback) {
+        String path = targetUri + "?delimiter=/";
         PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
@@ -1029,7 +1013,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         copyFolder.setHeader("Content-Type", "application/directory");
         if (!f.getOwner().equals(targetUsername))
         	copyFolder.setHeader("X-Source-Account", f.getOwner());
-        copyFolder.setHeader("X-Copy-From", URL.encodePathSegment(f.getUri()));
+        if (move)
+            copyFolder.setHeader("X-Move-From", URL.encodePathSegment(f.getUri()));
+        else
+        	copyFolder.setHeader("X-Copy-From", URL.encodePathSegment(f.getUri()));
         Scheduler.get().scheduleDeferred(copyFolder);
     }
     
