@@ -98,6 +98,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Button;
@@ -900,11 +901,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     public void deleteFolder(final Folder folder, final Command callback) {
+    	final PleaseWaitPopup pwp = new PleaseWaitPopup();
+    	pwp.center();
         String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
         DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
 			
 			@Override
 			protected void onUnauthorized(Response response) {
+				pwp.hide();
 				sessionExpired();
 			}
 			
@@ -918,6 +922,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 						updateStatistics();
 						if (callback != null)
 							callback.execute();
+						Timer t = new Timer() {
+							
+							@Override
+							public void run() {
+								pwp.hide();
+							}
+						};
+						t.schedule(5000);
 					}
 				}, true);
 			}
@@ -934,6 +946,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
                 else
                     displayError("System error unable to delete folder: " + t.getMessage());
+				pwp.hide();
 			}
 		};
 		deleteFolder.setHeader("X-Auth-Token", getToken());
