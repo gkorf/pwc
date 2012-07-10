@@ -55,14 +55,17 @@ import com.google.gwt.user.client.ui.PopupPanel;
 /**
  * Command to empty trash bin.
  */
-public class EmptyTrashCommand implements Command{
+public class EmptyContainerCommand implements Command{
 	private PopupPanel containerPanel;
 
     Pithos app;
+    
+    Folder container;
 
-	public EmptyTrashCommand(Pithos _app, PopupPanel _containerPanel){
+	public EmptyContainerCommand(Pithos _app, PopupPanel _containerPanel, Folder _container){
         app = _app;
 		containerPanel = _containerPanel;
+		container = _container;
 	}
 
 	@Override
@@ -70,6 +73,6 @@ public class EmptyTrashCommand implements Command{
 		if (containerPanel != null)
 			containerPanel.hide();
 		
-		app.emptyTrash();
+		app.emptyContainer(container);
 	}
 }

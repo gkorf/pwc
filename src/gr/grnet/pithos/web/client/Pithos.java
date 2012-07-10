@@ -1342,8 +1342,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		fileList.selectByUrl(selectedUrls);
 	}
 	
-	public void emptyTrash() {
-		DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), "/trash?delimiter=/") {
+	public void emptyContainer(final Folder container) {
+		String path = "/" + container.getName() + "?delimiter=/";
+		DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), path) {
 			
 			@Override
 			protected void onUnauthorized(Response response) {
@@ -1352,7 +1353,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			
 			@Override
 			public void onSuccess(Resource result) {
-				updateTrash(true, null);
+				updateFolder(container, true, null, true);
 			}
 			
 			@Override

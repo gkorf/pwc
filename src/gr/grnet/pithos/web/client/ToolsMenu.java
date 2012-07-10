@@ -40,7 +40,7 @@ import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
 import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
-import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
+import gr.grnet.pithos.web.client.commands.EmptyContainerCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
@@ -201,6 +201,11 @@ public class ToolsMenu extends PopupPanel {
 						}));
 			        	empty = false;
 			        }
+			        if (isFolderTreeSelected && folder.isContainer()) {
+		    			MenuItem emptyContainer = new MenuItem("<span>Empty Container</span>", true, new EmptyContainerCommand(app, this, folder));
+		    			contextMenu.addItem(emptyContainer);
+			        	empty = false;
+			        }
 	        	}
 	        }
 	        else {
@@ -217,7 +222,7 @@ public class ToolsMenu extends PopupPanel {
 		        	empty = false;
 	        	}
 	        	else {
-	    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(app, this));
+	    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyContainerCommand(app, this, folder));
 	    			contextMenu.addItem(emptyTrash);
 		        	empty = false;
 	        	}
