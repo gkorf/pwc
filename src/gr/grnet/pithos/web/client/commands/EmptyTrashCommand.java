@@ -70,6 +70,6 @@ public class EmptyTrashCommand implements Command{
 		if (containerPanel != null)
 			containerPanel.hide();
 		
-		app.deleteAndCreateTrash();
+		app.emptyTrash();
 	}
 }
