@@ -40,6 +40,7 @@ import gr.grnet.pithos.web.client.foldertree.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -51,7 +52,12 @@ import com.google.gwt.http.client.Response;
  * Templates.
  */
 public abstract class DeleteRequest implements ScheduledCommand {
-    private String api;
+	
+	protected static final int MAX_RETRIES = 3; 
+
+	protected int retries = 0; 
+
+	private String api;
 
     protected String owner;
 
@@ -89,14 +95,21 @@ public abstract class DeleteRequest implements ScheduledCommand {
 
                 @Override
                 public void onError(Request request, Throwable throwable) {
-                    DeleteRequest.this.onError(throwable);
+                	if (retries >= MAX_RETRIES)
+                		DeleteRequest.this.onError(throwable);
+                	else
+                		Scheduler.get().scheduleDeferred(DeleteRequest.this);
                 }
 
 				@Override
 				public void onUnauthorized(Response response) {
-					DeleteRequest.this.onUnauthorized(response);
+                	if (retries >= MAX_RETRIES)
+                		DeleteRequest.this.onUnauthorized(response);
+                	else
+                		Scheduler.get().scheduleDeferred(DeleteRequest.this);
 				}
             });
+            retries++;
         }
         catch (RequestException e) {
         }

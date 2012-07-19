@@ -299,57 +299,19 @@ public class FolderPropertiesDialog extends DialogBox {
         	return;
         if (!folder.isContainer() && !folder.getName().equals(newName)) {
             final String path = folder.getParent().getUri() + "/" + newName;
-            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
-                @Override
-                public void onSuccess(Resource result) {
-                    Iterator<File> iter = folder.getFiles().iterator();
-                    app.copyFiles(iter, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
-                        @Override
-                        public void execute() {
-                            Iterator<Folder> iterf = folder.getSubfolders().iterator();
-                            app.copySubfolders(iterf, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
-                                @Override
-                                public void execute() {
-                                    app.deleteFolder(folder, new Command() {
-										
-										@Override
-										public void execute() {
-		                                    app.updateFolder(folder.getParent(), false, new Command() {
-		                            			
-		                            			@Override
-		                            			public void execute() {
-		                            				app.updateMySharedRoot();
-		                            			}
-		                            		}, true);
-										}
-									});
-                                }
-                            });
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    GWT.log("", t);
-					app.setError(t);
-                    if(t instanceof RestException){
-                        app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
-                    }
-                    else
-                        app.displayError("System error modifying folder: " + t.getMessage());
-                }
-
+            app.copyFolder(folder, folder.getOwner(), path, true, new Command() {
+				
 				@Override
-				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
+				public void execute() {
+                    app.updateFolder(folder.getParent(), false, new Command() {
+            			
+            			@Override
+            			public void execute() {
+            				app.updateMySharedRoot();
+            			}
+            		}, true);
 				}
-            };
-            newFolder.setHeader("X-Auth-Token", app.getToken());
-            newFolder.setHeader("Content-Type", "application/folder");
-            newFolder.setHeader("Accept", "*/*");
-            newFolder.setHeader("Content-Length", "0");
-            Scheduler.get().scheduleDeferred(newFolder);
+			});
         }
         else
             app.updateFolder(folder.getParent(), false, new Command() {

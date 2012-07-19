@@ -152,6 +152,7 @@ public class DeleteFileDialog extends DialogBox {
                     }
                     else
                         app.displayError("System error unable to delete file: "+t.getMessage());
+                    deleteFile(iter);
                 }
 
 				@Override

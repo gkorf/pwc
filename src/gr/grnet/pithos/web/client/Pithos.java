@@ -55,10 +55,13 @@ import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.http.HttpStatus;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -70,18 +73,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.i18n.client.TimeZone;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
@@ -295,6 +291,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private FileUploadDialog fileUploadDialog = new FileUploadDialog(this);
 
 	UploadAlert uploadAlert;
+	
+	Date lastModified;
 
 	@Override
 	public void onModuleLoad() {
@@ -303,6 +301,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     private void initialize() {
+    	lastModified = new Date(); //Initialize if-modified-since value with now.
     	resources.pithosCss().ensureInjected();
     	boolean bareContent = Window.Location.getParameter("noframe") != null;
     	String contentWidth = bareContent ? "100%" : "75%";
@@ -487,19 +486,72 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				});
             }
         });
-        
-        Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+    }
+    
+    public void scheduleResfresh() {
+		Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
 			
 			@Override
 			public boolean execute() {
-				Folder f = getSelection();
-				if (f != null) {
-					if (getSelectedTree().equals(folderTreeView))
-						updateFolder(f, true, null, false);
-					else if (getSelectedTree().equals(mysharedTreeView))
-						updateSharedFolder(f, true);
-				}
-				return true;
+				final Folder f = getSelection();
+				if (f == null)
+					return true;
+				
+		    	HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), getUsername(), "/" + f.getContainer()) {
+
+					@Override
+					public void onSuccess(Folder _result) {
+						lastModified = new Date();
+						if (getSelectedTree().equals(folderTreeView))
+							updateFolder(f, true, new Command() {
+	
+								@Override
+								public void execute() {
+									scheduleResfresh();
+								}
+								
+							}, false);
+						else if (getSelectedTree().equals(mysharedTreeView))
+							updateSharedFolder(f, true, new Command() {
+	
+								@Override
+								public void execute() {
+									scheduleResfresh();
+								}
+							});
+					}
+
+					@Override
+					public void onError(Throwable t) {
+						if (t instanceof RestException && ((RestException) t).getHttpStatusCode() == HttpStatus.SC_NOT_MODIFIED)
+							scheduleResfresh();
+						else if (retries >= MAX_RETRIES) {
+			                GWT.log("Error heading folder", t);
+							setError(t);
+			                if (t instanceof RestException)
+			                    displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
+			                else
+			                    displayError("System error heading folder: " + t.getMessage());
+		            	}
+		            	else {//retry
+		            		GWT.log("Retry " + retries);
+		            		Scheduler.get().scheduleDeferred(this);
+		            	}
+					}
+
+					@Override
+					protected void onUnauthorized(Response response) {
+						if (retries >= MAX_RETRIES)
+							sessionExpired();
+		            	else //retry
+		            		Scheduler.get().scheduleDeferred(this);
+					}
+				};
+				head.setHeader("X-Auth-Token", getToken());
+				head.setHeader("If-Modified-Since", DateTimeFormat.getFormat("EEE, dd MMM yyyy HH:mm:ss").format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
+				Scheduler.get().scheduleDeferred(head);
+				
+				return false;
 			}
 		}, 3000);
     }
@@ -803,12 +855,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
 	public static native void preventIESelection() /*-{
-		$doc.body.onselectstart = function () { return false; };
+		$doc.body.onselectstart = function() {
+			return false;
+		};
 	}-*/;
 
 	public static native void enableIESelection() /*-{
 		if ($doc.body.onselectstart != null)
-		$doc.body.onselectstart = null;
+			$doc.body.onselectstart = null;
 	}-*/;
 
 	/**
@@ -834,134 +888,49 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 
     public void deleteFolder(final Folder folder, final Command callback) {
-        String path = getApiPath() + folder.getOwner() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(folder.getPrefix()) + "&t=" + System.currentTimeMillis();
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-        builder.setHeader("X-Auth-Token", getToken());
-        try {
-            builder.sendRequest("", new RequestCallback() {
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == Response.SC_OK) {
-                        JSONValue json = JSONParser.parseStrict(response.getText());
-                        JSONArray array = json.isArray();
-                        int i = 0;
-                        if (array != null) {
-                            deleteObject(folder, i, array, callback);
-                        }
-                    }
+    	final PleaseWaitPopup pwp = new PleaseWaitPopup();
+    	pwp.center();
+        String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
+        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
+			
+			@Override
+			protected void onUnauthorized(Response response) {
+				pwp.hide();
+				sessionExpired();
+			}
+			
+			@Override
+			public void onSuccess(Resource result) {
+                updateFolder(folder.getParent(), true, new Command() {
+					
+					@Override
+					public void execute() {
+						folderTreeSelectionModel.setSelected(folder.getParent(), true);
+						updateStatistics();
+						if (callback != null)
+							callback.execute();
+						pwp.hide();
+					}
+				}, true);
+			}
+			
+			@Override
+			public void onError(Throwable t) {
+                GWT.log("", t);
+				setError(t);
+                if (t instanceof RestException) {
+                	if (((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND)
+                		displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
+                	else
+                		onSuccess(null);
                 }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                	setError(exception);
-                    displayError("System error unable to delete folder: " + exception.getMessage());
-                }
-            });
-        }
-        catch (RequestException e) {
-        }
-    }
-
-    void deleteObject(final Folder folder, final int i, final JSONArray array, final Command callback) {
-        if (i < array.size()) {
-            JSONObject o = array.get(i).isObject();
-            if (o != null && !o.containsKey("subdir")) {
-                JSONString name = o.get("name").isString();
-                String path = "/" + folder.getContainer() + "/" + name.stringValue();
-                DeleteRequest delete = new DeleteRequest(getApiPath(), folder.getOwner(), URL.encode(path)) {
-                    @Override
-                    public void onSuccess(Resource result) {
-                        deleteObject(folder, i + 1, array, callback);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        GWT.log("", t);
-						setError(t);
-                        displayError("System error unable to delete folder: " + t.getMessage());
-                    }
-
-    				@Override
-    				protected void onUnauthorized(Response response) {
-    					sessionExpired();
-    				}
-                };
-                delete.setHeader("X-Auth-Token", getToken());
-                Scheduler.get().scheduleDeferred(delete);
-            }
-            else if (o != null) {
-                String subdir = o.get("subdir").isString().stringValue();
-                subdir = subdir.substring(0, subdir.length() - 1);
-                String path = getApiPath() + getUsername() + "/" + folder.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(subdir) + "&t=" + System.currentTimeMillis();
-                RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
-                builder.setHeader("X-Auth-Token", getToken());
-                try {
-                    builder.sendRequest("", new RequestCallback() {
-                        @Override
-                        public void onResponseReceived(Request request, Response response) {
-                            if (response.getStatusCode() == Response.SC_OK) {
-                                JSONValue json = JSONParser.parseStrict(response.getText());
-                                JSONArray array2 = json.isArray();
-                                if (array2 != null) {
-                                    int l = array.size();
-                                    for (int j=0; j<array2.size(); j++) {
-                                        array.set(l++, array2.get(j));
-                                    }
-                                }
-                                deleteObject(folder, i + 1, array, callback);
-                            }
-                        }
-
-                        @Override
-                        public void onError(Request request, Throwable exception) {
-                        	setError(exception);
-                            displayError("System error unable to delete folder: " + exception.getMessage());
-                        }
-                    });
-                }
-                catch (RequestException e) {
-                }
-            }
-        }
-        else {
-            String path = folder.getUri();
-            DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), getUsername(), URL.encode(path)) {
-                @Override
-                public void onSuccess(Resource result) {
-                    updateFolder(folder.getParent(), true, new Command() {
-						
-						@Override
-						public void execute() {
-							folderTreeSelectionModel.setSelected(folder.getParent(), true);
-							updateStatistics();
-							if (callback != null)
-								callback.execute();
-						}
-					}, true);
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    GWT.log("", t);
-					setError(t);
-                    if (t instanceof RestException) {
-                    	if (((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND)
-                    		displayError("Unable to delete folder: "+((RestException) t).getHttpStatusText());
-                    	else
-                    		onSuccess(null);
-                    }
-                    else
-                        displayError("System error unable to delete folder: " + t.getMessage());
-                }
-
-				@Override
-				protected void onUnauthorized(Response response) {
-					sessionExpired();
-				}
-            };
-            deleteFolder.setHeader("X-Auth-Token", getToken());
-            Scheduler.get().scheduleDeferred(deleteFolder);
-        }
+                else
+                    displayError("System error unable to delete folder: " + t.getMessage());
+				pwp.hide();
+			}
+		};
+		deleteFolder.setHeader("X-Auth-Token", getToken());
+		Scheduler.get().scheduleDeferred(deleteFolder);
     }
 
     public FolderTreeView getFolderTreeView() {
@@ -1006,59 +975,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    public void copySubfolders(final Iterator<Folder> iter, final String targetUsername, final String targetUri, final Command callback) {
-        if (iter.hasNext()) {
-            final Folder f = iter.next();
-            copyFolder(f, targetUsername, targetUri, new Command() {
-				
-				@Override
-				public void execute() {
-					copySubfolders(iter, targetUsername, targetUri, callback);
-				}
-			});
-        }
-        else  if (callback != null) {
-            callback.execute();
-        }
-    }
-
-    public void copyFolder(final Folder f, final String targetUsername, final String targetUri, final Command callback) {
-        String path = targetUri + "/" + f.getName();
-        PutRequest createFolder = new PutRequest(getApiPath(), targetUsername, path) {
+    public void copyFolder(final Folder f, final String targetUsername, final String targetUri, boolean move, final Command callback) {
+        String path = targetUri + "?delimiter=/";
+        PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
-            	GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix()), f) {
-
-					@Override
-					public void onSuccess(final Folder _f) {
-		                Iterator<File> iter = _f.getFiles().iterator();
-		                copyFiles(iter, targetUsername, targetUri + "/" + _f.getName(), new Command() {
-		                    @Override
-		                    public void execute() {
-		                        Iterator<Folder> iterf = _f.getSubfolders().iterator();
-		                        copySubfolders(iterf, targetUsername, targetUri + "/" + _f.getName(), callback);
-		                    }
-		                });
-					}
-
-					@Override
-					public void onError(Throwable t) {
-		                GWT.log("", t);
-						setError(t);
-		                if (t instanceof RestException) {
-		                    displayError("Unable to get folder: " + ((RestException) t).getHttpStatusText());
-		                }
-		                else
-		                    displayError("System error getting folder: " + t.getMessage());
-					}
-
-					@Override
-					protected void onUnauthorized(Response response) {
-						sessionExpired();
-					}
-				};
-				getFolder.setHeader("X-Auth-Token", getToken());
-				Scheduler.get().scheduleDeferred(getFolder);
+            	if (callback != null)
+            		callback.execute();
             }
 
             @Override
@@ -1066,10 +989,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 GWT.log("", t);
 				setError(t);
                if (t instanceof RestException) {
-                    displayError("Unable to create folder: " + ((RestException) t).getHttpStatusText());
+                    displayError("Unable to copy folder: " + ((RestException) t).getHttpStatusText());
                 }
                 else
-                    displayError("System error creating folder: " + t.getMessage());
+                    displayError("System error copying folder: " + t.getMessage());
             }
 
 			@Override
@@ -1077,11 +1000,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				sessionExpired();
 			}
         };
-        createFolder.setHeader("X-Auth-Token", getToken());
-        createFolder.setHeader("Accept", "*/*");
-        createFolder.setHeader("Content-Length", "0");
-        createFolder.setHeader("Content-Type", "application/folder");
-        Scheduler.get().scheduleDeferred(createFolder);
+        copyFolder.setHeader("X-Auth-Token", getToken());
+        copyFolder.setHeader("Accept", "*/*");
+        copyFolder.setHeader("Content-Length", "0");
+        copyFolder.setHeader("Content-Type", "application/directory");
+        if (!f.getOwner().equals(targetUsername))
+        	copyFolder.setHeader("X-Source-Account", f.getOwner());
+        if (move)
+            copyFolder.setHeader("X-Move-From", URL.encodePathSegment(f.getUri()));
+        else
+        	copyFolder.setHeader("X-Copy-From", URL.encodePathSegment(f.getUri()));
+        Scheduler.get().scheduleDeferred(copyFolder);
     }
     
     public void addSelectionModel(@SuppressWarnings("rawtypes") SingleSelectionModel model) {
@@ -1204,6 +1133,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 			    otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
 				trees.insert(otherSharedTreeView, 1);
 				treeViews.add(otherSharedTreeView);
+				scheduleResfresh();
 			}
 		});
 	}
@@ -1410,5 +1340,33 @@ public class Pithos implements EntryPoint, ResizeHandler {
 		for (int i=0; i<urls.length(); i++)
 			selectedUrls.add(urls.get(i));
 		fileList.selectByUrl(selectedUrls);
+	}
+	
+	public void emptyContainer(final Folder container) {
+		String path = "/" + container.getName() + "?delimiter=/";
+		DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), path) {
+			
+			@Override
+			protected void onUnauthorized(Response response) {
+				sessionExpired();
+			}
+			
+			@Override
+			public void onSuccess(Resource result) {
+				updateFolder(container, true, null, true);
+			}
+			
+			@Override
+			public void onError(Throwable t) {
+                GWT.log("Error deleting trash", t);
+				setError(t);
+                if (t instanceof RestException)
+                    displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());
+                else
+                    displayError("System error deleting trash: " + t.getMessage());
+			}
+		};
+		delete.setHeader("X-Auth-Token", getToken());
+		Scheduler.get().scheduleDeferred(delete);
 	}
 }
