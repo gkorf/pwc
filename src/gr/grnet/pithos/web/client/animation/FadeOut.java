@@ -55,10 +55,6 @@ public class FadeOut extends Animation {
 			double progress1 = 1.0 - progress;
 			currOpacity = initialOpacity*progress1;
 			DOM.setStyleAttribute(widget.getElement(), "opacity", ""+new Double(currOpacity/100d));
-			//required for ie to work
-			//Disabled because IE has bugs rendering non-opaque objects
-			//int opacityToSet = new Double(currOpacity).intValue();
-			//DOM.setStyleAttribute(widget.getElement(), "filter", "alpha(opacity="+currOpacity+")");
 		}
 	}
 

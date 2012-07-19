@@ -48,6 +48,10 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 
 public abstract class GetRequest<T extends Resource> implements ScheduledCommand {
+	
+	protected static final int MAX_RETRIES = 3; 
+
+	protected int retries = 0; 
 
 	protected Class<T> aClass;
 
@@ -123,6 +127,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
                     GetRequest.this.onUnauthorized(response);
 				}
             });
+            retries++;
         }
         catch (RequestException e) {
         }

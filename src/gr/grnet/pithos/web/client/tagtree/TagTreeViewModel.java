@@ -114,7 +114,6 @@ public class TagTreeViewModel implements TreeViewModel {
             }), null, null);
         }
         else if (value instanceof String) {
-            //fetchAllTags();
             return new DefaultNodeInfo<Tag>(tagDataProvider, tagCell, selectionModel, null);
         }
         else

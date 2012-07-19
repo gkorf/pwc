@@ -34,22 +34,45 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
+import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.Iterator;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 
-public class ResreshOthersSharesCommand implements Command{
+/**
+ * Command to empty trash bin.
+ */
+public class EmptyContainerCommand implements Command{
 	private PopupPanel containerPanel;
 
-	public ResreshOthersSharesCommand(PopupPanel _containerPanel){
+    Pithos app;
+    
+    Folder container;
+
+	public EmptyContainerCommand(Pithos _app, PopupPanel _containerPanel, Folder _container){
+        app = _app;
 		containerPanel = _containerPanel;
+		container = _container;
 	}
 
 	@Override
 	public void execute() {
-		containerPanel.hide();
-		//TODO:CELLTREE
-		//app.getFolders().update( app.getFolders().getCurrent());
+		if (containerPanel != null)
+			containerPanel.hide();
+		
+		app.emptyContainer(container);
 	}
-
 }

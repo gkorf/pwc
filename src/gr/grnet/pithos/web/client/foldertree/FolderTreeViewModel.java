@@ -130,8 +130,6 @@ public class FolderTreeViewModel implements TreeViewModel {
 		}
 		final ListDataProvider<Folder> dataProvider = dataProviderMap.get(f);
 		//This prevents the loading indicator
-//		dataProvider.getList().clear();
-//		dataProvider.getList().addAll(f.getSubfolders());
 		fetchFolder(f, dataProvider, false, null);
 		return new DefaultNodeInfo<Folder>(dataProvider, folderCell, selectionModel, null);
     }
@@ -162,17 +160,26 @@ public class FolderTreeViewModel implements TreeViewModel {
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("Error getting folder", t);
-					app.setError(t);
-                    if (t instanceof RestException)
-                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                    else
-                        app.displayError("System error fetching folder: " + t.getMessage());
+                	if (retries >= MAX_RETRIES) {
+	                    GWT.log("Error getting folder", t);
+						app.setError(t);
+	                    if (t instanceof RestException)
+	                        app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+	                    else
+	                        app.displayError("System error fetching folder: " + t.getMessage());
+                	}
+                	else {//retry
+                		GWT.log("Retry " + retries);
+                		Scheduler.get().scheduleDeferred(this);
+                	}
                 }
 
 				@Override
 				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
+					if (retries >= MAX_RETRIES)
+						app.sessionExpired();
+	            	else //retry
+	            		Scheduler.get().scheduleDeferred(this);
 				}
             };
             getFolder.setHeader("X-Auth-Token", app.getToken());
@@ -234,6 +241,10 @@ public class FolderTreeViewModel implements TreeViewModel {
             public void onSuccess(final Folder _result) {
                 if (showfiles)
                     app.showFiles(_result);
+                int defaultSize = app.getFolderTreeView().tree.getDefaultNodeSize();
+                int size = _result.getSubfolders().size();
+                if (size > defaultSize)
+                	app.getFolderTreeView().tree.setDefaultNodeSize(size);
                 Iterator<Folder> iter = new ArrayList<Folder>(_result.getSubfolders()).listIterator();
                 fetchFolder(iter, new Command() {
                     @Override
@@ -248,17 +259,26 @@ public class FolderTreeViewModel implements TreeViewModel {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error getting folder", t);
-				app.setError(t);
-                if (t instanceof RestException)
-                    app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
-                else
-                    app.displayError("System error fetching folder: " + t.getMessage());
+            	if (retries >= MAX_RETRIES) {
+	                GWT.log("Error getting folder", t);
+					app.setError(t);
+	                if (t instanceof RestException)
+	                    app.displayError("Error getting folder: " + ((RestException) t).getHttpStatusText());
+	                else
+	                    app.displayError("System error fetching folder: " + t.getMessage());
+            	}
+            	else {//retry
+            		GWT.log("Retry " + retries);
+            		Scheduler.get().scheduleDeferred(this);
+            	}
             }
 
 			@Override
 			protected void onUnauthorized(Response response) {
-				app.sessionExpired();
+				if (retries >= MAX_RETRIES)
+					app.sessionExpired();
+            	else //retry
+            		Scheduler.get().scheduleDeferred(this);
 			}
         };
         getFolder.setHeader("X-Auth-Token", app.getToken());

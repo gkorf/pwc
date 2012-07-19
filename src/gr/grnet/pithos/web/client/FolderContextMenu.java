@@ -37,7 +37,7 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.commands.CopyCommand;
 import gr.grnet.pithos.web.client.commands.CutCommand;
 import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.EmptyTrashCommand;
+import gr.grnet.pithos.web.client.commands.EmptyContainerCommand;
 import gr.grnet.pithos.web.client.commands.NewFolderCommand;
 import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
@@ -135,6 +135,11 @@ public class FolderContextMenu extends PopupPanel {
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
 			    }
+			    
+			    if (folder.isContainer()) {
+	    			MenuItem emptyContainer = new MenuItem("<span>Empty Container</span>", true, new EmptyContainerCommand(app, this, folder));
+	    			contextMenu.addItem(emptyContainer);
+			    }
         	}
         }
         else {
@@ -146,7 +151,7 @@ public class FolderContextMenu extends PopupPanel {
 		        contextMenu.addItem(delete);
         	}
         	else {
-    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyTrashCommand(app, this));
+    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyContainerCommand(app, this, folder));
     			contextMenu.addItem(emptyTrash);
         	}
         }

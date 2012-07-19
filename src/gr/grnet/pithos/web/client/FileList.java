@@ -401,13 +401,8 @@ public class FileList extends Composite {
 		});
 		
 		celltable.setSelectionModel(selectionModel, PithosSelectionEventManager.<File> createDefaultManager());
-//		celltable.setPageSize(Pithos.VISIBLE_FILE_COUNT);
 		
 		sinkEvents(Event.ONCONTEXTMENU);
-//		sinkEvents(Event.ONMOUSEUP);
-//		sinkEvents(Event.ONMOUSEDOWN);
-//		sinkEvents(Event.ONCLICK);
-//		sinkEvents(Event.ONKEYDOWN);
 		sinkEvents(Event.ONDBLCLICK);
 		Pithos.preventIESelection();
 	}
@@ -419,27 +414,6 @@ public class FileList extends Composite {
 	@Override
 	public void onBrowserEvent(Event event) {
 
-//		if (files == null || files.size() == 0) {
-//			if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
-//				contextMenu = new FileContextMenu(images, false, true);
-//                contextMenu.show();
-//				event.preventDefault();
-//				event.cancelBubble(true);
-//			}
-//			return;
-//		}
-//		if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() != 0) {
-//			GWT.log("*****GOING TO SHOW CONTEXT MENU ****", null);
-//			contextMenu =  new FileContextMenu(images, false, false);
-//			contextMenu = contextMenu.onEvent(event);
-//			event.cancelBubble(true);
-//			event.preventDefault();
-//		} else if (DOM.eventGetType(event) == Event.ONCONTEXTMENU && getSelectedFiles().size() == 0) {
-//			contextMenu = new FileContextMenu(images, false, true);
-//			contextMenu = contextMenu.onEmptyEvent(event);
-//			event.cancelBubble(true);
-//			event.preventDefault();
-//		} else 
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);

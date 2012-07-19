@@ -215,52 +215,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
 	void updateFolder() {
         final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
-        final String newName = folderName.getText().trim();
-        if (!folder.isContainer() && !folder.getName().equals(newName)) {
-            final String path = folder.getParent().getUri() + "/" + newName;
-            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getParent().getOwner(), path) {
-                @Override
-                public void onSuccess(Resource result) {
-                    Iterator<File> iter = folder.getFiles().iterator();
-                    app.copyFiles(iter, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
-                        @Override
-                        public void execute() {
-                            Iterator<Folder> iterf = folder.getSubfolders().iterator();
-                            app.copySubfolders(iterf, folder.getParent().getOwner(), folder.getParent().getUri() + "/" + newName, new Command() {
-                                @Override
-                                public void execute() {
-                                    app.deleteFolder(folder, null);
-                                    updateMetadata(path + "?update=", perms);
-                                }
-                            });
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    GWT.log("", t);
-					app.setError(t);
-                    if(t instanceof RestException){
-                        app.displayError("Unable to update folder: " + ((RestException) t).getHttpStatusText());
-                    }
-                    else
-                        app.displayError("System error modifying folder: " + t.getMessage());
-                }
-
-				@Override
-				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
-				}
-            };
-            newFolder.setHeader("X-Auth-Token", app.getToken());
-            newFolder.setHeader("Content-Type", "application/folder");
-            newFolder.setHeader("Accept", "*/*");
-            newFolder.setHeader("Content-Length", "0");
-            Scheduler.get().scheduleDeferred(newFolder);
-        }
-        else
-            updateMetadata(folder.getUri() + "?update=", perms);
+        updateMetadata(folder.getUri() + "?update=", perms);
 	}
 
 	protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {

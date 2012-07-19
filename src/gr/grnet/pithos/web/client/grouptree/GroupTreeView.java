@@ -174,7 +174,6 @@ public class GroupTreeView extends Composite implements TreeView {
 
 	@Override
 	public Folder getSelection() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
