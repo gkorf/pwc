@@ -17,3 +17,8 @@ override_dh_auto_install:
 	mkdir -p debian/$(package)/etc/synnefo
 	-mv conf/*.conf debian/$(package)/etc/synnefo
 
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0640 debian/$(package)/etc/synnefo/*
+	chmod 0750 debian/$(package)/etc/synnefo
+	chown -R root:www-data debian/$(package)/etc/synnefo
