@@ -73,11 +73,11 @@ public class FolderTreeViewModel implements TreeViewModel {
             SafeHtml name;
         	if (folder.isHome()) {
         		html = AbstractImagePrototype.create(FolderTreeView.images.folderYellow()).getHTML();
-        		name = Templates.INSTANCE.nameSpan("Pithos");
+        		name = Templates.INSTANCE.nameSpan(folder.getName());
         	}
         	else if (folder.isTrash()) {
         		html = AbstractImagePrototype.create(FolderTreeView.images.trash()).getHTML();
-        		name = Templates.INSTANCE.nameSpan("Trash");
+        		name = Templates.INSTANCE.nameSpan(folder.getName());
         	}
             else {
             	html = AbstractImagePrototype.create(folder.isShared() ? FolderTreeView.images.myShared() : FolderTreeView.images.folderYellow()).getHTML();

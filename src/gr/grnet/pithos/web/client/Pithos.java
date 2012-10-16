@@ -778,7 +778,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	}
 	
 	native boolean isCloudbarReady()/*-{
-		if ($wnd.$("div.servicesbar") && $wnd.$("div.servicesbar").height() > 0)
+		if ($wnd.$("div.cloudbar") && $wnd.$("div.cloudbar").height() > 0)
 			return true;
 		return false;
 	}-*/;
