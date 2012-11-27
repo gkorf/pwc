@@ -497,7 +497,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 				if (f == null)
 					return true;
 				
-		    	HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), getUsername(), "/" + f.getContainer()) {
+		    	HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer()) {
 
 					@Override
 					public void onSuccess(Folder _result) {
@@ -519,6 +519,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 									scheduleResfresh();
 								}
 							});
+						else
+							scheduleResfresh();
 					}
 
 					@Override
@@ -1218,6 +1220,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
 	                        newFolder.setHeader("Accept", "*/*");
 	                        newFolder.setHeader("Content-Length", "0");
 	                        Scheduler.get().scheduleDeferred(newFolder);
+			        	}
+			        	else if (((RestException) t).getHttpStatusCode() == Response.SC_FORBIDDEN) {
+			        		onSuccess(folder);
 			        	}
 			        	else
 			        		displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
