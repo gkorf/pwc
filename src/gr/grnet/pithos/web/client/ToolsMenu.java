@@ -92,7 +92,6 @@ public class ToolsMenu extends PopupPanel {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
-		setAnimationEnabled(true);
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
 

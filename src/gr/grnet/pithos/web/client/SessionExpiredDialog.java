@@ -55,7 +55,6 @@ public class SessionExpiredDialog extends DialogBox {
         app = _app;
 		// Set the dialog's caption.
 		setText("Session Expired");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

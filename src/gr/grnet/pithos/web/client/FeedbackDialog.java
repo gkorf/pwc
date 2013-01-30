@@ -90,7 +90,6 @@ public class FeedbackDialog extends DialogBox {
 			}
 		});
 		setText("Send feedback");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		
 		setStyleName("pithos-DialogBox");

@@ -105,7 +105,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("File versions");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

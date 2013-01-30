@@ -100,8 +100,6 @@ public class FileUploadDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("File upload");
-		setAnimationEnabled(true);
-//		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		setVisible(false);
 		

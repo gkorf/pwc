@@ -93,7 +93,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("File properties");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

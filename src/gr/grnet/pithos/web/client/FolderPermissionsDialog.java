@@ -97,7 +97,6 @@ public class FolderPermissionsDialog extends DialogBox {
 			}
 		});
 
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

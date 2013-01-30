@@ -101,7 +101,6 @@ public class FolderPropertiesDialog extends DialogBox {
 			}
 		});
 
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

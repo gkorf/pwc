@@ -73,7 +73,6 @@ public class CredentialsDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("User Credentials");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		// A VerticalPanel that contains the 'about' label and the 'OK' button.

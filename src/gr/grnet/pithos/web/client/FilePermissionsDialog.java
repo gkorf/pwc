@@ -114,7 +114,6 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("File permissions");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

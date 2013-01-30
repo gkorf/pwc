@@ -114,7 +114,6 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("Publish/Un-publish");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 

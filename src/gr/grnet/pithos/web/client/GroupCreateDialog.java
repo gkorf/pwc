@@ -90,7 +90,6 @@ public class GroupCreateDialog extends DialogBox {
 			}
 		});
 
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
