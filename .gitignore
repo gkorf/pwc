@@ -14,3 +14,7 @@ gwt-unitCache
 docs/build
 pithos-web-client.sublime-project
 pithos-web-client.sublime-workspace
+.ant_targets
+.DS_Store
+out
+__gitstats
