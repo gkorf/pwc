@@ -36,6 +36,10 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
         this(app, Helpers.toList(userID), null);
     }
 
+    public GetUserCatalogs(Pithos app, List<String> ids) {
+        this(app, ids, null);
+    }
+
     public GetUserCatalogs(Pithos app, List<String> ids, List<String> names) {
         assert app != null;
 

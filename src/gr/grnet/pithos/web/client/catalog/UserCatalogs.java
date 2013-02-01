@@ -49,12 +49,16 @@ public class UserCatalogs implements Iterable<Map.Entry<String, String>>{
         return id2name.containsKey(id);
     }
 
-    public boolean hasName(String email) {
-        return name2id.containsKey(email);
+    public boolean hasName(String name) {
+        return name2id.containsKey(name);
     }
 
     public String getDisplayName(String id) {
         return id2name.get(id);
+    }
+
+    public String getUserID(String name) {
+        return name2id.get(name);
     }
 
     @Override

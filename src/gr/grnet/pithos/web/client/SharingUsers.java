@@ -35,6 +35,7 @@
 package gr.grnet.pithos.web.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +46,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 
 public class SharingUsers extends Resource {
-	private List<String> users;
+	private List<String> userIDs;
 
 	public static SharingUsers createFromResponse(Response response, SharingUsers result) {
 		SharingUsers u;
@@ -58,21 +59,21 @@ public class SharingUsers extends Resource {
 	}
 
 	private void populate(Response response) {
-		users = new ArrayList<String>();
+		userIDs = new ArrayList<String>();
         JSONValue json = JSONParser.parseStrict(response.getText());
         JSONArray array = json.isArray();
         if (array != null) {
             for (int i=0; i<array.size(); i++) {
                 JSONObject o = array.get(i).isObject();
                 if (o != null) {
-                	users.add(unmarshallString(o, "name"));
+                	userIDs.add(unmarshallString(o, "name"));
                 }
             }
         }
 	}
 
-	public List<String> getUsers() {
-		return users;
+	public List<String> getUserIDs() {
+		return Collections.unmodifiableList(userIDs);
 	}
 
 	@Override

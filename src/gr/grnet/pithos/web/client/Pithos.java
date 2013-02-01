@@ -126,17 +126,51 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return userID;
     }
 
+    public UserCatalogs getUserCatalogs() {
+        return userCatalogs;
+    }
+
     public String getCurrentUserDisplayNameOrID() {
         final String displayName = userCatalogs.getDisplayName(getUserID());
         return displayName == null ? getUserID() : displayName;
     }
 
-    public boolean hasUserDisplayNameForID(String id) {
-        return userCatalogs.getDisplayName(id) != null;
+    public boolean hasUserDisplayNameForID(String userID) {
+        return userCatalogs.getDisplayName(userID) != null;
     }
 
-    public String getUserDisplayNameByID(String id) {
-        return userCatalogs.getDisplayName(id);
+    public String getUserDisplayNameForID(String userID) {
+        return userCatalogs.getDisplayName(userID);
+    }
+
+    public String getUserIDForDisplayName(String displayName) {
+        return userCatalogs.getUserID(displayName);
+    }
+
+    public List<String> getUserDisplayNamesForIDs(List<String> userIDs) {
+        if(userIDs == null) {
+            userIDs = new ArrayList<String>();
+        }
+        final List<String> userDisplayNames = new ArrayList<String>();
+        for(String userID : userIDs) {
+            final String displayName = getUserDisplayNameForID(userID);
+            userDisplayNames.add(displayName);
+        }
+
+        return userDisplayNames;
+    }
+
+    public List<String> filterUserIDsWithUnknownDisplayName(Collection<String> userIDs) {
+        if(userIDs == null) {
+            userIDs = new ArrayList<String>();
+        }
+        final List<String> filtered = new ArrayList<String>();
+        for(String userID : userIDs) {
+            if(!this.userCatalogs.hasID(userID)) {
+                filtered.add(userID);
+            }
+        }
+        return filtered;
     }
 
     public void setAccount(AccountResource acct) {
