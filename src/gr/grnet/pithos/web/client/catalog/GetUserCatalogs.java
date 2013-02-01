@@ -43,6 +43,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
     public GetUserCatalogs(Pithos app, List<String> ids, List<String> names) {
         assert app != null;
 
+        // FIXME: Probably use Window.Location.getHost()
         // https://server.com/v1/ --> https://server.com
         String path = app.getApiPath();
         path = Helpers.stripTrailing(path, "/");
