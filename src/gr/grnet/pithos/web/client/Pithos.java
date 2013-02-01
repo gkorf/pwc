@@ -126,6 +126,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return userID;
     }
 
+    public String getUserDisplayName() {
+        final String displayName = userCatalogs.getDisplayName(getUserID());
+        return displayName == null ? getUserID() : displayName;
+    }
+
     public void setAccount(AccountResource acct) {
         account = acct;
     }

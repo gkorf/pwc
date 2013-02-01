@@ -53,6 +53,10 @@ public class UserCatalogs implements Iterable<Map.Entry<String, String>>{
         return name2id.containsKey(email);
     }
 
+    public String getDisplayName(String id) {
+        return id2name.get(id);
+    }
+
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return id2name.entrySet().iterator();
