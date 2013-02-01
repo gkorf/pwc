@@ -47,6 +47,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
+import gr.grnet.pithos.web.client.Resource;
 
 public class File extends Resource {
     private String name;

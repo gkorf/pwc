@@ -44,11 +44,13 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.TimeZone;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
@@ -58,6 +60,8 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
+import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.*;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -118,8 +122,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
      */
     static Images images = (Images) GWT.create(Images.class);
 
-    public String getUsername() {
-        return username;
+    public String getUserID() {
+        return userID;
     }
 
     public void setAccount(AccountResource acct) {
@@ -218,12 +222,21 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public HashMap<String, String> userFullNameMap = new HashMap<String, String>();
 
-    private String username = null;
+    /**
+     * The ID that uniquely identifies the user in Pithos+.
+     * Currently this is a UUID. It used to be the user's email.
+     */
+    private String userID = null;
+
+    /**
+     * Hold mappings from user UUIDs to emails and vice-versa.
+     */
+    private UserCatalogs userCatalogs = new UserCatalogs();
 
     /**
      * The authentication token of the current user.
      */
-    private String token;
+    private String userToken;
 
     VerticalPanel trees;
 
@@ -272,6 +285,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     private void initialize() {
+        System.out.println("initialize(), userToken = " + userToken);
         lastModified = new Date(); //Initialize if-modified-since value with now.
         resources.pithosCss().ensureInjected();
         boolean bareContent = Window.Location.getParameter("noframe") != null;
@@ -539,7 +553,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         }
                     }
                 };
-                head.setHeader("X-Auth-Token", getToken());
+                head.setHeader("X-Auth-Token", getUserToken());
                 head.setHeader("If-Modified-Since", DateTimeFormat.getFormat("EEE, dd MMM yyyy HH:mm:ss").format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
                 Scheduler.get().scheduleDeferred(head);
 
@@ -555,8 +569,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 disableUploadArea();
             }
             else {
-                Boolean[] perms = f.getPermissions().get(username);
-                if(f.getOwner().equals(username) || (perms != null && perms[1] != null && perms[1])) {
+                Boolean[] perms = f.getPermissions().get(userID);
+                if(f.getOwner().equals(userID) || (perms != null && perms[1] != null && perms[1])) {
                     upload.setEnabled(true);
                     enableUploadArea();
                 }
@@ -598,8 +612,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private boolean parseUserCredentials() {
         Configuration conf = (Configuration) GWT.create(Configuration.class);
         Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+        System.out.println("otherProperties = " + otherProperties);
         String cookie = otherProperties.get("authCookie");
+        System.out.println("cookie = " + cookie);
+        Cookies.setCookie(cookie, "868fbb51-94a4-477d-8da3-dadad080c861|HlPjywM5FGAncsoNDzPZ2Q==");
+//        Cookies.setCookie(cookie, "868fbb51-94a4-477d-8da3-dadad080c861%7CHlPjywM5FGAncsoNDzPZ2Q%3D%3D");
+        for(String name: Cookies.getCookieNames()) {
+            System.out.println("cookie name: " + name);
+        }
         String auth = Cookies.getCookie(cookie);
+        System.out.println("auth = " + auth);
         if(auth == null) {
             authenticateUser();
             return false;
@@ -611,18 +633,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
             auth = auth.substring(0, auth.length() - 1);
         }
         String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+        for(String authPart: authSplit) {
+            System.out.println("authPart: " + authPart);
+        }
         if(authSplit.length != 2) {
             authenticateUser();
             return false;
         }
-        username = authSplit[0];
-        token = authSplit[1];
+        userID = authSplit[0];
+        userToken = authSplit[1];
+        System.out.println("userID = " + userID);
+        System.out.println("userToken = " + userToken);
 
         String gotoUrl = Window.Location.getParameter("goto");
         if(gotoUrl != null && gotoUrl.length() > 0) {
             Window.Location.assign(gotoUrl);
             return false;
         }
+        System.out.println("Returning true");
         return true;
     }
 
@@ -635,40 +663,54 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void fetchAccount(final Command callback) {
+        System.out.println("fetchAccount(), userID = " + this.userID + ", userToken = " + this.userToken);
         String path = "?format=json";
 
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), username, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
             @Override
             public void onSuccess(AccountResource _result) {
+                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onSuccess()");
                 account = _result;
                 if(callback != null) {
                     callback.execute();
                 }
+                // Initialize the user catalog
+                new GetUserCatalogs(Pithos.this, Pithos.this.getUserID()) {
+                    @Override
+                    public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs usersCatalog) {
+                        super.onSuccess(request, response, result, usersCatalog);
+                        Pithos.this.userCatalogs.updateFrom(usersCatalog);
+                    }
+                }.scheduleDeferred();
             }
 
             @Override
             public void onError(Throwable t) {
+                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onError() " + t.getClass().getName() + ": " + t.getMessage());
                 GWT.log("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
+                    System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " Error getting account: " + ((RestException) t).getHttpStatusText());
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 }
                 else {
+                    System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + "System error fetching user data: " + t.getMessage());
                     displayError("System error fetching user data: " + t.getMessage());
                 }
             }
 
             @Override
             protected void onUnauthorized(Response response) {
+                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onUnauthorized()");
                 sessionExpired();
             }
         };
-        getAccount.setHeader("X-Auth-Token", token);
+        getAccount.setHeader("X-Auth-Token", userToken);
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
     public void updateStatistics() {
-        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), username, "", account) {
+        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), userID, "", account) {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -692,13 +734,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        headAccount.setHeader("X-Auth-Token", token);
+        headAccount.setHeader("X-Auth-Token", userToken);
         Scheduler.get().scheduleDeferred(headAccount);
     }
 
     protected void createHomeContainer(final AccountResource _account, final Command callback) {
         String path = "/" + Pithos.HOME_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
+        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 if(!_account.hasTrashContainer()) {
@@ -726,13 +768,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        createPithos.setHeader("X-Auth-Token", getToken());
+        createPithos.setHeader("X-Auth-Token", getUserToken());
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
     protected void createTrashContainer(final Command callback) {
         String path = "/" + Pithos.TRASH_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUsername(), path) {
+        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 fetchAccount(callback);
@@ -755,7 +797,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        createPithos.setHeader("X-Auth-Token", getToken());
+        createPithos.setHeader("X-Auth-Token", getUserToken());
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
@@ -858,8 +900,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return statusPanel;
     }
 
-    public String getToken() {
-        return token;
+    public String getUserToken() {
+        return userToken;
     }
 
     public static native void preventIESelection() /*-{
@@ -941,7 +983,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 pwp.hide();
             }
         };
-        deleteFolder.setHeader("X-Auth-Token", getToken());
+        deleteFolder.setHeader("X-Auth-Token", getUserToken());
         Scheduler.get().scheduleDeferred(deleteFolder);
     }
 
@@ -976,7 +1018,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     sessionExpired();
                 }
             };
-            copyFile.setHeader("X-Auth-Token", getToken());
+            copyFile.setHeader("X-Auth-Token", getUserToken());
             copyFile.setHeader("X-Copy-From", URL.encodePathSegment(file.getUri()));
             if(!file.getOwner().equals(targetUsername)) {
                 copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwner()));
@@ -1016,7 +1058,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        copyFolder.setHeader("X-Auth-Token", getToken());
+        copyFolder.setHeader("X-Auth-Token", getUserToken());
         copyFolder.setHeader("Accept", "*/*");
         copyFolder.setHeader("Content-Length", "0");
         copyFolder.setHeader("Content-Type", "application/directory");
@@ -1242,7 +1284,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                                     sessionExpired();
                                 }
                             };
-                            newFolder.setHeader("X-Auth-Token", getToken());
+                            newFolder.setHeader("X-Auth-Token", getUserToken());
                             newFolder.setHeader("Content-Type", "application/folder");
                             newFolder.setHeader("Accept", "*/*");
                             newFolder.setHeader("Content-Length", "0");
@@ -1268,7 +1310,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     sessionExpired();
                 }
             };
-            headFolder.setHeader("X-Auth-Token", getToken());
+            headFolder.setHeader("X-Auth-Token", getUserToken());
             Scheduler.get().scheduleDeferred(headFolder);
         }
     }
@@ -1300,7 +1342,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        headFile.setHeader("X-Auth-Token", getToken());
+        headFile.setHeader("X-Auth-Token", getUserToken());
         Scheduler.get().scheduleDeferred(headFile);
     }
 
@@ -1388,7 +1430,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void emptyContainer(final Folder container) {
         String path = "/" + container.getName() + "?delimiter=/";
-        DeleteRequest delete = new DeleteRequest(getApiPath(), getUsername(), path) {
+        DeleteRequest delete = new DeleteRequest(getApiPath(), getUserID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1412,7 +1454,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
             }
         };
-        delete.setHeader("X-Auth-Token", getToken());
+        delete.setHeader("X-Auth-Token", getUserToken());
         Scheduler.get().scheduleDeferred(delete);
     }
 }

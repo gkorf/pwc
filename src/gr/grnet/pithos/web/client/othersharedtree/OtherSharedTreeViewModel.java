@@ -39,18 +39,14 @@ import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SharingUsers;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView;
 import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView.Templates;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -67,8 +63,6 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 
@@ -188,7 +182,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
         };
-        getSharingUsers.setHeader("X-Auth-Token", app.getToken());
+        getSharingUsers.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getSharingUsers);
 	}
 
@@ -263,7 +257,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
 		};
-		getUserSharedContainers.setHeader("X-Auth-Token", app.getToken());
+		getUserSharedContainers.setHeader("X-Auth-Token", app.getUserToken());
 		Scheduler.get().scheduleDeferred(getUserSharedContainers);
 	}
 
@@ -294,7 +288,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 					app.sessionExpired();
 				}
             };
-            getFolder.setHeader("X-Auth-Token", app.getToken());
+            getFolder.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else if (callback != null)
@@ -348,7 +342,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
         };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
+        getFolder.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
     

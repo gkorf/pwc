@@ -47,7 +47,6 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import java.util.List;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
@@ -193,13 +192,13 @@ public class FileContextMenu extends PopupPanel {
         Boolean[] permissions = null;
         boolean canWrite = true;
         if (selectedFolder != null) {
-        	permissions = selectedFolder.getPermissions().get(app.getUsername());
-        	canWrite = selectedFolder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+        	permissions = selectedFolder.getPermissions().get(app.getUserID());
+        	canWrite = selectedFolder.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 		}
         else {
         	for (File f : selectedFiles) {
-        		permissions = f.getPermissions().get(app.getUsername());
-        		canWrite &= (f.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]));
+        		permissions = f.getPermissions().get(app.getUserID());
+        		canWrite &= (f.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]));
         	}
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());

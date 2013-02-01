@@ -36,7 +36,6 @@ package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.FileVersionsDialog.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.foldertree.Version;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -46,8 +45,6 @@ import java.util.List;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -58,11 +55,6 @@ import com.google.gwt.user.client.ui.CustomScrollPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.NativeVerticalScrollbar;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.VerticalScrollbar;
-import com.google.gwt.user.client.ui.Widget;
 
 public class VersionsList extends Composite {
 
@@ -165,7 +157,7 @@ public class VersionsList extends Composite {
 				app.sessionExpired();
 			}
 		};
-		restoreVersion.setHeader("X-Auth-Token", app.getToken());
+		restoreVersion.setHeader("X-Auth-Token", app.getUserToken());
 		restoreVersion.setHeader("X-Source-Object", URL.encodePathSegment(file.getUri()));
 		restoreVersion.setHeader("X-Source-Version", String.valueOf(version));
 		restoreVersion.setHeader("Content-Range", "bytes 0-/*");

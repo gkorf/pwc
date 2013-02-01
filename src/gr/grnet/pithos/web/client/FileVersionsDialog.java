@@ -51,7 +51,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -171,7 +170,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 				app.sessionExpired();
 			}
 		};
-		getVersions.setHeader("X-Auth-Token", app.getToken());
+		getVersions.setHeader("X-Auth-Token", app.getUserToken());
 		Scheduler.get().scheduleDeferred(getVersions);
 	}
 

@@ -34,15 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
@@ -260,7 +256,7 @@ public class FolderPermissionsDialog extends DialogBox {
                 					app.sessionExpired();
                 				}
                             };
-                            newFolder.setHeader("X-Auth-Token", app.getToken());
+                            newFolder.setHeader("X-Auth-Token", app.getUserToken());
                             newFolder.setHeader("Content-Type", "application/folder");
                             newFolder.setHeader("Accept", "*/*");
                             newFolder.setHeader("Content-Length", "0");
@@ -281,7 +277,7 @@ public class FolderPermissionsDialog extends DialogBox {
 					app.sessionExpired();
 				}
             };
-            updateFolder.setHeader("X-Auth-Token", app.getToken());
+            updateFolder.setHeader("X-Auth-Token", app.getUserToken());
             String readPermHeader = "read=";
             String writePermHeader = "write=";
             for (String u : newPermissions.keySet()) {

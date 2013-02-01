@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
@@ -187,7 +186,7 @@ public class AddUserDialog extends DialogBox {
 			
     	group.addMember(name);
     	String path = "?update=";
-    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
+    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {
@@ -210,7 +209,7 @@ public class AddUserDialog extends DialogBox {
 				app.sessionExpired();
 			}
 		};
-		updateGroup.setHeader("X-Auth-Token", app.getToken());
+		updateGroup.setHeader("X-Auth-Token", app.getUserToken());
 		String groupMembers = "";
 		for (String u : group.getMembers())
 			groupMembers += (URL.encodePathSegment(u) + ",");

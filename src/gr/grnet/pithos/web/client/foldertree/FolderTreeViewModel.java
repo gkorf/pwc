@@ -182,7 +182,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 	            		Scheduler.get().scheduleDeferred(this);
 				}
             };
-            getFolder.setHeader("X-Auth-Token", app.getToken());
+            getFolder.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else if (callback != null)
@@ -281,7 +281,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             		Scheduler.get().scheduleDeferred(this);
 			}
         };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
+        getFolder.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
 }

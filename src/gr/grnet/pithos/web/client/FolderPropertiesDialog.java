@@ -34,13 +34,9 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-
-import java.util.Iterator;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -145,7 +141,7 @@ public class FolderPropertiesDialog extends DialogBox {
         else
             generalTable.setText(1, 1, folder.getParent().getName());
         if (create)
-        	generalTable.setText(2, 1, app.getUsername());
+        	generalTable.setText(2, 1, app.getUserID());
         else
         	generalTable.setText(2, 1, folder.getOwner());
         DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
@@ -272,7 +268,7 @@ public class FolderPropertiesDialog extends DialogBox {
 				app.sessionExpired();
 			}
        };
-        createFolder.setHeader("X-Auth-Token", app.getToken());
+        createFolder.setHeader("X-Auth-Token", app.getUserToken());
         createFolder.setHeader("Accept", "*/*");
         createFolder.setHeader("Content-Length", "0");
         createFolder.setHeader("Content-Type", "application/directory");

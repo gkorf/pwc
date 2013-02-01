@@ -39,7 +39,7 @@ import gr.grnet.pithos.web.client.Clipboard;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -159,7 +159,7 @@ public class PasteCommand implements Command {
 					app.sessionExpired();
 				}
             };
-            copyFile.setHeader("X-Auth-Token", app.getToken());
+            copyFile.setHeader("X-Auth-Token", app.getUserToken());
             copyFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);

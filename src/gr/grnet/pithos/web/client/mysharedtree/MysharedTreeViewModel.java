@@ -40,39 +40,24 @@ import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
 import gr.grnet.pithos.web.client.mysharedtree.MysharedTreeView.Templates;
-import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeView;
-import gr.grnet.pithos.web.client.othersharedtree.OtherSharedTreeViewModel;
 import gr.grnet.pithos.web.client.rest.GetRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
-import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 
@@ -134,7 +119,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 
 	private void fetchSharedContainers(final Command callback) {
         String path = "?format=json&shared=&public=";
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUsername(), path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUserID(), path) {
             @Override
             public void onSuccess(final AccountResource _result) {
 				firstLevelDataProvider.getList().clear();
@@ -165,7 +150,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
         };
-        getAccount.setHeader("X-Auth-Token", app.getToken());
+        getAccount.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getAccount);
 	}
 
@@ -206,7 +191,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 					app.sessionExpired();
 				}
             };
-            getFolder.setHeader("X-Auth-Token", app.getToken());
+            getFolder.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else if (callback != null)
@@ -254,7 +239,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
         };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
+        getFolder.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
 

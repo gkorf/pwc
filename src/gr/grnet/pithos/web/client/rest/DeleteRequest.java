@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,6 +77,7 @@ public abstract class DeleteRequest implements ScheduledCommand {
 
     @Override
     public void execute() {
+        System.out.println("DELETE " + api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, api + owner + path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));

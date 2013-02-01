@@ -46,7 +46,6 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -148,12 +147,12 @@ public class PermissionsAddDialog extends DialogBox {
 			}
 		} else if (groupBox.getSelectedIndex() > -1) {
 			String groupName = groupBox.getValue(groupBox.getSelectedIndex());
-			selected = app.getUsername() + ":" + groupName;
+			selected = app.getUserID() + ":" + groupName;
 		}
         if (permList.getPermissions().get(selected) != null) {
             return;
         }
-        if (selected == null || selected.length() == 0 || selected.equals(app.getUsername() + ":")) {
+        if (selected == null || selected.length() == 0 || selected.equals(app.getUserID() + ":")) {
         	app.displayWarning("You have to select a username or group");
         	return;
         }

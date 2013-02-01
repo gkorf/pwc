@@ -34,15 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -152,7 +148,7 @@ public class FeedbackDialog extends DialogBox {
 	/**
 	 */
 	void sendFeedback() {
-		PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getToken()) {
+		PostRequest sendFeedback = new PostRequest("", "", otherProperties.get("feedbackUrl"), "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getUserToken()) {
 			
 			@Override
 			protected void onUnauthorized(Response response) {

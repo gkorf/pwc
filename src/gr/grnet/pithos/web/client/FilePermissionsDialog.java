@@ -35,7 +35,6 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 
@@ -50,14 +49,12 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -259,7 +256,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected boolean accept() {
-        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", permList.getPermissions());
+        updateMetaData(app.getApiPath(), app.getUserID(), file.getUri() + "?update=", permList.getPermissions());
         return true;
 	}
 
@@ -297,7 +294,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 							app.sessionExpired();
 						}
 					};
-					headFile.setHeader("X-Auth-Token", app.getToken());
+					headFile.setHeader("X-Auth-Token", app.getUserToken());
 					Scheduler.get().scheduleDeferred(headFile);
                 }
 
@@ -313,7 +310,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             
             String readPermHeader = "read=";
             String writePermHeader = "write=";

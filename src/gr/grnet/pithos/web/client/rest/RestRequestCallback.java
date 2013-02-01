@@ -38,7 +38,7 @@ package gr.grnet.pithos.web.client.rest;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 public abstract class RestRequestCallback<T extends Resource> implements RequestCallback {
 
@@ -77,6 +77,8 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
                     text = response.getText();
                 }
                 catch (Exception e) {}
+
+                System.out.println("Response headers: " + response.getHeadersAsString());
 
                 onError(request, new RestException(path, response.getStatusCode(), statusText, text));
             }

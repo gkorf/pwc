@@ -341,7 +341,7 @@ public class FileUploadDialog extends DialogBox {
 		setVisible(true);
 		setModal(true);
 		super.center();
-		setupUpload(this, app, app.getToken());
+		setupUpload(this, app, app.getUserToken());
 		super.center();
 	}
 	

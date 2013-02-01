@@ -37,7 +37,6 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -159,7 +158,7 @@ public class DeleteFileDialog extends DialogBox {
 					app.sessionExpired();
 				}
             };
-            deleteFile.setHeader("X-Auth-Token", app.getToken());
+            deleteFile.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {

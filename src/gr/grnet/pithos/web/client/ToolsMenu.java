@@ -54,7 +54,6 @@ import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -96,8 +95,8 @@ public class ToolsMenu extends PopupPanel {
         MenuBar contextMenu = new MenuBar(true);
 
         if (folder != null) {
-	        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-	    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+	        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
+	    	boolean canWrite = folder.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
 	    	boolean isMysharedTreeSelected = app.isMySharedSelected();
 	    	

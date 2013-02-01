@@ -36,6 +36,7 @@
 package gr.grnet.pithos.web.client.foldertree;
 
 import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.ArrayList;

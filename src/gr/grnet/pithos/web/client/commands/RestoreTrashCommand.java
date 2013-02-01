@@ -40,9 +40,7 @@ import java.util.List;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -111,14 +109,14 @@ public class RestoreTrashCommand implements Command {
 
     private void untrashFolder(final Folder f, final Command callback) {
         String path = "/" + Pithos.HOME_CONTAINER + "/" + f.getPrefix();
-        app.copyFolder(f, app.getUsername(), path, true, callback);
+        app.copyFolder(f, app.getUserID(), path, true, callback);
     }
 
     protected void untrashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = "/" + Pithos.HOME_CONTAINER + "/" + file.getPath();
-            PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     untrashFiles(iter, callback);
@@ -140,7 +138,7 @@ public class RestoreTrashCommand implements Command {
 					app.sessionExpired();
 				}
             };
-            untrashFile.setHeader("X-Auth-Token", app.getToken());
+            untrashFile.setHeader("X-Auth-Token", app.getUserToken());
             untrashFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             untrashFile.setHeader("Content-Type", file.getContentType());
             

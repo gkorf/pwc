@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

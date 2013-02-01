@@ -35,7 +35,6 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 
@@ -56,7 +55,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -250,7 +248,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         if (newFilename != null) {
             final String path = file.getParent().getUri() + "/" + newFilename;
-            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     updateMetaData(app.getApiPath(), file.getOwner(), path, newMeta);
@@ -268,7 +266,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             updateFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             updateFile.setHeader("Content-Type", file.getContentType());
             for (String key : file.getMeta().keySet())
@@ -302,7 +300,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri(), newMeta);
+            updateMetaData(app.getApiPath(), app.getUserID(), file.getUri(), newMeta);
         return true;
 	}
 
@@ -343,7 +341,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             
             for (String t : file.getMeta().keySet()) {
         		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");
