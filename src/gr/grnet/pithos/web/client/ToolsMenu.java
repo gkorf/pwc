@@ -135,7 +135,7 @@ public class ToolsMenu extends PopupPanel {
 			        	if (item instanceof List) {
 			        		@SuppressWarnings("unchecked")
 							List<File> _files = (List<File>) item;
-			        		if (_files.get(0).getOwner().equals(folder.getOwner()))
+			        		if (_files.get(0).getOwnerID().equals(folder.getOwner()))
 			        			showPaste = true;
 			        	}
 			        	else {
@@ -194,7 +194,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
+					        		Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
 							}
 						}));
 			        	empty = false;

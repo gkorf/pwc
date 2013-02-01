@@ -116,7 +116,7 @@ public class VersionsList extends Composite {
 			downloadHtml.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					String fileUrl = app.getApiPath() + file.getOwner() + file.getUri() + "?version=" + v.getVersion();
+					String fileUrl = app.getApiPath() + file.getOwnerID() + file.getUri() + "?version=" + v.getVersion();
 					Window.open(fileUrl, "_BLANK", "");
 				}
 			});
@@ -132,7 +132,7 @@ public class VersionsList extends Composite {
 
 	void restoreVersion(int version) {
 		String path = file.getUri() + "?update=";
-		PostRequest restoreVersion = new PostRequest(app.getApiPath(), file.getOwner(), path) {
+		PostRequest restoreVersion = new PostRequest(app.getApiPath(), file.getOwnerID(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {

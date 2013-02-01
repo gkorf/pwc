@@ -198,7 +198,7 @@ public class FileContextMenu extends PopupPanel {
         else {
         	for (File f : selectedFiles) {
         		permissions = f.getPermissions().get(app.getUserID());
-        		canWrite &= (f.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]));
+        		canWrite &= (f.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]));
         	}
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
@@ -252,7 +252,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
+					Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
 			}
 		}));
 

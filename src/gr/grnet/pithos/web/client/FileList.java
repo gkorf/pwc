@@ -54,10 +54,8 @@ import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -290,7 +288,7 @@ public class FileList extends Composite {
 				sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
-                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwner() + object.getUri(), object.getName()));
+                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwnerID() + object.getUri(), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
@@ -417,7 +415,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(app.getApiPath() + file.getOwner() + file.getUri(), "_blank", "");
+				Window.open(app.getApiPath() + file.getOwnerID() + file.getUri(), "_blank", "");
 				event.preventDefault();
 				return;
 			}
@@ -547,7 +545,7 @@ public class FileList extends Composite {
                             if (sortingProperty.equals("version")) {
                                     return arg0.getVersion() - arg1.getVersion();
                             } else if (sortingProperty.equals("owner")) {
-                                    return arg0.getOwner().compareTo(arg1.getOwner());
+                                    return arg0.getOwnerID().compareTo(arg1.getOwnerID());
                             } else if (sortingProperty.equals("date")) {
                             		if (arg0.getLastModified() != null && arg1.getLastModified() != null)
                             			return arg0.getLastModified().compareTo(arg1.getLastModified());
@@ -567,7 +565,7 @@ public class FileList extends Composite {
                             return arg1.getVersion() - arg0.getVersion();
                     } else if (sortingProperty.equals("owner")) {
                             
-                            return arg1.getOwner().compareTo(arg0.getOwner());
+                            return arg1.getOwnerID().compareTo(arg0.getOwnerID());
                     } else if (sortingProperty.equals("date")) {
                             
                             return arg1.getLastModified().compareTo(arg0.getLastModified());
@@ -649,7 +647,7 @@ public class FileList extends Composite {
 		int i = 0;
 		boolean scrolled = false;
 		for (File f : files) {
-			if (selectedUrls.contains(app.getApiPath() + f.getOwner() + f.getUri())) {
+			if (selectedUrls.contains(app.getApiPath() + f.getOwnerID() + f.getUri())) {
 				selectionModel.setSelected(f, true);
 				if (!scrolled) {
 					celltable.getRowElement(i).getCells().getItem(0).scrollIntoView();

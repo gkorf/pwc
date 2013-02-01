@@ -133,11 +133,24 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         name.setWidth("100%");
         name.setText(file.getName());
         generalTable.setWidget(0, 1, name);
-        if(file.getParent() != null)
+        if(file.getParent() != null) {
             generalTable.setText(1, 1, file.getParent().getName());
-        else
+        }
+        else {
             generalTable.setText(1, 1, "-");
-        generalTable.setText(2, 1, file.getOwner());
+        }
+
+        final String ownerID = file.getOwnerID();
+        final String displayName = app.getUserDisplayNameByID(ownerID);
+        final String ownerDisplayName;
+        if(displayName == null) {
+            // FIXME: Get the actual display name and do not use the id
+            ownerDisplayName = ownerID;
+        }
+        else {
+            ownerDisplayName = displayName;
+        }
+        generalTable.setText(2, 1, ownerDisplayName);
 
         final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
         generalTable.setText(3, 1, file.getLastModified() != null ? formatter.format(file.getLastModified()) : "");
@@ -251,7 +264,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwner(), path, newMeta);
+                    updateMetaData(app.getApiPath(), file.getOwnerID(), path, newMeta);
                 }
 
                 @Override

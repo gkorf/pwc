@@ -141,7 +141,7 @@ public class FolderPropertiesDialog extends DialogBox {
         else
             generalTable.setText(1, 1, folder.getParent().getName());
         if (create)
-        	generalTable.setText(2, 1, app.getUserDisplayName());
+        	generalTable.setText(2, 1, app.getCurrentUserDisplayNameOrID());
         else
         	generalTable.setText(2, 1, folder.getOwner());
         DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");

@@ -126,9 +126,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return userID;
     }
 
-    public String getUserDisplayName() {
+    public String getCurrentUserDisplayNameOrID() {
         final String displayName = userCatalogs.getDisplayName(getUserID());
         return displayName == null ? getUserID() : displayName;
+    }
+
+    public boolean hasUserDisplayNameForID(String id) {
+        return userCatalogs.getDisplayName(id) != null;
+    }
+
+    public String getUserDisplayNameByID(String id) {
+        return userCatalogs.getDisplayName(id);
     }
 
     public void setAccount(AccountResource acct) {
@@ -1025,8 +1033,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             };
             copyFile.setHeader("X-Auth-Token", getUserToken());
             copyFile.setHeader("X-Copy-From", URL.encodePathSegment(file.getUri()));
-            if(!file.getOwner().equals(targetUsername)) {
-                copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwner()));
+            if(!file.getOwnerID().equals(targetUsername)) {
+                copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwnerID()));
             }
             copyFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
@@ -1321,7 +1329,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void scheduleFileHeadCommand(File f, final Command callback) {
-        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwner(), f.getUri(), f) {
+        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwnerID(), f.getUri(), f) {
 
             @Override
             public void onSuccess(File _result) {

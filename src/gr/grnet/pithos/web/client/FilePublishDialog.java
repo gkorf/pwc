@@ -157,7 +157,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
         });
 
         // Only show the read for all permission if the user is the owner.
-        if (file.getOwner().equals(app.getUserID())) {
+        if (file.getOwnerID().equals(app.getUserID())) {
             final HorizontalPanel permForAll = new HorizontalPanel();
             permForAll.add(new Label("Public"));
             permForAll.add(readForAll);
@@ -222,7 +222,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 	protected boolean accept() {
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
-			if (file.getOwner().equals(app.getUserID()))
+			if (file.getOwnerID().equals(app.getUserID()))
                 published = readForAll.getValue();
         updateMetaData(app.getApiPath(), app.getUserID(), file.getUri() + "?update=", published);
         return true;
@@ -233,7 +233,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwner(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {

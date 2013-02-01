@@ -144,7 +144,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwner(), false, new Command() {
+        permList = new PermissionsList(images, file.getPermissions(), file.getOwnerID(), false, new Command() {
 			
 			@Override
 			public void execute() {
@@ -240,7 +240,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     void showLinkIfShared() {
 		if (file.isShared()) {
 			UrlBuilder b = Window.Location.createUrlBuilder();
-			b.setPath(app.getApiPath() + file.getOwner() + file.getUri());
+			b.setPath(app.getApiPath() + file.getOwnerID() + file.getUri());
 			String href = Window.Location.getHref();
 			boolean hasParameters = href.contains("?");
 			path.setText(href + (hasParameters ? "&" : "?") + "goto=" + b.buildString());
@@ -265,7 +265,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwner(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {

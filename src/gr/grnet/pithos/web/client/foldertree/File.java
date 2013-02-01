@@ -66,7 +66,7 @@ public class File extends Resource {
 
     private String path;
 
-    private String owner;
+    private String ownerID;
 
     private String container;
 
@@ -111,8 +111,8 @@ public class File extends Resource {
         return "/" + container + "/" + path;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getOwnerID() {
+        return ownerID;
     }
 
     public String getPath() {
@@ -149,7 +149,7 @@ public class File extends Resource {
         	name = path.substring(parent.getPrefix().length() + 1);
         else
             name = path;
-        this.owner = _owner;
+        this.ownerID = _owner;
         hash = unmarshallString(o, "hash");
         bytes = unmarshallLong(o, "bytes");
         version = unmarshallInt(o, "x_object_version");
@@ -223,7 +223,7 @@ public class File extends Resource {
     }
 
     private void populate(String _owner, Response response) {
-        this.owner = _owner;
+        this.ownerID = _owner;
         published = false;
         publicUri = null;
         permissions.clear();
