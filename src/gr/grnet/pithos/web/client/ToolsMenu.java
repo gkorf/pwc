@@ -96,7 +96,7 @@ public class ToolsMenu extends PopupPanel {
 
         if (folder != null) {
 	        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
-	    	boolean canWrite = folder.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
+	    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
 	    	boolean isMysharedTreeSelected = app.isMySharedSelected();
 	    	
@@ -135,12 +135,12 @@ public class ToolsMenu extends PopupPanel {
 			        	if (item instanceof List) {
 			        		@SuppressWarnings("unchecked")
 							List<File> _files = (List<File>) item;
-			        		if (_files.get(0).getOwnerID().equals(folder.getOwner()))
+			        		if (_files.get(0).getOwnerID().equals(folder.getOwnerID()))
 			        			showPaste = true;
 			        	}
 			        	else {
 			        		Folder f = (Folder) item;
-			        		if (f.getOwner().equals(folder.getOwner()))
+			        		if (f.getOwnerID().equals(folder.getOwnerID()))
 			        			showPaste = true;
 			        	}
 			        	if (showPaste) {

@@ -77,7 +77,7 @@ public class PasteCommand implements Command {
             final Folder tobeCopied = (Folder) clipboardItem;
             if (operation == Clipboard.COPY) {
             	String targetUri = folder.getUri() + "/" + tobeCopied.getName();
-                app.copyFolder(tobeCopied, folder.getOwner(), targetUri, false, new Command() {
+                app.copyFolder(tobeCopied, folder.getOwnerID(), targetUri, false, new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -93,7 +93,7 @@ public class PasteCommand implements Command {
             }
             else {
             	String targetUri = folder.getUri() + "/" + tobeCopied.getName();
-                app.copyFolder(tobeCopied, folder.getOwner(), targetUri, true, new Command() {
+                app.copyFolder(tobeCopied, folder.getOwnerID(), targetUri, true, new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -107,7 +107,7 @@ public class PasteCommand implements Command {
 			List<File> tobeCopied = (List<File>) clipboardItem;
             Iterator<File> iter = tobeCopied.iterator();
             if (operation == Clipboard.COPY) {
-                app.copyFiles(iter, folder.getOwner(), folder.getUri(), new Command() {
+                app.copyFiles(iter, folder.getOwnerID(), folder.getUri(), new Command() {
                     @Override
                     public void execute() {
                         app.getClipboard().clear();
@@ -137,7 +137,7 @@ public class PasteCommand implements Command {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = folder.getUri() + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(app.getApiPath(), folder.getOwner(), path) {
+            PutRequest copyFile = new PutRequest(app.getApiPath(), folder.getOwnerID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     moveFiles(iter, callback);

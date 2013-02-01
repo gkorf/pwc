@@ -81,7 +81,7 @@ public class Folder extends Resource {
 
     private Set<File> files = new LinkedHashSet<File>();
 
-    private String owner;
+    private String ownerID;
 
     private Map<String, Boolean[]> permissions = new HashMap<String, Boolean[]>();
 
@@ -146,7 +146,7 @@ public class Folder extends Resource {
     }
 
     public void populate(String _owner, Response response) {
-        this.owner = _owner;
+        this.ownerID = _owner;
         String header = response.getHeader("Last-Modified");
         if (header != null)
 			try {
@@ -224,7 +224,7 @@ public class Folder extends Resource {
             container = name;
             prefix = "";
         }
-        this.owner = _owner;
+        this.ownerID = _owner;
 
         inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
         String rawPermissions = unmarshallString(o, "x_object_sharing");
@@ -247,7 +247,7 @@ public class Folder extends Resource {
     public boolean equals(Object other) {
         if (other instanceof Folder) {
             Folder o = (Folder) other;
-            return (owner == null ? true : owner.equals(o.getOwner())) 
+            return (ownerID == null ? true : ownerID.equals(o.getOwnerID()))
             		&& (getUri().equals(o.getUri()));
         }
         return false;
@@ -286,8 +286,8 @@ public class Folder extends Resource {
         return permissions;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getOwnerID() {
+        return ownerID;
     }
 
 	public boolean isShared() {

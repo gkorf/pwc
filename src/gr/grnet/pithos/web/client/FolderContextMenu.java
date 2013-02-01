@@ -83,7 +83,7 @@ public class FolderContextMenu extends PopupPanel {
         MenuBar contextMenu = new MenuBar(true);
 
         Boolean[] permissions = folder.getPermissions().get(app.getUserID());
-    	boolean canWrite = folder.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
+    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
     	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
     	boolean otherSharedTreeSelected = selectedTree.equals(app.getOtherSharedTreeView());
     	boolean mysharedTreeSelected = selectedTree.equals(app.getMySharedTreeView());

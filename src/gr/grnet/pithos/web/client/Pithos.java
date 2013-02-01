@@ -505,7 +505,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     return true;
                 }
 
-                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwner(), "/" + f.getContainer()) {
+                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwnerID(), "/" + f.getContainer()) {
 
                     @Override
                     public void onSuccess(Folder _result) {
@@ -583,7 +583,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
             else {
                 Boolean[] perms = f.getPermissions().get(userID);
-                if(f.getOwner().equals(userID) || (perms != null && perms[1] != null && perms[1])) {
+                if(f.getOwnerID().equals(userID) || (perms != null && perms[1] != null && perms[1])) {
                     upload.setEnabled(true);
                     enableUploadArea();
                 }
@@ -954,7 +954,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         final PleaseWaitPopup pwp = new PleaseWaitPopup();
         pwp.center();
         String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
-        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwner(), path) {
+        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwnerID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1075,8 +1075,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         copyFolder.setHeader("Accept", "*/*");
         copyFolder.setHeader("Content-Length", "0");
         copyFolder.setHeader("Content-Type", "application/directory");
-        if(!f.getOwner().equals(targetUsername)) {
-            copyFolder.setHeader("X-Source-Account", f.getOwner());
+        if(!f.getOwnerID().equals(targetUsername)) {
+            copyFolder.setHeader("X-Source-Account", f.getOwnerID());
         }
         if(move) {
             copyFolder.setHeader("X-Move-From", URL.encodePathSegment(f.getUri()));
@@ -1260,7 +1260,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
-            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwner(), folder.getUri(), folder) {
+            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwnerID(), folder.getUri(), folder) {
 
                 @Override
                 public void onSuccess(Folder _result) {
@@ -1274,7 +1274,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     if(t instanceof RestException) {
                         if(((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
                             final String path = folder.getUri();
-                            PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwner(), path) {
+                            PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwnerID(), path) {
                                 @Override
                                 public void onSuccess(Resource _result) {
                                     scheduleFolderHeadCommand(folder, callback);

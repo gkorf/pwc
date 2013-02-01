@@ -193,7 +193,7 @@ public class FileContextMenu extends PopupPanel {
         boolean canWrite = true;
         if (selectedFolder != null) {
         	permissions = selectedFolder.getPermissions().get(app.getUserID());
-        	canWrite = selectedFolder.getOwner().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
+        	canWrite = selectedFolder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 		}
         else {
         	for (File f : selectedFiles) {
