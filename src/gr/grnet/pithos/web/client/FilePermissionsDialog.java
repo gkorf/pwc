@@ -144,7 +144,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     private VerticalPanel createSharingPanel() {
         VerticalPanel permPanel = new VerticalPanel();
 
-        permList = new PermissionsList(images, file.getPermissions(), file.getOwnerID(), false, new Command() {
+        permList = new PermissionsList(app, images, file.getPermissions(), file.getOwnerID(), false, new Command() {
 			
 			@Override
 			public void execute() {

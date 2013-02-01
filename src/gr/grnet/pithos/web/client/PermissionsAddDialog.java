@@ -34,6 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.List;
@@ -55,6 +60,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class PermissionsAddDialog extends DialogBox {
+    final static RegExp EmailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
 
 	private TextBox userBox = new TextBox();
 
@@ -105,8 +111,9 @@ public class PermissionsAddDialog extends DialogBox {
             permTable.setWidget(1, 0, userBox);
         }
         else {
-            for (Group group : _groups)
+            for (Group group : _groups) {
                 groupBox.addItem(group.getName(), group.getName());
+            }
             permTable.setWidget(1, 0, groupBox);
         }
                 
@@ -137,14 +144,14 @@ public class PermissionsAddDialog extends DialogBox {
 	}
 
 	protected void addPermission() {
+        final boolean readValue = read.getValue();
+        final boolean writeValue = write.getValue();
+
         String selected = null;
 		if (userAdd) {
-			selected = userBox.getText().trim();
-			RegExp emailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
-			if (!emailValidator.test(selected)) {
-				app.displayWarning("Username must be a valid email address");
-				return;
-			}
+			final String userDisplayName = userBox.getText().trim();
+			addUserPermission(userDisplayName, readValue, writeValue);
+            return;
 		} else if (groupBox.getSelectedIndex() > -1) {
 			String groupName = groupBox.getValue(groupBox.getSelectedIndex());
 			selected = app.getUserID() + ":" + groupName;
@@ -157,11 +164,44 @@ public class PermissionsAddDialog extends DialogBox {
         	return;
         }
 
-		boolean readValue = read.getValue();
-		boolean writeValue = write.getValue();
-
 		permList.addPermission(selected, readValue, writeValue);
 	}
+
+    private boolean alreadyHasPermission(String selected) {
+        return permList.getPermissions().get(selected) != null;
+    }
+
+    private void addUserPermission(final String userDisplayName, final boolean readValue, final boolean writeValue) {
+        if (!EmailValidator.test(userDisplayName)) {
+            app.displayWarning("Username must be a valid email address");
+            return;
+        }
+
+        // Now get the userID
+        final String userID = app.getUserIDForDisplayName(userDisplayName);
+        if(userID != null) {
+            // Check if already have the permission
+            if(!alreadyHasPermission(userID)) {
+                permList.addPermission(userID, readValue, writeValue);
+            }
+        }
+        else {
+            // Must call server to obtain userID
+            new GetUserCatalogs(app, null, Helpers.toList(userDisplayName)) {
+                @Override
+                public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
+                    app.getUserCatalogs().updateFrom(userCatalogs);
+                    final String userID = app.getUserIDForDisplayName(userDisplayName);
+                    if(userID == null) {
+                        app.displayWarning("Unknown user " + userDisplayName);
+                    }
+                    else if(!alreadyHasPermission(userID)) {
+                        permList.addPermission(userID, readValue, writeValue);
+                    }
+                }
+            }.scheduleDeferred();
+        }
+    }
 
 	@Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
