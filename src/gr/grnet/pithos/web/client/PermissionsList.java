@@ -57,6 +57,7 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 
 
@@ -142,11 +143,10 @@ public class PermissionsList extends Composite {
                     );
                 }
                 else {
-                    new GetUserCatalogs(app, userID) {
+                    new UpdateUserCatalogs(app, userID) {
                         @Override
-                        public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
-                            app.getUserCatalogs().updateFrom(userCatalogs);
-                            final String displayName = app.getUserDisplayNameForID(userID);
+                        public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
+                            final String displayName = updatedUserCatalogs.getDisplayName(userID);
                             permTable.setHTML(
                                 ii,
                                 0,

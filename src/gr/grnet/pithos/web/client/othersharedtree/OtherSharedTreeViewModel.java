@@ -58,6 +58,7 @@ import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SharingUsers;
 import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -201,18 +202,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                     fetchSharedContainers(userLevelDataProviderForIDs.getList().iterator(), callback);
                 } else {
                     // First fetch unknown display names and then proceed
-                    new GetUserCatalogs(app, userIDsWithUnknownDisplayNames) {
+                    new UpdateUserCatalogs(app, userIDsWithUnknownDisplayNames) {
                         @Override
-                        public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
-//                            for(Map.Entry<String, String> entry : userCatalogs) {
-//                                final String id = entry.getKey();
-//                                final String name = entry.getValue();
-//                                LOG("mapping: userID("+id+") -> name("+name+")");
-//                            }
-
-                            // Update the cached user catalogs
-                            app.getUserCatalogs().updateFrom(userCatalogs);
-
+                        public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
                             fetchSharedContainers(userLevelDataProviderForIDs.getList().iterator(), callback);
                         }
 

@@ -38,6 +38,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.grouptree.Group;
 
@@ -187,11 +188,10 @@ public class PermissionsAddDialog extends DialogBox {
         }
         else {
             // Must call server to obtain userID
-            new GetUserCatalogs(app, null, Helpers.toList(userDisplayName)) {
+            new UpdateUserCatalogs(app, null, Helpers.toList(userDisplayName)) {
                 @Override
-                public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
-                    app.getUserCatalogs().updateFrom(userCatalogs);
-                    final String userID = app.getUserIDForDisplayName(userDisplayName);
+                public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
+                    final String userID = updatedUserCatalogs.getUserID(userDisplayName);
                     if(userID == null) {
                         app.displayWarning("Unknown user " + userDisplayName);
                     }

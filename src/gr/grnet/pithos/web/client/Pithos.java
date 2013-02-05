@@ -61,6 +61,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.*;
@@ -722,13 +723,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     callback.execute();
                 }
                 // Initialize the user catalog
-                new GetUserCatalogs(Pithos.this, Pithos.this.getUserID()) {
-                    @Override
-                    public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs usersCatalog) {
-                        super.onSuccess(request, response, result, usersCatalog);
-                        Pithos.this.userCatalogs.updateFrom(usersCatalog);
-                    }
-                }.scheduleDeferred();
+                new UpdateUserCatalogs(Pithos.this, Pithos.this.getUserID()).scheduleDeferred();
             }
 
             @Override
