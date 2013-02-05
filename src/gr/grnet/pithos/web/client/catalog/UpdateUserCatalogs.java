@@ -12,8 +12,6 @@ import java.util.List;
 /**
  * This is a wrapper around GetUserCatalogs that takes care of updating
  * the application-wide user catalogs.
- *
- * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
     private final GetUserCatalogs getUserCatalogs;
