@@ -103,7 +103,6 @@ public abstract class PutRequest implements ScheduledCommand {
 
     @Override
     public void execute() {
-        System.out.println("PUT " + api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, api + owner + path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));

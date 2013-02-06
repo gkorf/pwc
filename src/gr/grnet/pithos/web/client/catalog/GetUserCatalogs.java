@@ -92,16 +92,13 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
     }
 
     public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
-        System.out.println("GetUserCatalogs: " + result);
     }
 
     public void onBadStatusCode(Request request, Response response) {
-
     }
 
     public void onError(Request request, Throwable t) {
         GWT.log("GetUserCatalogs", t);
-        System.out.print("GetUserCatalogs: " + t.getClass().getName() + ": " + t.getMessage());
     }
 
     @Override
@@ -111,9 +108,6 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
         final String requestData = makeRequestData().toString();
 
         try {
-            System.out.println("==================================");
-            System.out.println("POST " + getURL());
-            System.out.println("==================================");
             rb.sendRequest(requestData, new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {

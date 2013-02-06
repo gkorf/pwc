@@ -78,8 +78,6 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
                 }
                 catch (Exception e) {}
 
-                System.out.println("Response headers: " + response.getHeadersAsString());
-
                 onError(request, new RestException(path, response.getStatusCode(), statusText, text));
             }
         } catch (Exception e) {

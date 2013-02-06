@@ -660,16 +660,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private boolean parseUserCredentials() {
         Configuration conf = (Configuration) GWT.create(Configuration.class);
         Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        System.out.println("otherProperties = " + otherProperties);
         String cookie = otherProperties.get("authCookie");
-        System.out.println("cookie = " + cookie);
-        Cookies.setCookie(cookie, "868fbb51-94a4-477d-8da3-dadad080c861|HlPjywM5FGAncsoNDzPZ2Q==");
-//        Cookies.setCookie(cookie, "868fbb51-94a4-477d-8da3-dadad080c861%7CHlPjywM5FGAncsoNDzPZ2Q%3D%3D");
-        for(String name: Cookies.getCookieNames()) {
-            System.out.println("cookie name: " + name);
-        }
         String auth = Cookies.getCookie(cookie);
-        System.out.println("auth = " + auth);
         if(auth == null) {
             authenticateUser();
             return false;
@@ -681,24 +673,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
             auth = auth.substring(0, auth.length() - 1);
         }
         String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
-        for(String authPart: authSplit) {
-            System.out.println("authPart: " + authPart);
-        }
         if(authSplit.length != 2) {
             authenticateUser();
             return false;
         }
         userID = authSplit[0];
         userToken = authSplit[1];
-        System.out.println("userID = " + userID);
-        System.out.println("userToken = " + userToken);
 
         String gotoUrl = Window.Location.getParameter("goto");
         if(gotoUrl != null && gotoUrl.length() > 0) {
             Window.Location.assign(gotoUrl);
             return false;
         }
-        System.out.println("Returning true");
         return true;
     }
 
@@ -711,13 +697,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void fetchAccount(final Command callback) {
-        System.out.println("fetchAccount(), userID = " + this.userID + ", userToken = " + this.userToken);
         String path = "?format=json";
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
             @Override
             public void onSuccess(AccountResource _result) {
-                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onSuccess()");
                 account = _result;
                 if(callback != null) {
                     callback.execute();
@@ -728,22 +712,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onError() " + t.getClass().getName() + ": " + t.getMessage());
                 GWT.log("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
-                    System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " Error getting account: " + ((RestException) t).getHttpStatusText());
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
                 }
                 else {
-                    System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + "System error fetching user data: " + t.getMessage());
                     displayError("System error fetching user data: " + t.getMessage());
                 }
             }
 
             @Override
             protected void onUnauthorized(Response response) {
-                System.out.println("fetchAccount(), userID = " + userID + ", userToken = " + userToken + " onUnauthorized()");
                 sessionExpired();
             }
         };

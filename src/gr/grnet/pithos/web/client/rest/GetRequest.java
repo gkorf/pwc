@@ -94,7 +94,6 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
     		path += "&t=" + System.currentTimeMillis();
     	else
     		path += "?t=" + System.currentTimeMillis();
-        System.out.println("GET " + api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
 
         for (String header : headers.keySet()) {
@@ -104,7 +103,6 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
             builder.sendRequest("", new RestRequestCallback<T>(api + owner + path, okCode) {
                 @Override
                 public void onSuccess(T object) {
-                    System.out.println("GET onSuccess() " + api + owner + path);
                     GetRequest.this.onSuccess(object);
                 }
 
@@ -115,7 +113,6 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public void onError(Request request, Throwable throwable) {
-                    System.out.println("GET onError()" + api + owner + path);
                     if (throwable instanceof RestException) {
                         if (((RestException) throwable).getHttpStatusCode() == 304 && result != null){
                             GWT.log("Using cache: " + result.toString(), null);

@@ -78,7 +78,6 @@ public abstract class PostRequest implements ScheduledCommand {
 
     @Override
     public void execute() {
-        System.out.println("POST " + api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, api + owner + path);
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
