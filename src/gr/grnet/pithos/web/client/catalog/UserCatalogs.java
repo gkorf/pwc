@@ -45,20 +45,20 @@ public class UserCatalogs implements Iterable<Map.Entry<String, String>>{
         );
     }
 
-    public boolean hasID(String id) {
+    public boolean hasUserID(String id) {
         return id2name.containsKey(id);
     }
 
-    public boolean hasName(String name) {
-        return name2id.containsKey(name);
+    public boolean hasUserDisplayName(String displayName) {
+        return name2id.containsKey(displayName);
     }
 
-    public String getDisplayName(String id) {
-        return id2name.get(id);
+    public String getUserDisplayName(String userID) {
+        return id2name.get(userID);
     }
 
-    public String getUserID(String name) {
-        return name2id.get(name);
+    public String getUserID(String displayName) {
+        return name2id.get(displayName);
     }
 
     @Override

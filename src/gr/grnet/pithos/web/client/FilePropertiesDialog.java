@@ -261,7 +261,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         if (newFilename != null) {
             final String path = file.getParent().getUri() + "/" + newFilename;
-            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
+            PutRequest updateFile = new PutRequest(app, app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     updateMetaData(app.getApiPath(), file.getOwnerID(), path, newMeta);
@@ -319,7 +319,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
 	protected void updateMetaData(final String api, final String owner, final String path, Map<String, String> newMeta) {
         if (newMeta != null) {
-            PostRequest updateFile = new PostRequest(api, owner, path + "?update=") {
+            PostRequest updateFile = new PostRequest(app, api, owner, path + "?update=") {
                 @Override
                 public void onSuccess(Resource result) {
                 	if (!app.isMySharedSelected())

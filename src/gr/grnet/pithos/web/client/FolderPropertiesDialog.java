@@ -249,7 +249,7 @@ public class FolderPropertiesDialog extends DialogBox {
             return;
         }
         String path = folder.getUri() + "/" + name;
-        PutRequest createFolder = new PutRequest(app.getApiPath(), folder.getOwnerID(), path) {
+        PutRequest createFolder = new PutRequest(app, app.getApiPath(), folder.getOwnerID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 app.updateFolder(folder, true, new Command() {

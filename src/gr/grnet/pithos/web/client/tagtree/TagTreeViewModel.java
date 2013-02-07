@@ -147,7 +147,7 @@ public class TagTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             Folder f = iter.next();
             String path = f.getUri() + "?format=json&meta=" + t.getName();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUserID(), path) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Folder _result) {
                     files.addAll(_result.getFiles());

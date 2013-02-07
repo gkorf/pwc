@@ -35,6 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
@@ -48,6 +49,8 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 
 public abstract class PostRequest implements ScheduledCommand {
+
+    private final Pithos app;
 
     private String api;
 
@@ -63,13 +66,15 @@ public abstract class PostRequest implements ScheduledCommand {
 
     public abstract void onError(Throwable t);
 
-    public PostRequest(String api, String owner, String path) {
+    public PostRequest(Pithos app, String api, String owner, String path) {
+        this.app = app;
         this.api = api;
         this.owner = owner;
         this.path = path;
     }
 
-    public PostRequest(String api, String owner, String path, String data) {
+    public PostRequest(Pithos app, String api, String owner, String path, String data) {
+        this.app = app;
         this.api = api;
         this.owner = owner;
         this.path = path;
@@ -91,7 +96,7 @@ public abstract class PostRequest implements ScheduledCommand {
 
                 @Override
                 public Resource deserialize(Response response) {
-                    return Resource.createFromResponse(Resource.class, owner, response, null);
+                    return Resource.createFromResponse(app, Resource.class, owner, response, null);
                 }
 
                 @Override

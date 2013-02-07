@@ -116,10 +116,10 @@ public abstract class Resource {
     }-*/;
 
     @SuppressWarnings("unchecked")
-    public static <T> T createFromResponse(Class<T> aClass, String owner, Response response, T result) {
+    public static <T> T createFromResponse(Pithos app, Class<T> aClass, String owner, Response response, T result) {
         T result1 = null;
         if(aClass.equals(AccountResource.class)) {
-            result1 = (T) AccountResource.createFromResponse(owner, response, (AccountResource) result);
+            result1 = (T) AccountResource.createFromResponse(app, owner, response, (AccountResource) result);
         }
         else if(aClass.equals(Folder.class)) {
             result1 = (T) Folder.createFromResponse(owner, response, (Folder) result);

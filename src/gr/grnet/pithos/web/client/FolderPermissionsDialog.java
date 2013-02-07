@@ -215,7 +215,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
 	protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
         if (newPermissions != null) {
-            PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwnerID(), path) {
+            PostRequest updateFolder = new PostRequest(app, app.getApiPath(), folder.getOwnerID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     app.updateFolder(folder.getParent(), false, new Command() {
@@ -234,7 +234,7 @@ public class FolderPermissionsDialog extends DialogBox {
                     if (t instanceof RestException) {
                     	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
                             final String path1 = folder.getUri();
-                            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwnerID(), path1) {
+                            PutRequest newFolder = new PutRequest(app, app.getApiPath(), folder.getOwnerID(), path1) {
                                 @Override
                                 public void onSuccess(Resource result) {
                                 	updateMetadata(path, newPermissions);

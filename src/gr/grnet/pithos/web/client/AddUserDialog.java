@@ -45,7 +45,10 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.grouptree.Group;
+import gr.grnet.pithos.web.client.grouptree.User;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -60,7 +63,7 @@ public class AddUserDialog extends DialogBox {
     /**
      * The widget that holds the folderName of the folder.
      */
-    TextBox userName = new TextBox();
+    TextBox userDisplayNameTextBox = new TextBox();
 
     final VerticalPanel inner;
 
@@ -101,7 +104,7 @@ public class AddUserDialog extends DialogBox {
         FlexTable generalTable = new FlexTable();
         generalTable.setText(0, 0, "Username");
 
-        generalTable.setWidget(0, 1, userName);
+        generalTable.setWidget(0, 1, userDisplayNameTextBox);
 
         generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
@@ -131,7 +134,7 @@ public class AddUserDialog extends DialogBox {
     @Override
     public void center() {
         super.center();
-        userName.setFocus(true);
+        userDisplayNameTextBox.setFocus(true);
     }
 
     @Override
@@ -169,19 +172,43 @@ public class AddUserDialog extends DialogBox {
      * Generate an RPC request to create a new folder.
      */
     void addUser() {
-        String name = userName.getText().trim();
-        if(name.length() == 0) {
+        final String userDisplayName = userDisplayNameTextBox.getText().trim();
+        if(userDisplayName.length() == 0) {
             return;
         }
-        if(!Const.EMAIL_REGEX.test(name)) {
+        if(!Const.EMAIL_REGEX.test(userDisplayName)) {
             app.displayWarning("Username must be a valid email address");
             return;
         }
 
-        group.addMember(name);
-        String path = "?update=";
-        PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
+        // Now get the userID
+        final String userID = app.getUserIDForDisplayName(userDisplayName);
+        if(userID != null) {
+            doAddUser(userID, userDisplayName);
+        }
+        else {
+            // Must call server to obtain userID
+            new UpdateUserCatalogs(app, null, Helpers.toList(userDisplayName)) {
+                @Override
+                public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
+                    final String userID = updatedUserCatalogs.getUserID(userDisplayName);
+                    if(userID != null) {
+                        doAddUser(userID, userDisplayName);
+                    }
+                    else {
+                        app.displayError("Unknown user " + userDisplayName);
+                    }
+                }
+            }.scheduleDeferred();
+        }
+    }
 
+    private void doAddUser(String userID, String userDisplayName) {
+        final User newUser = new User(userID, userDisplayName, group.getName());
+        app.LOG("doAddUser() ", newUser);
+        group.addUser(newUser);
+        final String path = "?update=";
+        PostRequest updateGroup = new PostRequest(app, app.getApiPath(), app.getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 app.updateGroupNode(group);
@@ -205,10 +232,7 @@ public class AddUserDialog extends DialogBox {
             }
         };
         updateGroup.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
-        String groupMembers = "";
-        for(String u : group.getMembers()) {
-            groupMembers += (URL.encodePathSegment(u) + ",");
-        }
+        final String groupMembers = group.encodeUserIDsForXAccountGroup();
         updateGroup.setHeader(Const.X_ACCOUNT_GROUP_ + URL.encodePathSegment(group.getName()), groupMembers);
         Scheduler.get().scheduleDeferred(updateGroup);
     }

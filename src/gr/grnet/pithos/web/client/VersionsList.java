@@ -132,7 +132,7 @@ public class VersionsList extends Composite {
 
 	void restoreVersion(int version) {
 		String path = file.getUri() + "?update=";
-		PostRequest restoreVersion = new PostRequest(app.getApiPath(), file.getOwnerID(), path) {
+		PostRequest restoreVersion = new PostRequest(app, app.getApiPath(), file.getOwnerID(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {

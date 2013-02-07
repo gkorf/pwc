@@ -60,4 +60,8 @@ public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
     public void scheduleDeferred() {
         Scheduler.get().scheduleDeferred(this);
     }
+
+    public void scheduleEntry() {
+        Scheduler.get().scheduleEntry(this);
+    }
 }
