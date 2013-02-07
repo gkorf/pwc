@@ -1,5 +1,7 @@
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.regexp.shared.RegExp;
+
 /**
  * Gathers application-wide constants, like <code>X-Auth-Token</code>
  */
@@ -19,6 +21,8 @@ public class Const {
     public static final String X_MOVE_FROM = "X-Move-From";
     public static final String HOME_CONTAINER = "pithos";
     public static final String TRASH_CONTAINER = "trash";
+    public static final RegExp EMAIL_REGEX = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
+    public static final String X_ACCOUNT_GROUP_ = "X-Account-Group-";
 
     private Const() {}
 
