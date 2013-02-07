@@ -45,12 +45,6 @@ from setuptools import setup, find_packages
 
 
 HERE = os.path.abspath(os.path.normpath(os.path.dirname(__file__)))
-try:
-    # try to update the version file
-    from synnefo.util import version
-    version.update_version('pithos_webclient', 'version', HERE)
-except ImportError:
-    pass
 
 from pithos_webclient.version import __version__
 
