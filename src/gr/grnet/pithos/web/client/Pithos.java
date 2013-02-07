@@ -614,7 +614,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         }
                     }
                 };
-                head.setHeader("X-Auth-Token", getUserToken());
+                head.setHeader(Const.X_AUTH_TOKEN, getUserToken());
                 head.setHeader("If-Modified-Since", DateTimeFormat.getFormat("EEE, dd MMM yyyy HH:mm:ss").format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
                 Scheduler.get().scheduleDeferred(head);
 
@@ -740,7 +740,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        getAccount.setHeader("X-Auth-Token", userToken);
+        getAccount.setHeader(Const.X_AUTH_TOKEN, userToken);
         Scheduler.get().scheduleDeferred(getAccount);
     }
 
@@ -769,7 +769,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        headAccount.setHeader("X-Auth-Token", userToken);
+        headAccount.setHeader(Const.X_AUTH_TOKEN, userToken);
         Scheduler.get().scheduleDeferred(headAccount);
     }
 
@@ -803,7 +803,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        createPithos.setHeader("X-Auth-Token", getUserToken());
+        createPithos.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
@@ -832,7 +832,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        createPithos.setHeader("X-Auth-Token", getUserToken());
+        createPithos.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         Scheduler.get().scheduleDeferred(createPithos);
     }
 
@@ -1018,7 +1018,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 pwp.hide();
             }
         };
-        deleteFolder.setHeader("X-Auth-Token", getUserToken());
+        deleteFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         Scheduler.get().scheduleDeferred(deleteFolder);
     }
 
@@ -1053,7 +1053,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     sessionExpired();
                 }
             };
-            copyFile.setHeader("X-Auth-Token", getUserToken());
+            copyFile.setHeader(Const.X_AUTH_TOKEN, getUserToken());
             copyFile.setHeader("X-Copy-From", URL.encodePathSegment(file.getUri()));
             if(!file.getOwnerID().equals(targetUsername)) {
                 copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwnerID()));
@@ -1093,7 +1093,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        copyFolder.setHeader("X-Auth-Token", getUserToken());
+        copyFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         copyFolder.setHeader("Accept", "*/*");
         copyFolder.setHeader("Content-Length", "0");
         copyFolder.setHeader("Content-Type", "application/directory");
@@ -1319,7 +1319,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                                     sessionExpired();
                                 }
                             };
-                            newFolder.setHeader("X-Auth-Token", getUserToken());
+                            newFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
                             newFolder.setHeader("Content-Type", "application/folder");
                             newFolder.setHeader("Accept", "*/*");
                             newFolder.setHeader("Content-Length", "0");
@@ -1345,7 +1345,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     sessionExpired();
                 }
             };
-            headFolder.setHeader("X-Auth-Token", getUserToken());
+            headFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
             Scheduler.get().scheduleDeferred(headFolder);
         }
     }
@@ -1377,7 +1377,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 sessionExpired();
             }
         };
-        headFile.setHeader("X-Auth-Token", getUserToken());
+        headFile.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         Scheduler.get().scheduleDeferred(headFile);
     }
 
@@ -1489,7 +1489,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
             }
         };
-        delete.setHeader("X-Auth-Token", getUserToken());
+        delete.setHeader(Const.X_AUTH_TOKEN, getUserToken());
         Scheduler.get().scheduleDeferred(delete);
     }
 }
