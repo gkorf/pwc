@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -118,14 +119,14 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-    	String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
+    	String path = "/" + Const.TRASH_CONTAINER + "/" + f.getPrefix();
     	app.copyFolder(f, app.getUserID(), path, true, callback);
     }
   
     protected void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = "/" + Pithos.TRASH_CONTAINER + "/" + file.getPath();
+            String path = "/" + Const.TRASH_CONTAINER + "/" + file.getPath();
             PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {

@@ -79,10 +79,6 @@ import java.util.*;
  */
 public class Pithos implements EntryPoint, ResizeHandler {
 
-    public static final String HOME_CONTAINER = "pithos";
-
-    public static final String TRASH_CONTAINER = "trash";
-
     public static final Configuration config = GWT.create(Configuration.class);
 
     public interface Style extends CssResource {
@@ -350,17 +346,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
         lastModified = new Date(); //Initialize if-modified-since value with now.
         resources.pithosCss().ensureInjected();
         boolean bareContent = Window.Location.getParameter("noframe") != null;
-        String contentWidth = bareContent ? "100%" : "75%";
+        String contentWidth = bareContent ? Const.PERCENT_100 : "75%";
 
         VerticalPanel outer = new VerticalPanel();
-        outer.setWidth("100%");
+        outer.setWidth(Const.PERCENT_100);
         if(!bareContent) {
             outer.addStyleName("pithos-outer");
         }
 
         if(!bareContent) {
             topPanel = new TopPanel(this, Pithos.images);
-            topPanel.setWidth("100%");
+            topPanel.setWidth(Const.PERCENT_100);
             outer.add(topPanel);
             outer.setCellHorizontalAlignment(topPanel, HasHorizontalAlignment.ALIGN_CENTER);
         }
@@ -410,7 +406,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         outer.setCellHorizontalAlignment(header, HasHorizontalAlignment.ALIGN_CENTER);
         // Inner contains the various lists
         inner.sinkEvents(Event.ONCONTEXTMENU);
-        inner.setWidth("100%");
+        inner.setWidth(Const.PERCENT_100);
 
         folderTreeSelectionModel = new SingleSelectionModel<Folder>();
         folderTreeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -449,7 +445,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         inner.add(fileList);
 
         trees = new VerticalPanel();
-        trees.setWidth("100%");
+        trees.setWidth(Const.PERCENT_100);
 
         // Add the left and right panels to the split panel.
         splitPanel.setLeftWidget(trees);
@@ -458,7 +454,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         right.add(inner);
         splitPanel.setRightWidget(right);
         splitPanel.setSplitPosition("219px");
-        splitPanel.setSize("100%", "100%");
+        splitPanel.setSize(Const.PERCENT_100, Const.PERCENT_100);
         splitPanel.addStyleName("pithos-splitPanel");
         splitPanel.setWidth(contentWidth);
         outer.add(splitPanel);
@@ -466,7 +462,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         if(!bareContent) {
             statusPanel = new StatusPanel();
-            statusPanel.setWidth("100%");
+            statusPanel.setWidth(Const.PERCENT_100);
             outer.add(statusPanel);
             outer.setCellHorizontalAlignment(statusPanel, HasHorizontalAlignment.ALIGN_CENTER);
         }
@@ -512,7 +508,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         }
                         else {
                             for(Folder f : account.getContainers()) {
-                                if(f.getName().equals(Pithos.TRASH_CONTAINER)) {
+                                if(f.getName().equals(Const.TRASH_CONTAINER)) {
                                     trash = f;
                                     break;
                                 }
@@ -615,7 +611,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     }
                 };
                 head.setHeader(Const.X_AUTH_TOKEN, getUserToken());
-                head.setHeader("If-Modified-Since", DateTimeFormat.getFormat("EEE, dd MMM yyyy HH:mm:ss").format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
+                head.setHeader(Const.IF_MODIFIED_SINCE, DateTimeFormat.getFormat(Const.DATE_FORMAT_1).format(lastModified, TimeZone.createTimeZone(0)) + " GMT");
                 Scheduler.get().scheduleDeferred(head);
 
                 return false;
@@ -672,8 +668,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
      */
     private boolean parseUserCredentials() {
         Configuration conf = (Configuration) GWT.create(Configuration.class);
-        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        String cookie = otherProperties.get("authCookie");
+        Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
+        String cookie = otherProperties.get(Const.AUTH_COOKIE);
         String auth = Cookies.getCookie(cookie);
         if(auth == null) {
             authenticateUser();
@@ -705,8 +701,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
      * Redirect the user to the login page for authentication.
      */
     protected void authenticateUser() {
-        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        Window.Location.assign(otherProperties.get("loginUrl") + Window.Location.getHref());
+        Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
+        Window.Location.assign(otherProperties.get(Const.LOGIN_URL) + Window.Location.getHref());
     }
 
     public void fetchAccount(final Command callback) {
@@ -774,7 +770,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     protected void createHomeContainer(final AccountResource _account, final Command callback) {
-        String path = "/" + Pithos.HOME_CONTAINER;
+        String path = "/" + Const.HOME_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
@@ -808,7 +804,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     protected void createTrashContainer(final Command callback) {
-        String path = "/" + Pithos.TRASH_CONTAINER;
+        String path = "/" + Const.TRASH_CONTAINER;
         PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
@@ -1054,11 +1050,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 }
             };
             copyFile.setHeader(Const.X_AUTH_TOKEN, getUserToken());
-            copyFile.setHeader("X-Copy-From", URL.encodePathSegment(file.getUri()));
+            copyFile.setHeader(Const.X_COPY_FROM, URL.encodePathSegment(file.getUri()));
             if(!file.getOwnerID().equals(targetUsername)) {
-                copyFile.setHeader("X-Source-Account", URL.encodePathSegment(file.getOwnerID()));
+                copyFile.setHeader(Const.X_SOURCE_ACCOUNT, URL.encodePathSegment(file.getOwnerID()));
             }
-            copyFile.setHeader("Content-Type", file.getContentType());
+            copyFile.setHeader(Const.CONTENT_TYPE, file.getContentType());
             Scheduler.get().scheduleDeferred(copyFile);
         }
         else if(callback != null) {
@@ -1094,17 +1090,17 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         };
         copyFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
-        copyFolder.setHeader("Accept", "*/*");
-        copyFolder.setHeader("Content-Length", "0");
-        copyFolder.setHeader("Content-Type", "application/directory");
+        copyFolder.setHeader(Const.ACCEPT, "*/*");
+        copyFolder.setHeader(Const.CONTENT_LENGTH, "0");
+        copyFolder.setHeader(Const.CONTENT_TYPE, "application/directory");
         if(!f.getOwnerID().equals(targetUsername)) {
-            copyFolder.setHeader("X-Source-Account", f.getOwnerID());
+            copyFolder.setHeader(Const.X_SOURCE_ACCOUNT, f.getOwnerID());
         }
         if(move) {
-            copyFolder.setHeader("X-Move-From", URL.encodePathSegment(f.getUri()));
+            copyFolder.setHeader(Const.X_MOVE_FROM, URL.encodePathSegment(f.getUri()));
         }
         else {
-            copyFolder.setHeader("X-Copy-From", URL.encodePathSegment(f.getUri()));
+            copyFolder.setHeader(Const.X_COPY_FROM, URL.encodePathSegment(f.getUri()));
         }
         Scheduler.get().scheduleDeferred(copyFolder);
     }
@@ -1320,9 +1316,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
                                 }
                             };
                             newFolder.setHeader(Const.X_AUTH_TOKEN, getUserToken());
-                            newFolder.setHeader("Content-Type", "application/folder");
-                            newFolder.setHeader("Accept", "*/*");
-                            newFolder.setHeader("Content-Length", "0");
+                            newFolder.setHeader(Const.CONTENT_TYPE, "application/folder");
+                            newFolder.setHeader(Const.ACCEPT, "*/*");
+                            newFolder.setHeader(Const.CONTENT_LENGTH, "0");
                             Scheduler.get().scheduleDeferred(newFolder);
                         }
                         else if(((RestException) t).getHttpStatusCode() == Response.SC_FORBIDDEN) {

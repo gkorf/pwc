@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.Const;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -300,7 +300,7 @@ public class Folder extends Resource {
 	 * @return
 	 */
 	public boolean isTrash() {
-		return isContainer() && name.equals(Pithos.TRASH_CONTAINER);
+		return isContainer() && name.equals(Const.TRASH_CONTAINER);
 	}
 	
 	/**
@@ -309,11 +309,11 @@ public class Folder extends Resource {
 	 * @return
 	 */
 	public boolean isInTrash() {
-		return container.equals(Pithos.TRASH_CONTAINER);
+		return container.equals(Const.TRASH_CONTAINER);
 	}
 
 	public boolean isHome() {
-		return isContainer() && name.equals(Pithos.HOME_CONTAINER);
+		return isContainer() && name.equals(Const.HOME_CONTAINER);
 	}
 
 	public boolean contains(Folder folder) {

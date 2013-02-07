@@ -37,6 +37,7 @@ package gr.grnet.pithos.web.client.commands;
 import java.util.Iterator;
 import java.util.List;
 
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
@@ -108,14 +109,14 @@ public class RestoreTrashCommand implements Command {
 	}
 
     private void untrashFolder(final Folder f, final Command callback) {
-        String path = "/" + Pithos.HOME_CONTAINER + "/" + f.getPrefix();
+        String path = "/" + Const.HOME_CONTAINER + "/" + f.getPrefix();
         app.copyFolder(f, app.getUserID(), path, true, callback);
     }
 
     protected void untrashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = "/" + Pithos.HOME_CONTAINER + "/" + file.getPath();
+            String path = "/" + Const.HOME_CONTAINER + "/" + file.getPath();
             PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
