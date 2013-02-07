@@ -44,13 +44,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.TimeZone;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
@@ -60,7 +58,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.commands.UploadFileCommand;
@@ -332,8 +329,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
+    static native void __ConsoleLog(String message) /*-{
+      try {
+        console.log(message);
+      } catch (e) {
+      }
+    }-*/;
+
+    public static void LOG(String ...args) {
+        final StringBuilder sb = new StringBuilder();
+        for(String arg : args) {
+            sb.append(arg);
+        }
+        if(sb.length() > 0) {
+            __ConsoleLog(sb.toString());
+        }
+    }
+
     private void initialize() {
-        System.out.println("initialize(), userToken = " + userToken);
         lastModified = new Date(); //Initialize if-modified-since value with now.
         resources.pithosCss().ensureInjected();
         boolean bareContent = Window.Location.getParameter("noframe") != null;
