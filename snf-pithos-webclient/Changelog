@@ -1,0 +1,15 @@
+Changelog
+=========
+
+v0.8.7
+------
+
+- Use PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE setting to set the cloudbar active
+  service.
+
+v0.8.5
+------
+
+- Django app to serve the index.html
+- Use synnefo.lib.context_processors.cloudbar to display cloudbar
+

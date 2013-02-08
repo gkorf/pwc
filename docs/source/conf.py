@@ -182,6 +182,80 @@ latex_documents = [
    u'GRNet', 'manual'),
 ]
 
+
+PREAMBLE = """
+\makeatletter
+    \\fancypagestyle{normal}{
+        \\fancyhf{}
+        \\fancyfoot[RO,LE]{{\py@HeaderFamily\\thepage}}
+        \\fancyfoot[LO]{{\py@HeaderFamily\\nouppercase{\\rightmark}}}
+        \\fancyfoot[RE]{{\py@HeaderFamily\\nouppercase{\leftmark}}}
+        \\fancyhead[LE,RO]{{\py@HeaderFamily \@title, \py@release}}
+        \\fancyhead[LO,RE]{\includegraphics[width=3cm]{../../espa.jpg}}
+    }
+
+
+\\renewcommand{\maketitle}{%
+  \\begin{titlepage}%
+    \let\\footnotesize\small
+    \let\\footnoterule\\relax
+    \\rule{\\textwidth}{1pt}%
+    \ifsphinxpdfoutput
+      \\begingroup
+      % These \defs are required to deal with multi-line authors; it
+      % changes \\\\ to ', ' (comma-space), making it pass muster for
+      % generating document info in the PDF file.
+      \def\\\\{, }
+      \def\\and{and }
+      \pdfinfo{
+        /Author (\@author)
+        /Title (\@title)
+      }
+      \endgroup
+    \\fi
+    \\begin{flushright}%
+      \sphinxlogo%
+      {\\rm\Huge\py@HeaderFamily \@title \par}%
+      {\em\LARGE\py@HeaderFamily \py@release\\releaseinfo \par}
+      \\vfill
+      {\LARGE\py@HeaderFamily
+        \\begin{tabular}[t]{c}
+          \@author
+        \end{tabular}
+        \par}
+      \\vfill\\vfill
+      {\large
+       \@date \par
+       \includegraphics[width=6cm]{../../espa.jpg}
+       \\vfill
+       \py@authoraddress \par
+      }%
+    \end{flushright}%\par
+    \@thanks
+  \end{titlepage}%
+  \cleardoublepage%
+  \setcounter{footnote}{0}%
+  \let\\thanks\\relax\let\maketitle\\relax
+  %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
+}
+\makeatother
+"""
+
+latex_elements = {
+# The paper size ('letterpaper' or 'a4paper').
+#'papersize': 'letterpaper',
+
+# The font size ('10pt', '11pt' or '12pt').
+#'pointsize': '10pt',
+
+# Additional stuff for the LaTeX preamble.
+'preamble': PREAMBLE,
+
+'classoptions': ',openany,oneside',
+
+'babel': '\\usepackage[english]{babel}'
+}
+
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
 #latex_logo = None

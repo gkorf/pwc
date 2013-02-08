@@ -11,6 +11,16 @@ war
 .gwt-tmp
 tomcat
 gwt-unitCache
+*.pyc
+.DS_Store
+*.egg-info
+*/dist/
+*/build/
+*/pithos_webclient/version.py
+*/pithos_webclient/templates/pithos_webclient/*
+*/pithos_webclient/static/pithos_webclient/*
+distribute*.tar.gz
+distribute*.egg
 docs/build
 pithos-web-client.sublime-project
 pithos-web-client.sublime-workspace

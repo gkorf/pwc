@@ -53,18 +53,11 @@
 		<script type="text/javascript" src="browserplus-min.js"></script>
 		<!-- Load plupload and all it's runtimes and finally the jQuery queue widget -->
 		<script type="text/javascript" src="plupload/js/plupload.full.js"></script>
-		<script type="text/javascript" src="plupload/js/jquery.plupload.queue/jquery.plupload.queue.js"></script>
-		<script>
-		    var CLOUDBAR_ACTIVE_SERVICE = 'pithos';
-		    var CLOUDBAR_LOCATION = "/static/im/cloudbar/";
-		    var CLOUDBAR_SERVICES = "/im/get_services";
-            var CLOUDBAR_MENU = "/im/get_menu";
-            
-		    $(document).ready(function(){
-		      $.getScript(CLOUDBAR_LOCATION + 'cloudbar.js');
-		    })
-		</script>
-		<script>
+        <script type="text/javascript" src="plupload/js/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+
+        {{ CLOUDBAR_CODE }}
+        
+        <script>
 			var otherProperties = {
 				loginUrl: "/im/login?next=",
 				feedbackUrl: "/feedback",
