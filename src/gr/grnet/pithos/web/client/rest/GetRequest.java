@@ -35,7 +35,6 @@
 
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
@@ -52,9 +51,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 	
 	protected static final int MAX_RETRIES = 3; 
 
-	protected int retries = 0;
-
-    private final Pithos app;
+	protected int retries = 0; 
 
 	protected Class<T> resourceClass;
 
@@ -74,8 +71,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Pithos app, Class<T> resourceClass, String api, String owner, String path, int okCode, T result) {
-        this.app = app;
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, int okCode, T result) {
         this.resourceClass = resourceClass;
         this.api = api;
         this.owner = owner;
@@ -84,12 +80,12 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
         this.result = result;
     }
 
-    public GetRequest(Pithos app, Class<T> resourceClass, String api, String owner, String path) {
-        this(app, resourceClass, api, owner, path, -1, null);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path) {
+        this(resourceClass, api, owner, path, -1, null);
     }
 
-    public GetRequest(Pithos app, Class<T> resourceClass, String api, String owner, String path, T result) {
-        this(app, resourceClass, api, owner, path, -1, result);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, T result) {
+        this(resourceClass, api, owner, path, -1, result);
     }
 
     @Override
@@ -112,7 +108,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public T deserialize(Response response) {
-                    return Resource.createFromResponse(app, resourceClass, owner, response, result);
+                    return Resource.createFromResponse(resourceClass, owner, response, result);
                 }
 
                 @Override

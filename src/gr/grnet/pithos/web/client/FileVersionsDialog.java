@@ -146,7 +146,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 
     protected void fetchVersions() {
     	String path = file.getUri() + "?format=json&version=list";
-    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(app, FileVersions.class, app.getApiPath(), file.getOwnerID(), path) {
+    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(FileVersions.class, app.getApiPath(), file.getOwnerID(), path) {
 
 			@Override
 			public void onSuccess(FileVersions _result) {

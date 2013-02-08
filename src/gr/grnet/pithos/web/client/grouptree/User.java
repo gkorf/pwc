@@ -36,59 +36,21 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 
-public final class User {
-    private final String userID;
-    private final String userDisplayName;
-    private final String group;
+public class User {
+    private String name;
+    
+    private String group;
 
-    public User(String userID, String userDisplayName, String group) {
-        this.userID = userID;
-        this.userDisplayName = userDisplayName;
-        this.group = group;
+    public User(String _name, String _group) {
+        name = _name;
+        group = _group;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getName() {
+        return name;
     }
 
-    public String getUserDisplayName() {
-        return userDisplayName;
-    }
-
-    public String getGroup() {
+	public String getGroup() {
 		return group;
 	}
-
-    @Override
-    public boolean equals(Object o) {
-        if(this == o) {
-            return true;
-        }
-        if(o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        User user = (User) o;
-
-        if(group != null ? !group.equals(user.group) : user.group != null) {
-            return false;
-        }
-        if(userID != null ? !userID.equals(user.userID) : user.userID != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = userID != null ? userID.hashCode() : 0;
-        result = 31 * result + (group != null ? group.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "User(" + userID + ", " + userDisplayName + ", " + group + ")";
-    }
 }

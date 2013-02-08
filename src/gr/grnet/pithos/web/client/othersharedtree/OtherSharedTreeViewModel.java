@@ -175,7 +175,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 //    }-*/;
 
     private void fetchSharingUsers(final Command callback) {
-        GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(app, SharingUsers.class, app.getApiPath(), "", "?format=json") {
+        GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(SharingUsers.class, app.getApiPath(), "", "?format=json") {
             @Override
             public void onSuccess(final SharingUsers _result) {
                 userLevelDataProviderForIDs.getList().clear();
@@ -285,7 +285,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     }
 
     private void fetchSharedContainers(final String userID, final ListDataProvider<Folder> dataProvider, final Command callback) {
-        GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(app, AccountResource.class, app.getApiPath(), userID, "?format=json") {
+        GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), userID, "?format=json") {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -330,7 +330,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             final Folder f = folderIterator.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), userID, path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), userID, path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
                     dataProvider.getList().add(_result);
@@ -376,7 +376,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if(showfiles) {

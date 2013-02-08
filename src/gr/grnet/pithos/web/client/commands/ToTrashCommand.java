@@ -127,7 +127,7 @@ public class ToTrashCommand implements Command{
         if (iter.hasNext()) {
             File file = iter.next();
             String path = "/" + Const.TRASH_CONTAINER + "/" + file.getPath();
-            PutRequest trashFile = new PutRequest(app, app.getApiPath(), app.getUserID(), path) {
+            PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     trashFiles(iter, callback);

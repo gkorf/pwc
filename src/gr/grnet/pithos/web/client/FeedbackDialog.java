@@ -140,7 +140,7 @@ public class FeedbackDialog extends DialogBox {
      */
     void sendFeedback() {
         final String feedbackURL = otherProperties.get("feedbackUrl");
-        PostRequest sendFeedback = new PostRequest(app, "", "", feedbackURL, "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getUserToken()) {
+        PostRequest sendFeedback = new PostRequest("", "", feedbackURL, "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getUserToken()) {
 
             @Override
             protected void onUnauthorized(Response response) {

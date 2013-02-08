@@ -35,6 +35,15 @@
 
 package gr.grnet.pithos.web.client.grouptree;
 
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
@@ -44,57 +53,46 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.grouptree.GroupTreeView.Templates;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 public class GroupTreeViewModel implements TreeViewModel {
-    final Group CreateGroupPlaceholder = new Group("Create new group...");
 
     protected Pithos app;
 
-    private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
+	private Cell<Group> groupCell = new AbstractCell<Group>(ContextMenuEvent.getType().getName()) {
 
-        @Override
-        public void render(Context context, Group group, SafeHtmlBuilder sb) {
+		@Override
+		public void render(Context context,	Group value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.group()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-            sb.append(Templates.INSTANCE.nameSpan(group.getName()));
-        }
-
+            sb.append(Templates.INSTANCE.nameSpan(value.getName()));
+		}
+		
         @Override
         public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, Group group, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<Group> valueUpdater) {
-            if(!group.equals(CreateGroupPlaceholder)) {
-                GroupTreeViewModel.this.groupSelectionModel.setSelected(group, true);
-                if(event.getType().equals(ContextMenuEvent.getType().getName())) {
-                    GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
-                    menu.setPopupPosition(event.getClientX(), event.getClientY());
-                    menu.show();
-                }
-            }
+        	if (!group.equals(createGroup)) {
+	            GroupTreeViewModel.this.groupSelectionModel.setSelected(group, true);
+	            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
+	                GroupContextMenu menu = new GroupContextMenu(app, GroupTreeView.images, group);
+	                menu.setPopupPosition(event.getClientX(), event.getClientY());
+	                menu.show();
+	            }
+        	}
         }
-    };
+	};
 
     private Cell<User> userCell = new AbstractCell<User>(ContextMenuEvent.getType().getName()) {
 
-        @Override
-        public void render(Context context, User user, final SafeHtmlBuilder sb) {
+		@Override
+		public void render(Context context,	User value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-            final String userDisplayName = user.getUserDisplayName();
-            sb.append(Templates.INSTANCE.nameSpan(userDisplayName));
-        }
+            sb.append(Templates.INSTANCE.nameSpan(value.getName()));
+		}
 
         @Override
         public void onBrowserEvent(Cell.Context context, com.google.gwt.dom.client.Element parent, User user, com.google.gwt.dom.client.NativeEvent event, com.google.gwt.cell.client.ValueUpdater<User> valueUpdater) {
             GroupTreeViewModel.this.userSelectionModel.setSelected(user, true);
-            if(event.getType().equals(ContextMenuEvent.getType().getName())) {
+            if (event.getType().equals(ContextMenuEvent.getType().getName())) {
                 UserContextMenu menu = new UserContextMenu(app, GroupTreeView.images, user);
                 menu.setPopupPosition(event.getClientX(), event.getClientY());
                 menu.show();
@@ -105,127 +103,114 @@ public class GroupTreeViewModel implements TreeViewModel {
     protected ListDataProvider<Group> groupsDataProvider = new ListDataProvider<Group>();
 
     protected Map<Group, ListDataProvider<User>> userDataProviderMap = new HashMap<Group, ListDataProvider<User>>();
-
+    
     SingleSelectionModel<Group> groupSelectionModel;
     SingleSelectionModel<User> userSelectionModel;
+    
+    final Group createGroup = new Group("Create new group...");
 
     public GroupTreeViewModel(Pithos _app) {
         app = _app;
 
-        groupSelectionModel = new SingleSelectionModel<Group>();
-        app.addSelectionModel(groupSelectionModel);
-        groupSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+    	groupSelectionModel = new SingleSelectionModel<Group>();
+    	app.addSelectionModel(groupSelectionModel);
+    	groupSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+			
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				Group selected = groupSelectionModel.getSelectedObject();
+				if (selected != null) {
+					app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
+					app.showFiles(new HashSet<File>());
+					app.disableUploadArea();
+					app.upload.setEnabled(false);
+					app.showRelevantToolbarButtons();
+					if (selected.equals(createGroup)) {
+						new CreateGroupCommand(app, null).execute();
+						groupSelectionModel.setSelected(createGroup, false);
+					}
+				}
+				else {
+					if (app.getSelectedTree().equals(app.getGroupTreeView()))
+						app.setSelectedTree(null);
+					if (app.getSelectedTree() == null)
+						app.showRelevantToolbarButtons();
+				}
+			}
+		});
 
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Group selected = groupSelectionModel.getSelectedObject();
-                if(selected != null) {
-                    app.deselectOthers(app.getGroupTreeView(), groupSelectionModel);
-                    app.showFiles(new HashSet<File>());
-                    app.disableUploadArea();
-                    app.upload.setEnabled(false);
-                    app.showRelevantToolbarButtons();
-                    if(selected.equals(CreateGroupPlaceholder)) {
-                        new CreateGroupCommand(app, null).execute();
-                        groupSelectionModel.setSelected(CreateGroupPlaceholder, false);
-                    }
-                }
-                else {
-                    if(app.getSelectedTree().equals(app.getGroupTreeView())) {
-                        app.setSelectedTree(null);
-                    }
-                    if(app.getSelectedTree() == null) {
-                        app.showRelevantToolbarButtons();
-                    }
-                }
-            }
-        });
-
-        userSelectionModel = new SingleSelectionModel<User>();
-        app.addSelectionModel(userSelectionModel);
-        userSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                if(userSelectionModel.getSelectedObject() != null) {
-                    app.deselectOthers(app.getGroupTreeView(), userSelectionModel);
-                    app.showFiles(new HashSet<File>());
-                    app.showRelevantToolbarButtons();
-                }
-                else {
-                    if(app.getSelectedTree().equals(app.getGroupTreeView())) {
-                        app.setSelectedTree(null);
-                    }
-                    if(app.getSelectedTree() == null) {
-                        app.showRelevantToolbarButtons();
-                    }
-                }
-            }
-        });
-    }
+    	userSelectionModel = new SingleSelectionModel<User>();
+    	app.addSelectionModel(userSelectionModel);
+    	userSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+			
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				if (userSelectionModel.getSelectedObject() != null) {
+					app.deselectOthers(app.getGroupTreeView(), userSelectionModel);
+					app.showFiles(new HashSet<File>());
+					app.showRelevantToolbarButtons();
+				}
+				else {
+					if (app.getSelectedTree().equals(app.getGroupTreeView()))
+						app.setSelectedTree(null);
+					if (app.getSelectedTree() == null)
+						app.showRelevantToolbarButtons();
+				}
+			}
+		});
+}
 
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
-        app.LOG("GroupTreeViewModel::getNodeInfo(), value = ", value);
-        if(value == null) {
-            groupsDataProvider.getList().clear();
-            groupsDataProvider.getList().addAll(app.getAccount().getGroups());
-            groupsDataProvider.getList().add(CreateGroupPlaceholder);
+        if (value == null) {
+        	groupsDataProvider.getList().clear();
+       		groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(createGroup);
             return new DefaultNodeInfo<Group>(groupsDataProvider, groupCell, groupSelectionModel, null);
         }
-        final Group group = (Group) value;
-        if(userDataProviderMap.get(group) == null) {
-            userDataProviderMap.put(group, new ListDataProvider<User>());
-        }
-        final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
-        dataProvider.getList().clear();
-        final List<User> users = group.getUsers();
-        for(User user : users) {
-            app.LOG("GroupTreeViewModel::getNodeInfo(), Add ", user);
-            dataProvider.getList().add(user);
-        }
-
-
-        return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
+    	Group g = (Group) value;
+		if (userDataProviderMap.get(g) == null) {
+			userDataProviderMap.put(g, new ListDataProvider<User>());
+		}
+		final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
+		dataProvider.getList().clear();
+		for (String u : g.getMembers())
+			dataProvider.getList().add(new User(u, g.getName()));
+    	return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
     }
 
-    @Override
+	@Override
     public boolean isLeaf(Object o) {
-        if(o instanceof User) {
-            return true;
+        if (o instanceof User) {
+       		return true;
         }
-        else if(o instanceof Group) {
-            return ((Group) o).getUsers().isEmpty();
-        }
+        else if (o instanceof Group)
+        	return ((Group) o).getMembers().isEmpty();
         return false;
     }
+	
+	public void updateGroupNode(Group group) {
+		if (group == null) {
+			groupsDataProvider.getList().clear();
+			groupsDataProvider.getList().addAll(app.getAccount().getGroups());
+       		groupsDataProvider.getList().add(createGroup);
+		}
+		else {
+			if (userDataProviderMap.get(group) == null) {
+				userDataProviderMap.put(group, new ListDataProvider<User>());
+			}
+			final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
+			dataProvider.getList().clear();
+			for (String u : group.getMembers())
+				dataProvider.getList().add(new User(u, group.getName()));
+		}
+	}
 
-    public void updateGroupNode(Group group) {
-        if(group == null) {
-            groupsDataProvider.getList().clear();
-            groupsDataProvider.getList().addAll(app.getAccount().getGroups());
-            groupsDataProvider.getList().add(CreateGroupPlaceholder);
-        }
-        else {
-            if(userDataProviderMap.get(group) == null) {
-                userDataProviderMap.put(group, new ListDataProvider<User>());
-            }
-            final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
-            dataProvider.getList().clear();
-            for(User user : group.getUsers()) {
-                app.LOG("GroupTreeViewModel::updateGroupNode(), group = ", group, ". Add ", user);
-                dataProvider.getList().add(user);
-            }
-        }
-    }
-
-    public Object getSelectedObject() {
-        if(groupSelectionModel.getSelectedObject() != null) {
-            return groupSelectionModel.getSelectedObject();
-        }
-        if(userSelectionModel.getSelectedObject() != null) {
-            return userSelectionModel.getSelectedObject();
-        }
-        return null;
-    }
+	public Object getSelectedObject() {
+		if (groupSelectionModel.getSelectedObject() != null)
+			return groupSelectionModel.getSelectedObject();
+		if (userSelectionModel.getSelectedObject() != null)
+			return userSelectionModel.getSelectedObject();
+		return null;
+	}
 }

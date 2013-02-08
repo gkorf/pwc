@@ -262,10 +262,10 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
 	protected void updateMetaData(String api, String owner, final String path, final Map<String, Boolean[]> newPermissions) {
         if (newPermissions != null) {
-            PostRequest updateFile = new PostRequest(app, api, owner, path) {
+            PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(app, File.class, app.getApiPath(), file.getOwnerID(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {
