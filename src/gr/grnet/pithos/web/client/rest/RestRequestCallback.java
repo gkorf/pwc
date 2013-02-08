@@ -38,7 +38,7 @@ package gr.grnet.pithos.web.client.rest;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 public abstract class RestRequestCallback<T extends Resource> implements RequestCallback {
 

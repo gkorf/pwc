@@ -152,7 +152,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
                     fetchFolder(iter, callback);
@@ -182,7 +182,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 	            		Scheduler.get().scheduleDeferred(this);
 				}
             };
-            getFolder.setHeader("X-Auth-Token", app.getToken());
+            getFolder.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else if (callback != null)
@@ -236,7 +236,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwner(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if (showfiles)
@@ -281,7 +281,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             		Scheduler.get().scheduleDeferred(this);
 			}
         };
-        getFolder.setHeader("X-Auth-Token", app.getToken());
+        getFolder.setHeader("X-Auth-Token", app.getUserToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
 }

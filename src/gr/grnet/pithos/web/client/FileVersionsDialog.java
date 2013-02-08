@@ -51,7 +51,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -105,7 +104,6 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("File versions");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
@@ -148,7 +146,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 
     protected void fetchVersions() {
     	String path = file.getUri() + "?format=json&version=list";
-    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(FileVersions.class, app.getApiPath(), file.getOwner(), path) {
+    	GetRequest<FileVersions> getVersions = new GetRequest<FileVersions>(app, FileVersions.class, app.getApiPath(), file.getOwnerID(), path) {
 
 			@Override
 			public void onSuccess(FileVersions _result) {
@@ -172,7 +170,7 @@ public class FileVersionsDialog extends AbstractPropertiesDialog {
 				app.sessionExpired();
 			}
 		};
-		getVersions.setHeader("X-Auth-Token", app.getToken());
+		getVersions.setHeader("X-Auth-Token", app.getUserToken());
 		Scheduler.get().scheduleDeferred(getVersions);
 	}
 

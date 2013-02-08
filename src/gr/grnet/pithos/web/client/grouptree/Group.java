@@ -36,30 +36,50 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class Group {
-    private String name;
+public final class Group {
+    private final String name;
 
-    private List<String> members = new ArrayList<String>();
+    private final List<User> users = new ArrayList<User>();
 
-    public Group(String _name) {
-        name = _name;
+    public Group(String name) {
+        this.name = name;
     }
 
-    public List<String> getMembers() {
-        return members;
+    public List<User> getUsers() {
+        return Collections.unmodifiableList(users);
     }
 
     public String getName() {
         return name;
     }
 
-    public void addMember(String user) {
-        members.add(user);
+    public void addUser(User user) {
+        this.users.add(user);
     }
 
-	public void removeMember(String username) {
-		members.remove(username);
+	public void removeUser(User user) {
+		this.users.remove(user);
 	}
+
+    public String encodeUserIDsForXAccountGroup() {
+        final StringBuilder sb = new StringBuilder();
+        for(int i=0; i<users.size(); i++) {
+            final User user = users.get(i);
+            sb.append(user.getUserID());
+            if(i < users.size() - 1) {
+                sb.append(",");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Group(" + name + ", " + users.size()+ " users)";
+    }
+
 }

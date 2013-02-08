@@ -54,7 +54,6 @@ import gr.grnet.pithos.web.client.grouptree.User;
 
 import java.util.List;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -92,13 +91,12 @@ public class ToolsMenu extends PopupPanel {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
-		setAnimationEnabled(true);
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
 
         if (folder != null) {
-	        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-	    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+	        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
+	    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 	    	boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
 	    	boolean isMysharedTreeSelected = app.isMySharedSelected();
 	    	
@@ -137,12 +135,12 @@ public class ToolsMenu extends PopupPanel {
 			        	if (item instanceof List) {
 			        		@SuppressWarnings("unchecked")
 							List<File> _files = (List<File>) item;
-			        		if (_files.get(0).getOwner().equals(folder.getOwner()))
+			        		if (_files.get(0).getOwnerID().equals(folder.getOwnerID()))
 			        			showPaste = true;
 			        	}
 			        	else {
 			        		Folder f = (Folder) item;
-			        		if (f.getOwner().equals(folder.getOwner()))
+			        		if (f.getOwnerID().equals(folder.getOwnerID()))
 			        			showPaste = true;
 			        	}
 			        	if (showPaste) {
@@ -196,7 +194,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
+					        		Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
 							}
 						}));
 			        	empty = false;

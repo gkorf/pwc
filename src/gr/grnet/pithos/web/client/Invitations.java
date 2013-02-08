@@ -44,8 +44,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
-
 public class Invitations extends Resource {
 
 	private int invitationsLeft = 0;

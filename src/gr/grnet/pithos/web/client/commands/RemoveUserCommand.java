@@ -34,93 +34,96 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.grouptree.Group;
-import gr.grnet.pithos.web.client.grouptree.User;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
+import gr.grnet.pithos.web.client.Const;
+import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.Resource;
+import gr.grnet.pithos.web.client.grouptree.Group;
+import gr.grnet.pithos.web.client.grouptree.User;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
 
 /**
  * Display the 'new folder' dialog for creating a new folder.
- *
  */
 public class RemoveUserCommand implements Command {
-	private PopupPanel containerPanel;
+    private PopupPanel containerPanel;
 
     User user;
 
     Pithos app;
 
-	/**
-	 * @param aContainerPanel
-	 */
-	public RemoveUserCommand(Pithos _app, PopupPanel aContainerPanel, User _user){
+    /**
+     * @param aContainerPanel
+     */
+    public RemoveUserCommand(Pithos _app, PopupPanel aContainerPanel, User _user) {
         app = _app;
-		containerPanel = aContainerPanel;
-	    user = _user;
-	}
+        containerPanel = aContainerPanel;
+        user = _user;
+    }
 
-	@Override
-	public void execute() {
-        if (containerPanel != null)
-		    containerPanel.hide();
-    	final String groupName = user.getGroup();
-    	final Group group = app.getAccount().getGroup(groupName);
-    	if (group == null)
-    		return;
-    	group.removeMember(user.getName());
-    	String path = "?update=";
-    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
-			
-			@Override
-			public void onSuccess(Resource result) {
-				app.fetchAccount(new Command() {
-					
-					@Override
-					public void execute() {
-						Group updatedGroup2 = app.getAccount().getGroup(groupName);
-						if (updatedGroup2 != null)
-							app.updateGroupNode(updatedGroup2);
-						else {
-							app.updateGroupNode(null);
-						}
-					}
-				});
-			}
-			
-			@Override
-			public void onError(Throwable t) {
-				GWT.log("", t);
-				app.setError(t);
-				if (t instanceof RestException) {
-					app.displayError("Unable to update group:" + ((RestException) t).getHttpStatusText());
-				}
-				else
-					app.displayError("System error updating group:" + t.getMessage());
-			}
+    @Override
+    public void execute() {
+        if(containerPanel != null) {
+            containerPanel.hide();
+        }
+        final String groupName = user.getGroup();
+        final Group group = app.getAccount().getGroup(groupName);
+        if(group == null) {
+            return;
+        }
+        group.removeUser(user);
+        String path = "?update=";
+        PostRequest updateGroup = new PostRequest(app, app.getApiPath(), app.getUserID(), path) {
 
-			@Override
-			protected void onUnauthorized(Response response) {
-				app.sessionExpired();
-			}
-		};
-		updateGroup.setHeader("X-Auth-Token", app.getToken());
-		String groupMembers = "";
-		if (!group.getMembers().isEmpty()) {
-			for (String u : group.getMembers())
-				groupMembers += (URL.encodePathSegment(u) + ",");
-		}
-		else
-			groupMembers = "~";
-		updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), groupMembers);
-		Scheduler.get().scheduleDeferred(updateGroup);
-	}
+            @Override
+            public void onSuccess(Resource result) {
+                app.fetchAccount(new Command() {
+
+                    @Override
+                    public void execute() {
+                        Group updatedGroup2 = app.getAccount().getGroup(groupName);
+                        if(updatedGroup2 != null) {
+                            app.updateGroupNode(updatedGroup2);
+                        }
+                        else {
+                            app.updateGroupNode(null);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                GWT.log("", t);
+                app.setError(t);
+                if(t instanceof RestException) {
+                    app.displayError("Unable to update group:" + ((RestException) t).getHttpStatusText());
+                }
+                else {
+                    app.displayError("System error updating group:" + t.getMessage());
+                }
+            }
+
+            @Override
+            protected void onUnauthorized(Response response) {
+                app.sessionExpired();
+            }
+        };
+        updateGroup.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
+        final String groupMembers;
+        if(!group.getUsers().isEmpty()) {
+            groupMembers = group.encodeUserIDsForXAccountGroup();
+        }
+        else {
+            groupMembers = "~";
+        }
+        updateGroup.setHeader(Const.X_ACCOUNT_GROUP_ + URL.encodePathSegment(group.getName()), groupMembers);
+        Scheduler.get().scheduleDeferred(updateGroup);
+    }
 }
