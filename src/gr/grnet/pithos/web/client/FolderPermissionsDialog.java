@@ -34,15 +34,11 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
-import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
@@ -97,7 +93,6 @@ public class FolderPermissionsDialog extends DialogBox {
 			}
 		});
 
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
@@ -120,7 +115,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
         VerticalPanel permPanel = new VerticalPanel();
         FilePermissionsDialog.Images images = GWT.create(FilePermissionsDialog.Images.class);
-        permList = new PermissionsList(images, folder.getPermissions(), folder.getOwner(), false, null);
+        permList = new PermissionsList(app, images, folder.getPermissions(), folder.getOwnerID(), false, null);
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
@@ -220,7 +215,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
 	protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
         if (newPermissions != null) {
-            PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwner(), path) {
+            PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwnerID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     app.updateFolder(folder.getParent(), false, new Command() {
@@ -239,7 +234,7 @@ public class FolderPermissionsDialog extends DialogBox {
                     if (t instanceof RestException) {
                     	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
                             final String path1 = folder.getUri();
-                            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwner(), path1) {
+                            PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwnerID(), path1) {
                                 @Override
                                 public void onSuccess(Resource result) {
                                 	updateMetadata(path, newPermissions);
@@ -261,7 +256,7 @@ public class FolderPermissionsDialog extends DialogBox {
                 					app.sessionExpired();
                 				}
                             };
-                            newFolder.setHeader("X-Auth-Token", app.getToken());
+                            newFolder.setHeader("X-Auth-Token", app.getUserToken());
                             newFolder.setHeader("Content-Type", "application/folder");
                             newFolder.setHeader("Accept", "*/*");
                             newFolder.setHeader("Content-Length", "0");
@@ -282,7 +277,7 @@ public class FolderPermissionsDialog extends DialogBox {
 					app.sessionExpired();
 				}
             };
-            updateFolder.setHeader("X-Auth-Token", app.getToken());
+            updateFolder.setHeader("X-Auth-Token", app.getUserToken());
             String readPermHeader = "read=";
             String writePermHeader = "write=";
             for (String u : newPermissions.keySet()) {

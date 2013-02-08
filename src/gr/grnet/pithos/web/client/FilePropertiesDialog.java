@@ -35,7 +35,6 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 
@@ -56,7 +55,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -93,7 +91,6 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("File properties");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
@@ -136,11 +133,24 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         name.setWidth("100%");
         name.setText(file.getName());
         generalTable.setWidget(0, 1, name);
-        if(file.getParent() != null)
+        if(file.getParent() != null) {
             generalTable.setText(1, 1, file.getParent().getName());
-        else
+        }
+        else {
             generalTable.setText(1, 1, "-");
-        generalTable.setText(2, 1, file.getOwner());
+        }
+
+        final String ownerID = file.getOwnerID();
+        final String displayName = app.getUserDisplayNameForID(ownerID);
+        final String ownerDisplayName;
+        if(displayName == null) {
+            // FIXME: Get the actual display name and do not use the id
+            ownerDisplayName = ownerID;
+        }
+        else {
+            ownerDisplayName = displayName;
+        }
+        generalTable.setText(2, 1, ownerDisplayName);
 
         final DateTimeFormat formatter = DateTimeFormat.getFormat("d/M/yyyy h:mm a");
         generalTable.setText(3, 1, file.getLastModified() != null ? formatter.format(file.getLastModified()) : "");
@@ -251,10 +261,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         if (newFilename != null) {
             final String path = file.getParent().getUri() + "/" + newFilename;
-            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwner(), path, newMeta);
+                    updateMetaData(app.getApiPath(), file.getOwnerID(), path, newMeta);
                 }
 
                 @Override
@@ -269,7 +279,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             updateFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             updateFile.setHeader("Content-Type", file.getContentType());
             for (String key : file.getMeta().keySet())
@@ -303,7 +313,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUsername(), file.getUri(), newMeta);
+            updateMetaData(app.getApiPath(), app.getUserID(), file.getUri(), newMeta);
         return true;
 	}
 
@@ -344,7 +354,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             
             for (String t : file.getMeta().keySet()) {
         		updateFile.setHeader("X-Object-Meta-" + URL.encodePathSegment(t.trim()), "~");

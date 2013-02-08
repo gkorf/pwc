@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
 import java.util.Map;

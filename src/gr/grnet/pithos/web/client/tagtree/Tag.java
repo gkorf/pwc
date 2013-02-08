@@ -36,7 +36,7 @@
 package gr.grnet.pithos.web.client.tagtree;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 import java.util.Date;
 import java.util.LinkedHashSet;

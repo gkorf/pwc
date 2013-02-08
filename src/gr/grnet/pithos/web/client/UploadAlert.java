@@ -56,7 +56,6 @@ public class UploadAlert extends PopupPanel {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(false);
-		setAnimationEnabled(true);
 		addStyleName(Pithos.resources.pithosCss().uploadAlert());
 		FlowPanel content = new FlowPanel();
 		setNumOfFiles(_numOfFiles);

@@ -34,12 +34,11 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
-import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.GetRequest;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.rest.PutRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -120,15 +119,15 @@ public class ToTrashCommand implements Command{
 	}
 
     private void trashFolder(final Folder f, final Command callback) {
-    	String path = "/" + Pithos.TRASH_CONTAINER + "/" + f.getPrefix();
-    	app.copyFolder(f, app.getUsername(), path, true, callback);
+    	String path = "/" + Const.TRASH_CONTAINER + "/" + f.getPrefix();
+    	app.copyFolder(f, app.getUserID(), path, true, callback);
     }
   
     protected void trashFiles(final Iterator<File> iter, final Command callback) {
         if (iter.hasNext()) {
             File file = iter.next();
-            String path = "/" + Pithos.TRASH_CONTAINER + "/" + file.getPath();
-            PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUsername(), path) {
+            String path = "/" + Const.TRASH_CONTAINER + "/" + file.getPath();
+            PutRequest trashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     trashFiles(iter, callback);
@@ -150,7 +149,7 @@ public class ToTrashCommand implements Command{
 					app.sessionExpired();
 				}
             };
-            trashFile.setHeader("X-Auth-Token", app.getToken());
+            trashFile.setHeader("X-Auth-Token", app.getUserToken());
             trashFile.setHeader("X-Move-From", URL.encodePathSegment(file.getUri()));
             trashFile.setHeader("Content-Type", file.getContentType());
             Scheduler.get().scheduleDeferred(trashFile);

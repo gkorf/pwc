@@ -71,7 +71,6 @@ public abstract class ConfirmationDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("Confirmation");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		// Create a VerticalPanel to contain the label and the buttons.

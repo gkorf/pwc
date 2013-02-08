@@ -60,9 +60,6 @@ public abstract class AbstractPropertiesDialog extends DialogBox {
         app = _app;
 		// Enable IE selection for the dialog (must disable it upon closing it)
 		Pithos.enableIESelection();
-
-		setAnimationEnabled(true);
-
 	}
 
 	/**

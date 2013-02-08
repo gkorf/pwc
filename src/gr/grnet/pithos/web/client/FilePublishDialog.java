@@ -35,11 +35,8 @@
 package gr.grnet.pithos.web.client;
 
 import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.HeadRequest;
 import gr.grnet.pithos.web.client.rest.PostRequest;
-
-import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -48,9 +45,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
@@ -114,7 +109,6 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 		});
 		// Set the dialog's caption.
 		setText("Publish/Un-publish");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
@@ -163,7 +157,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
         });
 
         // Only show the read for all permission if the user is the owner.
-        if (file.getOwner().equals(app.getUsername())) {
+        if (file.getOwnerID().equals(app.getUserID())) {
             final HorizontalPanel permForAll = new HorizontalPanel();
             permForAll.add(new Label("Public"));
             permForAll.add(readForAll);
@@ -228,9 +222,9 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 	protected boolean accept() {
         Boolean published = null;
 		if (readForAll.getValue() != file.isPublished())
-			if (file.getOwner().equals(app.getUsername()))
+			if (file.getOwnerID().equals(app.getUserID()))
                 published = readForAll.getValue();
-        updateMetaData(app.getApiPath(), app.getUsername(), file.getUri() + "?update=", published);
+        updateMetaData(app.getApiPath(), app.getUserID(), file.getUri() + "?update=", published);
         return true;
 	}
 
@@ -239,7 +233,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwner(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {
@@ -268,7 +262,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 							app.sessionExpired();
 						}
 					};
-					headFile.setHeader("X-Auth-Token", app.getToken());
+					headFile.setHeader("X-Auth-Token", app.getUserToken());
 					Scheduler.get().scheduleDeferred(headFile);
                 }
 
@@ -284,7 +278,7 @@ public class FilePublishDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getToken());
+            updateFile.setHeader("X-Auth-Token", app.getUserToken());
             updateFile.setHeader("X-Object-Public", published.toString());
             Scheduler.get().scheduleDeferred(updateFile);
         }

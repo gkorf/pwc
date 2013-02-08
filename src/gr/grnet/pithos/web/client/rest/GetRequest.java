@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
 	protected int retries = 0; 
 
-	protected Class<T> aClass;
+	protected Class<T> resourceClass;
 
     private String api;
 
@@ -71,8 +71,8 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path, int okCode, T result) {
-        this.aClass = aClass;
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, int okCode, T result) {
+        this.resourceClass = resourceClass;
         this.api = api;
         this.owner = owner;
         this.path = path;
@@ -80,12 +80,12 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
         this.result = result;
     }
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path) {
-        this(aClass, api, owner, path, -1, null);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path) {
+        this(resourceClass, api, owner, path, -1, null);
     }
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path, T result) {
-        this(aClass, api, owner, path, -1, result);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, T result) {
+        this(resourceClass, api, owner, path, -1, result);
     }
 
     @Override
@@ -95,6 +95,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
     	else
     		path += "?t=" + System.currentTimeMillis();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
+
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
@@ -107,7 +108,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public T deserialize(Response response) {
-                    return Resource.createFromResponse(aClass, owner, response, result);
+                    return Resource.createFromResponse(resourceClass, owner, response, result);
                 }
 
                 @Override
