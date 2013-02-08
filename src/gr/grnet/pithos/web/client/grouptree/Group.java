@@ -62,4 +62,9 @@ public class Group {
 	public void removeMember(String username) {
 		members.remove(username);
 	}
+
+    @Override
+    public String toString() {
+        return "Group(" + name + ", " + members.size() + " members)";
+    }
 }

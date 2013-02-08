@@ -129,25 +129,29 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return displayName == null ? getUserID() : displayName;
     }
 
-    public boolean hasUserDisplayNameForID(String userID) {
+    public boolean hasDisplayNameForUserID(String userID) {
         return userCatalogs.getDisplayName(userID) != null;
     }
 
-    public String getUserDisplayNameForID(String userID) {
+    public boolean hasIDForUserDisplayName(String userDisplayName) {
+        return userCatalogs.getID(userDisplayName) != null;
+    }
+
+    public String getDisplayNameForUserID(String userID) {
         return userCatalogs.getDisplayName(userID);
     }
 
-    public String getUserIDForDisplayName(String displayName) {
-        return userCatalogs.getUserID(displayName);
+    public String getIDForUserDisplayName(String userDisplayName) {
+        return userCatalogs.getID(userDisplayName);
     }
 
-    public List<String> getUserDisplayNamesForIDs(List<String> userIDs) {
+    public List<String> getDisplayNamesForUserIDs(List<String> userIDs) {
         if(userIDs == null) {
             userIDs = new ArrayList<String>();
         }
         final List<String> userDisplayNames = new ArrayList<String>();
         for(String userID : userIDs) {
-            final String displayName = getUserDisplayNameForID(userID);
+            final String displayName = getDisplayNameForUserID(userID);
             userDisplayNames.add(displayName);
         }
 
@@ -332,9 +336,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
       }
     }-*/;
 
-    public static void LOG(String ...args) {
+    public static void LOG(Object ...args) {
         final StringBuilder sb = new StringBuilder();
-        for(String arg : args) {
+        for(Object arg : args) {
             sb.append(arg);
         }
         if(sb.length() > 0) {
@@ -710,13 +714,26 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
             @Override
-            public void onSuccess(AccountResource _result) {
-                account = _result;
+            public void onSuccess(AccountResource accountResource) {
+                account = accountResource;
                 if(callback != null) {
                     callback.execute();
                 }
+
+                final List<String> memberIDs = new ArrayList<String>();
+                final List<Group> groups = account.getGroups();
+                for(Group group : groups) {
+                    LOG("Group ", group);
+                    for(String member: group.getMembers()) {
+                        LOG("      ", member);
+                        memberIDs.add(member);
+                    }
+                }
+
+                final List<String> theUnknown = Pithos.this.filterUserIDsWithUnknownDisplayName(memberIDs);
                 // Initialize the user catalog
-                new UpdateUserCatalogs(Pithos.this, Pithos.this.getUserID()).scheduleDeferred();
+                new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleEntry();
+                LOG("Called new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleDeferred();");
             }
 
             @Override

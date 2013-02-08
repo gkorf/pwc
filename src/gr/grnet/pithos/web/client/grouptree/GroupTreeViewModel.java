@@ -86,7 +86,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 		public void render(Context context,	User value, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-            sb.append(Templates.INSTANCE.nameSpan(value.getName()));
+            sb.append(Templates.INSTANCE.nameSpan(value.getUserID()));
 		}
 
         @Override

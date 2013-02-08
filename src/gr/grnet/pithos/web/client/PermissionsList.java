@@ -34,9 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
 import gr.grnet.pithos.web.client.FilePermissionsDialog.Images;
 
 import java.util.HashMap;
@@ -49,14 +46,11 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 
@@ -134,7 +128,7 @@ public class PermissionsList extends Composite {
 		for(final String userID : permissions.keySet()) {
             if (!userID.contains(":")) {
                  //not a group
-                final String displayName = app.getUserDisplayNameForID(userID);
+                final String displayName = app.getDisplayNameForUserID(userID);
                 if(displayName != null) {
                     permTable.setHTML(
                         i,

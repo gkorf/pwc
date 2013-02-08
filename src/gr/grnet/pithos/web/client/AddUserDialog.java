@@ -45,9 +45,13 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.Arrays;
 
 /**
  * The 'Folder properties' dialog box implementation.
@@ -60,7 +64,7 @@ public class AddUserDialog extends DialogBox {
     /**
      * The widget that holds the folderName of the folder.
      */
-    TextBox userName = new TextBox();
+    TextBox userNameInput = new TextBox();
 
     final VerticalPanel inner;
 
@@ -101,7 +105,7 @@ public class AddUserDialog extends DialogBox {
         FlexTable generalTable = new FlexTable();
         generalTable.setText(0, 0, "Username");
 
-        generalTable.setWidget(0, 1, userName);
+        generalTable.setWidget(0, 1, userNameInput);
 
         generalTable.getFlexCellFormatter().setStyleName(0, 0, "props-labels");
         generalTable.getFlexCellFormatter().setStyleName(0, 1, "props-values");
@@ -131,7 +135,7 @@ public class AddUserDialog extends DialogBox {
     @Override
     public void center() {
         super.center();
-        userName.setFocus(true);
+        userNameInput.setFocus(true);
     }
 
     @Override
@@ -165,20 +169,8 @@ public class AddUserDialog extends DialogBox {
         hide();
     }
 
-    /**
-     * Generate an RPC request to create a new folder.
-     */
-    void addUser() {
-        String name = userName.getText().trim();
-        if(name.length() == 0) {
-            return;
-        }
-        if(!Const.EMAIL_REGEX.test(name)) {
-            app.displayWarning("Username must be a valid email address");
-            return;
-        }
-
-        group.addMember(name);
+    private void doAddUser(final String userID) {
+        group.addMember(userID);
         String path = "?update=";
         PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 
@@ -211,5 +203,34 @@ public class AddUserDialog extends DialogBox {
         }
         updateGroup.setHeader(Const.X_ACCOUNT_GROUP_ + URL.encodePathSegment(group.getName()), groupMembers);
         Scheduler.get().scheduleDeferred(updateGroup);
+    }
+    /**
+     * Generate an RPC request to create a new folder.
+     */
+    void addUser() {
+        final String userDisplayName = userNameInput.getText().trim();
+        if(userDisplayName.length() == 0) {
+            return;
+        }
+        if(!Const.EMAIL_REGEX.test(userDisplayName)) {
+            app.displayWarning("Username must be a valid email address");
+            return;
+        }
+
+        if(app.hasIDForUserDisplayName(userDisplayName)) {
+            final String userID = app.getIDForUserDisplayName(userDisplayName);
+            doAddUser(userID);
+        }
+        else {
+            new UpdateUserCatalogs(app, null, Arrays.asList(userDisplayName)) {
+                @Override
+                public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
+                    final String userID = app.getIDForUserDisplayName(userDisplayName);
+                    doAddUser(userID);
+                }
+            }.scheduleDeferred();
+        }
+
+
     }
 }

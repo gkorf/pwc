@@ -45,22 +45,25 @@ public class UserCatalogs implements Iterable<Map.Entry<String, String>>{
         );
     }
 
-    public boolean hasID(String id) {
-        return id2name.containsKey(id);
+    public boolean hasID(String userID) {
+        return id2name.containsKey(userID);
     }
 
-    public boolean hasName(String name) {
-        return name2id.containsKey(name);
+    public boolean hasDisplayName(String displayName) {
+        return name2id.containsKey(displayName);
     }
 
-    public String getDisplayName(String id) {
-        return id2name.get(id);
+    public String getDisplayName(String userID) {
+        return id2name.get(userID);
     }
 
-    public String getUserID(String name) {
-        return name2id.get(name);
+    public String getID(String displayName) {
+        return name2id.get(displayName);
     }
 
+    /**
+     * Returns an iterator of <code>(UUID, DisplayName)</code> pairs.
+     */
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return id2name.entrySet().iterator();

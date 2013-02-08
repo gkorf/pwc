@@ -76,7 +76,7 @@ public class RemoveUserCommand implements Command {
     	final Group group = app.getAccount().getGroup(groupName);
     	if (group == null)
     		return;
-    	group.removeMember(user.getName());
+    	group.removeMember(user.getUserID());
     	String path = "?update=";
     	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 			

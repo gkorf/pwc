@@ -141,7 +141,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
         }
 
         final String ownerID = file.getOwnerID();
-        final String displayName = app.getUserDisplayNameForID(ownerID);
+        final String displayName = app.getDisplayNameForUserID(ownerID);
         final String ownerDisplayName;
         if(displayName == null) {
             // FIXME: Get the actual display name and do not use the id

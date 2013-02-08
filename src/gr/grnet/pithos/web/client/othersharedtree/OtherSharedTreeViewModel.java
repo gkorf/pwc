@@ -45,7 +45,6 @@ import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
@@ -57,7 +56,6 @@ import com.google.gwt.view.client.TreeViewModel;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SharingUsers;
-import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
@@ -127,7 +125,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             return new DefaultNodeInfo<String>(userLevelDataProviderForIDs, new TextCell(new SafeHtmlRenderer<String>() {
                 @Override
                 public SafeHtml render(String object) {
-                    final String displayName = app.getUserDisplayNameForID(object);
+                    final String displayName = app.getDisplayNameForUserID(object);
 //                    LOG("render(userID = "+object+"), displayName = " + displayName);
                     SafeHtmlBuilder builder = new SafeHtmlBuilder();
                     render(displayName, builder);
@@ -141,7 +139,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                         String html = AbstractImagePrototype.create(OtherSharedTreeView.images.myShared()).getHTML();
                         builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
                     }
-                    final String displayName = app.getUserDisplayNameForID(object);
+                    final String displayName = app.getDisplayNameForUserID(object);
                     builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
                 }
             }), null, null);

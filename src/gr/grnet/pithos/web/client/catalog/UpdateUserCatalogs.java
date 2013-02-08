@@ -7,7 +7,9 @@ import com.google.gwt.json.client.JSONObject;
 import gr.grnet.pithos.web.client.Helpers;
 import gr.grnet.pithos.web.client.Pithos;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is a wrapper around GetUserCatalogs that takes care of updating
@@ -30,6 +32,9 @@ public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
     }
 
     public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
+        for(Map.Entry<String, String> uc : requestedUserCatalogs) {
+            app.LOG("New displayName ", uc.getValue());
+        }
     }
 
     public void onError(Request request, Throwable t) {
@@ -59,5 +64,9 @@ public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
 
     public void scheduleDeferred() {
         Scheduler.get().scheduleDeferred(this);
+    }
+
+    public void scheduleEntry() {
+        Scheduler.get().scheduleEntry(this);
     }
 }
