@@ -150,7 +150,7 @@ public class AccountResource extends Resource {
 		            Group g = new Group(groupName);
 		            String[] members = h.getValue().split(",");
 		            for (String s : members)
-		                g.addMember(URL.decodePathSegment(s).trim());
+		                g.addMemberID(URL.decodePathSegment(s).trim());
 		            groups.add(g);
 		        }
 		        else if (name.equals("X-Account-Container-Count")) {

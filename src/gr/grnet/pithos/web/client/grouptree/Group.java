@@ -39,32 +39,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Group {
-    private String name;
+    private final String name;
 
-    private List<String> members = new ArrayList<String>();
+    private final List<String> memberIDs = new ArrayList<String>();
 
-    public Group(String _name) {
-        name = _name;
+    public Group(String name) {
+        this.name = name;
     }
 
-    public List<String> getMembers() {
-        return members;
+    public List<String> getMemberIDs() {
+        return memberIDs;
     }
 
     public String getName() {
         return name;
     }
 
-    public void addMember(String user) {
-        members.add(user);
+    public void addMemberID(String userID) {
+        memberIDs.add(userID);
     }
 
-	public void removeMember(String username) {
-		members.remove(username);
+	public void removeMemberID(String userID) {
+		memberIDs.remove(userID);
 	}
 
     @Override
     public String toString() {
-        return "Group(" + name + ", " + members.size() + " members)";
+        return "Group(" + name + ", " + memberIDs.size() + " members)";
     }
 }

@@ -724,7 +724,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 final List<Group> groups = account.getGroups();
                 for(Group group : groups) {
                     LOG("Group ", group);
-                    for(String member: group.getMembers()) {
+                    for(String member: group.getMemberIDs()) {
                         LOG("      ", member);
                         memberIDs.add(member);
                     }

@@ -169,8 +169,9 @@ public class AddUserDialog extends DialogBox {
         hide();
     }
 
-    private void doAddUser(final String userID) {
-        group.addMember(userID);
+    private void doAddUserByName(final String userDisplayName) {
+        final String userID = app.getIDForUserDisplayName(userDisplayName);
+        group.addMemberID(userID);
         String path = "?update=";
         PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 
@@ -198,7 +199,7 @@ public class AddUserDialog extends DialogBox {
         };
         updateGroup.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
         String groupMembers = "";
-        for(String u : group.getMembers()) {
+        for(String u : group.getMemberIDs()) {
             groupMembers += (URL.encodePathSegment(u) + ",");
         }
         updateGroup.setHeader(Const.X_ACCOUNT_GROUP_ + URL.encodePathSegment(group.getName()), groupMembers);
@@ -218,15 +219,13 @@ public class AddUserDialog extends DialogBox {
         }
 
         if(app.hasIDForUserDisplayName(userDisplayName)) {
-            final String userID = app.getIDForUserDisplayName(userDisplayName);
-            doAddUser(userID);
+            doAddUserByName(userDisplayName);
         }
         else {
             new UpdateUserCatalogs(app, null, Arrays.asList(userDisplayName)) {
                 @Override
                 public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
-                    final String userID = app.getIDForUserDisplayName(userDisplayName);
-                    doAddUser(userID);
+                    doAddUserByName(userDisplayName);
                 }
             }.scheduleDeferred();
         }

@@ -76,7 +76,7 @@ public class RemoveUserCommand implements Command {
     	final Group group = app.getAccount().getGroup(groupName);
     	if (group == null)
     		return;
-    	group.removeMember(user.getUserID());
+    	group.removeMemberID(user.getUserID());
     	String path = "?update=";
     	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 			
@@ -114,8 +114,8 @@ public class RemoveUserCommand implements Command {
 		};
 		updateGroup.setHeader("X-Auth-Token", app.getUserToken());
 		String groupMembers = "";
-		if (!group.getMembers().isEmpty()) {
-			for (String u : group.getMembers())
+		if (!group.getMemberIDs().isEmpty()) {
+			for (String u : group.getMemberIDs())
 				groupMembers += (URL.encodePathSegment(u) + ",");
 		}
 		else
