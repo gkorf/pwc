@@ -726,16 +726,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 final List<String> memberIDs = new ArrayList<String>();
                 final List<Group> groups = account.getGroups();
                 for(Group group : groups) {
-//                    LOG("Group ", group);
-                    for(String member: group.getMemberIDs()) {
-//                        LOG("      ", member);
-                        memberIDs.add(member);
-                    }
+                    memberIDs.addAll(group.getMemberIDs());
                 }
+                memberIDs.add(Pithos.this.getUserID());
 
                 final List<String> theUnknown = Pithos.this.filterUserIDsWithUnknownDisplayName(memberIDs);
                 // Initialize the user catalog
-                new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleEntry();
+                new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleDeferred();
                 LOG("Called new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleDeferred();");
             }
 
