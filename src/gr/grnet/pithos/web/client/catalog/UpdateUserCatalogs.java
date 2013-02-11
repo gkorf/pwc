@@ -33,7 +33,7 @@ public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
 
     public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
         for(Map.Entry<String, String> uc : requestedUserCatalogs) {
-            app.LOG("New displayName ", uc.getValue());
+//            app.LOG("New displayName ", uc.getValue());
         }
     }
 

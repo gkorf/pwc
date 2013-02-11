@@ -337,12 +337,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }-*/;
 
     public static void LOG(Object ...args) {
-        final StringBuilder sb = new StringBuilder();
-        for(Object arg : args) {
-            sb.append(arg);
-        }
-        if(sb.length() > 0) {
-            __ConsoleLog(sb.toString());
+        if(false) {
+            final StringBuilder sb = new StringBuilder();
+            for(Object arg : args) {
+                sb.append(arg);
+            }
+            if(sb.length() > 0) {
+                __ConsoleLog(sb.toString());
+            }
         }
     }
 
@@ -500,6 +502,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
+                LOG("Pithos::initialize() Calling Pithos::fetchAccount()");
                 fetchAccount(new Command() {
 
                     @Override
@@ -723,9 +726,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 final List<String> memberIDs = new ArrayList<String>();
                 final List<Group> groups = account.getGroups();
                 for(Group group : groups) {
-                    LOG("Group ", group);
+//                    LOG("Group ", group);
                     for(String member: group.getMemberIDs()) {
-                        LOG("      ", member);
+//                        LOG("      ", member);
                         memberIDs.add(member);
                     }
                 }
@@ -1182,6 +1185,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     void createMySharedTree() {
+        LOG("Pithos::createMySharedTree()");
         mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
         mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
@@ -1218,6 +1222,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     void createOtherSharedTree() {
+        LOG("Pithos::createOtherSharedTree()");
         otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
         otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
@@ -1240,8 +1245,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
         selectionModels.add(otherSharedTreeSelectionModel);
         otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
+        LOG("Pithos::createOtherSharedTree(), initializing otherSharedTreeViewModel with a callback");
         otherSharedTreeViewModel.initialize(new Command() {
-
             @Override
             public void execute() {
                 otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
@@ -1252,15 +1257,30 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    public native void log1(String message)/*-{
-      $wnd.console.log(message);
-    }-*/;
-
     public String getErrorData() {
-        if(error != null) {
-            return error.toString();
+        final StringBuilder sb = new StringBuilder();
+        final String NL = Const.NL;
+        Throwable t = this.error;
+        while(t != null) {
+            sb.append(t.toString());
+            sb.append(NL);
+            StackTraceElement[] traces = t.getStackTrace();
+            for(StackTraceElement trace : traces) {
+                sb.append("  [");
+                sb.append(trace.getClassName());
+                sb.append("::");
+                sb.append(trace.getMethodName());
+                sb.append("() at ");
+                sb.append(trace.getFileName());
+                sb.append(":");
+                sb.append(trace.getLineNumber());
+                sb.append("]");
+                sb.append(NL);
+            }
+            t = t.getCause();
         }
-        return "";
+
+        return sb.toString();
     }
 
     public void setError(Throwable t) {

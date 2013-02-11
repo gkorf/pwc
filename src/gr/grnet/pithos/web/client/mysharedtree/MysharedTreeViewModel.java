@@ -35,6 +35,7 @@
 
 package gr.grnet.pithos.web.client.mysharedtree;
 
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
@@ -118,6 +119,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
 	private void fetchSharedContainers(final Command callback) {
+        app.LOG("MysharedTreeViewModel::fetchSharedContainers(), callback=", callback);
         String path = "?format=json&shared=&public=";
         GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), app.getUserID(), path) {
             @Override
@@ -131,8 +133,10 @@ public class MysharedTreeViewModel implements TreeViewModel {
                 }
                 if (firstLevelDataProvider.getList().isEmpty())
                 	firstLevelDataProvider.getList().add(dummy);
-				if (callback != null)
-					callback.execute();
+				if (callback != null) {
+                    app.LOG("MysharedTreeViewModel::fetchSharedContainers(), executing callback");
+                    callback.execute();
+                }
             }
 
             @Override
@@ -150,7 +154,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
 				app.sessionExpired();
 			}
         };
-        getAccount.setHeader("X-Auth-Token", app.getUserToken());
+        getAccount.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
         Scheduler.get().scheduleDeferred(getAccount);
 	}
 
@@ -160,12 +164,9 @@ public class MysharedTreeViewModel implements TreeViewModel {
 			return firstLevelDataProvider.getList().isEmpty();
 		return true;
     }
-	
-	private native void log(String msg) /*-{
-		$wnd.console.log(msg);
-	}-*/;
 
     protected void fetchFolder(final Iterator<Folder> iter, final Command callback) {
+        app.LOG("MysharedTreeViewModel::fetchFolder(), iter=", iter.hasNext(), ", callback=", callback);
         if (iter.hasNext()) {
             final Folder f = iter.next();
 
@@ -191,11 +192,12 @@ public class MysharedTreeViewModel implements TreeViewModel {
 					app.sessionExpired();
 				}
             };
-            getFolder.setHeader("X-Auth-Token", app.getUserToken());
+            getFolder.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
-        else if (callback != null)
+        else if(callback != null) {
             callback.execute();
+        }
     }
 
     public Folder getSelection() {
@@ -207,6 +209,7 @@ public class MysharedTreeViewModel implements TreeViewModel {
     }
 
     public void fetchFolder(final Folder f, final boolean showfiles, final Command callback) {
+        app.LOG("MysharedTreeViewModel::fetchFolder(), folder=", f, ", showfiles=", showfiles, ", callback=", callback);
         String path = "/" + f.getContainer() + "?format=json&shared=&public=" + URL.encodeQueryString(f.getPrefix());
         GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
             @Override

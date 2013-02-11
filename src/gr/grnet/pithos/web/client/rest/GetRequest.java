@@ -82,10 +82,30 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     public GetRequest(Class<T> resourceClass, String api, String owner, String path) {
         this(resourceClass, api, owner, path, -1, null);
+        LOG("GetRequest() resourceClass = ", resourceClass.getName(), ", api=", api, ", owner=", owner, ", path=", path);
     }
 
     public GetRequest(Class<T> resourceClass, String api, String owner, String path, T result) {
         this(resourceClass, api, owner, path, -1, result);
+    }
+
+    static native void __ConsoleLog(String message) /*-{
+      try {
+        console.log(message);
+      } catch (e) {
+      }
+    }-*/;
+
+    public static void LOG(Object ...args) {
+        if(false) {
+            final StringBuilder sb = new StringBuilder();
+            for(Object arg : args) {
+                sb.append(arg);
+            }
+            if(sb.length() > 0) {
+                __ConsoleLog(sb.toString());
+            }
+        }
     }
 
     @Override
@@ -94,6 +114,8 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
     		path += "&t=" + System.currentTimeMillis();
     	else
     		path += "?t=" + System.currentTimeMillis();
+        LOG("GET api = ", api, ", owner = ", owner, ", path = ", path);
+        LOG("   ==> ", api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
 
         for (String header : headers.keySet()) {
@@ -131,6 +153,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
             retries++;
         }
         catch (RequestException e) {
+            LOG("Error in GetRequest: ", e.toString());
         }
     }
 

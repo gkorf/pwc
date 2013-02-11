@@ -322,4 +322,9 @@ public class Folder extends Resource {
 				return true;
 		return false;
 	}
+
+    @Override
+    public String toString() {
+        return "Folder(container="+container+", name="+name+", prefix="+prefix+")";
+    }
 }

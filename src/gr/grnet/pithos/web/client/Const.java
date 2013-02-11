@@ -23,6 +23,7 @@ public class Const {
     public static final String TRASH_CONTAINER = "trash";
     public static final RegExp EMAIL_REGEX = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
     public static final String X_ACCOUNT_GROUP_ = "X-Account-Group-";
+    public static final String NL = "\n";
 
     private Const() {}
 
