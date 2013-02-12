@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -34,10 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
-import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -179,7 +175,7 @@ public class PermissionsAddDialog extends DialogBox {
         }
 
         // Now get the userID
-        final String userID = app.getUserIDForDisplayName(userDisplayName);
+        final String userID = app.getIDForUserDisplayName(userDisplayName);
         if(userID != null) {
             // Check if already have the permission
             if(!alreadyHasPermission(userID)) {
@@ -191,7 +187,7 @@ public class PermissionsAddDialog extends DialogBox {
             new UpdateUserCatalogs(app, null, Helpers.toList(userDisplayName)) {
                 @Override
                 public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
-                    final String userID = updatedUserCatalogs.getUserID(userDisplayName);
+                    final String userID = updatedUserCatalogs.getID(userDisplayName);
                     if(userID == null) {
                         app.displayWarning("Unknown user " + userDisplayName);
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -140,7 +140,7 @@ public class FeedbackDialog extends DialogBox {
      */
     void sendFeedback() {
         final String feedbackURL = otherProperties.get("feedbackUrl");
-        PostRequest sendFeedback = new PostRequest(app, "", "", feedbackURL, "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getUserToken()) {
+        PostRequest sendFeedback = new PostRequest("", "", feedbackURL, "feedback_msg=" + msg.getText() + "&feedback_data=" + appData + "&auth=" + app.getUserToken()) {
 
             @Override
             protected void onUnauthorized(Response response) {

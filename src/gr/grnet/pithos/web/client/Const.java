@@ -23,13 +23,7 @@ public class Const {
     public static final String TRASH_CONTAINER = "trash";
     public static final RegExp EMAIL_REGEX = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
     public static final String X_ACCOUNT_GROUP_ = "X-Account-Group-";
-    public static final String X_ACCOUNT_CONTAINER_COUNT = "X-Account-Container-Count";
-    public static final String X_ACCOUNT_OBJECT_COUNT = "X-Account-Object-Count";
-    public static final String X_ACCOUNT_BYTES_USED = "X-Account-Bytes-Used";
-    public static final String X_ACCOUNT_POLICY_QUOTA = "X-Account-Policy-Quota";
-    public static final String X_ACCOUNT_LAST_LOGIN = "X-Account-Last-Login";
-    public static final String LAST_MODIFIED = "Last-Modified";
-    public static final String NUMBER_FORMAT_1 = "######.#";
+    public static final String NL = "\n";
 
     private Const() {}
 

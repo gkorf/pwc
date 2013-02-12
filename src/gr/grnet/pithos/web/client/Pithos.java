@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -125,33 +125,33 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public String getCurrentUserDisplayNameOrID() {
-        final String displayName = userCatalogs.getUserDisplayName(getUserID());
+        final String displayName = userCatalogs.getDisplayName(getUserID());
         return displayName == null ? getUserID() : displayName;
     }
 
-    public boolean hasUserDisplayNameForID(String userID) {
-        return userCatalogs.getUserDisplayName(userID) != null;
+    public boolean hasDisplayNameForUserID(String userID) {
+        return userCatalogs.getDisplayName(userID) != null;
     }
 
-    public boolean hasUserIDForDisplayName(String displayName) {
-        return userCatalogs.getUserID(displayName) != null;
+    public boolean hasIDForUserDisplayName(String userDisplayName) {
+        return userCatalogs.getID(userDisplayName) != null;
     }
 
-    public String getUserDisplayNameForID(String userID) {
-        return userCatalogs.getUserDisplayName(userID);
+    public String getDisplayNameForUserID(String userID) {
+        return userCatalogs.getDisplayName(userID);
     }
 
-    public String getUserIDForDisplayName(String displayName) {
-        return userCatalogs.getUserID(displayName);
+    public String getIDForUserDisplayName(String userDisplayName) {
+        return userCatalogs.getID(userDisplayName);
     }
 
-    public List<String> getUserDisplayNamesForIDs(List<String> userIDs) {
+    public List<String> getDisplayNamesForUserIDs(List<String> userIDs) {
         if(userIDs == null) {
             userIDs = new ArrayList<String>();
         }
         final List<String> userDisplayNames = new ArrayList<String>();
         for(String userID : userIDs) {
-            final String displayName = getUserDisplayNameForID(userID);
+            final String displayName = getDisplayNameForUserID(userID);
             userDisplayNames.add(displayName);
         }
 
@@ -164,7 +164,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
         final List<String> filtered = new ArrayList<String>();
         for(String userID : userIDs) {
-            if(!this.userCatalogs.hasUserID(userID)) {
+            if(!this.userCatalogs.hasID(userID)) {
                 filtered.add(userID);
             }
         }
@@ -337,12 +337,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }-*/;
 
     public static void LOG(Object ...args) {
-        final StringBuilder sb = new StringBuilder();
-        for(Object arg : args) {
-            sb.append(arg);
-        }
-        if(sb.length() > 0) {
-            __ConsoleLog(sb.toString());
+        if(false) {
+            final StringBuilder sb = new StringBuilder();
+            for(Object arg : args) {
+                sb.append(arg);
+            }
+            if(sb.length() > 0) {
+                __ConsoleLog(sb.toString());
+            }
         }
     }
 
@@ -500,6 +502,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
             @Override
             public void execute() {
+                LOG("Pithos::initialize() Calling Pithos::fetchAccount()");
                 fetchAccount(new Command() {
 
                     @Override
@@ -553,7 +556,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     return true;
                 }
 
-                HeadRequest<Folder> head = new HeadRequest<Folder>(Pithos.this, Folder.class, getApiPath(), f.getOwnerID(), "/" + f.getContainer()) {
+                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwnerID(), "/" + f.getContainer()) {
 
                     @Override
                     public void onSuccess(Folder _result) {
@@ -710,18 +713,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void fetchAccount(final Command callback) {
-        LOG("Pithos::fetchAccount(), callback = ", callback);
         String path = "?format=json";
 
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(this, AccountResource.class, getApiPath(), userID, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
             @Override
-            public void onSuccess(AccountResource _result) {
-                account = _result;
+            public void onSuccess(AccountResource accountResource) {
+                account = accountResource;
                 if(callback != null) {
                     callback.execute();
                 }
+
+                final List<String> memberIDs = new ArrayList<String>();
+                final List<Group> groups = account.getGroups();
+                for(Group group : groups) {
+                    memberIDs.addAll(group.getMemberIDs());
+                }
+                memberIDs.add(Pithos.this.getUserID());
+
+                final List<String> theUnknown = Pithos.this.filterUserIDsWithUnknownDisplayName(memberIDs);
                 // Initialize the user catalog
-                new UpdateUserCatalogs(Pithos.this, Pithos.this.getUserID()).scheduleDeferred();
+                new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleDeferred();
+                LOG("Called new UpdateUserCatalogs(Pithos.this, theUnknown).scheduleDeferred();");
             }
 
             @Override
@@ -746,7 +758,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void updateStatistics() {
-        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(this, AccountResource.class, getApiPath(), userID, "", account) {
+        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), userID, "", account) {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -776,7 +788,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createHomeContainer(final AccountResource _account, final Command callback) {
         String path = "/" + Const.HOME_CONTAINER;
-        PutRequest createPithos = new PutRequest(this, getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 if(!_account.hasTrashContainer()) {
@@ -810,7 +822,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createTrashContainer(final Command callback) {
         String path = "/" + Const.TRASH_CONTAINER;
-        PutRequest createPithos = new PutRequest(this, getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 fetchAccount(callback);
@@ -977,7 +989,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         final PleaseWaitPopup pwp = new PleaseWaitPopup();
         pwp.center();
         String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
-        DeleteRequest deleteFolder = new DeleteRequest(this, getApiPath(), folder.getOwnerID(), path) {
+        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwnerID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1031,7 +1043,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(iter.hasNext()) {
             File file = iter.next();
             String path = targetUri + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(this, getApiPath(), targetUsername, path) {
+            PutRequest copyFile = new PutRequest(getApiPath(), targetUsername, path) {
                 @Override
                 public void onSuccess(Resource result) {
                     copyFiles(iter, targetUsername, targetUri, callback);
@@ -1069,7 +1081,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void copyFolder(final Folder f, final String targetUsername, final String targetUri, boolean move, final Command callback) {
         String path = targetUri + "?delimiter=/";
-        PutRequest copyFolder = new PutRequest(this, getApiPath(), targetUsername, path) {
+        PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
                 if(callback != null) {
@@ -1126,11 +1138,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
         groupTreeView.updateGroupNode(null);
     }
 
-    public Group addGroup(String groupName) {
-        final Group group = new Group(groupName);
-        account.addGroup(group);
+    public Group addGroup(String groupname) {
+        Group newGroup = new Group(groupname);
+        account.addGroup(newGroup);
         groupTreeView.updateGroupNode(null);
-        return group;
+        return newGroup;
     }
 
     public void removeGroup(Group group) {
@@ -1170,6 +1182,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     void createMySharedTree() {
+        LOG("Pithos::createMySharedTree()");
         mysharedTreeSelectionModel = new SingleSelectionModel<Folder>();
         mysharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
@@ -1206,6 +1219,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     void createOtherSharedTree() {
+        LOG("Pithos::createOtherSharedTree()");
         otherSharedTreeSelectionModel = new SingleSelectionModel<Folder>();
         otherSharedTreeSelectionModel.addSelectionChangeHandler(new Handler() {
             @Override
@@ -1228,8 +1242,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
         selectionModels.add(otherSharedTreeSelectionModel);
         otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
+        LOG("Pithos::createOtherSharedTree(), initializing otherSharedTreeViewModel with a callback");
         otherSharedTreeViewModel.initialize(new Command() {
-
             @Override
             public void execute() {
                 otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
@@ -1240,15 +1254,30 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    public native void log1(String message)/*-{
-      $wnd.console.log(message);
-    }-*/;
-
     public String getErrorData() {
-        if(error != null) {
-            return error.toString();
+        final StringBuilder sb = new StringBuilder();
+        final String NL = Const.NL;
+        Throwable t = this.error;
+        while(t != null) {
+            sb.append(t.toString());
+            sb.append(NL);
+            StackTraceElement[] traces = t.getStackTrace();
+            for(StackTraceElement trace : traces) {
+                sb.append("  [");
+                sb.append(trace.getClassName());
+                sb.append("::");
+                sb.append(trace.getMethodName());
+                sb.append("() at ");
+                sb.append(trace.getFileName());
+                sb.append(":");
+                sb.append(trace.getLineNumber());
+                sb.append("]");
+                sb.append(NL);
+            }
+            t = t.getCause();
         }
-        return "";
+
+        return sb.toString();
     }
 
     public void setError(Throwable t) {
@@ -1283,7 +1312,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
-            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(this, Folder.class, getApiPath(), folder.getOwnerID(), folder.getUri(), folder) {
+            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwnerID(), folder.getUri(), folder) {
 
                 @Override
                 public void onSuccess(Folder _result) {
@@ -1297,7 +1326,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     if(t instanceof RestException) {
                         if(((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
                             final String path = folder.getUri();
-                            PutRequest newFolder = new PutRequest(Pithos.this, getApiPath(), folder.getOwnerID(), path) {
+                            PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwnerID(), path) {
                                 @Override
                                 public void onSuccess(Resource _result) {
                                     scheduleFolderHeadCommand(folder, callback);
@@ -1352,7 +1381,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void scheduleFileHeadCommand(File f, final Command callback) {
-        HeadRequest<File> headFile = new HeadRequest<File>(this, File.class, getApiPath(), f.getOwnerID(), f.getUri(), f) {
+        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwnerID(), f.getUri(), f) {
 
             @Override
             public void onSuccess(File _result) {
@@ -1466,7 +1495,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void emptyContainer(final Folder container) {
         String path = "/" + container.getName() + "?delimiter=/";
-        DeleteRequest delete = new DeleteRequest(this, getApiPath(), getUserID(), path) {
+        DeleteRequest delete = new DeleteRequest(getApiPath(), getUserID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {

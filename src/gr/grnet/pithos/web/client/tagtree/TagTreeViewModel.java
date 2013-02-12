@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -147,7 +147,7 @@ public class TagTreeViewModel implements TreeViewModel {
         if (iter.hasNext()) {
             Folder f = iter.next();
             String path = f.getUri() + "?format=json&meta=" + t.getName();
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), app.getUserID(), path) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Folder _result) {
                     files.addAll(_result.getFiles());
