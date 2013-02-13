@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.rest;
 
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
 	protected int retries = 0; 
 
-	protected Class<T> aClass;
+	protected Class<T> resourceClass;
 
     private String api;
 
@@ -71,8 +71,8 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     public abstract void onError(Throwable t);
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path, int okCode, T result) {
-        this.aClass = aClass;
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, int okCode, T result) {
+        this.resourceClass = resourceClass;
         this.api = api;
         this.owner = owner;
         this.path = path;
@@ -80,12 +80,32 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
         this.result = result;
     }
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path) {
-        this(aClass, api, owner, path, -1, null);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path) {
+        this(resourceClass, api, owner, path, -1, null);
+        LOG("GetRequest() resourceClass = ", resourceClass.getName(), ", api=", api, ", owner=", owner, ", path=", path);
     }
 
-    public GetRequest(Class<T> aClass, String api, String owner, String path, T result) {
-        this(aClass, api, owner, path, -1, result);
+    public GetRequest(Class<T> resourceClass, String api, String owner, String path, T result) {
+        this(resourceClass, api, owner, path, -1, result);
+    }
+
+    static native void __ConsoleLog(String message) /*-{
+      try {
+        console.log(message);
+      } catch (e) {
+      }
+    }-*/;
+
+    public static void LOG(Object ...args) {
+        if(false) {
+            final StringBuilder sb = new StringBuilder();
+            for(Object arg : args) {
+                sb.append(arg);
+            }
+            if(sb.length() > 0) {
+                __ConsoleLog(sb.toString());
+            }
+        }
     }
 
     @Override
@@ -94,7 +114,10 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
     		path += "&t=" + System.currentTimeMillis();
     	else
     		path += "?t=" + System.currentTimeMillis();
+        LOG("GET api = ", api, ", owner = ", owner, ", path = ", path);
+        LOG("   ==> ", api + owner + path);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
+
         for (String header : headers.keySet()) {
             builder.setHeader(header, headers.get(header));
         }
@@ -107,7 +130,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
                 @Override
                 public T deserialize(Response response) {
-                    return Resource.createFromResponse(aClass, owner, response, result);
+                    return Resource.createFromResponse(resourceClass, owner, response, result);
                 }
 
                 @Override
@@ -130,6 +153,7 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
             retries++;
         }
         catch (RequestException e) {
+            LOG("Error in GetRequest: ", e.toString());
         }
     }
 

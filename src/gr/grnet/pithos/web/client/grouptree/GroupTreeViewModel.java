@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -83,10 +83,12 @@ public class GroupTreeViewModel implements TreeViewModel {
     private Cell<User> userCell = new AbstractCell<User>(ContextMenuEvent.getType().getName()) {
 
 		@Override
-		public void render(Context context,	User value, SafeHtmlBuilder sb) {
+		public void render(Context context,	User user, SafeHtmlBuilder sb) {
             String html = AbstractImagePrototype.create(GroupTreeView.images.user()).getHTML();
             sb.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
-            sb.append(Templates.INSTANCE.nameSpan(value.getName()));
+            final String userID = user.getUserID();
+            final String userDisplayName = app.getDisplayNameForUserID(userID);
+            sb.append(Templates.INSTANCE.nameSpan(userDisplayName));
 		}
 
         @Override
@@ -174,8 +176,8 @@ public class GroupTreeViewModel implements TreeViewModel {
 		}
 		final ListDataProvider<User> dataProvider = userDataProviderMap.get(g);
 		dataProvider.getList().clear();
-		for (String u : g.getMembers())
-			dataProvider.getList().add(new User(u, g.getName()));
+		for (String userID : g.getMemberIDs())
+			dataProvider.getList().add(new User(userID, g.getName()));
     	return new DefaultNodeInfo<User>(dataProvider, userCell, userSelectionModel, null);
     }
 
@@ -185,7 +187,7 @@ public class GroupTreeViewModel implements TreeViewModel {
        		return true;
         }
         else if (o instanceof Group)
-        	return ((Group) o).getMembers().isEmpty();
+        	return ((Group) o).getMemberIDs().isEmpty();
         return false;
     }
 	
@@ -201,7 +203,7 @@ public class GroupTreeViewModel implements TreeViewModel {
 			}
 			final ListDataProvider<User> dataProvider = userDataProviderMap.get(group);
 			dataProvider.getList().clear();
-			for (String u : group.getMembers())
+			for (String u : group.getMemberIDs())
 				dataProvider.getList().add(new User(u, group.getName()));
 		}
 	}

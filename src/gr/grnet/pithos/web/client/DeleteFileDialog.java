@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -37,7 +37,6 @@ package gr.grnet.pithos.web.client;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.rest.DeleteRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
 
@@ -90,7 +89,6 @@ public class DeleteFileDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("Confirmation");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		// Create a VerticalPanel to contain the label and the buttons.
@@ -137,7 +135,7 @@ public class DeleteFileDialog extends DialogBox {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
-            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwner(), URL.encode(path)) {
+            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwnerID(), URL.encode(path)) {
                 @Override
                 public void onSuccess(Resource result) {
                     deleteFile(iter);
@@ -160,7 +158,7 @@ public class DeleteFileDialog extends DialogBox {
 					app.sessionExpired();
 				}
             };
-            deleteFile.setHeader("X-Auth-Token", app.getToken());
+            deleteFile.setHeader("X-Auth-Token", app.getUserToken());
             Scheduler.get().scheduleDeferred(deleteFile);
         }
         else {

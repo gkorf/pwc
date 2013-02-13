@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -35,7 +35,8 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.Const;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 
 import java.util.ArrayList;
@@ -149,7 +150,7 @@ public class AccountResource extends Resource {
 		            Group g = new Group(groupName);
 		            String[] members = h.getValue().split(",");
 		            for (String s : members)
-		                g.addMember(URL.decodePathSegment(s).trim());
+		                g.addMemberID(URL.decodePathSegment(s).trim());
 		            groups.add(g);
 		        }
 		        else if (name.equals("X-Account-Container-Count")) {
@@ -232,14 +233,14 @@ public class AccountResource extends Resource {
     
     public boolean hasHomeContainer() {
     	for (Folder f : containers)
-    		if (f.getName().equals(Pithos.HOME_CONTAINER))
+    		if (f.getName().equals(Const.HOME_CONTAINER))
     			return true;
     	return false;
     }
 
     public boolean hasTrashContainer() {
     	for (Folder f : containers)
-    		if (f.getName().equals(Pithos.TRASH_CONTAINER))
+    		if (f.getName().equals(Const.TRASH_CONTAINER))
     			return true;
     	return false;
     }
@@ -254,7 +255,7 @@ public class AccountResource extends Resource {
 
 	public Folder getTrash() {
 		for (Folder c : containers) {
-			if (c.getName().equals(Pithos.TRASH_CONTAINER))
+			if (c.getName().equals(Const.TRASH_CONTAINER))
 				return c;
 		}
 		return null;
@@ -268,7 +269,7 @@ public class AccountResource extends Resource {
 
 	public Folder getPithos() {
 		for (Folder f : containers)
-			if (f.getName().equals(Pithos.HOME_CONTAINER))
+			if (f.getName().equals(Const.HOME_CONTAINER))
 				return f;
 		return null;
 	}

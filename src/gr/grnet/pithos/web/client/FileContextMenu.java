@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -47,7 +47,6 @@ import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import java.util.List;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
@@ -188,19 +187,18 @@ public class FileContextMenu extends PopupPanel {
 		// The popup's constructor's argument is a boolean specifying that it
 		// auto-close itself when the user clicks outside of it.
 		super(true);
-		setAnimationEnabled(true);
 		images = newImages;
         MenuBar contextMenu = new MenuBar(true);
         Boolean[] permissions = null;
         boolean canWrite = true;
         if (selectedFolder != null) {
-        	permissions = selectedFolder.getPermissions().get(app.getUsername());
-        	canWrite = selectedFolder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+        	permissions = selectedFolder.getPermissions().get(app.getUserID());
+        	canWrite = selectedFolder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 		}
         else {
         	for (File f : selectedFiles) {
-        		permissions = f.getPermissions().get(app.getUsername());
-        		canWrite &= (f.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]));
+        		permissions = f.getPermissions().get(app.getUserID());
+        		canWrite &= (f.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]));
         	}
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
@@ -254,7 +252,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwner() + f.getUri(), "_blank", "");
+					Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
 			}
 		}));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -100,8 +100,6 @@ public class FileUploadDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("File upload");
-		setAnimationEnabled(true);
-//		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		setVisible(false);
 		
@@ -202,7 +200,7 @@ public class FileUploadDialog extends DialogBox {
 					FilesAdded: function(up, files) {
 						var api = app.@gr.grnet.pithos.web.client.Pithos::getApiPath()();
 						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
-						var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwner()();
+						var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwnerID()();
 						var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();
 						var path = api + owner + uri;
 						for (var j=0; j<files.length; j++)
@@ -343,7 +341,7 @@ public class FileUploadDialog extends DialogBox {
 		setVisible(true);
 		setModal(true);
 		super.center();
-		setupUpload(this, app, app.getToken());
+		setupUpload(this, app, app.getUserToken());
 		super.center();
 	}
 	

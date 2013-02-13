@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -35,7 +35,7 @@
 package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.Resource;
+import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.grouptree.User;
 import gr.grnet.pithos.web.client.rest.PostRequest;
@@ -76,9 +76,9 @@ public class RemoveUserCommand implements Command {
     	final Group group = app.getAccount().getGroup(groupName);
     	if (group == null)
     		return;
-    	group.removeMember(user.getName());
+    	group.removeMemberID(user.getUserID());
     	String path = "?update=";
-    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUsername(), path) {
+    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {
@@ -112,10 +112,10 @@ public class RemoveUserCommand implements Command {
 				app.sessionExpired();
 			}
 		};
-		updateGroup.setHeader("X-Auth-Token", app.getToken());
+		updateGroup.setHeader("X-Auth-Token", app.getUserToken());
 		String groupMembers = "";
-		if (!group.getMembers().isEmpty()) {
-			for (String u : group.getMembers())
+		if (!group.getMemberIDs().isEmpty()) {
+			for (String u : group.getMemberIDs())
 				groupMembers += (URL.encodePathSegment(u) + ",");
 		}
 		else

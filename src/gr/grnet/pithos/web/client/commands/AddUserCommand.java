@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -36,17 +36,9 @@ package gr.grnet.pithos.web.client.commands;
 
 import gr.grnet.pithos.web.client.AddUserDialog;
 import gr.grnet.pithos.web.client.Pithos;
-import gr.grnet.pithos.web.client.foldertree.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**

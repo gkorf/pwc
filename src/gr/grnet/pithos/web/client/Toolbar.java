@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 GRNET S.A. All rights reserved.
+ * Copyright 2012-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -78,8 +78,8 @@ public class Toolbar extends Composite {
 			public void onClick(ClickEvent event) {
 				Folder folder = app.getSelectedTree().getSelection();
 				if (folder != null) {
-			        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-			    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+			        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
+			    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 			    	
 			    	if (!folder.isInTrash() && canWrite)
 			    		new NewFolderCommand(app, null, folder).execute();
@@ -98,8 +98,8 @@ public class Toolbar extends Composite {
 			public void onClick(ClickEvent event) {
 				Folder folder = app.getSelectedTree().getSelection();
 				if (folder != null) {
-			        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-			    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+			        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
+			    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 			    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
 			    	
 			    	if (!folder.isInTrash() && canWrite && isFolderTreeSelected && !folder.isContainer())
@@ -167,8 +167,8 @@ public class Toolbar extends Composite {
 					
 					@Override
 					public void execute() {
-				        Boolean[] permissions = folder.getPermissions().get(app.getUsername());
-				    	boolean canWrite = folder.getOwner().equals(app.getUsername()) || (permissions!= null && permissions[1] != null && permissions[1]);
+				        Boolean[] permissions = folder.getPermissions().get(app.getUserID());
+				    	boolean canWrite = folder.getOwnerID().equals(app.getUserID()) || (permissions!= null && permissions[1] != null && permissions[1]);
 				    	boolean isFolderTreeSelected = app.getSelectedTree().equals(app.getFolderTreeView());
 				    	boolean otherSharedTreeSelected = app.getSelectedTree().equals(app.getOtherSharedTreeView());
 				    	

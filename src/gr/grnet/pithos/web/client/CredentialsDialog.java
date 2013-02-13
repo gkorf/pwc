@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -73,7 +73,6 @@ public class CredentialsDialog extends DialogBox {
 		});
 		// Set the dialog's caption.
 		setText("User Credentials");
-		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 		// A VerticalPanel that contains the 'about' label and the 'OK' button.
@@ -93,7 +92,7 @@ public class CredentialsDialog extends DialogBox {
 		table.setText(0, 0, "Username");
 		table.setText(1, 0, "Token");
 		TextBox username = new TextBox();
-		username.setText(app.getUsername());
+		username.setText(app.getUserID());
 		username.setReadOnly(true);
 		username.setWidth(WIDTH_FIELD);
 		username.addClickHandler(new ClickHandler() {
@@ -108,7 +107,7 @@ public class CredentialsDialog extends DialogBox {
 		table.setWidget(0, 1, username);
 
 		TextBox tokenBox = new TextBox();
-		tokenBox.setText(app.getToken());
+		tokenBox.setText(app.getUserToken());
 		tokenBox.setReadOnly(true);
 		tokenBox.setWidth(WIDTH_FIELD);
 		tokenBox.addClickHandler(new ClickHandler() {

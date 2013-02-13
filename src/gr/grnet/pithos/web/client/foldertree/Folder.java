@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -35,7 +35,7 @@
 
 package gr.grnet.pithos.web.client.foldertree;
 
-import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.Const;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -52,6 +52,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import gr.grnet.pithos.web.client.Resource;
 
 public class Folder extends Resource {
     /*
@@ -80,7 +81,7 @@ public class Folder extends Resource {
 
     private Set<File> files = new LinkedHashSet<File>();
 
-    private String owner;
+    private String ownerID;
 
     private Map<String, Boolean[]> permissions = new HashMap<String, Boolean[]>();
 
@@ -145,7 +146,7 @@ public class Folder extends Resource {
     }
 
     public void populate(String _owner, Response response) {
-        this.owner = _owner;
+        this.ownerID = _owner;
         String header = response.getHeader("Last-Modified");
         if (header != null)
 			try {
@@ -223,7 +224,7 @@ public class Folder extends Resource {
             container = name;
             prefix = "";
         }
-        this.owner = _owner;
+        this.ownerID = _owner;
 
         inheritedPermissionsFrom = unmarshallString(o, "x_object_shared_by");
         String rawPermissions = unmarshallString(o, "x_object_sharing");
@@ -246,7 +247,7 @@ public class Folder extends Resource {
     public boolean equals(Object other) {
         if (other instanceof Folder) {
             Folder o = (Folder) other;
-            return (owner == null ? true : owner.equals(o.getOwner())) 
+            return (ownerID == null ? true : ownerID.equals(o.getOwnerID()))
             		&& (getUri().equals(o.getUri()));
         }
         return false;
@@ -285,8 +286,8 @@ public class Folder extends Resource {
         return permissions;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getOwnerID() {
+        return ownerID;
     }
 
 	public boolean isShared() {
@@ -299,7 +300,7 @@ public class Folder extends Resource {
 	 * @return
 	 */
 	public boolean isTrash() {
-		return isContainer() && name.equals(Pithos.TRASH_CONTAINER);
+		return isContainer() && name.equals(Const.TRASH_CONTAINER);
 	}
 	
 	/**
@@ -308,11 +309,11 @@ public class Folder extends Resource {
 	 * @return
 	 */
 	public boolean isInTrash() {
-		return container.equals(Pithos.TRASH_CONTAINER);
+		return container.equals(Const.TRASH_CONTAINER);
 	}
 
 	public boolean isHome() {
-		return isContainer() && name.equals(Pithos.HOME_CONTAINER);
+		return isContainer() && name.equals(Const.HOME_CONTAINER);
 	}
 
 	public boolean contains(Folder folder) {
@@ -321,4 +322,9 @@ public class Folder extends Resource {
 				return true;
 		return false;
 	}
+
+    @Override
+    public String toString() {
+        return "Folder(container="+container+", name="+name+", prefix="+prefix+")";
+    }
 }

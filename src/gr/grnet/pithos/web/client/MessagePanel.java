@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -33,9 +33,6 @@
  * or implied, of GRNET S.A.
  */
 package gr.grnet.pithos.web.client;
-
-import gr.grnet.pithos.web.client.animation.FadeIn;
-import gr.grnet.pithos.web.client.animation.FadeOut;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -118,15 +115,7 @@ public class MessagePanel extends Composite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				FadeOut anim = new FadeOut(simplePanel){
-
-					@Override
-					protected void onComplete() {
-						super.onComplete();
-						hideMessage();
-					}
-				};
-				anim.run(500);
+				hideMessage();
 			}
 		});
 		inner.add(message);
@@ -142,14 +131,7 @@ public class MessagePanel extends Composite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				FadeOut anim = new FadeOut(simplePanel){
-					@Override
-					protected void onComplete() {
-						super.onComplete();
-						hideMessage();
-					}
-				};
-				anim.run(500);
+				hideMessage();
 			}
 		});
 		linkPanel.add(clearMessageLink);
@@ -181,8 +163,6 @@ public class MessagePanel extends Composite {
 		message.setHTML("<table class='pithos-errorMessage'><tr><td>" + AbstractImagePrototype.create(images.error()).getHTML() + "</td><td>" + msg + "</td></tr></table>");
 		feedbackLink.setVisible(true);
 		setVisible(true);
-		FadeIn anim = new FadeIn(simplePanel);
-		anim.run(500);
 	}
 
 	/**
@@ -194,8 +174,6 @@ public class MessagePanel extends Composite {
 		message.setHTML("<table class='pithos-warnMessage'><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + msg + "</td></tr></table>");
 		feedbackLink.setVisible(false);
 		setVisible(true);
-		FadeIn anim = new FadeIn(simplePanel);
-		anim.run(500);
 	}
 
 	/**
@@ -207,8 +185,6 @@ public class MessagePanel extends Composite {
 		message.setHTML("<table class='pithos-infoMessage'><tr><td>" + AbstractImagePrototype.create(images.info()).getHTML() + "</td><td>" + msg + "</td></tr></table>");
 		feedbackLink.setVisible(false);
 		setVisible(true);
-		FadeIn anim = new FadeIn(simplePanel);
-		anim.run(500);
 	}
 
 	/**
