@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -74,7 +74,7 @@ public class StatusPanel extends Composite {
 		inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("Pithos Web Client v" + otherProperties.get("version") + " <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2012 Greek Research and Technology Network</a>"));
+        secondLine.add(new HTML("Pithos Web Client v" + otherProperties.get("version") + " <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2013 Greek Research and Technology Network</a>"));
         secondLine.addStyleName("grnet-sign");
         inner.add(secondLine);
         outer.add(inner);

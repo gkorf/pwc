@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -34,7 +34,6 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -76,7 +75,7 @@ public class DeleteGroupCommand implements Command {
     		containerPanel.hide();
         if (Window.confirm("Are you sure you want to delete group " + group.getName())) {
         	String path = "?update=";
-        	PostRequest updateGroup = new PostRequest(app, app.getApiPath(), app.getUserID(), path) {
+        	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
 				
 				@Override
 				public void onSuccess(Resource result) {
@@ -99,8 +98,8 @@ public class DeleteGroupCommand implements Command {
 					app.sessionExpired();
 				}
 			};
-			updateGroup.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
-			updateGroup.setHeader(Const.X_ACCOUNT_GROUP_ + URL.encodePathSegment(group.getName()), "~");
+			updateGroup.setHeader("X-Auth-Token", app.getUserToken());
+			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), "~");
 			Scheduler.get().scheduleDeferred(updateGroup);
         }
 	}

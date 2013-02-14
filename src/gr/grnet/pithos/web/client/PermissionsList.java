@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -128,7 +128,7 @@ public class PermissionsList extends Composite {
 		for(final String userID : permissions.keySet()) {
             if (!userID.contains(":")) {
                  //not a group
-                final String displayName = app.getUserDisplayNameForID(userID);
+                final String displayName = app.getDisplayNameForUserID(userID);
                 if(displayName != null) {
                     permTable.setHTML(
                         i,
@@ -140,7 +140,7 @@ public class PermissionsList extends Composite {
                     new UpdateUserCatalogs(app, userID) {
                         @Override
                         public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
-                            final String displayName = updatedUserCatalogs.getUserDisplayName(userID);
+                            final String displayName = updatedUserCatalogs.getDisplayName(userID);
                             permTable.setHTML(
                                 ii,
                                 0,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -38,26 +38,21 @@ package gr.grnet.pithos.web.client.grouptree;
 
 public final class User {
     private final String userID;
-    private final String userDisplayName;
+
     private final String group;
 
-    public User(String userID, String userDisplayName, String group) {
-        this.userID = userID;
-        this.userDisplayName = userDisplayName;
+    public User(String name, String group) {
+        this.userID = name;
         this.group = group;
     }
 
     public String getUserID() {
-        return userID;
-    }
-
-    public String getUserDisplayName() {
-        return userDisplayName;
+        return this.userID;
     }
 
     public String getGroup() {
-		return group;
-	}
+        return this.group;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -85,10 +80,5 @@ public final class User {
         int result = userID != null ? userID.hashCode() : 0;
         result = 31 * result + (group != null ? group.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "User(" + userID + ", " + userDisplayName + ", " + group + ")";
     }
 }

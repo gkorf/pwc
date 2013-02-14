@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -117,7 +117,7 @@ public class RestoreTrashCommand implements Command {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = "/" + Const.HOME_CONTAINER + "/" + file.getPath();
-            PutRequest untrashFile = new PutRequest(app, app.getApiPath(), app.getUserID(), path) {
+            PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     untrashFiles(iter, callback);

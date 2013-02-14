@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -45,7 +45,6 @@ import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
@@ -54,10 +53,10 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.FolderContextMenu;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.SharingUsers;
-import gr.grnet.pithos.web.client.catalog.GetUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
 import gr.grnet.pithos.web.client.foldertree.AccountResource;
@@ -81,6 +80,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 
         @Override
         public void render(Context context, Folder folder, SafeHtmlBuilder safeHtmlBuilder) {
+//            app.LOG("OtherSharedTreeViewModel::render(), folder=", folder);
             String html = AbstractImagePrototype.create(OtherSharedTreeView.images.folderYellow()).getHTML();
             safeHtmlBuilder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
             safeHtmlBuilder.append(Templates.INSTANCE.nameSpan(folder.getName()));
@@ -88,6 +88,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
 
         @Override
         public void onBrowserEvent(Context context, com.google.gwt.dom.client.Element parent, final Folder folder, com.google.gwt.dom.client.NativeEvent event, ValueUpdater<Folder> valueUpdater) {
+            app.LOG("OtherSharedTreeViewModel::render(), folder=", folder, ", parent=", parent.getString());
             if(event.getType().equals(ContextMenuEvent.getType().getName())) {
                 final int x = event.getClientX();
                 final int y = event.getClientY();
@@ -106,7 +107,6 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     };
 
     protected ListDataProvider<String> userLevelDataProviderForIDs = new ListDataProvider<String>();
-//    protected ListDataProvider<String> userLevelDataProviderForDisplayNames = new ListDataProvider<String>();
 
     protected Map<String, ListDataProvider<Folder>> userDataProviderMap = new HashMap<String, ListDataProvider<Folder>>();
     private Map<Folder, ListDataProvider<Folder>> dataProviderMap = new HashMap<Folder, ListDataProvider<Folder>>();
@@ -121,14 +121,14 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if(value == null) {
-//            LOG("getNodeInfo(null), calling fetchSharingUsers(null)");
+            app.LOG("OtherSharedTreeViewModel::getNodeInfo(null), calling fetchSharingUsers(null)");
             fetchSharingUsers(null);
-//            LOG("getNodeInfo(null), called fetchSharingUsers(null)");
+            app.LOG("OtherSharedTreeViewModel::getNodeInfo(null), called fetchSharingUsers(null)");
             return new DefaultNodeInfo<String>(userLevelDataProviderForIDs, new TextCell(new SafeHtmlRenderer<String>() {
                 @Override
                 public SafeHtml render(String object) {
-                    final String displayName = app.getUserDisplayNameForID(object);
-//                    LOG("render(userID = "+object+"), displayName = " + displayName);
+                    final String displayName = app.getDisplayNameForUserID(object);
+                    app.LOG("OtherSharedTreeViewModel::(getNodeInfo)render(String ", object, "), parameter is userID, displayName=", displayName);
                     SafeHtmlBuilder builder = new SafeHtmlBuilder();
                     render(displayName, builder);
                     return builder.toSafeHtml();
@@ -137,17 +137,16 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 @Override
                 public void render(String object, SafeHtmlBuilder builder) {
                     if(!object.equals(dummy)) {
-//                        LOG("render(userID [not dummy] = "+object+")");
+                        app.LOG("OtherSharedTreeViewModel::(getNodeInfo)render(String ", object, ") parameter is not [dummy]");
                         String html = AbstractImagePrototype.create(OtherSharedTreeView.images.myShared()).getHTML();
                         builder.appendHtmlConstant(html).appendHtmlConstant("&nbsp;");
                     }
-                    final String displayName = app.getUserDisplayNameForID(object);
                     builder.append(OtherSharedTreeView.Templates.INSTANCE.nameSpan(object));
                 }
             }), null, null);
         }
         else if(value instanceof String) {
-//            LOG("getNodeInfo(String "+value+"), called with userID");
+            app.LOG("OtherSharedTreeViewModel::getNodeInfo(String ", value, "), parameter is userID");
             final String userID = (String) value;
 
             if(userDataProviderMap.get(userID) == null) {
@@ -159,7 +158,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
             return new DefaultNodeInfo<Folder>(userIDDataProvider, folderCell, selectionModel, null);
         }
         else {
-//            LOG("getNodeInfo(Folder "+value+"), called with a folder");
+            app.LOG("OtherSharedTreeViewModel::getNodeInfo(Folder ", value, ")");
             final Folder f = (Folder) value;
             if(dataProviderMap.get(f) == null) {
                 dataProviderMap.put(f, new ListDataProvider<Folder>());
@@ -170,31 +169,27 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
         }
     }
 
-//    native void LOG(String message) /*-{
-//      console.log(message );
-//    }-*/;
-
     private void fetchSharingUsers(final Command callback) {
-        GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(app, SharingUsers.class, app.getApiPath(), "", "?format=json") {
+        app.LOG("OtherSharedTreeViewModel::fetchSharingUsers() callback=", callback);
+        GetRequest<SharingUsers> getSharingUsers = new GetRequest<SharingUsers>(SharingUsers.class, app.getApiPath(), "", "?format=json") {
             @Override
             public void onSuccess(final SharingUsers _result) {
                 userLevelDataProviderForIDs.getList().clear();
 
                 final List<String> userIDs = _result.getUserIDs();
-//                for(String userID : userIDs) {
-//                    LOG("fetchSharingUsers(): userID =" + userID);
-//                }
+                for(String userID : userIDs) {
+                    app.LOG("OtherSharedTreeViewModel::fetchSharingUsers()::onSuccess() Sharing userID=", userID);
+                }
                 final List<String> userIDsWithUnknownDisplayNames = app.filterUserIDsWithUnknownDisplayName(userIDs);
 //                for(String userID : userIDsWithUnknownDisplayNames) {
-//                    LOG("fetchSharingUsers(): userID (with unknown name) =" + userID);
+//                    app.LOG("OtherSharedTreeViewModel::fetchSharingUsers(): userID (with unknown name) =" + userID);
 //                }
 
                 userLevelDataProviderForIDs.getList().addAll(userIDs);
                 if(userLevelDataProviderForIDs.getList().isEmpty()) {
                     userLevelDataProviderForIDs.getList().add(dummy);
-//                    userLevelDataProviderForDisplayNames.getList().add(dummy);
-                } else {
-//                    userLevelDataProviderForDisplayNames.getList().addAll(app.getUserDisplayNamesForIDs(userIDs));
+                    app.LOG("OtherSharedTreeViewModel::fetchSharingUsers()::onSuccess() NO sharing users, adding [dummy]=\"", dummy, "\"");
+                    return; // Only the dummy node is present, nothing to fetch from the server
                 }
 
                 if(userIDsWithUnknownDisplayNames.size() == 0) {
@@ -234,11 +229,12 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 app.sessionExpired();
             }
         };
-        getSharingUsers.setHeader("X-Auth-Token", app.getUserToken());
+        getSharingUsers.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
         Scheduler.get().scheduleDeferred(getSharingUsers);
     }
 
     protected void fetchSharedContainers(final Iterator<String> userIDsIterator, final Command callback) {
+        app.LOG("OtherSharedTreeViewModel::fetchSharedContainers(), userIDsIterator=", userIDsIterator.hasNext(), ", callback=", callback);
         if(userIDsIterator.hasNext()) {
             String userID = userIDsIterator.next();
             if(userDataProviderMap.get(userID) == null) {
@@ -263,29 +259,30 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     public boolean isLeaf(Object o) {
         if(o == null) {
             boolean result =  userLevelDataProviderForIDs.getList().isEmpty();
-//            LOG("isLeaf(null) ==> " + result);
+//            app.LOG("isLeaf(null) ==> " + result);
             return result;
         }
         else if(o instanceof Folder) {
             Folder folder = (Folder) o;
             boolean result = folder.getSubfolders().isEmpty();
-//            LOG("isLeaf(Folder "+folder+") ==> " + result);
+//            app.LOG("isLeaf(Folder "+folder+") ==> " + result);
             return result;
         }
         else {
             ListDataProvider<Folder> dp = userDataProviderMap.get(o);
             if(dp != null) {
                 boolean result =  dp.getList().isEmpty();
-//                LOG("isLeaf("+o.getClass().getName()+" "+o+") ==> " + result);
+//                app.LOG("isLeaf("+o.getClass().getName()+" "+o+") ==> " + result);
                 return result;
             }
-//            LOG("isLeaf("+o.getClass().getName()+" "+o+") ==> (true)");
+//            app.LOG("isLeaf("+o.getClass().getName()+" "+o+") ==> (true)");
             return true;
         }
     }
 
     private void fetchSharedContainers(final String userID, final ListDataProvider<Folder> dataProvider, final Command callback) {
-        GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(app, AccountResource.class, app.getApiPath(), userID, "?format=json") {
+        app.LOG("OtherSharedTreeViewModel::fetchSharedContainers(), userID=", userID, ", callback=", callback);
+        GetRequest<AccountResource> getUserSharedContainers = new GetRequest<AccountResource>(AccountResource.class, app.getApiPath(), userID, "?format=json") {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -321,16 +318,17 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 app.sessionExpired();
             }
         };
-        getUserSharedContainers.setHeader("X-Auth-Token", app.getUserToken());
+        getUserSharedContainers.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
         Scheduler.get().scheduleDeferred(getUserSharedContainers);
     }
 
     protected void fetchFolder(final String userID, final Iterator<Folder> folderIterator, final ListDataProvider<Folder> dataProvider, final Command callback) {
+        app.LOG("OtherSharedTreeViewModel::fetchFolder(), userID=", userID, " folderIterator=", folderIterator.hasNext(), ", callback=", callback);
         if(folderIterator.hasNext()) {
             final Folder f = folderIterator.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), userID, path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), userID, path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
                     dataProvider.getList().add(_result);
@@ -354,7 +352,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                     app.sessionExpired();
                 }
             };
-            getFolder.setHeader("X-Auth-Token", app.getUserToken());
+            getFolder.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
             Scheduler.get().scheduleDeferred(getFolder);
         }
         else if(callback != null) {
@@ -367,6 +365,7 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     }
 
     public void updateFolder(Folder folder, boolean showfiles, Command callback) {
+        app.LOG("OtherSharedTreeViewModel::updateFolder(), folder=", folder, ", showfiles=", showfiles, ", callback=", callback);
         if(dataProviderMap.get(folder) == null) {
             dataProviderMap.put(folder, new ListDataProvider<Folder>());
         }
@@ -375,8 +374,9 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
     }
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
+        app.LOG("OtherSharedTreeViewModel::fetchFolder(), folder=", f, ", showfiles=", showfiles, ", callback=", callback);
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(app, Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if(showfiles) {
@@ -413,11 +413,12 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 app.sessionExpired();
             }
         };
-        getFolder.setHeader("X-Auth-Token", app.getUserToken());
+        getFolder.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
         Scheduler.get().scheduleDeferred(getFolder);
     }
 
     public void initialize(Command callback) {
+        app.LOG("OtherSharedTreeViewModel::initialize(), callback=", callback);
         fetchSharingUsers(callback);
     }
 }

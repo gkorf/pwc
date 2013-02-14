@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 GRNET S.A. All rights reserved.
+ * Copyright 2011-2013 GRNET S.A. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -36,50 +36,35 @@
 package gr.grnet.pithos.web.client.grouptree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public final class Group {
+public class Group {
     private final String name;
 
-    private final List<User> users = new ArrayList<User>();
+    private final List<String> memberIDs = new ArrayList<String>();
 
     public Group(String name) {
         this.name = name;
     }
 
-    public List<User> getUsers() {
-        return Collections.unmodifiableList(users);
+    public List<String> getMemberIDs() {
+        return memberIDs;
     }
 
     public String getName() {
         return name;
     }
 
-    public void addUser(User user) {
-        this.users.add(user);
+    public void addMemberID(String userID) {
+        memberIDs.add(userID);
     }
 
-	public void removeUser(User user) {
-		this.users.remove(user);
+	public void removeMemberID(String userID) {
+		memberIDs.remove(userID);
 	}
-
-    public String encodeUserIDsForXAccountGroup() {
-        final StringBuilder sb = new StringBuilder();
-        for(int i=0; i<users.size(); i++) {
-            final User user = users.get(i);
-            sb.append(user.getUserID());
-            if(i < users.size() - 1) {
-                sb.append(",");
-            }
-        }
-
-        return sb.toString();
-    }
 
     @Override
     public String toString() {
-        return "Group(" + name + ", " + users.size()+ " users)";
+        return "Group(" + name + ", " + memberIDs.size() + " members)";
     }
-
 }
