@@ -132,6 +132,10 @@
         </scp>
     </target>
 
+  <target name="rsyncToDev84">
+    <exec executable="${basedir}/rsync-to-dev84.sh"></exec>
+  </target>
+
 	<target name="clean" description="Delete all build artifacts">
 		<delete dir="${build.dir}"/>
 	</target>
