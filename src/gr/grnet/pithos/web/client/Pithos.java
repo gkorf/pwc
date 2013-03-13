@@ -341,7 +341,30 @@ public class Pithos implements EntryPoint, ResizeHandler {
             final StringBuilder sb = new StringBuilder();
             for(Object arg : args) {
                 sb.append(arg);
+                if(arg instanceof Throwable) {
+                    sb.append("\nCauses (including original):\n");
+                    final Throwable error = (Throwable) arg;
+                    Throwable cause = error;
+                    while(cause != null) {
+                        sb.append("  ");
+                        sb.append(cause.toString());
+                        sb.append("\n");
+                        cause = cause.getCause();
+                    }
+
+                    sb.append("Stack trace of original: ");
+                    sb.append(error.toString());
+                    sb.append("\n");
+                    StackTraceElement[] stackTrace = error.getStackTrace();
+                    for(StackTraceElement errorElem : stackTrace) {
+                        sb.append("  ");
+                        sb.append(errorElem.toString());
+                        sb.append("\n");
+                    }
+                }
             }
+
+
             if(sb.length() > 0) {
                 __ConsoleLog(sb.toString());
             }

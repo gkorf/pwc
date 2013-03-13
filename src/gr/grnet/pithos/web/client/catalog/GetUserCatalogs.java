@@ -42,6 +42,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Helpers;
 import gr.grnet.pithos.web.client.Pithos;
 
@@ -51,6 +52,7 @@ import java.util.List;
  * The request via which we obtain user catalog info.
  */
 public class GetUserCatalogs implements Scheduler.ScheduledCommand {
+    private final Pithos app;
     private final String url;
     private final String userToken;
     private final List<String> ids;
@@ -77,6 +79,8 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
 
     public GetUserCatalogs(Pithos app, List<String> ids, List<String> names) {
         assert app != null;
+
+        this.app = app;
 
         // FIXME: Probably use Window.Location.getHost()
         // https://server.com/v1/ --> https://server.com
@@ -133,14 +137,16 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
     }
 
     public void onError(Request request, Throwable t) {
-        GWT.log("GetUserCatalogs", t);
+        app.LOG("GetUserCatalogs ", t);
     }
 
     @Override
     public void execute() {
         final RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, getURL());
-        rb.setHeader("X-Auth-Token", userToken);
+        rb.setHeader(Const.X_AUTH_TOKEN, userToken);
         final String requestData = makeRequestData().toString();
+        app.LOG("GetUserCatalog => ", requestData);
+        app.LOG(new Exception());
 
         try {
             rb.sendRequest(requestData, new RequestCallback() {
@@ -149,12 +155,14 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
                     final int statusCode = response.getStatusCode();
 
                     if(statusCode != SuccessCode) {
+                        app.LOG("GetUserCatalog <= [", statusCode, " ", response.getStatusText(), "]");
                         GetUserCatalogs.this.onBadStatusCode(request, response);
                         return;
                     }
 
                     final String responseText = response.getText();
                     final JSONValue jsonValue = JSONParser.parseStrict(responseText);
+                    app.LOG("GetUserCatalog <= ", jsonValue.toString());
                     final JSONObject result = jsonValue.isObject();
 
                     if(result == null) {
@@ -174,7 +182,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
             });
         }
         catch(Exception e) {
-            GWT.log("GetUserCatalogs", e);
+            app.LOG("GetUserCatalogs. ", e);
         }
     }
 
