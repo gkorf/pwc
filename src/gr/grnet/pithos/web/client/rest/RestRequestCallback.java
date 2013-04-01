@@ -38,6 +38,7 @@ package gr.grnet.pithos.web.client.rest;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 public abstract class RestRequestCallback<T extends Resource> implements RequestCallback {
@@ -81,6 +82,7 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
                 onError(request, new RestException(path, response.getStatusCode(), statusText, text));
             }
         } catch (Exception e) {
+            Pithos.LOG(e);
             onError(request, e);
         }
     }

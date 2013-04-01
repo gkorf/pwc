@@ -137,7 +137,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
     }
 
     public void onError(Request request, Throwable t) {
-        app.LOG("GetUserCatalogs ", t);
+        app.LOG("GetUserCatalogs", t);
     }
 
     @Override
@@ -145,8 +145,8 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
         final RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, getURL());
         rb.setHeader(Const.X_AUTH_TOKEN, userToken);
         final String requestData = makeRequestData().toString();
-        app.LOG("GetUserCatalog => ", requestData);
-        app.LOG(new Exception());
+        app.LOG("GetUserCatalogs => ", requestData);
+        Pithos.LOG("POST ", getURL());
 
         try {
             rb.sendRequest(requestData, new RequestCallback() {
@@ -155,14 +155,14 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
                     final int statusCode = response.getStatusCode();
 
                     if(statusCode != SuccessCode) {
-                        app.LOG("GetUserCatalog <= [", statusCode, " ", response.getStatusText(), "]");
+                        app.LOG("GetUserCatalogs <= [", statusCode, " ", response.getStatusText(), "]");
                         GetUserCatalogs.this.onBadStatusCode(request, response);
                         return;
                     }
 
                     final String responseText = response.getText();
                     final JSONValue jsonValue = JSONParser.parseStrict(responseText);
-                    app.LOG("GetUserCatalog <= ", jsonValue.toString());
+                    app.LOG("GetUserCatalogs <= ", jsonValue.toString());
                     final JSONObject result = jsonValue.isObject();
 
                     if(result == null) {
@@ -182,7 +182,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
             });
         }
         catch(Exception e) {
-            app.LOG("GetUserCatalogs. ", e);
+            app.LOG("GetUserCatalogs", e);
         }
     }
 

@@ -34,18 +34,8 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.AddUserCommand;
-import gr.grnet.pithos.web.client.commands.CopyCommand;
-import gr.grnet.pithos.web.client.commands.CreateGroupCommand;
-import gr.grnet.pithos.web.client.commands.CutCommand;
-import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.DeleteGroupCommand;
-import gr.grnet.pithos.web.client.commands.EmptyContainerCommand;
-import gr.grnet.pithos.web.client.commands.PasteCommand;
-import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RemoveUserCommand;
-import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
-import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.commands.*;
+import gr.grnet.pithos.web.client.commands.PurgeContainerCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 import gr.grnet.pithos.web.client.grouptree.Group;
@@ -200,7 +190,11 @@ public class ToolsMenu extends PopupPanel {
 			        	empty = false;
 			        }
 			        if (isFolderTreeSelected && folder.isContainer()) {
-		    			MenuItem emptyContainer = new MenuItem("<span>Empty Container</span>", true, new EmptyContainerCommand(app, this, folder));
+		    			MenuItem emptyContainer = new MenuItem(
+                            "<span>" + Const.PurgeContainer(folder.getName()) + "</span>",
+                            true,
+                            new PurgeContainerCommand(app, this, folder)
+                        );
 		    			contextMenu.addItem(emptyContainer);
 			        	empty = false;
 			        }
@@ -220,7 +214,7 @@ public class ToolsMenu extends PopupPanel {
 		        	empty = false;
 	        	}
 	        	else {
-	    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyContainerCommand(app, this, folder));
+	    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new PurgeContainerCommand(app, this, folder));
 	    			contextMenu.addItem(emptyTrash);
 		        	empty = false;
 	        	}

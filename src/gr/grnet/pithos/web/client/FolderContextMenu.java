@@ -34,16 +34,8 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.CopyCommand;
-import gr.grnet.pithos.web.client.commands.CutCommand;
-import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.EmptyContainerCommand;
-import gr.grnet.pithos.web.client.commands.NewFolderCommand;
-import gr.grnet.pithos.web.client.commands.PasteCommand;
-import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RefreshCommand;
-import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
-import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.commands.*;
+import gr.grnet.pithos.web.client.commands.PurgeContainerCommand;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -136,8 +128,12 @@ public class FolderContextMenu extends PopupPanel {
 			    }
 			    
 			    if (folder.isContainer()) {
-	    			MenuItem emptyContainer = new MenuItem("<span>Empty Container</span>", true, new EmptyContainerCommand(app, this, folder));
-	    			contextMenu.addItem(emptyContainer);
+	    			MenuItem purgeContainer = new MenuItem(
+                        "<span>" + Const.PurgeContainer(folder.getName()) + "</span>",
+                        true,
+                        new PurgeContainerCommand(app, this, folder)
+                    );
+	    			contextMenu.addItem(purgeContainer);
 			    }
         	}
         }
@@ -150,7 +146,7 @@ public class FolderContextMenu extends PopupPanel {
 		        contextMenu.addItem(delete);
         	}
         	else {
-    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyContainerCommand(app, this, folder));
+    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new PurgeContainerCommand(app, this, folder));
     			contextMenu.addItem(emptyTrash);
         	}
         }

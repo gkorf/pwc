@@ -5,7 +5,7 @@ import com.google.gwt.regexp.shared.RegExp;
 /**
  * Gathers application-wide constants, like <code>X-Auth-Token</code>
  */
-public class Const {
+public final class Const {
     public static final String X_AUTH_TOKEN = "X-Auth-Token";
     public static final String OTHER_PROPERTIES = "otherProperties";
     public static final String LOGIN_URL = "loginUrl";
@@ -28,4 +28,7 @@ public class Const {
     private Const() {}
 
 
+    public static String PurgeContainer(String name) {
+        return "Purge Container [" + name + "]";
+    }
 }
