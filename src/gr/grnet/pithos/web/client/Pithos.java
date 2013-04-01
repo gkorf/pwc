@@ -340,27 +340,34 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(false) {
             final StringBuilder sb = new StringBuilder();
             for(Object arg : args) {
-                sb.append(arg);
                 if(arg instanceof Throwable) {
-                    sb.append("\nCauses (including original):\n");
                     final Throwable error = (Throwable) arg;
-                    Throwable cause = error;
-                    while(cause != null) {
-                        sb.append("  ");
-                        sb.append(cause.toString());
+                    sb.append("\nException: [" + error.toString().replace("\n", "\n  ") + "]");
+                    Throwable cause = error.getCause();
+                    if(cause != null) {
+                        sb.append("\nCauses:\n");
+                        while(cause != null) {
+                            sb.append("  ");
+                            sb.append("[" + cause.toString().replace("\n", "\n  ")  + "]");
+                            sb.append("\n");
+                            cause = cause.getCause();
+                        }
+                    }
+                    else {
                         sb.append("\n");
-                        cause = cause.getCause();
                     }
 
-                    sb.append("Stack trace of original: ");
-                    sb.append(error.toString());
-                    sb.append("\n");
                     StackTraceElement[] stackTrace = error.getStackTrace();
-                    for(StackTraceElement errorElem : stackTrace) {
-                        sb.append("  ");
+                    sb.append("Stack trace (" + stackTrace.length + " elements):\n");
+                    for(int i = 0; i < stackTrace.length; i++) {
+                        StackTraceElement errorElem = stackTrace[i];
+                        sb.append("  [" + i + "] ");
                         sb.append(errorElem.toString());
                         sb.append("\n");
                     }
+                }
+                else {
+                    sb.append(arg);
                 }
             }
 
@@ -614,7 +621,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                             scheduleResfresh();
                         }
                         else if(retries >= MAX_RETRIES) {
-                            GWT.log("Error heading folder", t);
+                            LOG("Error heading folder. ", t);
                             setError(t);
                             if(t instanceof RestException) {
                                 displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
@@ -624,7 +631,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                             }
                         }
                         else {//retry
-                            GWT.log("Retry " + retries);
+                            LOG("Retry ", retries);
                             Scheduler.get().scheduleDeferred(this);
                         }
                     }
@@ -761,7 +768,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error getting account", t);
+                LOG("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
@@ -790,7 +797,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error getting account", t);
+                LOG("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
@@ -824,7 +831,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error creating pithos", t);
+                LOG("Error creating pithos", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
@@ -853,7 +860,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error creating pithos", t);
+                LOG("Error creating pithos", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
@@ -1038,7 +1045,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("", t);
+                LOG(t);
                 setError(t);
                 if(t instanceof RestException) {
                     if(((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND) {
@@ -1074,7 +1081,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("", t);
+                    LOG(t);
                     setError(t);
                     if(t instanceof RestException) {
                         displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
@@ -1114,7 +1121,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("", t);
+                LOG(t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Unable to copy folder: " + ((RestException) t).getHttpStatusText());
@@ -1357,7 +1364,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void onError(Throwable _t) {
-                                    GWT.log("", _t);
+                                    LOG(_t);
                                     setError(_t);
                                     if(_t instanceof RestException) {
                                         displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
@@ -1389,7 +1396,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         displayError("System error heading folder: " + t.getMessage());
                     }
 
-                    GWT.log("Error heading folder", t);
+                    LOG("Error heading folder", t);
                     setError(t);
                 }
 
@@ -1415,7 +1422,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error heading file", t);
+                LOG("Error heading file", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error heading file: " + ((RestException) t).getHttpStatusText());
@@ -1516,7 +1523,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList.selectByUrl(selectedUrls);
     }
 
-    public void emptyContainer(final Folder container) {
+    public void purgeContainer(final Folder container) {
         String path = "/" + container.getName() + "?delimiter=/";
         DeleteRequest delete = new DeleteRequest(getApiPath(), getUserID(), path) {
 
@@ -1532,7 +1539,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error deleting trash", t);
+                LOG("Error deleting trash", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());
