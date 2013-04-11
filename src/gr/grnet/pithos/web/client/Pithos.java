@@ -79,6 +79,8 @@ import java.util.*;
  */
 public class Pithos implements EntryPoint, ResizeHandler {
 
+    private static final boolean IsLOGEnabled = true;
+
     public static final Configuration config = GWT.create(Configuration.class);
 
     public interface Style extends CssResource {
@@ -336,45 +338,63 @@ public class Pithos implements EntryPoint, ResizeHandler {
       }
     }-*/;
 
+    public static void LOGError(Throwable error, StringBuilder sb) {
+        if(!IsLOGEnabled) { return; }
+
+        sb.append("\nException: [" + error.toString().replace("\n", "\n  ") + "]");
+        Throwable cause = error.getCause();
+        if(cause != null) {
+            sb.append("\nCauses:\n");
+            while(cause != null) {
+                sb.append("  ");
+                sb.append("[" + cause.toString().replace("\n", "\n  ")  + "]");
+                sb.append("\n");
+                cause = cause.getCause();
+            }
+        }
+        else {
+            sb.append("\n");
+        }
+
+        StackTraceElement[] stackTrace = error.getStackTrace();
+        sb.append("Stack trace (" + stackTrace.length + " elements):\n");
+        for(int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement errorElem = stackTrace[i];
+            sb.append("  [" + i + "] ");
+            sb.append(errorElem.toString());
+            sb.append("\n");
+        }
+    }
+
+    public static void LOGError(Throwable error) {
+        if(!IsLOGEnabled) { return; }
+
+        final StringBuilder sb = new StringBuilder();
+        LOGError(error, sb);
+        if(sb.length() > 0) {
+            __ConsoleLog(sb.toString());
+        }
+    }
+
+    public static boolean isLogEnabled() {
+        return IsLOGEnabled;
+    }
+
     public static void LOG(Object ...args) {
-        if(false) {
-            final StringBuilder sb = new StringBuilder();
-            for(Object arg : args) {
-                if(arg instanceof Throwable) {
-                    final Throwable error = (Throwable) arg;
-                    sb.append("\nException: [" + error.toString().replace("\n", "\n  ") + "]");
-                    Throwable cause = error.getCause();
-                    if(cause != null) {
-                        sb.append("\nCauses:\n");
-                        while(cause != null) {
-                            sb.append("  ");
-                            sb.append("[" + cause.toString().replace("\n", "\n  ")  + "]");
-                            sb.append("\n");
-                            cause = cause.getCause();
-                        }
-                    }
-                    else {
-                        sb.append("\n");
-                    }
+        if(!IsLOGEnabled) { return; }
 
-                    StackTraceElement[] stackTrace = error.getStackTrace();
-                    sb.append("Stack trace (" + stackTrace.length + " elements):\n");
-                    for(int i = 0; i < stackTrace.length; i++) {
-                        StackTraceElement errorElem = stackTrace[i];
-                        sb.append("  [" + i + "] ");
-                        sb.append(errorElem.toString());
-                        sb.append("\n");
-                    }
-                }
-                else {
-                    sb.append(arg);
-                }
+        final StringBuilder sb = new StringBuilder();
+        for(Object arg : args) {
+            if(arg instanceof Throwable) {
+                LOGError((Throwable) arg, sb);
             }
-
-
-            if(sb.length() > 0) {
-                __ConsoleLog(sb.toString());
+            else {
+                sb.append(arg);
             }
+        }
+
+        if(sb.length() > 0) {
+            __ConsoleLog(sb.toString());
         }
     }
 
@@ -1312,6 +1332,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void setError(Throwable t) {
         error = t;
+        LOG(t);
     }
 
     public void showRelevantToolbarButtons() {
@@ -1364,7 +1385,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void onError(Throwable _t) {
-                                    LOG(_t);
                                     setError(_t);
                                     if(_t instanceof RestException) {
                                         displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
