@@ -34,8 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.FilePermissionsDialog.Images;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +57,7 @@ public class PermissionsList extends Composite {
 
 	Map<String, Boolean[]> permissions = null;
 	
-	final Images images;
+	final FileShareDialog.PrivateSharingImages images;
 	
 	final VerticalPanel permPanel = new VerticalPanel();
 	
@@ -75,7 +73,7 @@ public class PermissionsList extends Composite {
 
     private final Pithos app;
 	
-	public PermissionsList(Pithos app, final Images theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions, Command _changePermissionsCallback){
+	public PermissionsList(Pithos app, final FileShareDialog.PrivateSharingImages theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions, Command _changePermissionsCallback){
         this.app = app;
 		changePermissionsCallback = _changePermissionsCallback;
 		images = theImages;
