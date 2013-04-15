@@ -36,6 +36,7 @@ public final class Const {
     public static final String COMMA = ",";
     public static final String TILDE = "~";
     public static final String SEMI = ";";
+    public static final String COLON = ":";
     public static final String QUESTION_MARK = "?";
     public static final String AMPERSAND = "&";
 
@@ -44,6 +45,8 @@ public final class Const {
     public static final String GOTO_EQ = "goto=";
     public static final String UPDATE_EQ = "update=";
     public static final String QUESTION_MARK_UPDATE_EQ = QUESTION_MARK + UPDATE_EQ;
+
+    public static final String HTML_NBSP = "&nbsp;";
 
 
     public static final String NL = "\n";
@@ -55,5 +58,22 @@ public final class Const {
 
     public static String PurgeContainer(String name) {
         return "Purge Container [" + name + "]";
+    }
+
+    public static String inSpan(String html) {
+        return "<span>" + html + "</span>";
+    }
+
+    public static String inSpan(String html0, String html1, String ...html) {
+        final int knownLength = html0.length() + html1.length();
+        final int estimatedLength = knownLength * html.length;
+        final StringBuilder sb = new StringBuilder(estimatedLength);
+        sb.append(html0);
+        sb.append(html1);
+        for(String s : html) {
+            sb.append(s);
+        }
+
+        return inSpan(sb.toString());
     }
 }

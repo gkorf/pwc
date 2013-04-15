@@ -34,104 +34,139 @@
  */
 package gr.grnet.pithos.web.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
 import gr.grnet.pithos.web.client.catalog.UserCatalogs;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class PermissionsList extends Composite {
 
-	Map<String, Boolean[]> permissions = null;
-	
-	final FileShareDialog.PrivateSharingImages images;
-	
-	final VerticalPanel permPanel = new VerticalPanel();
-	
-	final FlexTable permTable = new FlexTable();
-	
-	final String owner;
-	
-	protected boolean hasChanges = false;
+    Map<String, Boolean[]> permissions = null;
+
+    final FileShareDialog.PrivateSharingImages images;
+
+    final VerticalPanel permPanel = new VerticalPanel();
+
+    final FlexTable permTable = new FlexTable();
+
+    final String owner;
+
+    protected boolean hasChanges = false;
 
     private boolean readonly = false;
-    
+
     Command changePermissionsCallback;
 
     private final Pithos app;
-	
-	public PermissionsList(Pithos app, final FileShareDialog.PrivateSharingImages theImages, Map<String, Boolean[]> thePermissions, String theOwner, boolean inheritsPermissions, Command _changePermissionsCallback){
+
+    public PermissionsList(
+        Pithos app,
+        final FileShareDialog.PrivateSharingImages theImages,
+        Map<String, Boolean[]> thePermissions,
+        String theOwner,
+        boolean inheritsPermissions,
+        Command _changePermissionsCallback
+    ) {
         this.app = app;
-		changePermissionsCallback = _changePermissionsCallback;
-		images = theImages;
-		owner = theOwner;
-		permissions =  new HashMap<String, Boolean[]>(thePermissions);
-		permTable.setText(0, 0, "Users/Groups");
-		permTable.setText(0, 1, "Read Only");
-		permTable.setText(0, 2, "Read/Write");
-		permTable.setText(0, 3, "");
-		permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
-		permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
-		permTable.getFlexCellFormatter().setStyleName(0, 2, "props-toplabels");
-		permTable.getFlexCellFormatter().setStyleName(0, 3, "props-toplabels");
-		permPanel.add(permTable);
-		permPanel.addStyleName("pithos-TabPanelBottom");
-		initWidget(permPanel);
-		updatePermissionTable();
-	}
-
-	public boolean hasChanges(){
-		return hasChanges;
-	}
-
-	/**
-	 * Retrieve the permissions.
-	 *
-	 * @return the permissions
-	 */
-	public Map<String, Boolean[]> getPermissions() {
-		return permissions;
-	}
-
-	public void addPermission(String userID, boolean read, boolean write){
-		permissions.put(userID, new Boolean[] {Boolean.valueOf(read), Boolean.valueOf(write)});
-		hasChanges = true;
+        changePermissionsCallback = _changePermissionsCallback;
+        images = theImages;
+        owner = theOwner;
+        permissions = new HashMap<String, Boolean[]>(thePermissions);
+        updatePermissionsHeader();
+        permPanel.add(permTable);
+        permPanel.addStyleName("pithos-TabPanelBottom");
+        initWidget(permPanel);
         updatePermissionTable();
-        if (changePermissionsCallback != null)
-        	changePermissionsCallback.execute();
-	}
+    }
 
-	/**
-	 * Shows the permission table 
-	 * 
-	 */
-	void updatePermissionTable(){
-		int i = 1;
+    private void updatePermissionsHeader() {
+        if(hasPermissions()) {
+            permTable.setText(0, 0, "Users/Groups");
+            permTable.setText(0, 1, "Read Only");
+            permTable.setText(0, 2, "Read/Write");
+            permTable.setText(0, 3, "");
+            permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
+            permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
+            permTable.getFlexCellFormatter().setStyleName(0, 2, "props-toplabels");
+            permTable.getFlexCellFormatter().setStyleName(0, 3, "props-toplabels");
+        }
+        else {
+            permTable.setText(0, 0, "");
+            permTable.setText(0, 1, "");
+            permTable.setText(0, 2, "");
+            permTable.setText(0, 3, "");
+        }
+    }
+
+    public boolean hasPermissions() {
+        return permissionCount() > 0;
+    }
+
+    public int permissionCount() {
+        return permissions == null
+            ? 0
+            : permissions.size();
+    }
+
+    public boolean hasChanges() {
+        return hasChanges;
+    }
+
+    /**
+     * Retrieve the permissions.
+     *
+     * @return the permissions
+     */
+    public Map<String, Boolean[]> getPermissions() {
+        return permissions;
+    }
+
+    public void addPermission(String userID, boolean read, boolean write) {
+        permissions.put(userID, new Boolean[]{Boolean.valueOf(read), Boolean.valueOf(write)});
+        hasChanges = true;
+        updatePermissionTable();
+        if(changePermissionsCallback != null) {
+            changePermissionsCallback.execute();
+        }
+    }
+
+    private boolean isGroup(String userID) {
+        return userID.contains(Const.COLON);
+    }
+
+    /**
+     * Shows the permission table
+     */
+    void updatePermissionTable() {
+        int i = 1;
         final int ii = i;
-        for (int j=1; j<permTable.getRowCount(); j++)
+        for(int j = 1; j < permTable.getRowCount(); j++) {
             permTable.removeRow(j);
-		for(final String userID : permissions.keySet()) {
-            if (!userID.contains(":")) {
-                 //not a group
+        }
+
+        updatePermissionsHeader();
+
+        for(final String userID : permissions.keySet()) {
+            if(!isGroup(userID)) {
                 final String displayName = app.getDisplayNameForUserID(userID);
                 if(displayName != null) {
                     permTable.setHTML(
                         i,
                         0,
-                        "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;" + displayName + "</span>"
+                        Const.inSpan(
+                            AbstractImagePrototype.create(
+                                images.permUser()).getHTML() +
+                                Const.HTML_NBSP +
+                                displayName
+                        )
                     );
                 }
                 else {
@@ -142,14 +177,28 @@ public class PermissionsList extends Composite {
                             permTable.setHTML(
                                 ii,
                                 0,
-                                "<span>" + AbstractImagePrototype.create(images.permUser()).getHTML() + "&nbsp;" + displayName + "</span>"
+                                Const.inSpan(
+                                    AbstractImagePrototype.create(
+                                        images.permUser()).getHTML() +
+                                        Const.HTML_NBSP +
+                                        displayName
+                                )
                             );
                         }
                     }.scheduleDeferred();
                 }
             }
             else {
-                permTable.setHTML(i, 0, "<span>" + AbstractImagePrototype.create(images.permGroup()).getHTML() + "&nbsp;" + userID.split(":")[1].trim() + "</span>");
+                permTable.setHTML(
+                    i,
+                    0,
+                    Const.inSpan(
+                        AbstractImagePrototype.create(
+                            images.permGroup()).getHTML() +
+                            Const.HTML_NBSP +
+                            userID.split(Const.COLON)[1].trim()
+                    )
+                );
             }
             permTable.getFlexCellFormatter().setStyleName(i, 0, "props-values");
 
@@ -157,8 +206,8 @@ public class PermissionsList extends Composite {
             Boolean readP = userPerms[0];
             Boolean writeP = userPerms[1];
 
-			RadioButton read = new RadioButton("permissions" + i);
-			read.setValue(readP != null ? readP : false);
+            RadioButton read = new RadioButton("permissions" + i);
+            read.setValue(readP != null ? readP : false);
             permTable.setWidget(i, 1, read);
             permTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -167,7 +216,7 @@ public class PermissionsList extends Composite {
             permTable.setWidget(i, 2, write);
             permTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
 
-            if (!readonly) {
+            if(!readonly) {
                 read.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                     @Override
                     public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
@@ -175,8 +224,9 @@ public class PermissionsList extends Composite {
                         ps[0] = booleanValueChangeEvent.getValue();
                         ps[1] = !booleanValueChangeEvent.getValue();
                         hasChanges = true;
-                        if (changePermissionsCallback != null)
-                        	changePermissionsCallback.execute();
+                        if(changePermissionsCallback != null) {
+                            changePermissionsCallback.execute();
+                        }
                     }
                 });
                 write.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -186,8 +236,9 @@ public class PermissionsList extends Composite {
                         ps[0] = !booleanValueChangeEvent.getValue();
                         ps[1] = booleanValueChangeEvent.getValue();
                         hasChanges = true;
-                        if (changePermissionsCallback != null)
-                        	changePermissionsCallback.execute();
+                        if(changePermissionsCallback != null) {
+                            changePermissionsCallback.execute();
+                        }
                     }
                 });
                 Anchor removeButton = new Anchor("remove");
@@ -198,8 +249,9 @@ public class PermissionsList extends Composite {
                         permissions.remove(userID);
                         updatePermissionTable();
                         hasChanges = true;
-                        if (changePermissionsCallback != null)
-                        	changePermissionsCallback.execute();
+                        if(changePermissionsCallback != null) {
+                            changePermissionsCallback.execute();
+                        }
                     }
                 });
                 permTable.setWidget(i, 3, removeButton);
@@ -209,7 +261,7 @@ public class PermissionsList extends Composite {
                 read.setEnabled(false);
                 write.setEnabled(false);
             }
-			i++;
-		}
-	}
+            i++;
+        }
+    }
 }

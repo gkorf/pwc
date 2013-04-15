@@ -34,13 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.PutRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
@@ -52,13 +45,13 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.PutRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.Map;
 
 /**
  * The 'Folder properties' dialog box implementation.
@@ -67,51 +60,55 @@ public class FolderPermissionsDialog extends DialogBox {
 
     protected Pithos app;
 
-	/**
-	 * The widget that holds the folderName of the folder.
-	 */
-	Label folderName = new Label();
+    /**
+     * The widget that holds the folderName of the folder.
+     */
+    Label folderName = new Label();
 
-	protected PermissionsList permList;
+    protected PermissionsList permList;
 
-	final Folder folder;
+    final Folder folder;
 
-	final VerticalPanel inner;
+    final VerticalPanel inner;
 
-	/**
-	 * The widget's constructor.
-	 */
-	public FolderPermissionsDialog(final Pithos app, Folder selected) {
+    final Button updateButton;
+
+    private boolean _initialPermissionCheck = true;
+
+    /**
+     * The widget's constructor.
+     */
+    public FolderPermissionsDialog(final Pithos app, Folder selected) {
         this.app = app;
-		Anchor close = new Anchor("close");
-		close.addStyleName("close");
-		close.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				hide();
-			}
-		});
+        Anchor close = new Anchor("close");
+        close.addStyleName("close");
+        close.addClickHandler(new ClickHandler() {
 
-		setGlassEnabled(true);
-		setStyleName("pithos-DialogBox");
+            @Override
+            public void onClick(ClickEvent event) {
+                hide();
+            }
+        });
 
-		// Enable IE selection for the dialog (must disable it upon closing it)
-		Pithos.enableIESelection();
+        setGlassEnabled(true);
+        setStyleName("pithos-DialogBox");
 
-		folder = selected;
+        // Enable IE selection for the dialog (must disable it upon closing it)
+        Pithos.enableIESelection();
 
-		setText("Folder permissions");
+        folder = selected;
 
-		// Outer contains inner and buttons
-		VerticalPanel outer = new VerticalPanel();
-		outer.add(close);
-		// Inner contains generalPanel and permPanel
-		inner = new VerticalPanel();
-		inner.addStyleName("inner");
+        setText("Folder permissions");
+
+        // Outer contains inner and buttons
+        VerticalPanel outer = new VerticalPanel();
+        outer.add(close);
+        // Inner contains generalPanel and permPanel
+        inner = new VerticalPanel();
+        inner.addStyleName("inner");
 
 
-		folderName.setText(folder.getName());
+        folderName.setText(folder.getName());
 
         VerticalPanel permPanel = new VerticalPanel();
         FileShareDialog.PrivateSharingImages images = GWT.create(FileShareDialog.PrivateSharingImages.class);
@@ -124,6 +121,7 @@ public class FolderPermissionsDialog extends DialogBox {
             public void onClick(ClickEvent event) {
                 PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                 dlg.center();
+                checkUpdateButtonVisibility();
             }
         });
         addUser.addStyleName("button");
@@ -133,22 +131,24 @@ public class FolderPermissionsDialog extends DialogBox {
         Button add = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	if (app.getAccount().getGroups().isEmpty()) {
+                if(app.getAccount().getGroups().isEmpty()) {
                     new GroupCreateDialog(app, new Command() {
-						
-						@Override
-						public void execute() {
-			            	if (app.getAccount().getGroups().isEmpty())
-			            		return;
-			                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-			                dlg.center();
-						}
-					}).center();
-            	}
-            	else {
-	                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-	                dlg.center();
-            	}
+                        @Override
+                        public void execute() {
+                            if(app.getAccount().getGroups().isEmpty()) {
+                                return;
+                            }
+                            PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                            dlg.center();
+                            checkUpdateButtonVisibility();
+                        }
+                    }).center();
+                }
+                else {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                    dlg.center();
+                    checkUpdateButtonVisibility();
+                }
             }
         });
         add.addStyleName("button");
@@ -162,154 +162,178 @@ public class FolderPermissionsDialog extends DialogBox {
 
         outer.add(inner);
 
-		// Create the 'Create/Update' button, along with a listener that hides the dialog
-		// when the button is clicked and quits the application.
-		String okLabel = "Update";
-		final Button ok = new Button(okLabel, new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				updateFolder();
-				closeDialog();
-			}
-		});
-		ok.addStyleName("button");
-		outer.add(ok);
+        // Create the 'Create/Update' button, along with a listener that hides the dialog
+        // when the button is clicked and quits the application.
+        final String okLabel = "Update";
+        updateButton = new Button(okLabel, new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateFolder();
+                closeDialog();
+            }
+        });
+        updateButton.addStyleName("button");
+        checkUpdateButtonVisibility();
+        outer.add(updateButton);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 
         setWidget(outer);
-	}
+    }
 
-	@Override
-	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
-		super.onPreviewNativeEvent(preview);
+    private void checkUpdateButtonVisibility() {
+        if(!this._initialPermissionCheck) {
+            updateButton.setVisible(true);
+            return;
+        }
 
-		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals(KeyDownEvent.getType().getName()))
-			// Use the popup's key preview hooks to close the dialog when either
-			// enter or escape is pressed.
-			switch (evt.getKeyCode()) {
-				case KeyCodes.KEY_ENTER:
-					updateFolder();
+        updateButton.setVisible(permList.hasPermissions());
+
+        this._initialPermissionCheck = false;
+    }
+
+    @Override
+    protected void onPreviewNativeEvent(NativePreviewEvent preview) {
+        super.onPreviewNativeEvent(preview);
+
+        NativeEvent evt = preview.getNativeEvent();
+        if(evt.getType().equals(KeyDownEvent.getType().getName()))
+        // Use the popup's key preview hooks to close the dialog when either
+        // enter or escape is pressed.
+        {
+            switch(evt.getKeyCode()) {
+                case KeyCodes.KEY_ENTER:
+                    updateFolder();
                     closeDialog();
-					break;
-				case KeyCodes.KEY_ESCAPE:
-					closeDialog();
-					break;
-			}
-	}
+                    break;
+                case KeyCodes.KEY_ESCAPE:
+                    closeDialog();
+                    break;
+            }
+        }
+    }
 
+    /**
+     * Enables IE selection prevention and hides the dialog
+     * (we disable the prevention on creation of the dialog)
+     */
+    public void closeDialog() {
+        Pithos.preventIESelection();
+        hide();
+    }
 
-	/**
-	 * Enables IE selection prevention and hides the dialog
-	 * (we disable the prevention on creation of the dialog)
-	 */
-	public void closeDialog() {
-		Pithos.preventIESelection();
-		hide();
-	}
-
-	void updateFolder() {
+    void updateFolder() {
         final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
-        updateMetadata(folder.getUri() + "?update=", perms);
-	}
+        updateMetadata(
+            folder.getUri() + Const.QUESTION_MARK_UPDATE_EQ,
+            perms
+        );
+    }
 
-	protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
-        if (newPermissions != null) {
+    protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
+        if(newPermissions != null) {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwnerID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     app.updateFolder(folder.getParent(), false, new Command() {
-						
-						@Override
-						public void execute() {
-							app.updateMySharedRoot();
-						}
-					}, true);
+                        @Override
+                        public void execute() {
+                            app.updateMySharedRoot();
+                        }
+                    }, true);
                 }
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("", t);
-					app.setError(t);
-                    if (t instanceof RestException) {
-                    	if (((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
+                    app.setError(t);
+                    if(t instanceof RestException) {
+                        if(((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) { //Probably a virtual folder
                             final String path1 = folder.getUri();
                             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwnerID(), path1) {
                                 @Override
                                 public void onSuccess(Resource result) {
-                                	updateMetadata(path, newPermissions);
+                                    updateMetadata(path, newPermissions);
                                 }
 
                                 @Override
                                 public void onError(Throwable _t) {
-                                    GWT.log("", _t);
-            						app.setError(_t);
-                                    if(_t instanceof RestException){
+                                    app.setError(_t);
+                                    if(_t instanceof RestException) {
                                         app.displayError("Unable to update folder: " + ((RestException) _t).getHttpStatusText());
                                     }
-                                    else
+                                    else {
                                         app.displayError("System error modifying folder: " + _t.getMessage());
+                                    }
                                 }
 
-                				@Override
-                				protected void onUnauthorized(Response response) {
-                					app.sessionExpired();
-                				}
+                                @Override
+                                protected void onUnauthorized(Response response) {
+                                    app.sessionExpired();
+                                }
                             };
                             newFolder.setHeader("X-Auth-Token", app.getUserToken());
                             newFolder.setHeader("Content-Type", "application/folder");
                             newFolder.setHeader("Accept", "*/*");
                             newFolder.setHeader("Content-Length", "0");
                             Scheduler.get().scheduleDeferred(newFolder);
-                    	}
-                    	else if (((RestException) t).getHttpStatusCode() == Response.SC_CONFLICT) {
-                    		app.displayError("Cannot set permissions. Probably subfolders or files already have permissions set");
-                    	}
-                    	else
-                    		app.displayError("Εrror modifying folder: " + t.getMessage());
+                        }
+                        else if(((RestException) t).getHttpStatusCode() == Response.SC_CONFLICT) {
+                            app.displayError("Cannot set permissions. Probably subfolders or files already have permissions set");
+                        }
+                        else {
+                            app.displayError("Εrror modifying folder: " + t.getMessage());
+                        }
                     }
-                    else
-                    	app.displayError("System error modifying folder: " + t.getMessage());
+                    else {
+                        app.displayError("System error modifying folder: " + t.getMessage());
+                    }
                 }
 
-				@Override
-				protected void onUnauthorized(Response response) {
-					app.sessionExpired();
-				}
+                @Override
+                protected void onUnauthorized(Response response) {
+                    app.sessionExpired();
+                }
             };
             updateFolder.setHeader("X-Auth-Token", app.getUserToken());
             String readPermHeader = "read=";
             String writePermHeader = "write=";
-            for (String u : newPermissions.keySet()) {
+            for(String u : newPermissions.keySet()) {
                 Boolean[] p = newPermissions.get(u);
-                if (p[0] != null && p[0])
+                if(p[0] != null && p[0]) {
                     readPermHeader += u + ",";
-                if (p[1] != null && p[1])
+                }
+                if(p[1] != null && p[1]) {
                     writePermHeader += u + ",";
+                }
             }
-            if (readPermHeader.endsWith("="))
+            if(readPermHeader.endsWith("=")) {
                 readPermHeader = "";
-            else if (readPermHeader.endsWith(","))
+            }
+            else if(readPermHeader.endsWith(",")) {
                 readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-            if (writePermHeader.endsWith("="))
+            }
+            if(writePermHeader.endsWith("=")) {
                 writePermHeader = "";
-            else if (writePermHeader.endsWith(","))
+            }
+            else if(writePermHeader.endsWith(",")) {
                 writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-            String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
-            if (permHeader.length() == 0)
+            }
+            String permHeader = readPermHeader + ((readPermHeader.length() > 0 && writePermHeader.length() > 0) ? ";" : "") + writePermHeader;
+            if(permHeader.length() == 0) {
                 permHeader = "~";
-            else
-            	permHeader = URL.encodePathSegment(permHeader);
+            }
+            else {
+                permHeader = URL.encodePathSegment(permHeader);
+            }
             updateFolder.setHeader("X-Object-Sharing", permHeader);
             Scheduler.get().scheduleDeferred(updateFolder);
         }
-        else
+        else {
             app.updateFolder(folder.getParent(), false, new Command() {
-				
-				@Override
-				public void execute() {
-					app.updateMySharedRoot();
-				}
-			}, true);
+                @Override
+                public void execute() {
+                    app.updateMySharedRoot();
+                }
+            }, true);
+        }
     }
 }
