@@ -287,12 +287,14 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                             }
                             PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                             dlg.center();
+                            permList.updatePermissionTable();
                         }
                     }).center();
                 }
                 else {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
+                    permList.updatePermissionTable();
                 }
             }
         });
