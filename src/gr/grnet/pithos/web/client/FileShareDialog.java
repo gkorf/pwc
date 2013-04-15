@@ -104,9 +104,9 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 	/**
 	 * The widget's constructor.
 	 */
-	public FileShareDialog(Pithos _app, File _file) {
-        super(_app);
-        file = _file;
+	public FileShareDialog(Pithos app, File file) {
+        super(app);
+        this.file = file;
 
 		Anchor close = new Anchor("close");
 		close.addStyleName("close");
