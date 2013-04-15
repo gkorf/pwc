@@ -124,7 +124,7 @@ public class FolderContextMenu extends PopupPanel {
 			        contextMenu.addItem(delete);
 			
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
-			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
+			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Share</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
 			    }
 			    
 			    if (folder.isContainer()) {
