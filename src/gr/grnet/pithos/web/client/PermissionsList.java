@@ -130,6 +130,7 @@ public class PermissionsList extends Composite {
     }
 
     public void addPermission(String userID, boolean read, boolean write) {
+        Pithos.LOG("PermissionsList::addPermission(userID=", userID, ", read=", read, ", write=", write, ")");
         permissions.put(userID, new Boolean[]{Boolean.valueOf(read), Boolean.valueOf(write)});
         hasChanges = true;
         updatePermissionTable();

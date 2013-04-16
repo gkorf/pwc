@@ -24,6 +24,8 @@ public final class Const {
     public static final String LOGIN_URL = "loginUrl";
 
     public static final String PERCENT_100 = "100%";
+    public static final String PERCENT_75 = "75%";
+
     public static final String DATE_FORMAT_1 = "EEE, dd MMM yyyy HH:mm:ss";
     public static final String AUTH_COOKIE = "authCookie";
 

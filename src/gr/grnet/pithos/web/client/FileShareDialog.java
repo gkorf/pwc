@@ -272,9 +272,8 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         });
         addUser.addStyleName("button");
         permButtons.add(addUser);
-        permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
 
-        Button add = new Button("Add Group", new ClickHandler() {
+        Button addGroup = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 if (app.getAccount().getGroups().isEmpty()) {
@@ -298,10 +297,23 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                 }
             }
         });
-        add.addStyleName("button");
-        permButtons.add(add);
-        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+        addGroup.addStyleName("button");
+        permButtons.add(addGroup);
 
+
+        Button addEverybody = new Button("Add everybody", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Pithos.LOG("Adding to Everybody");
+                Pithos.LOG("");
+                permList.addPermission("*", true, false);
+                permList.updatePermissionTable();
+            }
+        });
+        addEverybody.addStyleName("button");
+        permButtons.add(addEverybody);
+
+        permButtons.setCellHorizontalAlignment(addGroup, HasHorizontalAlignment.ALIGN_CENTER);
         privatePermPanel.add(permList);
         privatePermPanel.add(permButtons);
 

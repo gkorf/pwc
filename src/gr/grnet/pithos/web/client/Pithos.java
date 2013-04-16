@@ -399,10 +399,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     private void initialize() {
+        userCatalogs.updateWithIDAndName("*", "All Pithos users");
+
         lastModified = new Date(); //Initialize if-modified-since value with now.
         resources.pithosCss().ensureInjected();
         boolean bareContent = Window.Location.getParameter("noframe") != null;
-        String contentWidth = bareContent ? Const.PERCENT_100 : "75%";
+        String contentWidth = bareContent ? Const.PERCENT_100 : Const.PERCENT_75;
 
         VerticalPanel outer = new VerticalPanel();
         outer.setWidth(Const.PERCENT_100);

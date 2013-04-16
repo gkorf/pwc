@@ -189,6 +189,7 @@ public class PermissionsAddDialog extends DialogBox {
                 public void onSuccess(UserCatalogs requestedUserCatalogs, UserCatalogs updatedUserCatalogs) {
                     final String userID = updatedUserCatalogs.getID(userDisplayName);
                     if(userID == null) {
+                        Pithos.LOG("PermissionsDialog::addUserPermission(), UpdateUserCatalogs() => Unknown user ", userDisplayName);
                         app.displayWarning("Unknown user " + userDisplayName);
                     }
                     else if(!alreadyHasPermission(userID)) {
