@@ -273,33 +273,21 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         addUser.addStyleName("button");
         permButtons.add(addUser);
 
+        final boolean haveGroups = app.getAccount().getGroups().size() > 0;
         Button addGroup = new Button("Add Group", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (app.getAccount().getGroups().isEmpty()) {
-                    new GroupCreateDialog(app, new Command() {
-
-                        @Override
-                        public void execute() {
-                            if (app.getAccount().getGroups().isEmpty()) {
-                                return;
-                            }
-                            PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                            dlg.center();
-                            permList.updatePermissionTable();
-                        }
-                    }).center();
-                }
-                else {
-                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                    dlg.center();
-                    permList.updatePermissionTable();
-                }
+                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                dlg.center();
+                permList.updatePermissionTable();
             }
         });
         addGroup.addStyleName("button");
+        addGroup.setEnabled(haveGroups);
+        if(!haveGroups) {
+            addGroup.setTitle("You do not have any groups");
+        }
         permButtons.add(addGroup);
-
 
         Button addEverybody = new Button("Add everybody", new ClickHandler() {
             @Override
