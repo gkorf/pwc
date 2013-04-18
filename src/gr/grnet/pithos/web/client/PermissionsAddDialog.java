@@ -34,86 +34,77 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
-import gr.grnet.pithos.web.client.catalog.UserCatalogs;
-import gr.grnet.pithos.web.client.grouptree.Group;
-
-import java.util.List;
-
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.catalog.UpdateUserCatalogs;
+import gr.grnet.pithos.web.client.catalog.UserCatalogs;
+import gr.grnet.pithos.web.client.grouptree.Group;
+
+import java.util.List;
 
 public class PermissionsAddDialog extends DialogBox {
     final static RegExp EmailValidator = RegExp.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,4}$", "i");
 
-	private TextBox userBox = new TextBox();
+    private TextBox userBox = new TextBox();
 
-	private ListBox groupBox = new ListBox();
+    private ListBox groupBox = new ListBox();
 
-	private RadioButton read = new RadioButton("permissions");
+    private RadioButton read = new RadioButton("permissions");
 
-	private RadioButton write = new RadioButton("permissions");
+    private RadioButton write = new RadioButton("permissions");
 
-	private PermissionsList permList;
+    private final PermissionsList permList;
 
-	boolean userAdd;
+    private final boolean isUser;
 
-    private Pithos app;
+    private final Pithos app;
 
-	public PermissionsAddDialog(Pithos _app, List<Group> _groups, PermissionsList _permList, boolean _userAdd) {
-        app = _app;
-		userAdd = _userAdd;
-		permList = _permList;
+    public PermissionsAddDialog(Pithos app, List<Group> groups, PermissionsList permList, boolean isUser) {
+        this.app = app;
+        this.isUser = isUser;
+        this.permList = permList;
 
-		Anchor close = new Anchor("close");
-		close.addStyleName("close");
-		close.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				hide();
-			}
-		});
-		setText("Add permission");
-		setStyleName("pithos-DialogBox");
+        Anchor close = new Anchor("close");
+        close.addStyleName("close");
+        close.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                hide();
+            }
+        });
+        final String dialogText = isUser ? "Add user" : "Add group";
+        setText(dialogText);
+        setStyleName("pithos-DialogBox");
 
         final VerticalPanel panel = new VerticalPanel();
         panel.add(close);
 
         VerticalPanel inner = new VerticalPanel();
-		inner.addStyleName("inner");
+        inner.addStyleName("inner");
 
         final FlexTable permTable = new FlexTable();
-        permTable.setText(0, 0, "Users/Groups");
+        permTable.setText(0, 0, isUser ? "User" : "Group");
         permTable.setText(0, 1, "Read Only");
         permTable.setText(0, 2, "Read/Write");
         permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");
         permTable.getFlexCellFormatter().setStyleName(0, 1, "props-toplabels");
         permTable.getFlexCellFormatter().setStyleName(0, 2, "props-toplabels");
 
-        if (userAdd) {
+        if(this.isUser) {
             permTable.setWidget(1, 0, userBox);
         }
         else {
-            for (Group group : _groups) {
+            for(Group group : groups) {
                 groupBox.addItem(group.getName(), group.getName());
             }
             permTable.setWidget(1, 0, groupBox);
         }
-                
+
         read.setValue(true);
         permTable.setWidget(1, 1, read);
         permTable.setWidget(1, 2, write);
@@ -136,40 +127,41 @@ public class PermissionsAddDialog extends DialogBox {
 
         panel.add(inner);
         panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
-        
-        setWidget(panel);
-	}
 
-	protected void addPermission() {
+        setWidget(panel);
+    }
+
+    protected void addPermission() {
         final boolean readValue = read.getValue();
         final boolean writeValue = write.getValue();
 
         String selected = null;
-		if (userAdd) {
-			final String userDisplayName = userBox.getText().trim();
-			addUserPermission(userDisplayName, readValue, writeValue);
-            return;
-		} else if (groupBox.getSelectedIndex() > -1) {
-			String groupName = groupBox.getValue(groupBox.getSelectedIndex());
-			selected = app.getUserID() + ":" + groupName;
-		}
-        if (permList.getPermissions().get(selected) != null) {
+        if(isUser) {
+            final String userDisplayName = userBox.getText().trim();
+            addUserPermission(userDisplayName, readValue, writeValue);
             return;
         }
-        if (selected == null || selected.length() == 0 || selected.equals(app.getUserID() + ":")) {
-        	app.displayWarning("You have to select a username or group");
-        	return;
+        else if(groupBox.getSelectedIndex() > -1) {
+            String groupName = groupBox.getValue(groupBox.getSelectedIndex());
+            selected = app.getUserID() + ":" + groupName;
+        }
+        if(permList.getPermissions().get(selected) != null) {
+            return;
+        }
+        if(selected == null || selected.length() == 0 || selected.equals(app.getUserID() + ":")) {
+            app.displayWarning("You have to select a username or group");
+            return;
         }
 
-		permList.addPermission(selected, readValue, writeValue);
-	}
+        permList.addPermission(selected, readValue, writeValue);
+    }
 
     private boolean alreadyHasPermission(String selected) {
         return permList.getPermissions().get(selected) != null;
     }
 
     private void addUserPermission(final String userDisplayName, final boolean readValue, final boolean writeValue) {
-        if (!EmailValidator.test(userDisplayName)) {
+        if(!EmailValidator.test(userDisplayName)) {
             app.displayWarning("Username must be a valid email address");
             return;
         }
@@ -200,30 +192,33 @@ public class PermissionsAddDialog extends DialogBox {
         }
     }
 
-	@Override
-	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
-		super.onPreviewNativeEvent(preview);
+    @Override
+    protected void onPreviewNativeEvent(NativePreviewEvent preview) {
+        super.onPreviewNativeEvent(preview);
 
-		NativeEvent evt = preview.getNativeEvent();
-		if (evt.getType().equals("keydown"))
-			// Use the popup's key preview hooks to close the dialog when either
-			// enter or escape is pressed.
-			switch (evt.getKeyCode()) {
-				case KeyCodes.KEY_ENTER:
-					addPermission();
-					hide();
-					break;
-				case KeyCodes.KEY_ESCAPE:
-					hide();
-					break;
-			}
-	}
+        NativeEvent evt = preview.getNativeEvent();
+        if(evt.getType().equals("keydown"))
+        // Use the popup's key preview hooks to close the dialog when either
+        // enter or escape is pressed.
+        {
+            switch(evt.getKeyCode()) {
+                case KeyCodes.KEY_ENTER:
+                    addPermission();
+                    hide();
+                    break;
+                case KeyCodes.KEY_ESCAPE:
+                    hide();
+                    break;
+            }
+        }
+    }
 
 
-	@Override
-	public void center() {
-		super.center();
-		if (userAdd)
-			userBox.setFocus(true);
-	}
+    @Override
+    public void center() {
+        super.center();
+        if(isUser) {
+            userBox.setFocus(true);
+        }
+    }
 }
