@@ -274,22 +274,23 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         permButtons.add(addUser);
 
         final boolean haveGroups = app.getAccount().getGroups().size() > 0;
-        Button addGroup = new Button("Add Group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                dlg.center();
-                permList.updatePermissionTable();
-            }
-        });
-        addGroup.addStyleName("button");
-        addGroup.setEnabled(haveGroups);
-        if(!haveGroups) {
-            addGroup.setTitle("You do not have any groups");
-        }
-        permButtons.add(addGroup);
 
-        Button addEverybody = new Button("Add everybody", new ClickHandler() {
+        if(haveGroups) {
+            Button addGroup = new Button("Add Group", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
+                    dlg.center();
+                    permList.updatePermissionTable();
+                }
+            });
+            addGroup.addStyleName("button");
+
+            permButtons.add(addGroup);
+            permButtons.setCellHorizontalAlignment(addGroup, HasHorizontalAlignment.ALIGN_CENTER);
+        }
+
+        final Button addEverybody = new Button("Add everybody", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 Pithos.LOG("Adding to Everybody");
@@ -301,7 +302,6 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         addEverybody.addStyleName("button");
         permButtons.add(addEverybody);
 
-        permButtons.setCellHorizontalAlignment(addGroup, HasHorizontalAlignment.ALIGN_CENTER);
         privatePermPanel.add(permList);
         privatePermPanel.add(permButtons);
 
