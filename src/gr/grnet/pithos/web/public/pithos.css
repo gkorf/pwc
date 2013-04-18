@@ -116,10 +116,6 @@ a.info:hover div {
 	white-space: nowrap;
 }
 
-.pithos-DialogBox .button[disabled] {
-  border: 0px;
-}
-
 .pithos-DialogBox .Caption {
 	color: white;
 	background-color: #4085a5;
