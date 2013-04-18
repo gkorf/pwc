@@ -348,8 +348,13 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         populatePrivateSharingPanel(panelPrivate);
         populatePublicSharingPanel(panelPublic);
 
-        panelAll.add(panelPrivate);
-        panelAll.add(panelPublic);
+        CaptionPanel captionPanelPrivate = new CaptionPanel();
+        CaptionPanel captionPanelPublic = new CaptionPanel();
+        captionPanelPrivate.add(panelPrivate);
+        captionPanelPublic.add(panelPublic);
+
+        panelAll.add(captionPanelPrivate);
+        panelAll.add(captionPanelPublic);
 
         return panelAll;
     }
