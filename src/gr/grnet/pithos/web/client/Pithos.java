@@ -86,6 +86,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_DATE);
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_KEEP_ALIVE);
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_SERVER);
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_VARY);
     }
 
     public static final Configuration config = GWT.create(Configuration.class);
