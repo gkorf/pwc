@@ -59,6 +59,57 @@ import java.util.Map;
  * UI for the "Share" command.
  */
 public class FileShareDialog extends AbstractPropertiesDialog {
+    private static final class PremissionsUncheckWarning extends AbstractPropertiesDialog {
+        private PremissionsUncheckWarning(Pithos app) {
+            super(app);
+            final Anchor close = new Anchor("close");
+            close.addStyleName("close");
+            close.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    hide();
+                }
+            });
+            final String dialogText = "Info";
+            setText(dialogText);
+            setStyleName("pithos-DialogBox");
+
+            final VerticalPanel panel = new VerticalPanel();
+            panel.add(close);
+
+            VerticalPanel inner = new VerticalPanel();
+            inner.addStyleName("inner");
+
+            inner.add(
+                new InlineHTML(
+                    "It seems you are already sharing this file with some users." +
+                    "<br>" +
+                    "Please remove all users from the sharing list, to be able to uncheck this option."
+                )
+            );
+
+            final Button ok = new Button("OK", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    hide();
+                }
+            });
+
+            ok.addStyleName("button");
+            inner.add(ok);
+
+            panel.add(inner);
+            panel.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
+
+            setWidget(panel);
+        }
+
+        @Override
+        protected boolean accept() {
+            return true;
+        }
+    }
+
     // For public sharing
 	private final HorizontalPanel publicPathPanel = new HorizontalPanel();
 	private final TextBox publicPathText = new TextBox();
@@ -235,16 +286,23 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         privateCheckBox.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                // This is the value *after* the click is applied :)
+                boolean userCheckedIt = privateCheckBox.getValue();
+                boolean userUncheckedIt = !userCheckedIt;
+
                 if(isFilePrivatelyShared()) {
                     // ignore the click, set it always to "checked"
                     privateCheckBox.setValue(true);
                     // show permissions
                     privatePermPanel.setVisible(true);
+
+                    // Refs #3593
+                    if(userUncheckedIt) {
+                        new PremissionsUncheckWarning(app).center();
+                    }
                 }
                 else {
-                    // This is the value *after* the click is applied :)
-                    boolean isChecked = privateCheckBox.getValue();
-                    privatePermPanel.setVisible(isChecked);
+                    privatePermPanel.setVisible(userCheckedIt);
                 }
             }
         });
@@ -569,6 +627,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
             permList.getPermissions()
         );
     }
+
     @Override
 	protected void onPreviewNativeEvent(NativePreviewEvent preview) {
 	    super.onPreviewNativeEvent(preview);
