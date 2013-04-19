@@ -54,6 +54,8 @@ public final class Const {
     public static final String TXT_ADD_GROUP = "Add Group";
     public static final String TXT_SHARE_FILE = "Share File";
     public static final String TXT_SHARE_FOLDER = "Share Folder";
+    public static final String TXT_PRIVATE_LINK = "Private Link";
+    public static final String TXT_PUBLIC_LINK = "Public Link";
 
     public static final String HTML_NBSP = "&nbsp;";
 

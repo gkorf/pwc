@@ -187,7 +187,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
             publicPathPanel.setVisible(false);
             publicPathPanel.setWidth(Const.PERCENT_100);
             publicPathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-            publicPathPanel.add(new Label("Link"));
+            publicPathPanel.add(new Label(Const.TXT_PUBLIC_LINK));
             publicPathPanel.setSpacing(8);
             publicPathPanel.addStyleName("pithos-TabPanelBottom");
 
@@ -309,7 +309,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         privatePathPanel.setVisible(false);
         privatePathPanel.setWidth(Const.PERCENT_100);
         privatePathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-        privatePathPanel.add(new Label("Link"));
+        privatePathPanel.add(new Label(Const.TXT_PRIVATE_LINK));
         privatePathPanel.setSpacing(8);
         privatePathPanel.addStyleName("pithos-TabPanelBottom");
 
