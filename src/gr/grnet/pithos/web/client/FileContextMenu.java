@@ -215,10 +215,6 @@ public class FileContextMenu extends PopupPanel {
 	        		contextMenu.addItem(pasteItem);
 		        }
 		
-		        if (canWrite && !isMysharedSelected) {
-			        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
-			        contextMenu.addItem(upload);
-		        }
 		        if (isFolderTreeSelected || isMysharedSelected) {
 					cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, selectedFiles));
 		            contextMenu.addItem(cutItem);
