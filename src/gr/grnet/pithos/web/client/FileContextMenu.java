@@ -203,6 +203,11 @@ public class FileContextMenu extends PopupPanel {
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
         boolean isMysharedSelected = selectedTree.equals(app.getMySharedTreeView());
+
+        Pithos.LOG("FileContextMenu(), selectedFolder=", selectedFolder);
+        Pithos.LOG("FileContextMenu(), isFolderTreeSelected=", isFolderTreeSelected);
+        Pithos.LOG("FileContextMenu(), isMysharedSelected=", isMysharedSelected);
+
         if (selectedFolder != null) {
 		    if (!selectedFolder.isInTrash()) {
 		        if (canWrite && app.getClipboard().hasFiles() && !isMysharedSelected) {
@@ -230,12 +235,10 @@ public class FileContextMenu extends PopupPanel {
 		    else {
 				MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, selectedFiles));
 				contextMenu.addItem(restore);
-		    }
-        }
 
-        if (isFolderTreeSelected || isMysharedSelected) {
-			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
-	        contextMenu.addItem(deleteItem);
+                deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
+                contextMenu.addItem(deleteItem);
+		    }
         }
 
         if (selectedFolder != null && !selectedFolder.isInTrash()) {

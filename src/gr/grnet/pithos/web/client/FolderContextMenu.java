@@ -119,10 +119,7 @@ public class FolderContextMenu extends PopupPanel {
 			    if (isFolderTreeSelected && !folder.isContainer()) {
 			        MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
 			        contextMenu.addItem(moveToTrash);
-			
-			        MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-			        contextMenu.addItem(delete);
-			
+
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Share</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
 			    }
@@ -137,18 +134,16 @@ public class FolderContextMenu extends PopupPanel {
 			    }
         	}
         }
-        else {
-        	if (!folder.isTrash()) {
-    			MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, folder));
-    			contextMenu.addItem(restore);
+        else if(!folder.isTrash()) {
+            MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, folder));
+            contextMenu.addItem(restore);
 
-    			MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-		        contextMenu.addItem(delete);
-        	}
-        	else {
-    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new PurgeContainerCommand(app, this, folder));
-    			contextMenu.addItem(emptyTrash);
-        	}
+            MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
+            contextMenu.addItem(delete);
+        }
+        else {
+            MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new PurgeContainerCommand(app, this, folder));
+            contextMenu.addItem(emptyTrash);
         }
 		add(contextMenu);
 	}

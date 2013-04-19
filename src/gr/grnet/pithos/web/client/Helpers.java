@@ -87,8 +87,13 @@ public final class Helpers {
 
                 final String body = response.getText();
                 if(body != null && body.trim().length() > 0) {
-                    final String s = body.trim().substring(0, 120);
-                    Pithos.LOG(body, body.length() <= 120 ? "" : " ...");
+                    if(Pithos.IsFullResponseBodyLOGEnabled) {
+                        Pithos.LOG(body);
+                    }
+                    else {
+                        final int LEN = 120;
+                        Pithos.LOG(body.trim().substring(0, LEN), body.length() <= LEN ? "" : " ...");
+                    }
                 }
 
                 final Header[] headers = response.getHeaders();

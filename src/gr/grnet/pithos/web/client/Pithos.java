@@ -80,6 +80,8 @@ import java.util.*;
 public class Pithos implements EntryPoint, ResizeHandler {
     private static final boolean IsLOGEnabled = true;
     public static final boolean IsDetailedHTTPLOGEnabled = true;
+    public static final boolean IsFullResponseBodyLOGEnabled = true;
+
     public static final Set<String> HTTPHeadersToIgnoreInLOG = new HashSet<String>();
     static {
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_CONNECTION);
@@ -87,6 +89,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_KEEP_ALIVE);
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_SERVER);
         HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_VARY);
+        HTTPHeadersToIgnoreInLOG.add(Const.IF_MODIFIED_SINCE);
     }
 
     public static final Configuration config = GWT.create(Configuration.class);
