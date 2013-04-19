@@ -105,4 +105,8 @@ public final class Helpers {
             }
         }
     }
+
+    public static native void copyToClipboardFrom(com.google.gwt.user.client.Element element) /*-{
+      $wnd.window.clipboardData.setData('text', element);
+    }-*/;
 }
