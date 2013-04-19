@@ -34,9 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.*;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.rest.HeadRequest;
@@ -45,6 +43,9 @@ import gr.grnet.pithos.web.client.rest.PostRequest;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.resources.client.ImageResource;
@@ -58,55 +59,14 @@ import java.util.Map;
  * UI for the "Share" command.
  */
 public class FileShareDialog extends AbstractPropertiesDialog {
-    private static final class LinkTextContextMenu extends PopupPanel {
-        private final TextBox toCopy;
-
-        public LinkTextContextMenu(TextBox toCopy) {
-            super(true); // autoHide
-
-            this.toCopy = toCopy;
-
-            final MenuBar contextMenu = new MenuBar(true);
-            final MenuItem copy = new MenuItem("Copy", false, new Command() {
-                @Override
-                public void execute() {
-                    Pithos.LOG("Copying ", LinkTextContextMenu.this.toCopy.getText());
-                    LinkTextContextMenu.this.hide();
-                    Helpers.copyToClipboardFrom(LinkTextContextMenu.this.toCopy.getElement());
-                }
-            });
-            contextMenu.addItem(copy);
-
-            add(contextMenu);
-        }
-    }
-
-    private static final class LinkTextBox extends TextBox {
-        public LinkTextBox() {
-            sinkEvents(Event.ONCONTEXTMENU);
-
-            addHandler(new ContextMenuHandler() {
-                @Override
-                public void onContextMenu(ContextMenuEvent event) {
-                    final int x = event.getNativeEvent().getClientX();
-                    final int y = event.getNativeEvent().getClientY();
-
-                    final LinkTextContextMenu menu = new LinkTextContextMenu(LinkTextBox.this);
-                    menu.setPopupPosition(x, y);
-                    menu.show();
-
-                }
-            }, ContextMenuEvent.getType());
-        }
-    }
-
     // For public sharing
 	private final HorizontalPanel publicPathPanel = new HorizontalPanel();
-	private final TextBox publicPathText = new LinkTextBox();
+	private final TextBox publicPathText = new TextBox();
 
     // For private sharing
     private final HorizontalPanel privatePathPanel = new HorizontalPanel();
-    private final TextBox privatePathText = new LinkTextBox();
+    private final TextBox privatePathText = new TextBox();
+    private final VerticalPanel privatePermSuperPanel = new VerticalPanel();
     private PermissionsList permList;
 	
 	/**
@@ -354,7 +314,6 @@ public class FileShareDialog extends AbstractPropertiesDialog {
         privatePathPanel.addStyleName("pithos-TabPanelBottom");
 
         privatePathText.setWidth(Const.PERCENT_100);
-
         privatePathText.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
