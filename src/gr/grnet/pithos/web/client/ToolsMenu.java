@@ -152,17 +152,6 @@ public class ToolsMenu extends PopupPanel {
 				    		contextMenu.addItem(moveToTrash);
 				        	empty = false;
 				    	}
-				
-				        MenuItem delete = null;
-				        if (files != null && !files.isEmpty()) {
-				        	delete = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete files</span>", true, new DeleteCommand(app, this, files, MessagePanel.images));
-				        }
-				        else if (!folder.isContainer())
-				        	delete = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete folder</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-				        if (delete != null) {
-				        	contextMenu.addItem(delete);
-				        	empty = false;
-				        }
 				    }
 				    if (isFolderTreeSelected || isMysharedTreeSelected) {
 				        if (files != null && files.size() == 1) {
@@ -173,7 +162,7 @@ public class ToolsMenu extends PopupPanel {
 				        }
 				        else if (!folder.isContainer()) {
 				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Folder properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
-				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Folder sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
+				        	contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Share</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
 				        	empty = false;
 				        }
 				    }
