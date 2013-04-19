@@ -48,8 +48,14 @@ public final class Const {
     public static final String UPDATE_EQ = "update=";
     public static final String QUESTION_MARK_UPDATE_EQ = QUESTION_MARK + UPDATE_EQ;
 
-    public static final String HTML_NBSP = "&nbsp;";
+    public static final String TXT_USER = "User";
+    public static final String TXT_GROUP = "Group";
+    public static final String TXT_ADD_USER = "Add User";
+    public static final String TXT_ADD_GROUP = "Add Group";
+    public static final String TXT_SHARE_FILE = "Share File";
+    public static final String TXT_SHARE_FOLDER = "Share Folder";
 
+    public static final String HTML_NBSP = "&nbsp;";
 
     public static final String NL = "\n";
 
