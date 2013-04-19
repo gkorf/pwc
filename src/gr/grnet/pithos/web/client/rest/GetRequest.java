@@ -35,6 +35,8 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.Const;
+import gr.grnet.pithos.web.client.Helpers;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
@@ -92,17 +94,18 @@ public abstract class GetRequest<T extends Resource> implements ScheduledCommand
 
     @Override
     public void execute() {
-    	if (path.contains("?"))
+    	if (path.contains(Const.QUESTION_MARK)) {
     		path += "&t=" + System.currentTimeMillis();
-    	else
-    		path += "?t=" + System.currentTimeMillis();
-        Pithos.LOG("GET api = ", api, ", owner = ", owner, ", path = ", path);
-        Pithos.LOG("   ==> ", api + owner + path);
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
-
-        for (String header : headers.keySet()) {
-            builder.setHeader(header, headers.get(header));
         }
+    	else {
+    		path += "?t=" + System.currentTimeMillis();
+        }
+
+        Pithos.LOG("GET ", api + owner + path);
+
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, api + owner + path);
+        Helpers.setHeaders(builder, headers);
+
         try {
             builder.sendRequest("", new RestRequestCallback<T>(api + owner + path, okCode) {
                 @Override
