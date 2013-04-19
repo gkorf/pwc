@@ -77,7 +77,7 @@ public class PermissionsAddDialog extends DialogBox {
                 hide();
             }
         });
-        final String dialogText = isUser ? "Add user" : "Add group";
+        final String dialogText = isUser ? Const.TXT_ADD_USER : Const.TXT_ADD_GROUP;
         setText(dialogText);
         setStyleName("pithos-DialogBox");
 
@@ -88,7 +88,7 @@ public class PermissionsAddDialog extends DialogBox {
         inner.addStyleName("inner");
 
         final FlexTable permTable = new FlexTable();
-        permTable.setText(0, 0, isUser ? "User" : "Group");
+        permTable.setText(0, 0, isUser ? Const.TXT_USER : Const.TXT_USER);
         permTable.setText(0, 1, "Read Only");
         permTable.setText(0, 2, "Read/Write");
         permTable.getFlexCellFormatter().setStyleName(0, 0, "props-toplabels");

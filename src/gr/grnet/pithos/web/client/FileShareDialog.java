@@ -118,7 +118,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 			}
 		});
 		// Set the dialog's caption.
-		setText("Share");
+		setText(Const.TXT_SHARE_FILE);
 		setGlassEnabled(true);
 		setStyleName("pithos-DialogBox");
 
