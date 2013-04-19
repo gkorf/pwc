@@ -71,7 +71,9 @@ public final class Helpers {
             builder.setHeader(headerName, headerValue);
 
             if(Pithos.IsDetailedHTTPLOGEnabled) {
-                Pithos.LOG("  ==> ", headerName, ": ", headerValue);
+                if(!Pithos.HTTPHeadersToIgnoreInLOG.contains(headerName)) {
+                    Pithos.LOG("  ==> ", headerName, ": ", headerValue);
+                }
             }
         }
     }
@@ -91,9 +93,11 @@ public final class Helpers {
 
                 final Header[] headers = response.getHeaders();
                 for(Header header : headers) {
-                    final String name = header.getName();
-                    final String value = header.getValue();
-                    Pithos.LOG("  <== ", name, ": ", value);
+                    final String headerName = header.getName();
+                    final String headerValue = header.getValue();
+                    if(!Pithos.HTTPHeadersToIgnoreInLOG.contains(headerName)) {
+                        Pithos.LOG("  <== ", headerName, ": ", headerValue);
+                    }
                 }
             }
             catch(Exception e) {

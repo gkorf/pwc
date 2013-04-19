@@ -10,6 +10,10 @@ public final class Const {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String ACCEPT = "Accept";
     public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String HTTP_HEADER_SERVER = "Server";
+    public static final String HTTP_HEADER_CONNECTION = "Connection";
+    public static final String HTTP_HEADER_KEEP_ALIVE = "Keep-Alive";
+    public static final String HTTP_HEADER_DATE = "Date";
 
     public static final String X_AUTH_TOKEN = "X-Auth-Token";
     public static final String X_OBJECT_SHARING = "X-Object-Sharing";
