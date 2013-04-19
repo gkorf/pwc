@@ -1,12 +1,12 @@
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.http.client.Header;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONString;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Helper methods.
@@ -63,5 +63,35 @@ public final class Helpers {
             return s;
         }
         return s.substring(0, index + part.length());
+    }
+
+    public static void setHeaders(RequestBuilder builder, Map<String, String> headers) {
+        for (String headerName : headers.keySet()) {
+            final String headerValue = headers.get(headerName);
+            builder.setHeader(headerName, headerValue);
+
+            if(Pithos.IsDetailedHTTPLOGEnabled) {
+                Pithos.LOG("  ==> ", headerName, ": ", headerValue);
+            }
+        }
+    }
+
+    public static void LOGResponse(Response response) {
+        if(Pithos.IsDetailedHTTPLOGEnabled) {
+            try {
+                final int statusCode = response.getStatusCode();
+                final String statusText = response.getStatusText();
+                Pithos.LOG("  ", statusCode, " ", statusText);
+                final Header[] headers = response.getHeaders();
+                for(Header header : headers) {
+                    final String name = header.getName();
+                    final String value = header.getValue();
+                    Pithos.LOG("  <== ", name, ": ", value);
+                }
+            }
+            catch(Exception e) {
+                Pithos.LOG("ERROR trying to log response", e);
+            }
+        }
     }
 }
