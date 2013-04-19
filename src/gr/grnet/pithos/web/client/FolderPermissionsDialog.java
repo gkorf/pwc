@@ -71,10 +71,6 @@ public class FolderPermissionsDialog extends DialogBox {
 
     final VerticalPanel inner;
 
-    final Button updateButton;
-
-    private boolean _initialPermissionCheck = true;
-
     /**
      * The widget's constructor.
      */
@@ -98,7 +94,7 @@ public class FolderPermissionsDialog extends DialogBox {
 
         folder = selected;
 
-        setText("Folder permissions");
+        setText(Const.TXT_SHARE_FOLDER);
 
         // Outer contains inner and buttons
         VerticalPanel outer = new VerticalPanel();
@@ -107,12 +103,26 @@ public class FolderPermissionsDialog extends DialogBox {
         inner = new VerticalPanel();
         inner.addStyleName("inner");
 
-
         folderName.setText(folder.getName());
+
+        final HorizontalPanel privateInfoPanel = new HorizontalPanel();
+        privateInfoPanel.setSpacing(8);
+        final Label privateInfoTitle = new  InlineHTML("<b>Private sharing</b>");
+        final Label privateInfoText = new Label("Only people explicitly granted permission can access. Sign-in required.", true);
+        privateInfoPanel.add(privateInfoTitle);
+        privateInfoPanel.add(privateInfoText);
+        inner.add(privateInfoPanel);
 
         VerticalPanel permPanel = new VerticalPanel();
         FileShareDialog.PrivateSharingImages images = GWT.create(FileShareDialog.PrivateSharingImages.class);
-        permList = new PermissionsList(app, images, folder.getPermissions(), folder.getOwnerID(), false, null);
+
+        permList = new PermissionsList(app, images, folder.getPermissions(), folder.getOwnerID(), false, new Command() {
+            @Override
+            public void execute() {
+                updateMetadataForPrivateSharing();
+            }
+        });
+
         permPanel.add(permList);
 
         HorizontalPanel permButtons = new HorizontalPanel();
@@ -121,39 +131,27 @@ public class FolderPermissionsDialog extends DialogBox {
             public void onClick(ClickEvent event) {
                 PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, true);
                 dlg.center();
-                checkUpdateButtonVisibility();
+                permList.updatePermissionTable();
             }
         });
         addUser.addStyleName("button");
         permButtons.add(addUser);
         permButtons.setCellHorizontalAlignment(addUser, HasHorizontalAlignment.ALIGN_CENTER);
 
-        Button add = new Button("Add Group", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if(app.getAccount().getGroups().isEmpty()) {
-                    new GroupCreateDialog(app, new Command() {
-                        @Override
-                        public void execute() {
-                            if(app.getAccount().getGroups().isEmpty()) {
-                                return;
-                            }
-                            PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
-                            dlg.center();
-                            checkUpdateButtonVisibility();
-                        }
-                    }).center();
-                }
-                else {
+        final boolean haveGroups = app.getAccount().getGroups().size() > 0;
+        if(haveGroups) {
+            Button addGroup = new Button("Add Group", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
                     PermissionsAddDialog dlg = new PermissionsAddDialog(app, app.getAccount().getGroups(), permList, false);
                     dlg.center();
-                    checkUpdateButtonVisibility();
+                    permList.updatePermissionTable();
                 }
-            }
-        });
-        add.addStyleName("button");
-        permButtons.add(add);
-        permButtons.setCellHorizontalAlignment(add, HasHorizontalAlignment.ALIGN_CENTER);
+            });
+            addGroup.addStyleName("button");
+            permButtons.add(addGroup);
+            permButtons.setCellHorizontalAlignment(addGroup, HasHorizontalAlignment.ALIGN_CENTER);
+        }
 
         permButtons.setSpacing(8);
         permPanel.add(permButtons);
@@ -162,33 +160,18 @@ public class FolderPermissionsDialog extends DialogBox {
 
         outer.add(inner);
 
-        // Create the 'Create/Update' button, along with a listener that hides the dialog
-        // when the button is clicked and quits the application.
-        final String okLabel = "Update";
-        updateButton = new Button(okLabel, new ClickHandler() {
+        final Button ok = new Button("OK", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                updateFolder();
                 closeDialog();
             }
         });
-        updateButton.addStyleName("button");
-        checkUpdateButtonVisibility();
-        outer.add(updateButton);
+        ok.addStyleName("button");
+
+        outer.add(ok);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
 
         setWidget(outer);
-    }
-
-    private void checkUpdateButtonVisibility() {
-        if(!this._initialPermissionCheck) {
-            updateButton.setVisible(true);
-            return;
-        }
-
-        updateButton.setVisible(permList.hasPermissions());
-
-        this._initialPermissionCheck = false;
     }
 
     @Override
@@ -202,7 +185,7 @@ public class FolderPermissionsDialog extends DialogBox {
         {
             switch(evt.getKeyCode()) {
                 case KeyCodes.KEY_ENTER:
-                    updateFolder();
+                    updateMetadataForPrivateSharing();
                     closeDialog();
                     break;
                 case KeyCodes.KEY_ESCAPE:
@@ -221,15 +204,15 @@ public class FolderPermissionsDialog extends DialogBox {
         hide();
     }
 
-    void updateFolder() {
+    private void updateMetadataForPrivateSharing() {
         final Map<String, Boolean[]> perms = (permList.hasChanges() ? permList.getPermissions() : null);
-        updateMetadata(
+        updateMetadataForPrivateSharing(
             folder.getUri() + Const.QUESTION_MARK_UPDATE_EQ,
             perms
         );
     }
 
-    protected void updateMetadata(final String path, final Map<String, Boolean[]> newPermissions) {
+    private void updateMetadataForPrivateSharing(final String path, final Map<String, Boolean[]> newPermissions) {
         if(newPermissions != null) {
             PostRequest updateFolder = new PostRequest(app.getApiPath(), folder.getOwnerID(), path) {
                 @Override
@@ -251,7 +234,7 @@ public class FolderPermissionsDialog extends DialogBox {
                             PutRequest newFolder = new PutRequest(app.getApiPath(), folder.getOwnerID(), path1) {
                                 @Override
                                 public void onSuccess(Resource result) {
-                                    updateMetadata(path, newPermissions);
+                                    updateMetadataForPrivateSharing(path, newPermissions);
                                 }
 
                                 @Override
