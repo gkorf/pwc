@@ -35,16 +35,23 @@ from django.views.generic.simple import direct_to_template
 
 from pithos_webclient import settings
 from pithos_webclient.version import  __version__
+
 from django.conf import settings as django_settings
+
+from synnefo_branding.utils import get_branding_dict
 
 MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
         getattr(django_settings, "MEDIA_URL", "/static/"))
 
+
 def index(request):
+    branding_settings = get_branding_dict("")
     return direct_to_template(request, 'pithos_webclient/index.html', \
             {'settings': settings,
              'MEDIA_URL': MEDIA_URL,
              'CLIENT_VERSION': __version__,
-             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE': settings.CLOUDBAR_ACTIVE_SERVICE
+             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE':
+                 settings.CLOUDBAR_ACTIVE_SERVICE,
+             'branding_settings': branding_settings
             })
 

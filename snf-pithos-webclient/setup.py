@@ -250,6 +250,12 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
             </script>
     """)
 
+    index_data = index_data.replace("{{ EXTEND_OTHER_PROPERTIES }}", """
+        {% for key, value in branding_settings.items %}
+            otherProperties.{{ key }} = "{{ value }}";
+        {% endfor %}
+    """)
+
     ifile = file(index, "w+")
     ifile.write(index_data)
     ifile.close()
