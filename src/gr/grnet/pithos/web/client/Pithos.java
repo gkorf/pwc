@@ -78,7 +78,7 @@ import java.util.*;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Pithos implements EntryPoint, ResizeHandler {
-    private static final boolean IsLOGEnabled = true;
+    private static final boolean IsLOGEnabled = false;
     public static final boolean IsDetailedHTTPLOGEnabled = true;
     public static final boolean IsFullResponseBodyLOGEnabled = true;
 
@@ -343,14 +343,11 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     static native void __ConsoleLog(String message) /*-{
-      try {
-        console.log(message);
-      } catch (e) {
-      }
+      try { console.log(message); } catch (e) {}
     }-*/;
 
     public static void LOGError(Throwable error, StringBuilder sb) {
-        if(!IsLOGEnabled) { return; }
+        if(!isLOGEnabled()) { return; }
 
         sb.append("\nException: [" + error.toString().replace("\n", "\n  ") + "]");
         Throwable cause = error.getCause();
@@ -378,7 +375,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static void LOGError(Throwable error) {
-        if(!IsLOGEnabled) { return; }
+        if(!isLOGEnabled()) { return; }
 
         final StringBuilder sb = new StringBuilder();
         LOGError(error, sb);
@@ -387,12 +384,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
         }
     }
 
-    public static boolean isLogEnabled() {
+    public static boolean isLOGEnabled() {
         return IsLOGEnabled;
     }
 
     public static void LOG(Object ...args) {
-        if(!IsLOGEnabled) { return; }
+        if(!isLOGEnabled()) { return; }
 
         final StringBuilder sb = new StringBuilder();
         for(Object arg : args) {

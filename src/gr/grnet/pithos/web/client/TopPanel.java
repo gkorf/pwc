@@ -34,65 +34,58 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * The top panel, which contains the menu bar icons and the user name.
  */
 public class TopPanel extends Composite {
 
-	/**
-	 * A constant that denotes the completion of an IncrementalCommand.
-	 */
-	public static final boolean DONE = false;
+    /**
+     * A constant that denotes the completion of an IncrementalCommand.
+     */
+    public static final boolean DONE = false;
 
     Pithos app;
 
-	/**
-	 * An image bundle for this widgets images.
-	 */
-	public interface Images extends FilePermissionsDialog.Images {
+    /**
+     * An image bundle for this widgets images.
+     */
+    public interface Images extends FilePermissionsDialog.Images {
+        @Source("gr/grnet/pithos/resources/pithos2-logo.png")
+        ImageResource pithosLogo();
 
-		@Source("gr/grnet/pithos/resources/pithos2-logo.png")
-		ImageResource pithosLogo();
-		
-		@Source("gr/grnet/pithos/resources/desc.png")
-		ImageResource downArrow();
-	}
+        @Source("gr/grnet/pithos/resources/desc.png")
+        ImageResource downArrow();
+    }
 
-	/**
-	 * The constructor for the top panel.
-	 *
-	 * @param images the supplied images
-	 */
-	public TopPanel(Pithos _app, final Images images) {
+    /**
+     * The constructor for the top panel.
+     *
+     * @param images the supplied images
+     */
+    public TopPanel(Pithos _app, final Images images) {
         this.app = _app;
-		HorizontalPanel outer = new HorizontalPanel();
-		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        HorizontalPanel outer = new HorizontalPanel();
+        outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
-		outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		outer.setStyleName("pithos-topPanel");
+        outer.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        outer.setStyleName("pithos-topPanel");
 
-		HorizontalPanel inner = new HorizontalPanel();
-		inner.setWidth("75%");
-		inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-		
-		HTML logos = new HTML("<table><tr><td><a href='/'>" + AbstractImagePrototype.create(images.pithosLogo()).getHTML() + "</a></td></tr></table>");
-		logos.addStyleName("pithos-logo");
-		inner.add(logos);
+        HorizontalPanel inner = new HorizontalPanel();
+        inner.setWidth("75%");
+        inner.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+
+        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+        final String STORAGE_LOGO_URL = otherProperties.get("STORAGE_LOGO_URL");
+        final Image logo = new Image(STORAGE_LOGO_URL);
+        Pithos.LOG("Pithos Logo = ", logo.getUrl());
+        inner.add(logo);
         outer.add(inner);
         outer.setCellHorizontalAlignment(inner, HasHorizontalAlignment.ALIGN_CENTER);
         outer.setCellVerticalAlignment(inner, HasVerticalAlignment.ALIGN_BOTTOM);
-		initWidget(outer);
-	}
+        initWidget(outer);
+    }
 }

@@ -42,37 +42,37 @@ import com.google.gwt.user.client.ui.*;
  */
 public class StatusPanel extends Composite {
 
-	/**
-	 * The constructor of the status panel.
-	 */
-	public StatusPanel() {
-		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        final String SERVICE_NAME = otherProperties.get("SERVICE_NAME");
-        final String SERVICE_URL = otherProperties.get("SERVICE_URL");
-        final String COMPANY_NAME = otherProperties.get("COMPANY_NAME");
+    /**
+     * The constructor of the status panel.
+     */
+    public StatusPanel() {
+        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
         final String COMPANY_URL = otherProperties.get("COMPANY_URL");
         final String COPYRIGHT_MESSAGE = otherProperties.get("COPYRIGHT_MESSAGE");
         final String SYNNEFO_VERSION = otherProperties.get("SYNNEFO_VERSION");
 
-		HorizontalPanel outer = new HorizontalPanel();
-		outer.setWidth("100%");
-		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        HorizontalPanel outer = new HorizontalPanel();
+        outer.setWidth("100%");
+        outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         VerticalPanel inner = new VerticalPanel();
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		HorizontalPanel firstLine = new HorizontalPanel();
-		firstLine.setSpacing(8);
+        HorizontalPanel firstLine = new HorizontalPanel();
+        firstLine.setSpacing(8);
         firstLine.add(new HTML("<a class='grnet-sign' href='" + COMPANY_URL + "'>" + COPYRIGHT_MESSAGE + "</a>"));
-		inner.add(firstLine);
+        inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
         secondLine.add(new HTML(
-            "<div class='software'>Powered by <a href='http://synnefo.org'>Synnefo</a> <span class='version'>v " + SYNNEFO_VERSION + "</span></div>"));
-        secondLine.addStyleName("software");
+            "<div class='software'>" +
+                "Powered by <a href='http://synnefo.org'>synnefo</a>" +
+                "<span class='version'> v " + SYNNEFO_VERSION + "</span>" +
+            "</div>"));
+//        secondLine.addStyleName("software");
         inner.add(secondLine);
         outer.add(inner);
         outer.addStyleName("pithos-statusbar");
 
-		initWidget(outer);
-	}
+        initWidget(outer);
+    }
 }
