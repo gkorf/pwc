@@ -52,7 +52,7 @@ public class StatusPanel extends Composite {
         final String COMPANY_NAME = otherProperties.get("COMPANY_NAME");
         final String COMPANY_URL = otherProperties.get("COMPANY_URL");
         final String COPYRIGHT_MESSAGE = otherProperties.get("COPYRIGHT_MESSAGE");
-        final String SYNNEFO_JS_LIB_VERSION = otherProperties.get("SYNNEFO_JS_LIB_VERSION");
+        final String SYNNEFO_VERSION = otherProperties.get("SYNNEFO_VERSION");
 
 		HorizontalPanel outer = new HorizontalPanel();
 		outer.setWidth("100%");
@@ -67,8 +67,7 @@ public class StatusPanel extends Composite {
 
         HorizontalPanel secondLine = new HorizontalPanel();
         secondLine.add(new HTML(
-            "<div class='software'>Powered by <a href='" + SERVICE_URL +
-            "'>Synnefo</a> <span class='version'>v " + SYNNEFO_JS_LIB_VERSION + "</span></div>"));
+            "<div class='software'>Powered by <a href='http://synnefo.org'>Synnefo</a> <span class='version'>v " + SYNNEFO_VERSION + "</span></div>"));
         secondLine.addStyleName("software");
         inner.add(secondLine);
         outer.add(inner);
