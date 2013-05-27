@@ -34,52 +34,45 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * The panel that displays a status bar with quota information.
  */
 public class StatusPanel extends Composite {
 
-	/**
-	 * The constructor of the status panel.
-	 */
-	public StatusPanel() {
-		Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+    /**
+     * The constructor of the status panel.
+     */
+    public StatusPanel() {
+        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
+        final String COMPANY_URL = otherProperties.get("COMPANY_URL");
+        final String COPYRIGHT_MESSAGE = otherProperties.get("COPYRIGHT_MESSAGE");
+        final String SYNNEFO_VERSION = otherProperties.get("SYNNEFO_VERSION");
 
-		HorizontalPanel outer = new HorizontalPanel();
-		outer.setWidth("100%");
-		outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        HorizontalPanel outer = new HorizontalPanel();
+        outer.setWidth("100%");
+        outer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         VerticalPanel inner = new VerticalPanel();
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		HorizontalPanel firstLine = new HorizontalPanel();
-		firstLine.setSpacing(8);
-		firstLine.add(new Anchor("About"));
-		firstLine.add(new HTML("|"));
-        firstLine.add(new Anchor("Help"));
-		firstLine.add(new HTML("|"));
-        firstLine.add(new Anchor("Contact"));
-		firstLine.add(new HTML("|"));
-        firstLine.add(new Anchor("Terms"));
-		firstLine.add(new HTML("|"));
-        firstLine.add(new Anchor("Privacy"));
-		inner.add(firstLine);
+        HorizontalPanel firstLine = new HorizontalPanel();
+        firstLine.setSpacing(8);
+        firstLine.add(new HTML("<a class='grnet-sign' href='" + COMPANY_URL + "'>" + COPYRIGHT_MESSAGE + "</a>"));
+        inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
-        secondLine.add(new HTML("Pithos Web Client v" + otherProperties.get("version") + " <a class='grnet-sign' href='http://www.grnet.gr'>Copyright (C) 2011-2013 Greek Research and Technology Network</a>"));
-        secondLine.addStyleName("grnet-sign");
+        secondLine.add(new HTML(
+            "<div class='software'>" +
+                "Powered by <a href='http://synnefo.org'>synnefo</a>" +
+                "<span class='version'> v " + SYNNEFO_VERSION + "</span>" +
+            "</div>"));
+//        secondLine.addStyleName("software");
         inner.add(secondLine);
         outer.add(inner);
         outer.addStyleName("pithos-statusbar");
 
-		initWidget(outer);
-	}
+        initWidget(outer);
+    }
 }

@@ -417,6 +417,16 @@ table.pithos-permList.props-labels {
 	color: #72ADC8;
 }
 
+.software {
+  font-size: 0.6em;
+  margin-top: 7px;
+  color: #fff;
+}
+
+.version {
+  font-weight: bold;
+}
+
 .pithos-logo {
 	position: absolute;
 	top: 65px;
