@@ -65,8 +65,8 @@ public class StatusPanel extends Composite {
         HorizontalPanel secondLine = new HorizontalPanel();
         secondLine.add(new HTML(
             "<div class='software'>" +
-                "Powered by <a href='http://synnefo.org'>synnefo</a>" +
-                "<span class='version'> v " + SYNNEFO_VERSION + "</span>" +
+                "Powered by <a href='http://synnefo.orgs'>Synnefo</a>" +
+                "<span class='version'> v" + SYNNEFO_VERSION + "</span>" +
             "</div>"));
 //        secondLine.addStyleName("software");
         inner.add(secondLine);
