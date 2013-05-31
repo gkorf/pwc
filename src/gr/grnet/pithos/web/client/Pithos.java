@@ -78,7 +78,7 @@ import java.util.*;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Pithos implements EntryPoint, ResizeHandler {
-    private static final boolean IsLOGEnabled = true;
+    private static final boolean IsLOGEnabled = false;
     public static final boolean IsDetailedHTTPLOGEnabled = true;
     public static final boolean IsFullResponseBodyLOGEnabled = true;
 
