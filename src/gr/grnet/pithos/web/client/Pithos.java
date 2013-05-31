@@ -1356,7 +1356,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         selectionModels.add(otherSharedTreeSelectionModel);
         otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
         // #3784 We show it empty...
-        otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
+        otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, true);
         trees.insert(otherSharedTreeView, 1);
 
         LOG("Pithos::createOtherSharedTree(), initializing otherSharedTreeViewModel with a callback");
@@ -1366,7 +1366,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 // #3784 ... then remove the empty stuff and add a new view with the populated model
                 trees.remove(otherSharedTreeView);
 
-                otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
+                otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, false);
                 trees.insert(otherSharedTreeView, 1);
                 treeViews.add(otherSharedTreeView);
                 scheduleResfresh();
