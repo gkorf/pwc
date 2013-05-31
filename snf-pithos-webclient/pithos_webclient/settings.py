@@ -32,16 +32,70 @@
 # or implied, of GRNET S.A.
 
 from django.conf import settings
+from synnefo.lib import join_urls, parse_base_url
+from synnefo.util.keypath import get_path
+from pithos_webclient.services import pithos_services
+from astakosclient import astakos_services
 
-# !!!!!ATTENTION!!!!!
-# loginUrl MUST end at "next=". You should not give the value of the next
-# parameter. It will be determined automatically
-LOGIN_URL = getattr(settings, 'PITHOS_UI_LOGIN_URL',
-                    'https://accounts.synnefo.org/astakos/im/login?next=')
+from copy import deepcopy
+
+# Process Pithos settings. This code is shared between snf-pithos-app and
+# snf-pithos-webclient since they share the PITHOS_ settings prefix for most
+# of their settings.
+
+# Top-level URL for Pithos. Must set.
+BASE_URL = getattr(settings, 'PITHOS_BASE_URL',
+                   "https://object-store.example.synnefo.org/pithos/")
+
+BASE_HOST, BASE_PATH = parse_base_url(BASE_URL)
+
+# Process Astakos settings
+ASTAKOS_BASE_URL = getattr(settings, 'ASTAKOS_BASE_URL',
+                           'https://accounts.example.synnefo.org/astakos/')
+ASTAKOS_BASE_HOST, ASTAKOS_BASE_PATH = parse_base_url(ASTAKOS_BASE_URL)
+
+PITHOS_PREFIX = get_path(pithos_services, 'pithos_object-store.prefix')
+PUBLIC_PREFIX = get_path(pithos_services, 'pithos_public.prefix')
+UI_PREFIX = get_path(pithos_services, 'pithos_ui.prefix')
+
+CUSTOMIZE_ASTAKOS_SERVICES = \
+        getattr(settings, 'PITHOS_CUSTOMIZE_ASTAKOS_SERVICES', ())
+for path, value in CUSTOMIZE_ASTAKOS_SERVICES:
+    set_path(astakos_services, path, value, createpath=True)
+
+ASTAKOS_ACCOUNTS_PREFIX = get_path(astakos_services, 'astakos_account.prefix')
+ASTAKOS_VIEWS_PREFIX = get_path(astakos_services, 'astakos_ui.prefix')
+ASTAKOS_KEYSTONE_PREFIX = get_path(astakos_services, 'astakos_keystone.prefix')
+
+BASE_ASTAKOS_PROXY_PATH = getattr(settings, 'PITHOS_BASE_ASTAKOS_PROXY_PATH',
+                                  ASTAKOS_BASE_PATH)
+
+PROXY_USER_SERVICES = getattr(settings, 'PITHOS_PROXY_USER_SERVICES', True)
+
+# Base settings set. Resolve webclient required settings
+ASTAKOS_ACCOUNTS_URL = join_urls(ASTAKOS_BASE_URL, ASTAKOS_ACCOUNTS_PREFIX)
+if PROXY_USER_SERVICES:
+    ASTAKOS_ACCOUNTS_URL = join_urls('/', BASE_ASTAKOS_PROXY_PATH,
+                                     ASTAKOS_ACCOUNTS_PREFIX)
+
+
+if not BASE_PATH.startswith("/"):
+    BASE_PATH = "/" + BASE_PATH
+
+ACCOUNTS_URL = getattr(settings, 'PITHOS_UI_ACCOUNTS_URL',
+                       join_urls(ASTAKOS_ACCOUNTS_URL))
+USER_CATALOG_URL = getattr(settings, 'PITHOS_UI_USER_CATALOG_URL',
+                           join_urls(ACCOUNTS_URL, 'user_catalogs'))
 FEEDBACK_URL = getattr(settings, 'PITHOS_UI_FEEDBACK_URL',
-                       'https://accounts.synnefo.org/astakos/im/feedback')
+                       join_urls(ACCOUNTS_URL, 'feedback'))
+PITHOS_URL = getattr(settings, 'PITHOS_UI_PITHOS_URL',
+                      join_urls(BASE_PATH, PITHOS_PREFIX, 'v1'))
 AUTH_COOKIE_NAME = getattr(settings, 'PITHOS_UI_AUTH_COOKIE_NAME',
                            '_pithos2_a')
-CLOUDBAR_ACTIVE_SERVICE = getattr(settings,
-                                  'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE',
-                                  'pithos')
+
+DEFAULT_LOGIN_URL = join_urls(ASTAKOS_BASE_URL, ASTAKOS_VIEWS_PREFIX, 'login')
+LOGIN_URL = getattr(settings, 'PITHOS_UI_LOGIN_URL', DEFAULT_LOGIN_URL)
+CLOUDBAR_ACTIVE_SERVICE = getattr(
+    settings,
+    'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE',
+    'pithos')

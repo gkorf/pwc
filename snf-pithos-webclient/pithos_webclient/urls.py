@@ -32,9 +32,12 @@
 # or implied, of GRNET S.A.
 
 from django.conf.urls.defaults import include, patterns
+from pithos_webclient import settings
+from snf_django.lib.api.utils import prefix_pattern
+from synnefo.lib import join_urls
 
 
 urlpatterns = patterns('',
-    (r'^$', 'pithos_webclient.views.index')
+    (prefix_pattern(join_urls(settings.BASE_PATH, settings.UI_PREFIX)),
+     'pithos_webclient.views.index'),
 )
-

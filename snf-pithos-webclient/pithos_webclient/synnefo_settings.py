@@ -49,6 +49,5 @@ context_processors = [
 # namespace
 from django.conf.urls.defaults import include, patterns
 urlpatterns = patterns('',
-    (r'^ui/$', 'pithos_webclient.views.index'),
-    (r'^ui/index.html$', 'pithos_webclient.views.index'),
+    ('', include('pithos_webclient.urls')),
 )
