@@ -172,7 +172,7 @@ public class ToolsMenu extends PopupPanel {
 							@Override
 							public void execute() {
 					        	for (File f: files)
-					        		Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
+					        		Window.open(Pithos.getStorageAPIURL() + f.getOwnerID() + f.getUri(), "_blank", "");
 							}
 						}));
 			        	empty = false;

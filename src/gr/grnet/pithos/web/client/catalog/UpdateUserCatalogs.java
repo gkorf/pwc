@@ -42,7 +42,6 @@ import com.google.gwt.json.client.JSONObject;
 import gr.grnet.pithos.web.client.Helpers;
 import gr.grnet.pithos.web.client.Pithos;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -78,7 +77,7 @@ public class UpdateUserCatalogs implements Scheduler.ScheduledCommand {
 
     public UpdateUserCatalogs(Pithos app, List<String> ids, List<String> names) {
         this.app = app;
-        this.getUserCatalogs = new GetUserCatalogs(app, ids, names) {
+        this.getUserCatalogs = new GetUserCatalogs(app.getUserToken(), ids, names) {
             @Override
             public void onSuccess(Request request, Response response, JSONObject result, UserCatalogs userCatalogs) {
                 UpdateUserCatalogs.this.app.getUserCatalogs().updateFrom(userCatalogs);

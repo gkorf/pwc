@@ -240,7 +240,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     void showLinkIfShared() {
 		if (file.isShared()) {
 			UrlBuilder b = Window.Location.createUrlBuilder();
-			b.setPath(app.getApiPath() + file.getOwnerID() + file.getUri());
+			b.setPath(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri());
 			String href = Window.Location.getHref();
 			boolean hasParameters = href.contains(Const.QUESTION_MARK);
 			path.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + b.buildString());
@@ -257,7 +257,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	@Override
 	protected boolean accept() {
         updateMetaData(
-            app.getApiPath(),
+            Pithos.getStorageAPIURL(),
             app.getUserID(),
             file.getUri() + Const.QUESTION_MARK_UPDATE_EQ,
             permList.getPermissions()
@@ -270,7 +270,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, Pithos.getStorageAPIURL(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {

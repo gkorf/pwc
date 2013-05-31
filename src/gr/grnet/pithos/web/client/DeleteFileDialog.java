@@ -135,7 +135,7 @@ public class DeleteFileDialog extends DialogBox {
         if (iter.hasNext()) {
             File f = iter.next();
             String path = f.getUri();
-            DeleteRequest deleteFile = new DeleteRequest(app.getApiPath(), f.getOwnerID(), URL.encode(path)) {
+            DeleteRequest deleteFile = new DeleteRequest(Pithos.getStorageAPIURL(), f.getOwnerID(), URL.encode(path)) {
                 @Override
                 public void onSuccess(Resource result) {
                     deleteFile(iter);
