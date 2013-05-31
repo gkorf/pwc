@@ -93,7 +93,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static final Configuration config = GWT.create(Configuration.class);
-    public static final String CONFIG_API_PATH = config.apiPath();
+    public static final String CONFIG_API_PATH = getFromOtherPropertiesOrDefaultString("STORAGE_API_URL", config.apiPath());
     static {
         LOG("CONFIG_API_PATH = ", CONFIG_API_PATH);
     }
@@ -106,6 +106,14 @@ public class Pithos implements EntryPoint, ResizeHandler {
         catch(Exception e) {
             LOGError(e);
             return null;
+        }
+    }
+    public static String getFromOtherPropertiesOrDefaultString(String key, String dflt) {
+        try {
+            return otherProperties.get(key);
+        }
+        catch(Exception e) {
+            return dflt;
         }
     }
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
