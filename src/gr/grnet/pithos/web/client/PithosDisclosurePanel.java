@@ -75,13 +75,24 @@ public class PithosDisclosurePanel extends Composite {
 		
 		@Source("downArrow.png")
 		ImageResource closed();
+
+        @Source("gr/grnet/pithos/resources/ajax-loader.gif")
+        ImageResource ajaxLoader();
 	}
 	
 	DisclosurePanel panel;
 	
 	Resources resources;
-	
-	public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
+
+    final boolean ajaxLoader;
+
+    public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
+        this(_resources, title, open, false);
+    }
+
+	public PithosDisclosurePanel(final Resources _resources, final String title, boolean open, boolean ajaxLoader) {
+        this.ajaxLoader = ajaxLoader;
+
 		resources = _resources;
 		resources.pithosDisclosurePanelCss().ensureInjected();
 		panel = new DisclosurePanel();
@@ -111,6 +122,10 @@ public class PithosDisclosurePanel extends Composite {
         
 		Image img = new Image(resources.icon());
 		header.add(img);
+        if(ajaxLoader) {
+            final Image alImg = new Image(resources.ajaxLoader());
+            header.add(alImg);
+        }
 		header.setCellVerticalAlignment(img, HasVerticalAlignment.ALIGN_MIDDLE);
 		header.setCellWidth(img, "32px");
 		HTML titleHtml = new HTML(title);

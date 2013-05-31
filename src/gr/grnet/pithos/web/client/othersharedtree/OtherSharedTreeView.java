@@ -154,10 +154,10 @@ public class OtherSharedTreeView extends Composite implements TreeView {
 
     private CellTree tree;
     
-    public OtherSharedTreeView(OtherSharedTreeViewModel viewModel) {
+    public OtherSharedTreeView(OtherSharedTreeViewModel viewModel, boolean ajaxLoader) {
         this.model = viewModel;
         
-        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), Const.TXT_SHARED_WITH_ME, false);
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), Const.TXT_SHARED_WITH_ME, false, ajaxLoader);
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to
