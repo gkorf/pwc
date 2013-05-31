@@ -41,7 +41,6 @@ import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
-import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -203,6 +202,11 @@ public class FileContextMenu extends PopupPanel {
         }
         boolean isFolderTreeSelected = selectedTree.equals(app.getFolderTreeView());
         boolean isMysharedSelected = selectedTree.equals(app.getMySharedTreeView());
+
+        Pithos.LOG("FileContextMenu(), selectedFolder=", selectedFolder);
+        Pithos.LOG("FileContextMenu(), isFolderTreeSelected=", isFolderTreeSelected);
+        Pithos.LOG("FileContextMenu(), isMysharedSelected=", isMysharedSelected);
+
         if (selectedFolder != null) {
 		    if (!selectedFolder.isInTrash()) {
 		        if (canWrite && app.getClipboard().hasFiles() && !isMysharedSelected) {
@@ -210,10 +214,6 @@ public class FileContextMenu extends PopupPanel {
 	        		contextMenu.addItem(pasteItem);
 		        }
 		
-		        if (canWrite && !isMysharedSelected) {
-			        MenuItem upload = new MenuItem("<span>" + AbstractImagePrototype.create(images.fileUpdate()).getHTML() + "&nbsp;Upload</span>", true, new UploadFileCommand(app, this, selectedFolder));
-			        contextMenu.addItem(upload);
-		        }
 		        if (isFolderTreeSelected || isMysharedSelected) {
 					cutItem = new MenuItem("<span id='fileContextMenu.cut'>" + AbstractImagePrototype.create(newImages.cut()).getHTML() + "&nbsp;Cut</span>", true, new CutCommand(app, this, selectedFiles));
 		            contextMenu.addItem(cutItem);
@@ -230,19 +230,16 @@ public class FileContextMenu extends PopupPanel {
 		    else {
 				MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, selectedFiles));
 				contextMenu.addItem(restore);
-		    }
-        }
 
-        if (isFolderTreeSelected || isMysharedSelected) {
-			deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
-	        contextMenu.addItem(deleteItem);
+                deleteItem = new MenuItem("<span>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, selectedFiles, MessagePanel.images));
+                contextMenu.addItem(deleteItem);
+		    }
         }
 
         if (selectedFolder != null && !selectedFolder.isInTrash()) {
         	if ((isFolderTreeSelected || isMysharedSelected) && selectedFiles.size() == 1) {
         		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PROPERTIES)));
-        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PERMISSIONS)));
-        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.internet()).getHTML() + "&nbsp;Publish</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PUBLISH)));
+        		contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Share</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.PERMISSIONS)));
        			contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.versions()).getHTML() + "&nbsp;Versions</span>", true, new PropertiesCommand(app, this, selectedFiles, PropertiesCommand.VERSIONS)));
         	}
 
@@ -252,7 +249,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
+					Window.open(Pithos.getStorageAPIURL() + f.getOwnerID() + f.getUri(), "_blank", "");
 			}
 		}));
 

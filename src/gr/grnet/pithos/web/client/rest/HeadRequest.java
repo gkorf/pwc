@@ -35,6 +35,9 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.Const;
+import gr.grnet.pithos.web.client.Helpers;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
@@ -92,14 +95,18 @@ public abstract class HeadRequest<T extends Resource> implements ScheduledComman
 
     @Override
     public void execute() {
-    	if (path.contains("?"))
-    		path += "&t=" + System.currentTimeMillis();
-    	else
-    		path += "?t=" + System.currentTimeMillis();
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.HEAD, api + owner + path);
-        for (String header : headers.keySet()) {
-            builder.setHeader(header, headers.get(header));
+    	if (path.contains(Const.QUESTION_MARK)) {
+            path += "&t=" + System.currentTimeMillis();
         }
+    	else {
+    		path += "?t=" + System.currentTimeMillis();
+        }
+
+        Pithos.LOG("HEAD ", api + owner + path);
+
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.HEAD, api + owner + path);
+        Helpers.setHeaders(builder, headers);
+
         try {
             builder.sendRequest("", new RestRequestCallback<T>(api + owner + path, okCode) {
                 @Override
@@ -132,6 +139,7 @@ public abstract class HeadRequest<T extends Resource> implements ScheduledComman
             retries++;
         }
         catch (RequestException e) {
+            Pithos.LOG(e);
         }
     }
 

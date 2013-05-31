@@ -34,14 +34,8 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
-import gr.grnet.pithos.web.client.FilePermissionsDialog;
-import gr.grnet.pithos.web.client.FilePropertiesDialog;
-import gr.grnet.pithos.web.client.FilePublishDialog;
-import gr.grnet.pithos.web.client.FileVersionsDialog;
-import gr.grnet.pithos.web.client.FilesPropertiesDialog;
-import gr.grnet.pithos.web.client.FolderPermissionsDialog;
-import gr.grnet.pithos.web.client.FolderPropertiesDialog;
-import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.*;
+import gr.grnet.pithos.web.client.FileShareDialog;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -86,6 +80,7 @@ public class PropertiesCommand implements Command {
         if (containerPanel != null)
 		    containerPanel.hide();
 
+        Pithos.LOG("PropertiesCommand::execute(), resource = ", resource);
         if (resource instanceof Folder) {
             final Folder folder = (Folder) resource;
             switch (tabToShow) {
@@ -132,7 +127,7 @@ public class PropertiesCommand implements Command {
 							
 							@Override
 							public void execute() {
-								FilePermissionsDialog dlg = new FilePermissionsDialog(app, f);
+                                FileShareDialog dlg = new FileShareDialog(app, f);
 								dlg.center();
 							}
 						});
@@ -140,16 +135,6 @@ public class PropertiesCommand implements Command {
 					case VERSIONS:
 		                FileVersionsDialog dlg2 = new FileVersionsDialog(app, files.get(0));
 		                dlg2.center();
-						break;
-					case PUBLISH:
-		                app.scheduleFileHeadCommand(f, new Command() {
-							
-							@Override
-							public void execute() {
-								FilePublishDialog dlg = new FilePublishDialog(app, f);
-								dlg.center();
-							}
-						});
 						break;
 					default:
 						break;

@@ -70,6 +70,8 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.Helpers;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
@@ -103,10 +105,11 @@ public abstract class PutRequest implements ScheduledCommand {
 
     @Override
     public void execute() {
+        Pithos.LOG("PUT ", api + owner + path);
+
         RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, api + owner + path);
-        for (String header : headers.keySet()) {
-            builder.setHeader(header, headers.get(header));
-        }
+        Helpers.setHeaders(builder, headers);
+
         try {
             builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_CREATED) {
                 @Override
@@ -131,6 +134,7 @@ public abstract class PutRequest implements ScheduledCommand {
             });
         }
         catch (RequestException e) {
+            Pithos.LOG(e);
         }
     }
 

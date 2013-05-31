@@ -55,15 +55,15 @@
 		<script type="text/javascript" src="plupload/js/plupload.full.js"></script>
         <script type="text/javascript" src="plupload/js/jquery.plupload.queue/jquery.plupload.queue.js"></script>
 
-        {{ CLOUDBAR_CODE }}
-        
+        {% include "pithos_webclient/cloudbar.html" %}
         <script>
 			var otherProperties = {
 				loginUrl: "/im/login?next=",
 				feedbackUrl: "/feedback",
 				authCookie: "_pithos2_a",
 				version: ""
-			}
+            };
+            {% include "pithos_webclient/other_properties.html" %}
 		</script>
     </head>
 	<body>

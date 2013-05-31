@@ -51,6 +51,4 @@ from django.conf.urls.defaults import include, patterns
 urlpatterns = patterns('',
     (r'^ui/$', 'pithos_webclient.views.index'),
     (r'^ui/index.html$', 'pithos_webclient.views.index'),
-    (r'^pithos/ui/$', 'pithos_webclient.views.index'),
-    (r'^pithos/ui/index.html$', 'pithos_webclient.views.index')
 )

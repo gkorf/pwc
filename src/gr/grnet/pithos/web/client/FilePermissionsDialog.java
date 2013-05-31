@@ -91,7 +91,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
 	final File file;
 
-    Images images = GWT.create(Images.class);
+    FileShareDialog.PrivateSharingImages images = GWT.create(FileShareDialog.PrivateSharingImages.class);
 
 	/**
 	 * The widget's constructor.
@@ -204,14 +204,14 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
         pathPanel = new HorizontalPanel();
         pathPanel.setVisible(false);
-        pathPanel.setWidth("100%");
+        pathPanel.setWidth(Const.PERCENT_100);
         pathPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
         pathPanel.add(new Label("Link"));
         pathPanel.setSpacing(8);
         pathPanel.addStyleName("pithos-TabPanelBottom");
 
         path = new TextBox();
-        path.setWidth("100%");
+        path.setWidth(Const.PERCENT_100);
         path.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -222,7 +222,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
         });
         path.setText(Window.Location.getHost() + file.getPublicUri());
         path.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
-        path.setWidth("100%");
+        path.setWidth(Const.PERCENT_100);
         path.setReadOnly(true);
         pathPanel.add(path);
         permPanel.add(pathPanel);
@@ -240,10 +240,10 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
     void showLinkIfShared() {
 		if (file.isShared()) {
 			UrlBuilder b = Window.Location.createUrlBuilder();
-			b.setPath(app.getApiPath() + file.getOwnerID() + file.getUri());
+			b.setPath(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri());
 			String href = Window.Location.getHref();
-			boolean hasParameters = href.contains("?");
-			path.setText(href + (hasParameters ? "&" : "?") + "goto=" + b.buildString());
+			boolean hasParameters = href.contains(Const.QUESTION_MARK);
+			path.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + b.buildString());
 	        pathPanel.setVisible(true);
 		}
 		else {
@@ -256,7 +256,12 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	 */
 	@Override
 	protected boolean accept() {
-        updateMetaData(app.getApiPath(), app.getUserID(), file.getUri() + "?update=", permList.getPermissions());
+        updateMetaData(
+            Pithos.getStorageAPIURL(),
+            app.getUserID(),
+            file.getUri() + Const.QUESTION_MARK_UPDATE_EQ,
+            permList.getPermissions()
+        );
         return true;
 	}
 
@@ -265,7 +270,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
             PostRequest updateFile = new PostRequest(api, owner, path) {
                 @Override
                 public void onSuccess(Resource result) {
-                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, app.getApiPath(), file.getOwnerID(), path, file) {
+                	HeadRequest<File> headFile = new HeadRequest<File>(File.class, Pithos.getStorageAPIURL(), file.getOwnerID(), path, file) {
 
 						@Override
 						public void onSuccess(File _result) {
@@ -284,7 +289,6 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 
 						@Override
 						public void onError(Throwable t) {
-		                    GWT.log("", t);
 							app.setError(t);
 		                    app.displayError("System error modifying file:" + t.getMessage());
 						}
@@ -294,13 +298,12 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 							app.sessionExpired();
 						}
 					};
-					headFile.setHeader("X-Auth-Token", app.getUserToken());
+					headFile.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
 					Scheduler.get().scheduleDeferred(headFile);
                 }
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("", t);
 					app.setError(t);
                     app.displayError("System error modifying file:" + t.getMessage());
                 }
@@ -310,44 +313,54 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 					app.sessionExpired();
 				}
             };
-            updateFile.setHeader("X-Auth-Token", app.getUserToken());
+            updateFile.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
             
-            String readPermHeader = "read=";
-            String writePermHeader = "write=";
+            String readPermHeader = Const.READ_EQ;
+            String writePermHeader = Const.WRITE_EQ;
             for (String u : newPermissions.keySet()) {
                 Boolean[] p = newPermissions.get(u);
-                if (p[0] != null && p[0])
-                    readPermHeader += u + ",";
-                if (p[1] != null && p[1])
-                    writePermHeader += u + ",";
+                if (p[0] != null && p[0]) {
+                    readPermHeader += u + Const.COMMA;
+                }
+                if (p[1] != null && p[1]) {
+                    writePermHeader += u + Const.COMMA;
+                }
             }
-            if (readPermHeader.endsWith("="))
+            if (readPermHeader.endsWith(Const.EQ)) {
                 readPermHeader = "";
-            else if (readPermHeader.endsWith(","))
+            }
+            else if (readPermHeader.endsWith(Const.COMMA)) {
                 readPermHeader = readPermHeader.substring(0, readPermHeader.length() - 1);
-            if (writePermHeader.endsWith("="))
+            }
+            if (writePermHeader.endsWith(Const.EQ)) {
                 writePermHeader = "";
-            else if (writePermHeader.endsWith(","))
+            }
+            else if (writePermHeader.endsWith(Const.COMMA)) {
                 writePermHeader = writePermHeader.substring(0, writePermHeader.length() - 1);
-            String permHeader = readPermHeader +  ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  ";" : "") + writePermHeader;
-            if (permHeader.length() == 0)
-                permHeader="~";
-            else
+            }
+            String permHeader = readPermHeader +
+                ((readPermHeader.length()  > 0 && writePermHeader.length() > 0) ?  Const.SEMI : "") + writePermHeader;
+            if (permHeader.length() == 0) {
+                permHeader=Const.TILDE;
+            }
+            else {
             	permHeader = URL.encodePathSegment(permHeader);
-            updateFile.setHeader("X-Object-Sharing", permHeader);
+            }
+            updateFile.setHeader(Const.X_OBJECT_SHARING, permHeader);
             Scheduler.get().scheduleDeferred(updateFile);
         }
-        else if (!app.isMySharedSelected())
+        else if (!app.isMySharedSelected()) {
             app.updateFolder(file.getParent(), true, new Command() {
-				
 				@Override
 				public void execute() {
 					if (file.isSharedOrPublished())
 						app.updateMySharedRoot();
 				}
 			}, true);
-        else
+        }
+        else {
         	app.updateSharedFolder(file.getParent(), true);
+        }
     }
 
 	@Override
@@ -355,7 +368,10 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 	    super.onPreviewNativeEvent(preview);
 
 	    NativeEvent evt = preview.getNativeEvent();
-	    if (evt.getType().equals("keydown") && evt.getKeyCode() == KeyCodes.KEY_ENTER)
-			        closeDialog();
+	    if (evt.getType().equals(Const.EVENT_TYPE_KEYDOWN) &&
+            evt.getKeyCode() == KeyCodes.KEY_ENTER) {
+
+            closeDialog();
+        }
 	}
 }

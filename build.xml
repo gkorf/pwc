@@ -6,7 +6,7 @@
 	<property file="runtime.properties"/>
     <property name="deps.dir" value="dependencies"/>
 
-    <property name="gwt.workers" value="1"/>
+    <property name="gwt.workers" value="2"/>
 
     <property name="gwt.version" value="2.4.0"/>
 	<property name="gwt.home" value="${deps.dir}/gwt-${gwt.version}"/>
@@ -131,6 +131,10 @@
             <fileset dir="${src.dir}/${gwt.root.path}/public" includes="pithos.css"/>
         </scp>
     </target>
+
+  <target name="rsyncToDev84">
+    <exec executable="${basedir}/rsync-to-dev84.sh"></exec>
+  </target>
 
 	<target name="clean" description="Delete all build artifacts">
 		<delete dir="${build.dir}"/>

@@ -42,14 +42,7 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 public class PithosDisclosurePanel extends Composite {
 
@@ -75,38 +68,58 @@ public class PithosDisclosurePanel extends Composite {
 		
 		@Source("downArrow.png")
 		ImageResource closed();
+
+        @Source("gr/grnet/pithos/resources/ajax-loader.gif")
+        ImageResource ajaxLoader();
 	}
 	
-	DisclosurePanel panel;
-	
-	Resources resources;
-	
-	public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
-		resources = _resources;
+	private final DisclosurePanel panel;
+    private final Resources resources;
+    private final String title;
+
+    public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
+        this(_resources, title, false, open);
+    }
+
+	public PithosDisclosurePanel(final Resources _resources, final String title, boolean ajaxLoader, boolean open) {
+        this.title = title;
+
+		this.resources = _resources;
 		resources.pithosDisclosurePanelCss().ensureInjected();
-		panel = new DisclosurePanel();
+		this.panel = new DisclosurePanel();
 		panel.addStyleName(resources.pithosDisclosurePanelCss().disclosurePanel());
-		panel.setHeader(createHeader(resources, title, open));
+		panel.setHeader(createHeader(resources, title, ajaxLoader, open));
 		panel.setOpen(open);
-		panel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
-			
-			@Override
-			public void onOpen(OpenEvent<DisclosurePanel> event) {
-				panel.setHeader(createHeader(resources, title, true));
-			}
-		});
-		panel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
-			
-			@Override
-			public void onClose(CloseEvent<DisclosurePanel> event) {
-				panel.setHeader(createHeader(resources, title, false));
-			}
-		});
-		
+
+        if(!ajaxLoader) {
+            addOpenCloseHandlers();
+        }
+
 		initWidget(panel);
 	}
+
+    private void addOpenCloseHandlers() {
+        panel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+            @Override
+            public void onOpen(OpenEvent<DisclosurePanel> event) {
+                panel.setHeader(createHeader(resources, title, false, true));
+            }
+        });
+        panel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+
+            @Override
+            public void onClose(CloseEvent<DisclosurePanel> event) {
+                panel.setHeader(createHeader(resources, title, false, false));
+            }
+        });
+    }
+
+    public void setLoaded(boolean open) {
+        this.panel.setHeader(createHeader(resources, title, false, open));
+        addOpenCloseHandlers();
+    }
 	
-	Widget createHeader(Resources resources, String title, boolean open) {
+	Widget createHeader(Resources resources, String title, boolean ajaxLoader, boolean open) {
 		HorizontalPanel header = new HorizontalPanel();
         
 		Image img = new Image(resources.icon());
@@ -116,7 +129,7 @@ public class PithosDisclosurePanel extends Composite {
 		HTML titleHtml = new HTML(title);
 		header.add(titleHtml);
 		header.setCellVerticalAlignment(titleHtml, HasVerticalAlignment.ALIGN_MIDDLE);
-		Image arrow = new Image(open ? resources.open() : resources.closed());
+		Image arrow = new Image(ajaxLoader ? resources.ajaxLoader() : open ? resources.open() : resources.closed());
 		arrow.addStyleName(resources.pithosDisclosurePanelCss().arrow());
 		header.add(arrow);
 		header.setCellHorizontalAlignment(arrow, HasHorizontalAlignment.ALIGN_RIGHT);
