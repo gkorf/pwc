@@ -198,7 +198,7 @@ public class FileUploadDialog extends DialogBox {
 				
 				init: {
 					FilesAdded: function(up, files) {
-						var api = app.@gr.grnet.pithos.web.client.Pithos::getApiPath()();
+						var api = @gr.grnet.pithos.web.client.Pithos::getStorageAPIURL()();
 						var folder = app.@gr.grnet.pithos.web.client.Pithos::getUploadFolder()();
 						var owner = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getOwnerID()();
 						var uri = folder.@gr.grnet.pithos.web.client.foldertree.Folder::getUri()();

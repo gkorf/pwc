@@ -288,7 +288,7 @@ public class FileList extends Composite {
 				sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
-                      .append(Templates.INSTANCE.viewLink(app.getApiPath() + object.getOwnerID() + object.getUri(), object.getName()));
+                      .append(Templates.INSTANCE.viewLink(Pithos.getStorageAPIURL() + object.getOwnerID() + object.getUri(), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
@@ -415,7 +415,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(app.getApiPath() + file.getOwnerID() + file.getUri(), "_blank", "");
+				Window.open(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri(), "_blank", "");
 				event.preventDefault();
 				return;
 			}
@@ -647,7 +647,7 @@ public class FileList extends Composite {
 		int i = 0;
 		boolean scrolled = false;
 		for (File f : files) {
-			if (selectedUrls.contains(app.getApiPath() + f.getOwnerID() + f.getUri())) {
+			if (selectedUrls.contains(Pithos.getStorageAPIURL() + f.getOwnerID() + f.getUri())) {
 				selectionModel.setSelected(f, true);
 				if (!scrolled) {
 					celltable.getRowElement(i).getCells().getItem(0).scrollIntoView();

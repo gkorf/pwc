@@ -78,7 +78,7 @@ public class RemoveUserCommand implements Command {
     		return;
     	group.removeMemberID(user.getUserID());
     	String path = "?update=";
-    	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
+    	PostRequest updateGroup = new PostRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
 			
 			@Override
 			public void onSuccess(Resource result) {

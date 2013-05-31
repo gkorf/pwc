@@ -41,7 +41,6 @@ import gr.grnet.pithos.web.client.commands.PasteCommand;
 import gr.grnet.pithos.web.client.commands.PropertiesCommand;
 import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
 import gr.grnet.pithos.web.client.commands.ToTrashCommand;
-import gr.grnet.pithos.web.client.commands.UploadFileCommand;
 import gr.grnet.pithos.web.client.foldertree.File;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -250,7 +249,7 @@ public class FileContextMenu extends PopupPanel {
 			@Override
 			public void execute() {
 				for (File f : selectedFiles)
-					Window.open(app.getApiPath() + f.getOwnerID() + f.getUri(), "_blank", "");
+					Window.open(Pithos.getStorageAPIURL() + f.getOwnerID() + f.getUri(), "_blank", "");
 			}
 		}));
 

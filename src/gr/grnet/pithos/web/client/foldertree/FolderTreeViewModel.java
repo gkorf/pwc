@@ -152,7 +152,7 @@ public class FolderTreeViewModel implements TreeViewModel {
             final Folder f = iter.next();
 
             String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
+            GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, Pithos.getStorageAPIURL(), f.getOwnerID(), path, f) {
                 @Override
                 public void onSuccess(Folder _result) {
                     fetchFolder(iter, callback);
@@ -236,7 +236,7 @@ public class FolderTreeViewModel implements TreeViewModel {
 
     public void fetchFolder(final Folder f, final ListDataProvider<Folder> dataProvider, final boolean showfiles, final Command callback) {
         String path = "/" + f.getContainer() + "?format=json&delimiter=/&prefix=" + URL.encodeQueryString(f.getPrefix());
-        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, app.getApiPath(), f.getOwnerID(), path, f) {
+        GetRequest<Folder> getFolder = new GetRequest<Folder>(Folder.class, Pithos.getStorageAPIURL(), f.getOwnerID(), path, f) {
             @Override
             public void onSuccess(final Folder _result) {
                 if (showfiles)

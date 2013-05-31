@@ -75,7 +75,7 @@ public class DeleteGroupCommand implements Command {
     		containerPanel.hide();
         if (Window.confirm("Are you sure you want to delete group " + group.getName())) {
         	String path = "?update=";
-        	PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
+        	PostRequest updateGroup = new PostRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
 				
 				@Override
 				public void onSuccess(Resource result) {

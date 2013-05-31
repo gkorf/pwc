@@ -93,6 +93,61 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static final Configuration config = GWT.create(Configuration.class);
+    public static final String CONFIG_API_PATH = config.apiPath();
+    static {
+        LOG("CONFIG_API_PATH = ", CONFIG_API_PATH);
+    }
+
+    public static final Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
+    public static String getFromOtherPropertiesOrNull(String key) {
+        try {
+            return otherProperties.get(key);
+        }
+        catch(Exception e) {
+            LOGError(e);
+            return null;
+        }
+    }
+    public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
+    public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
+    static {
+        LOG("STORAGE_API_URL = ", OTHERPROPS_STORAGE_API_URL);
+        LOG("USER_CATALOGS_API_URL = ", OTHERPROPS_USER_CATALOGS_API_URL);
+    }
+
+    public static final String STORAGE_API_URL;
+    static {
+        if(OTHERPROPS_STORAGE_API_URL != null) {
+            STORAGE_API_URL = OTHERPROPS_STORAGE_API_URL;
+        }
+        else if(CONFIG_API_PATH != null) {
+            STORAGE_API_URL = CONFIG_API_PATH;
+        }
+        else {
+            throw new RuntimeException("Unknown STORAGE_API_URL");
+        }
+    }
+    public static final String USER_CATALOGS_API_URL;
+    static {
+        if(OTHERPROPS_USER_CATALOGS_API_URL != null) {
+            USER_CATALOGS_API_URL = OTHERPROPS_USER_CATALOGS_API_URL;
+        }
+        else if(OTHERPROPS_STORAGE_API_URL != null) {
+            throw new RuntimeException("STORAGE_API_URL is defined but USER_CATALOGS_API_URL is not");
+        }
+        else {
+            // https://server.com/v1/ --> https://server.com
+            String url = CONFIG_API_PATH;
+            url = Helpers.stripTrailing(url, "/");
+            url = Helpers.upToIncludingLastPart(url, "/");
+            url = Helpers.stripTrailing(url, "/");
+            url = url + "/user_catalogs";
+
+            USER_CATALOGS_API_URL = url;
+
+            LOG("USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
+        }
+    }
 
     public interface Style extends CssResource {
         String commandAnchor();
@@ -616,7 +671,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     return true;
                 }
 
-                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwnerID(), "/" + f.getContainer()) {
+                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getStorageAPIURL(), f.getOwnerID(), "/" + f.getContainer()) {
 
                     @Override
                     public void onSuccess(Folder _result) {
@@ -734,9 +789,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
      * Parse and store the user credentials to the appropriate fields.
      */
     private boolean parseUserCredentials() {
-        Configuration conf = (Configuration) GWT.create(Configuration.class);
-        Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
-        String cookie = otherProperties.get(Const.AUTH_COOKIE);
+        final String cookie = otherProperties.get(Const.AUTH_COOKIE);
         String auth = Cookies.getCookie(cookie);
         if(auth == null) {
             authenticateUser();
@@ -748,13 +801,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(auth.endsWith("\"")) {
             auth = auth.substring(0, auth.length() - 1);
         }
-        String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+        String[] authSplit = auth.split("\\" + config.cookieSeparator(), 2);
         if(authSplit.length != 2) {
             authenticateUser();
             return false;
         }
-        userID = authSplit[0];
-        userToken = authSplit[1];
+        this.userID = authSplit[0];
+        this.userToken = authSplit[1];
 
         String gotoUrl = Window.Location.getParameter("goto");
         if(gotoUrl != null && gotoUrl.length() > 0) {
@@ -775,7 +828,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     public void fetchAccount(final Command callback) {
         String path = "?format=json";
 
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getStorageAPIURL(), userID, path) {
             @Override
             public void onSuccess(AccountResource accountResource) {
                 account = accountResource;
@@ -818,7 +871,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void updateStatistics() {
-        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), userID, "", account) {
+        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getStorageAPIURL(), userID, "", account) {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -848,7 +901,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createHomeContainer(final AccountResource _account, final Command callback) {
         String path = "/" + Const.HOME_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getStorageAPIURL(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 if(!_account.hasTrashContainer()) {
@@ -882,7 +935,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createTrashContainer(final Command callback) {
         String path = "/" + Const.TRASH_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getStorageAPIURL(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 fetchAccount(callback);
@@ -1023,12 +1076,12 @@ public class Pithos implements EntryPoint, ResizeHandler {
         $doc.body.onselectstart = null;
     }-*/;
 
-    /**
-     * @return the absolute path of the API root URL
-     */
-    public String getApiPath() {
-        Configuration conf = (Configuration) GWT.create(Configuration.class);
-        return conf.apiPath();
+    public static String getStorageAPIURL() {
+        return STORAGE_API_URL;
+    }
+
+    public static String getUserCatalogsURL() {
+        return USER_CATALOGS_API_URL;
     }
 
     /**
@@ -1049,7 +1102,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         final PleaseWaitPopup pwp = new PleaseWaitPopup();
         pwp.center();
         String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
-        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwnerID(), path) {
+        DeleteRequest deleteFolder = new DeleteRequest(getStorageAPIURL(), folder.getOwnerID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1103,7 +1156,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(iter.hasNext()) {
             File file = iter.next();
             String path = targetUri + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(getApiPath(), targetUsername, path) {
+            PutRequest copyFile = new PutRequest(getStorageAPIURL(), targetUsername, path) {
                 @Override
                 public void onSuccess(Resource result) {
                     copyFiles(iter, targetUsername, targetUri, callback);
@@ -1141,7 +1194,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void copyFolder(final Folder f, final String targetUsername, final String targetUri, boolean move, final Command callback) {
         String path = targetUri + "?delimiter=/";
-        PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
+        PutRequest copyFolder = new PutRequest(getStorageAPIURL(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
                 if(callback != null) {
@@ -1380,7 +1433,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
-            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwnerID(), folder.getUri(), folder) {
+            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getStorageAPIURL(), folder.getOwnerID(), folder.getUri(), folder) {
 
                 @Override
                 public void onSuccess(Folder _result) {
@@ -1394,7 +1447,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     if(t instanceof RestException) {
                         if(((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
                             final String path = folder.getUri();
-                            PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwnerID(), path) {
+                            PutRequest newFolder = new PutRequest(getStorageAPIURL(), folder.getOwnerID(), path) {
                                 @Override
                                 public void onSuccess(Resource _result) {
                                     scheduleFolderHeadCommand(folder, callback);
@@ -1448,7 +1501,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void scheduleFileHeadCommand(File f, final Command callback) {
-        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwnerID(), f.getUri(), f) {
+        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getStorageAPIURL(), f.getOwnerID(), f.getUri(), f) {
 
             @Override
             public void onSuccess(File _result) {
@@ -1562,7 +1615,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void purgeContainer(final Folder container) {
         String path = "/" + container.getName() + "?delimiter=/";
-        DeleteRequest delete = new DeleteRequest(getApiPath(), getUserID(), path) {
+        DeleteRequest delete = new DeleteRequest(getStorageAPIURL(), getUserID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {

@@ -35,7 +35,6 @@
 
 package gr.grnet.pithos.web.client.catalog;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
@@ -52,49 +51,22 @@ import java.util.List;
  * The request via which we obtain user catalog info.
  */
 public class GetUserCatalogs implements Scheduler.ScheduledCommand {
-    private final Pithos app;
     private final String url;
     private final String userToken;
     private final List<String> ids;
     private final List<String> names;
 
     public static final int SuccessCode = 200;
-    public static final String CallEndPoint = "/user_catalogs";
     public static final String RequestField_uuids = "uuids";
     public static final String RequestField_displaynames = "displaynames";
     public static final String ResponseField_displayname_catalog = "displayname_catalog";
     public static final String ResponseField_uuid_catalog = "uuid_catalog";
 
-    public GetUserCatalogs(Pithos app) {
-        this(app, null, null);
-    }
-
-    public GetUserCatalogs(Pithos app, String userID) {
-        this(app, Helpers.toList(userID), null);
-    }
-
-    public GetUserCatalogs(Pithos app, List<String> ids) {
-        this(app, ids, null);
-    }
-
-    public GetUserCatalogs(Pithos app, List<String> ids, List<String> names) {
-        assert app != null;
-
-        this.app = app;
-
-        // FIXME: Probably use Window.Location.getHost()
-        // https://server.com/v1/ --> https://server.com
-        String path = app.getApiPath();
-        path = Helpers.stripTrailing(path, "/");
-        path = Helpers.upToIncludingLastPart(path, "/");
-        path = Helpers.stripTrailing(path, "/");
-
-        // https://server.com/user_catalogs
-        this.url = path + CallEndPoint;
-
+    public GetUserCatalogs(String userToken, List<String> ids, List<String> names) {
+        this.url = Pithos.getUserCatalogsURL();
+        this.userToken = userToken;
         this.ids = Helpers.safeList(ids);
         this.names = Helpers.safeList(names);
-        this.userToken = app.getUserToken();
     }
 
     public String getURL() {
@@ -137,7 +109,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
     }
 
     public void onError(Request request, Throwable t) {
-        app.LOG("GetUserCatalogs", t);
+        Pithos.LOG("GetUserCatalogs", t);
     }
 
     @Override
@@ -145,7 +117,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
         final RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, getURL());
         rb.setHeader(Const.X_AUTH_TOKEN, userToken);
         final String requestData = makeRequestData().toString();
-        app.LOG("GetUserCatalogs => ", requestData);
+        Pithos.LOG("GetUserCatalogs => ", requestData);
         Pithos.LOG("POST ", getURL());
 
         try {
@@ -155,14 +127,14 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
                     final int statusCode = response.getStatusCode();
 
                     if(statusCode != SuccessCode) {
-                        app.LOG("GetUserCatalogs <= [", statusCode, " ", response.getStatusText(), "]");
+                        Pithos.LOG("GetUserCatalogs <= [", statusCode, " ", response.getStatusText(), "]");
                         GetUserCatalogs.this.onBadStatusCode(request, response);
                         return;
                     }
 
                     final String responseText = response.getText();
                     final JSONValue jsonValue = JSONParser.parseStrict(responseText);
-                    app.LOG("GetUserCatalogs <= ", jsonValue.toString());
+                    Pithos.LOG("GetUserCatalogs <= ", jsonValue.toString());
                     final JSONObject result = jsonValue.isObject();
 
                     if(result == null) {
@@ -182,7 +154,7 @@ public class GetUserCatalogs implements Scheduler.ScheduledCommand {
             });
         }
         catch(Exception e) {
-            app.LOG("GetUserCatalogs", e);
+            Pithos.LOG("GetUserCatalogs", e);
         }
     }
 
