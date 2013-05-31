@@ -43,15 +43,19 @@ from synnefo_branding.utils import get_branding_dict
 MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
         getattr(django_settings, "MEDIA_URL", "/static/"))
 
+URLS_CONFIG = {
+    'STORAGE_API_URL': '/v1',
+    'USER_CATALOGS_API_URL': '/user_catalog'
+}
+
 
 def index(request):
     branding_settings = get_branding_dict("")
-    return direct_to_template(request, 'pithos_webclient/index.html', \
-            {'settings': settings,
-             'MEDIA_URL': MEDIA_URL,
-             'CLIENT_VERSION': __version__,
-             'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE':
-                 settings.CLOUDBAR_ACTIVE_SERVICE,
-             'branding_settings': branding_settings
-            })
-
+    return direct_to_template(request, 'pithos_webclient/index.html', {
+        'settings': settings,
+        'MEDIA_URL': MEDIA_URL,
+        'CLIENT_VERSION': __version__,
+        'PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE': settings.CLOUDBAR_ACTIVE_SERVICE,
+        'branding_settings': branding_settings,
+        'urls_config': URLS_CONFIG
+    })
