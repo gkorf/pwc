@@ -1,7 +1,7 @@
 {% for key, value in branding_settings.items %}
-    otherProperties.{{ key }} = "{{ value }}";
+    otherProperties.{{ key }} = {{ value|safe }};
 {% endfor %}
 
 {% for key, value in urls_config.items %}
-    otherProperties.{{ key }} = "{{ value }}";
+    otherProperties.{{ key }} = "{{ value|safe }}";
 {% endfor %}
