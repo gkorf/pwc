@@ -93,7 +93,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static final Configuration config = GWT.create(Configuration.class);
-    public static final String CONFIG_API_PATH = getFromOtherPropertiesOrDefaultString("STORAGE_API_URL", config.apiPath());
+    public static final String CONFIG_API_PATH = config.apiPath();
     static {
         LOG("CONFIG_API_PATH = ", CONFIG_API_PATH);
     }
@@ -108,14 +108,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             return null;
         }
     }
-    public static String getFromOtherPropertiesOrDefaultString(String key, String dflt) {
-        try {
-            return otherProperties.get(key);
-        }
-        catch(Exception e) {
-            return dflt;
-        }
-    }
+
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
     public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
     static {
@@ -134,6 +127,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
         else {
             throw new RuntimeException("Unknown STORAGE_API_URL");
         }
+
+        LOG("Computed STORAGE_API_URL = ", STORAGE_API_URL);
     }
     public static final String USER_CATALOGS_API_URL;
     static {
@@ -153,7 +148,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             USER_CATALOGS_API_URL = url;
 
-            LOG("USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
+            LOG("Computed USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
         }
     }
 
