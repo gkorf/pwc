@@ -93,7 +93,8 @@ PITHOS_URL = getattr(settings, 'PITHOS_UI_PITHOS_URL',
 AUTH_COOKIE_NAME = getattr(settings, 'PITHOS_UI_AUTH_COOKIE_NAME',
                            '_pithos2_a')
 
-DEFAULT_LOGIN_URL = join_urls(ASTAKOS_BASE_URL, ASTAKOS_VIEWS_PREFIX, 'login')
+DEFAULT_LOGIN_URL = join_urls(ASTAKOS_BASE_URL, ASTAKOS_VIEWS_PREFIX, 'login',
+                              '?next=')
 LOGIN_URL = getattr(settings, 'PITHOS_UI_LOGIN_URL', DEFAULT_LOGIN_URL)
 CLOUDBAR_ACTIVE_SERVICE = getattr(
     settings,
