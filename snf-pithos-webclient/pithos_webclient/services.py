@@ -1,4 +1,4 @@
-# Copyright 2011-2013 GRNET S.A. All rights reserved.
+# Copyright (C) 2013 GRNET S.A. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or
 # without modification, are permitted provided that the following
@@ -30,7 +30,7 @@
 # documentation are those of the authors and should not be
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
-#
+
 
 pithos_services = {
     'pithos_object-store': {
@@ -39,9 +39,19 @@ pithos_services = {
         'prefix': 'object-store',
         'public': True,
         'endpoints': [
-            {'version': 'v1',
+            {'versionId': 'v1',
              'publicURL': None},
-        ]},
+        ],
+        'resources': {
+            'diskspace': {
+                "desc": "Pithos account diskspace",
+                "name": "pithos.diskspace",
+                "unit": "bytes",
+                "service_type": "object-store",
+                "service_origin": "pithos_object-store",
+            },
+        },
+    },
 
     'pithos_public': {
         'type': 'public',
@@ -49,17 +59,21 @@ pithos_services = {
         'prefix': 'public',
         'public': True,
         'endpoints': [
-            {'version': 'v2.0',
+            {'versionId': 'v2.0',
              'publicURL': None},
-        ]},
+        ],
+        'resources': {},
+    },
 
     'pithos_ui': {
         'type': 'pithos_ui',
         'component': 'pithos',
         'prefix': 'ui',
-        'public': True,
+        'public': False,
         'endpoints': [
-            {'version': '',
+            {'versionId': '',
              'publicURL': None},
-        ]},
+        ],
+        'resources': {},
+    },
 }
