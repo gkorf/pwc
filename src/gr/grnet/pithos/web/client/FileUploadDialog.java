@@ -170,7 +170,7 @@ public class FileUploadDialog extends DialogBox {
 		else
 			app.updateOtherSharedFolder(folder, true, null);
 	}
-	
+
 	native void setupUpload(FileUploadDialog dlg, Pithos app, String token) /*-{
 		var uploader = $wnd.$('#uploader').pluploadQueue();
 		var createUploader = function() {
@@ -178,24 +178,25 @@ public class FileUploadDialog extends DialogBox {
 				// General settings
 				runtimes : 'html5, flash, gears, silverlight, browserplus, html4',
 				unique_names : true,
-		
+
 				// Flash settings
 				flash_swf_url : 'plupload/js/plupload.flash.swf',
-		
+
 				// Silverlight settings
 				silverlight_xap_url : 'plupload/js/plupload.silverlight.xap',
-				
+
 				multiple_queues: true,
-				
+
 				preinit: {
 					Init: function(up, info) {
-						if ($wnd.console && $wnd.console.log)
-							$wnd.console.log("Init fired");
-						up.settings.file_data_name = "X-Object-Data";				
+						if ($wnd.console && $wnd.console.log) {
+                          $wnd.console.log("Init fired");
+                        }
+						up.settings.file_data_name = "X-Object-Data";
 					}
-					
+
 				},
-				
+
 				init: {
 					FilesAdded: function(up, files) {
 						var api = @gr.grnet.pithos.web.client.Pithos::getStorageAPIURL()();
@@ -212,25 +213,26 @@ public class FileUploadDialog extends DialogBox {
 						if (!dlg.@gr.grnet.pithos.web.client.FileUploadDialog::isVisible()())
 							app.@gr.grnet.pithos.web.client.Pithos::showUploadAlert(I)(up.files.length);
 					},
-					
+
 					FilesRemoved: function(up, files) {
 						if (up.files.length == 0)
 							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(false);
 						else
 							dlg.@gr.grnet.pithos.web.client.FileUploadDialog::setInProgress(Z)(true);
 					},
-					
+
 					BeforeUpload: function(up, file) {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log('About to upload ' + file.url);
-						up.settings.url = file.url + + "?X-Auth-Token=" + encodeURIComponent(token);
+						up.settings.url = file.url;
+                        up.settings.headers = {"X-Auth-Token": token };
 					},
-					
+
 					UploadProgress: function(up, file) {
 						$wnd.$('#upload_alert_progress_bar').css('width', up.total.percent + '%');
 						$wnd.$('#upload_alert_percent').html(up.total.percent + '%');
 					},
-					
+
 					FileUploaded: function(up, file, response) {
 						if ($wnd.console && $wnd.console.log) {
 							$wnd.console.log('File ' + file.name + ' uploaded');
@@ -240,7 +242,7 @@ public class FileUploadDialog extends DialogBox {
 						if (folder == file.folder)
 							app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder()();
 					},
-					
+
 					UploadComplete: function(up, files) {
 						if ($wnd.console && $wnd.console.log) {
 							$wnd.console.log('All files finished');
@@ -259,7 +261,7 @@ public class FileUploadDialog extends DialogBox {
 								uris.push(files[i].url);
 						app.@gr.grnet.pithos.web.client.Pithos::updateUploadFolder(Lcom/google/gwt/core/client/JsArrayString;)(uris);
 					},
-					
+
 					Error: function(up, error) {
 						if ($wnd.console && $wnd.console.log)
 							$wnd.console.log("Error occured:" + error);
@@ -268,7 +270,7 @@ public class FileUploadDialog extends DialogBox {
 			});
 			return $wnd.$('#uploader').pluploadQueue();
 		};
-		
+
 		if ($wnd.console && $wnd.console.log)
 			$wnd.console.log(uploader);
 		if (!uploader) {
@@ -302,7 +304,7 @@ public class FileUploadDialog extends DialogBox {
 			}
 		}
 	}-*/;
-	
+
 	native boolean isUploading()/*-{
 		var uploader = $wnd.$("#uploader").pluploadQueue();
 		var files = uploader.files;
