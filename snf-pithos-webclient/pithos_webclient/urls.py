@@ -34,6 +34,7 @@
 from django.conf.urls.defaults import include, patterns
 from pithos_webclient import settings
 from snf_django.lib.api.utils import prefix_pattern
+from snf_django.utils.urls import extend_with_root_redirects
 from synnefo.lib import join_urls
 
 
@@ -41,3 +42,7 @@ urlpatterns = patterns('',
     (prefix_pattern(join_urls(settings.BASE_PATH, settings.UI_PREFIX)),
      'pithos_webclient.views.index'),
 )
+
+# set utility redirects
+extend_with_root_redirects(urlpatterns, settings.pithos_services, 'pithos_ui',
+                           settings.BASE_PATH)
