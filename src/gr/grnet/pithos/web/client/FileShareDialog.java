@@ -118,7 +118,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
     private final HorizontalPanel privatePathPanel = new HorizontalPanel();
     private final TextBox privatePathText = new TextBox();
     private PermissionsList permList;
-	
+
     public interface PrivateSharingImages extends MessagePanel.Images {
 
         @Source("gr/grnet/pithos/resources/edit_user.png")
@@ -234,7 +234,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                     Pithos.preventIESelection();
                 }
             });
-            publicPathText.setText(Window.Location.getHost() + file.getPublicUri());
+            publicPathText.setText(file.getPublicUri());
             publicPathText.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
             publicPathText.setReadOnly(true);
             publicPathPanel.add(publicPathText);
