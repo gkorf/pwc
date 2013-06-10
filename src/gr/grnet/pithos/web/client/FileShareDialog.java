@@ -234,7 +234,8 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                     Pithos.preventIESelection();
                 }
             });
-            publicPathText.setText(file.getPublicUri());
+
+            publicPathText.setText(""); // check: showLinkForPublicSharing();
             publicPathText.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
             publicPathText.setReadOnly(true);
             publicPathPanel.add(publicPathText);
@@ -363,7 +364,8 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                 Pithos.preventIESelection();
             }
         });
-        privatePathText.setText(Window.Location.getHost() + file.getPublicUri());
+
+        privatePathText.setText(""); // check: showLinkForPrivateSharing();
         privatePathText.setTitle("Use this link for sharing the file via e-mail, IM, etc. (crtl-C/cmd-C to copy to system clipboard)");
         privatePathText.setWidth(Const.PERCENT_100);
         privatePathText.setReadOnly(true);
@@ -406,9 +408,20 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 
     private void showLinkForPublicSharing() {
 		if (isFilePubliclyShared()) {
-			UrlBuilder b = Window.Location.createUrlBuilder();
-			b.setPath(file.getPublicUri());
-			publicPathText.setText(b.buildString());
+            // Transitional: When the server returns the full URL in X-Object-Public,
+            //               just use it.
+            final String filePublicURI = file.getPublicUri();
+            final String shownPublicURI;
+            if(filePublicURI.toLowerCase().startsWith("http")) {
+                shownPublicURI = filePublicURI;
+            }
+            else {
+                UrlBuilder b = Window.Location.createUrlBuilder();
+                b.setPath(filePublicURI);
+                shownPublicURI = b.buildString();
+            }
+
+			publicPathText.setText(shownPublicURI);
 	        publicPathPanel.setVisible(true);
 		}
 		else {
@@ -418,11 +431,20 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 
     private void showLinkForPrivateSharing() {
         if (isFilePrivatelyShared()) {
-            UrlBuilder b = Window.Location.createUrlBuilder();
-            b.setPath(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri());
+            final String fileViewURL = Pithos.getFileViewURL(file);
+            final String shownViewURL;
+            if(fileViewURL.toLowerCase().startsWith("http")) {
+                shownViewURL = fileViewURL;
+            }
+            else {
+                UrlBuilder b = Window.Location.createUrlBuilder();
+                b.setPath(fileViewURL);
+                shownViewURL = b.buildString();
+            }
+
             String href = Window.Location.getHref();
             boolean hasParameters = href.contains(Const.QUESTION_MARK);
-            privatePathText.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + b.buildString());
+            privatePathText.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + shownViewURL);
             privatePathPanel.setVisible(true);
         }
         else {
