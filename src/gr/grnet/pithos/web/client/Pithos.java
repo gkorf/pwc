@@ -130,6 +130,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         LOG("Computed STORAGE_API_URL = ", STORAGE_API_URL);
     }
+
+    public static final String STORAGE_VIEW_URL;
+    static {
+        final String viewURL = getFromOtherPropertiesOrNull("STORAGE_VIEW_URL");
+        if(viewURL != null) {
+            STORAGE_VIEW_URL = viewURL;
+        }
+        else {
+            STORAGE_VIEW_URL = STORAGE_API_URL;
+        }
+
+        LOG("Computed STORAGE_VIEW_URL = ", STORAGE_VIEW_URL);
+    }
+
     public static final String USER_CATALOGS_API_URL;
     static {
         if(OTHERPROPS_USER_CATALOGS_API_URL != null) {
@@ -1081,6 +1095,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public static String getStorageAPIURL() {
         return STORAGE_API_URL;
+    }
+
+    public static String getStorageViewURL() {
+        return STORAGE_VIEW_URL;
     }
 
     public static String getUserCatalogsURL() {

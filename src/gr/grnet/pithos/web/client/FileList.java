@@ -35,17 +35,6 @@
 
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
@@ -73,6 +62,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.foldertree.FolderTreeView;
+
+import java.util.*;
 
 /**
  * A composite that displays the list of files in a particular folder.
@@ -415,7 +409,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri(), "_blank", "");
+				Window.open(Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri(), "_blank", "");
 				event.preventDefault();
 				return;
 			}
