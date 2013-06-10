@@ -117,7 +117,6 @@ public class FileShareDialog extends AbstractPropertiesDialog {
     // For private sharing
     private final HorizontalPanel privatePathPanel = new HorizontalPanel();
     private final TextBox privatePathText = new TextBox();
-    private final VerticalPanel privatePermSuperPanel = new VerticalPanel();
     private PermissionsList permList;
 	
 	/**
@@ -149,7 +148,6 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 
     private final File file;
 
-    private final PublicSharingImages publicSharingImages = GWT.create(PublicSharingImages.class);
     private final PrivateSharingImages privateSharingImages = GWT.create(PrivateSharingImages.class);
 
 	/**
