@@ -119,21 +119,6 @@ public class FileShareDialog extends AbstractPropertiesDialog {
     private final TextBox privatePathText = new TextBox();
     private PermissionsList permList;
 	
-	/**
-	 * An image bundle for this widgets images.
-	 */
-	public interface PublicSharingImages extends MessagePanel.Images {
-
-		@Source("gr/grnet/pithos/resources/edit_user.png")
-		ImageResource permUser();
-
-		@Source("gr/grnet/pithos/resources/groups22.png")
-		ImageResource permGroup();
-
-		@Source("gr/grnet/pithos/resources/editdelete.png")
-		ImageResource delete();
-    }
-
     public interface PrivateSharingImages extends MessagePanel.Images {
 
         @Source("gr/grnet/pithos/resources/edit_user.png")
