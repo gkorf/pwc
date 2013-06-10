@@ -99,14 +99,18 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static final Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
-    public static String getFromOtherPropertiesOrNull(String key) {
+    public static String getFromOtherPropertiesOrDefault(String key, String def) {
         try {
-            return otherProperties.get(key);
+            final String value = otherProperties.get(key);
+            return value == null ? def : value;
         }
         catch(Exception e) {
-            LOGError(e);
-            return null;
+            return def;
         }
+    }
+
+    public static String getFromOtherPropertiesOrNull(String key) {
+        return getFromOtherPropertiesOrDefault(key, null);
     }
 
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
@@ -143,6 +147,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
         LOG("Computed STORAGE_VIEW_URL = ", STORAGE_VIEW_URL);
     }
+
+    public static final String PUBLIC_LINK_VIEW_PREFIX = getFromOtherPropertiesOrDefault("PUBLIC_LINK_VIEW_PREFIX", "");
 
     public static final String USER_CATALOGS_API_URL;
     static {
@@ -1103,6 +1109,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public static String getUserCatalogsURL() {
         return USER_CATALOGS_API_URL;
+    }
+
+    public static String getFileViewURL(File file) {
+        return Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri();
     }
 
     /**

@@ -282,7 +282,7 @@ public class FileList extends Composite {
 				sb.append(Templates.INSTANCE.filenameSpan(object.getName()));
 				if (object.getContentType() != null && (object.getContentType().endsWith("png") || object.getContentType().endsWith("gif") || object.getContentType().endsWith("jpeg"))) {
         			sb.appendHtmlConstant("&nbsp;")
-                      .append(Templates.INSTANCE.viewLink(Pithos.getStorageAPIURL() + object.getOwnerID() + object.getUri(), object.getName()));
+                      .append(Templates.INSTANCE.viewLink(Pithos.getFileViewURL(object), object.getName()));
 				}
 				
 				return sb.toSafeHtml();
@@ -409,7 +409,7 @@ public class FileList extends Composite {
 		if (DOM.eventGetType(event) == Event.ONDBLCLICK)
 			if (getSelectedFiles().size() == 1) {
 				File file = getSelectedFiles().get(0);
-				Window.open(Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri(), "_blank", "");
+				Window.open(Pithos.getFileViewURL(file), "_blank", "");
 				event.preventDefault();
 				return;
 			}
