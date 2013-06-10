@@ -81,6 +81,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private static final boolean IsLOGEnabled = false;
     public static final boolean IsDetailedHTTPLOGEnabled = true;
     public static final boolean IsFullResponseBodyLOGEnabled = true;
+    private static final boolean EnableScheduledRefresh = true; // Make false only for debugging purposes.
 
     public static final Set<String> HTTPHeadersToIgnoreInLOG = new HashSet<String>();
     static {
@@ -684,7 +685,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    public void scheduleResfresh() {
+    public void scheduleRefresh() {
+        if(!Pithos.EnableScheduledRefresh) { return; }
+
         Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
 
             @Override
@@ -704,7 +707,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
 
                             }, false);
@@ -714,19 +717,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
                             });
                         }
                         else {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         if(t instanceof RestException && ((RestException) t).getHttpStatusCode() == HttpStatus.SC_NOT_MODIFIED) {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                         else if(retries >= MAX_RETRIES) {
                             LOG("Error heading folder. ", t);
@@ -1400,7 +1403,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, false);
                 trees.insert(otherSharedTreeView, 1);
                 treeViews.add(otherSharedTreeView);
-                scheduleResfresh();
+                scheduleRefresh();
             }
         });
     }
