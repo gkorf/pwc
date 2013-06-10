@@ -59,8 +59,8 @@ import java.util.Map;
  * UI for the "Share" command.
  */
 public class FileShareDialog extends AbstractPropertiesDialog {
-    private static final class PremissionsUncheckWarning extends AbstractPropertiesDialog {
-        private PremissionsUncheckWarning(Pithos app) {
+    private static final class PermissionsUncheckWarning extends AbstractPropertiesDialog {
+        private PermissionsUncheckWarning(Pithos app) {
             super(app);
             final Anchor close = new Anchor("close");
             close.addStyleName("close");
@@ -298,7 +298,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
 
                     // Refs #3593
                     if(userUncheckedIt) {
-                        new PremissionsUncheckWarning(app).center();
+                        new PermissionsUncheckWarning(app).center();
                     }
                 }
                 else {
