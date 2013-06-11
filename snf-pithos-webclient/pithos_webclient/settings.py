@@ -81,6 +81,7 @@ if not BASE_PATH.startswith("/"):
     BASE_PATH = "/" + BASE_PATH
 
 PITHOS_URL = get_public_endpoint(pithos_services, 'object-store', 'v1')
+PITHOS_UI_URL = get_public_endpoint(pithos_services, 'pithos_ui', '')
 ASTAKOS_UI_URL = get_public_endpoint(astakos_services, 'astakos_ui', '')
 
 if PROXY_USER_SERVICES:

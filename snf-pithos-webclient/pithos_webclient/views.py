@@ -47,6 +47,7 @@ MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL",
                     getattr(django_settings, "MEDIA_URL", "/static/"))
 
 URLS_CONFIG = {
+    'STORAGE_VIEW_URL': settings.PITHOS_UI_URL.rstrip('/') + '/view/',
     'STORAGE_API_URL': settings.PITHOS_URL.rstrip('/') + '/',
     'USER_CATALOGS_API_URL': settings.USER_CATALOG_URL.rstrip('/') + '/',
     'loginUrl': settings.LOGIN_URL,
