@@ -38,9 +38,9 @@ from snf_django.utils.urls import extend_with_root_redirects
 from synnefo.lib import join_urls
 
 
-urlpatterns = patterns('',
-    (prefix_pattern(join_urls(settings.BASE_PATH, settings.UI_PREFIX)),
-     'pithos_webclient.views.index'),
+urlpatterns = patterns('', (
+    prefix_pattern(join_urls(settings.BASE_PATH, settings.UI_PREFIX)) + '$',
+    'pithos_webclient.views.index'),
 )
 
 # set utility redirects
