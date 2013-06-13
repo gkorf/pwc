@@ -114,6 +114,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return getFromOtherPropertiesOrDefault(key, null);
     }
 
+    private static final boolean SHOW_COPYRIGHT;
+    static {
+        final String valueStr = getFromOtherPropertiesOrDefault("SHOW_COPYRIGHT", "true").trim().toLowerCase();
+        SHOW_COPYRIGHT = "true".equals(valueStr);
+        LOG("SHOW_COPYRIGHT = '", valueStr, "' ==> ", SHOW_COPYRIGHT);
+    }
+
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
     public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
     static {
@@ -1108,6 +1115,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public static String getStorageViewURL() {
         return STORAGE_VIEW_URL;
+    }
+
+    public static boolean isShowCopyrightMessage() {
+        return SHOW_COPYRIGHT;
     }
 
     public static String getUserCatalogsURL() {
