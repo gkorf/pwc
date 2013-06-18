@@ -34,18 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.CopyCommand;
-import gr.grnet.pithos.web.client.commands.CutCommand;
-import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.PasteCommand;
-import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
-import gr.grnet.pithos.web.client.commands.ToTrashCommand;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-
-import java.util.List;
-
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
@@ -54,6 +42,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
+import gr.grnet.pithos.web.client.commands.*;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+
+import java.util.List;
 
 /**
  * The 'File Context' menu implementation.
@@ -248,8 +241,9 @@ public class FileContextMenu extends PopupPanel {
 			
 			@Override
 			public void execute() {
-				for (File f : selectedFiles)
-					Window.open(Pithos.getStorageAPIURL() + f.getOwnerID() + f.getUri(), "_blank", "");
+				for (File f : selectedFiles) {
+                    Window.open(Pithos.getFileViewURL(f), "_blank", "");
+                }
 			}
 		}));
 
