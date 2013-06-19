@@ -34,6 +34,7 @@
  */
 package gr.grnet.pithos.web.client;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import gr.grnet.pithos.web.client.MessagePanel.Images;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
@@ -88,8 +89,11 @@ public class DeleteFolderDialog extends DialogBox {
 		VerticalPanel inner = new VerticalPanel();
 		inner.addStyleName("inner");
 
+        final String folderName = folder.getName();
+        final String safeFolderName = SafeHtmlUtils.htmlEscape(folderName);
+
 		HTML text = new HTML("<table><tr><td rowspan='2'>" + AbstractImagePrototype.create(images.warn()).getHTML() +
-					"</td><td>" + "Are you sure you want to <b>permanently</b> delete folder '" + folder.getName() +
+					"</td><td>" + "Are you sure you want to <b>permanently</b> delete folder '" + safeFolderName +
 					"'?</td></tr></table>");
 		text.setStyleName("pithos-warnMessage");
 		inner.add(text);

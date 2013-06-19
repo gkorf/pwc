@@ -34,19 +34,20 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.PopupPanel;
+import gr.grnet.pithos.web.client.Const;
 import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 import gr.grnet.pithos.web.client.grouptree.Group;
 import gr.grnet.pithos.web.client.rest.PostRequest;
 import gr.grnet.pithos.web.client.rest.RestException;
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 
 /**
@@ -71,9 +72,12 @@ public class DeleteGroupCommand implements Command {
 
 	@Override
 	public void execute() {
-        if (containerPanel != null)
-    		containerPanel.hide();
-        if (Window.confirm("Are you sure you want to delete group " + group.getName())) {
+        if (containerPanel != null) {
+            containerPanel.hide();
+        }
+        final String groupName = group.getName();
+        final String safeGroupName = SafeHtmlUtils.htmlEscape(groupName);
+        if (Window.confirm("Are you sure you want to delete group " + safeGroupName)) {
         	String path = "?update=";
         	PostRequest updateGroup = new PostRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
 				
@@ -98,8 +102,8 @@ public class DeleteGroupCommand implements Command {
 					app.sessionExpired();
 				}
 			};
-			updateGroup.setHeader("X-Auth-Token", app.getUserToken());
-			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(group.getName()), "~");
+			updateGroup.setHeader(Const.X_AUTH_TOKEN, app.getUserToken());
+			updateGroup.setHeader("X-Account-Group-" + URL.encodePathSegment(groupName), "~");
 			Scheduler.get().scheduleDeferred(updateGroup);
         }
 	}
