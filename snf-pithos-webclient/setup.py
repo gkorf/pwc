@@ -288,7 +288,7 @@ setup(
     entry_points={
         'synnefo': [
             'web_apps = pithos_webclient.synnefo_settings:installed_apps',
-            'urls = pithos_webclient.synnefo_settings:urlpatterns',
+            'urls = pithos_webclient.urls:urlpatterns',
             'web_static = pithos_webclient.synnefo_settings:static_files',
             'web_context_processors = '
             'pithos_webclient.synnefo_settings:context_processors'

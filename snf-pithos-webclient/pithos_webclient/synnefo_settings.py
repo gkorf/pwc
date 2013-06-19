@@ -45,9 +45,3 @@ static_files = {'pithos_webclient': ''}
 context_processors = [
    'synnefo.lib.context_processors.cloudbar'
 ]
-
-# namespace
-from django.conf.urls.defaults import include, patterns
-urlpatterns = patterns('',
-    ('', include('pithos_webclient.urls')),
-)
