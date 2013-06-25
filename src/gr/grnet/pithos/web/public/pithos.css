@@ -213,6 +213,13 @@ table.pithos-permList.props-labels {
 	border-bottom: 1px solid white;
 }
 
+.pithos-topPanel .gwt-Image {
+  position: relative;
+  bottom: -19px;
+  max-height: 64px;
+  max-width: 100%;
+}
+
 .gwt-MenuBar-vertical {
 	background: #D0E3ED;
 }
