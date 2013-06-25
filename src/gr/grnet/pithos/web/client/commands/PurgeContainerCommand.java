@@ -34,7 +34,9 @@
  */
 package gr.grnet.pithos.web.client.commands;
 
+import gr.grnet.pithos.web.client.GroupCreateDialog;
 import gr.grnet.pithos.web.client.Pithos;
+import gr.grnet.pithos.web.client.PurgeContainerDialog;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.user.client.Command;
@@ -44,24 +46,25 @@ import com.google.gwt.user.client.ui.PopupPanel;
 /**
  * Command to empty trash bin.
  */
-public class EmptyContainerCommand implements Command{
-	private PopupPanel containerPanel;
+public class PurgeContainerCommand implements Command{
+	private final PopupPanel containerPanel;
 
-    Pithos app;
+    private final Pithos app;
     
-    Folder container;
+    private final Folder container;
 
-	public EmptyContainerCommand(Pithos _app, PopupPanel _containerPanel, Folder _container){
-        app = _app;
-		containerPanel = _containerPanel;
-		container = _container;
+	public PurgeContainerCommand(Pithos app, PopupPanel containerPanel, Folder container){
+        this.app = app;
+		this.containerPanel = containerPanel;
+		this.container = container;
 	}
 
 	@Override
 	public void execute() {
-		if (containerPanel != null)
-			containerPanel.hide();
-		
-		app.emptyContainer(container);
+		if(containerPanel != null) {
+            containerPanel.hide();
+        }
+        PurgeContainerDialog dlg = new PurgeContainerDialog(app, container);
+        dlg.center();
 	}
 }

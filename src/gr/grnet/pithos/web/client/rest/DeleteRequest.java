@@ -35,6 +35,8 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import gr.grnet.pithos.web.client.Helpers;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 import java.util.HashMap;
@@ -77,10 +79,11 @@ public abstract class DeleteRequest implements ScheduledCommand {
 
     @Override
     public void execute() {
+        Pithos.LOG("DELETE ", api + owner + path);
+
         RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, api + owner + path);
-        for (String header : headers.keySet()) {
-            builder.setHeader(header, headers.get(header));
-        }
+        Helpers.setHeaders(builder, headers);
+
         try {
             builder.sendRequest("", new RestRequestCallback<Resource>(api + owner + path, Response.SC_NO_CONTENT) {
                 @Override
@@ -112,6 +115,7 @@ public abstract class DeleteRequest implements ScheduledCommand {
             retries++;
         }
         catch (RequestException e) {
+            Pithos.LOG(e);
         }
     }
 

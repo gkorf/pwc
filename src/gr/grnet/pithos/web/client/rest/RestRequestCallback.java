@@ -35,9 +35,12 @@
 
 package gr.grnet.pithos.web.client.rest;
 
+import com.google.gwt.http.client.Header;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import gr.grnet.pithos.web.client.Helpers;
+import gr.grnet.pithos.web.client.Pithos;
 import gr.grnet.pithos.web.client.Resource;
 
 public abstract class RestRequestCallback<T extends Resource> implements RequestCallback {
@@ -57,6 +60,8 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
 
     @Override
     public void onResponseReceived(Request request, Response response) {
+        Helpers.LOGResponse(response);
+
         try {
             if (response.getStatusCode() == HTTP_OK || (okcode !=-1 && response.getStatusCode() == okcode))
                 onSuccess(deserialize(response));
@@ -81,6 +86,7 @@ public abstract class RestRequestCallback<T extends Resource> implements Request
                 onError(request, new RestException(path, response.getStatusCode(), statusText, text));
             }
         } catch (Exception e) {
+            Pithos.LOG(e);
             onError(request, e);
         }
     }

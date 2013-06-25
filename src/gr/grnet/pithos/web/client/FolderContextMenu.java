@@ -34,16 +34,8 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.commands.CopyCommand;
-import gr.grnet.pithos.web.client.commands.CutCommand;
-import gr.grnet.pithos.web.client.commands.DeleteCommand;
-import gr.grnet.pithos.web.client.commands.EmptyContainerCommand;
-import gr.grnet.pithos.web.client.commands.NewFolderCommand;
-import gr.grnet.pithos.web.client.commands.PasteCommand;
-import gr.grnet.pithos.web.client.commands.PropertiesCommand;
-import gr.grnet.pithos.web.client.commands.RefreshCommand;
-import gr.grnet.pithos.web.client.commands.RestoreTrashCommand;
-import gr.grnet.pithos.web.client.commands.ToTrashCommand;
+import gr.grnet.pithos.web.client.commands.*;
+import gr.grnet.pithos.web.client.commands.PurgeContainerCommand;
 import gr.grnet.pithos.web.client.foldertree.Folder;
 
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -127,32 +119,31 @@ public class FolderContextMenu extends PopupPanel {
 			    if (isFolderTreeSelected && !folder.isContainer()) {
 			        MenuItem moveToTrash = new MenuItem("<span id = 'folderContextMenu.moveToTrash'>" + AbstractImagePrototype.create(newImages.emptyTrash()).getHTML() + "&nbsp;Move to Trash</span>", true, new ToTrashCommand(app, this, folder));
 			        contextMenu.addItem(moveToTrash);
-			
-			        MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-			        contextMenu.addItem(delete);
-			
+
 			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.viewText()).getHTML() + "&nbsp;Properties</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PROPERTIES)));
-			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Sharing</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
+			        contextMenu.addItem(new MenuItem("<span>" + AbstractImagePrototype.create(newImages.sharing()).getHTML() + "&nbsp;Share</span>", true, new PropertiesCommand(app, this, folder, PropertiesCommand.PERMISSIONS)));
 			    }
 			    
 			    if (folder.isContainer()) {
-	    			MenuItem emptyContainer = new MenuItem("<span>Empty Container</span>", true, new EmptyContainerCommand(app, this, folder));
-	    			contextMenu.addItem(emptyContainer);
+	    			MenuItem purgeContainer = new MenuItem(
+                        "<span>" + Const.PurgeContainer(folder.getName()) + "</span>",
+                        true,
+                        new PurgeContainerCommand(app, this, folder)
+                    );
+	    			contextMenu.addItem(purgeContainer);
 			    }
         	}
         }
-        else {
-        	if (!folder.isTrash()) {
-    			MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, folder));
-    			contextMenu.addItem(restore);
+        else if(!folder.isTrash()) {
+            MenuItem restore = new MenuItem("<span>" + AbstractImagePrototype.create(images.versions()).getHTML() + "&nbsp;Restore</span>", true, new RestoreTrashCommand(app, this, folder));
+            contextMenu.addItem(restore);
 
-    			MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
-		        contextMenu.addItem(delete);
-        	}
-        	else {
-    			MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new EmptyContainerCommand(app, this, folder));
-    			contextMenu.addItem(emptyTrash);
-        	}
+            MenuItem delete = new MenuItem("<span id = 'folderContextMenu.delete'>" + AbstractImagePrototype.create(newImages.delete()).getHTML() + "&nbsp;Delete</span>", true, new DeleteCommand(app, this, folder, MessagePanel.images));
+            contextMenu.addItem(delete);
+        }
+        else {
+            MenuItem emptyTrash = new MenuItem("<span>" + AbstractImagePrototype.create(images.emptyTrash()).getHTML() + "&nbsp;Empty Trash</span>", true, new PurgeContainerCommand(app, this, folder));
+            contextMenu.addItem(emptyTrash);
         }
 		add(contextMenu);
 	}

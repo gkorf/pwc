@@ -32,6 +32,7 @@
 # documentation are those of the authors and should not be
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
+
 import distribute_setup
 distribute_setup.use_setuptools()
 
@@ -59,16 +60,17 @@ PACKAGES = find_packages(PACKAGES_ROOT)
 
 # Package meta
 CLASSIFIERS = [
-        'Development Status :: 3 - Alpha',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: Utilities',
-        'License :: OSI Approved :: BSD License',
+    'Development Status :: 3 - Alpha',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Utilities',
+    'License :: OSI Approved :: BSD License',
 ]
 
 # Package requirements
 INSTALL_REQUIRES = [
     'Django>=1.2, <1.3',
+    'snf-branding',
     'snf-common>=0.9.0rc'
 ]
 
@@ -82,21 +84,24 @@ TESTS_REQUIRES = [
 # of replicating them:
 standard_exclude = ["*.py", "*.pyc", "*$py.class", "*~", ".*", "*.bak"]
 standard_exclude_directories = [
-    ".*", "CVS", "_darcs", "./build", "./dist", "EGG-INFO", "*.egg-info", "snf-0.7"
+    ".*", "CVS", "_darcs", "./build", "./dist", "EGG-INFO", "*.egg-info",
+    "snf-0.7"
 ]
 
-# (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
-# Note: you may want to copy this into your setup.py file verbatim, as
-# you can't import this from another package, when you don't know if
-# that package is installed yet.
+
+# (c) 2005 Ian Bicking and contributors; written for Paste
+# (http://pythonpaste.org) Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license.php Note: you may want to
+# copy this into your setup.py file verbatim, as you can't import this from
+# another package, when you don't know if that package is installed yet.
 def find_package_data(
     where=".",
     package="",
     exclude=standard_exclude,
     exclude_directories=standard_exclude_directories,
     only_in_packages=True,
-    show_ignored=False):
+    show_ignored=False
+):
     """
     Return a dictionary suitable for use in ``package_data``
     in a distutils ``setup.py`` file.
@@ -133,7 +138,7 @@ def find_package_data(
                 bad_name = False
                 for pattern in exclude_directories:
                     if (fnmatchcase(name, pattern)
-                        or fn.lower() == pattern.lower()):
+                            or fn.lower() == pattern.lower()):
                         bad_name = True
                         if show_ignored:
                             print >> sys.stderr, (
@@ -143,20 +148,21 @@ def find_package_data(
                 if bad_name:
                     continue
                 if (os.path.isfile(os.path.join(fn, "__init__.py"))
-                    and not prefix):
+                        and not prefix):
                     if not package:
                         new_package = name
                     else:
                         new_package = package + "." + name
                     stack.append((fn, "", new_package, False))
                 else:
-                    stack.append((fn, prefix + name + "/", package, only_in_packages))
+                    stack.append((fn, prefix + name + "/", package,
+                                  only_in_packages))
             elif package or not only_in_packages:
                 # is a file
                 bad_name = False
                 for pattern in exclude:
-                    if (fnmatchcase(name, pattern)
-                        or fn.lower() == pattern.lower()):
+                    if (fnmatchcase(name, pattern) or
+                            fn.lower() == pattern.lower()):
                         bad_name = True
                         if show_ignored:
                             print >> sys.stderr, (
@@ -165,7 +171,7 @@ def find_package_data(
                         break
                 if bad_name:
                     continue
-                out.setdefault(package, []).append(prefix+name)
+                out.setdefault(package, []).append(prefix + name)
     return out
 
 
@@ -174,6 +180,7 @@ Gwt clea/build helpers
 """
 import subprocess as sp
 import glob
+
 
 def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     # skip if no build.xml found (debian build process)
@@ -186,19 +193,17 @@ def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     if rcode == 1:
         raise Exception("GWT clean failed")
     os.chdir(curdir)
-    pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static", \
-        "pithos_webclient"))
-    templates_dir = os.path.abspath(os.path.join("pithos_webclient", \
-        "templates", "pithos_webclient"))
+    #pub_dir = os.path.abspath(os.path.join(root, public_dir))
+    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static",
+                                              "pithos_webclient"))
+    #templates_dir = os.path.abspath(os.path.join("pithos_webclient",
+                                                 #"templates",
+                                                 #"pithos_webclient"))
     clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
-    clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
 
     # clean dirs
     if len(clean_static) > 2:
         sp.call(clean_static)
-    if len(clean_static) > 2:
-        sp.call(clean_templates)
 
 
 def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
@@ -214,40 +219,37 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
         raise Exception("GWT build failed")
     os.chdir(curdir)
 
-
     pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static", \
-        "pithos_webclient"))
-    templates_dir = os.path.abspath(os.path.join("pithos_webclient", \
-        "templates", "pithos_webclient"))
+    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static",
+                                              "pithos_webclient"))
+    templates_dir = os.path.abspath(os.path.join("pithos_webclient",
+                                                 "templates",
+                                                 "pithos_webclient"))
 
     clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
-    clean_templates = ["rm", "-r"] + glob.glob(os.path.join(templates_dir, "*"))
 
     # clean dirs
     if len(clean_static) > 2:
         sp.call(clean_static)
-    if len(clean_static) > 2:
-        sp.call(clean_templates)
 
-    copy_static = ["cp", "-r"] + glob.glob(os.path.join(pub_dir, "*")) + [static_dir]
+    copy_static = ["cp", "-r"] + glob.glob(os.path.join(pub_dir, "*")) + \
+                  [static_dir]
     copy_index = ["cp", os.path.join(pub_dir, "index.html"), templates_dir]
     sp.call(copy_static)
     sp.call(copy_index)
 
     index = os.path.join(templates_dir, "index.html")
     index_data = file(index).read()
-    index_data = index_data.replace('href="', 'href="{{ MEDIA_URL }}pithos_webclient/')
-    index_data = index_data.replace('" src="', '" src="{{ MEDIA_URL }}pithos_webclient/')
-    index_data = index_data.replace('\' src=\'', '\' src=\'{{ MEDIA_URL }}pithos_webclient/')
-    index_data = index_data.replace('url(', 'url({{ MEDIA_URL }}pithos_webclient/')
-
-    index_data = index_data.replace("{{ CLOUDBAR_CODE }}", """
-            {{ CLOUDBAR_CODE }}
-            <script>
-            var CLOUDBAR_ACTIVE_SERVICE = "{{ PITHOS_UI_CLOUDBAR_ACTIVE_SERVICE }}"
-            </script>
-    """)
+    # fix locations of static files
+    index_data = index_data.replace('href="',
+                                    'href="{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace('" src="',
+                                    '" src="{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace(
+        '\' src=\'',
+        '\' src=\'{{ MEDIA_URL }}pithos_webclient/')
+    index_data = index_data.replace('url(',
+                                    'url({{ MEDIA_URL }}pithos_webclient/')
 
     ifile = file(index, "w+")
     ifile.write(index_data)
@@ -255,7 +257,8 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
 
 
 # do we need to run ant ???
-if any(x in ''.join(sys.argv) for x in ["sdist", "build", "develop", "install"]):
+if any(x in ''.join(sys.argv) for x in ["sdist", "build", "develop",
+                                        "install"]):
     build_gwt()
 
 if any(x in ''.join(sys.argv) for x in ["clean"]):
@@ -267,9 +270,9 @@ setup(
     version=VERSION,
     license='BSD',
     url='http://code.grnet.gr/projects/pithos-web-client',
-    description = SHORT_DESCRIPTION,
-    long_description=README + '\n\n' +  CHANGES,
-    classifiers = CLASSIFIERS,
+    description=SHORT_DESCRIPTION,
+    long_description=README + '\n\n' + CHANGES,
+    classifiers=CLASSIFIERS,
     author='GRNET',
     author_email='pithos@grnet.gr',
 
@@ -278,17 +281,17 @@ setup(
     package_data=find_package_data('.'),
     zip_safe=False,
 
-    install_requires = INSTALL_REQUIRES,
+    install_requires=INSTALL_REQUIRES,
 
-    dependency_links = ['http://docs.dev.grnet.gr/pypi'],
+    dependency_links=['http://docs.dev.grnet.gr/pypi'],
 
     entry_points={
         'synnefo': [
-             'web_apps = pithos_webclient.synnefo_settings:installed_apps',
-             'urls = pithos_webclient.synnefo_settings:urlpatterns',
-             'web_static = pithos_webclient.synnefo_settings:static_files',
-             'web_context_processors = pithos_webclient.synnefo_settings:context_processors'
+            'web_apps = pithos_webclient.synnefo_settings:installed_apps',
+            'urls = pithos_webclient.synnefo_settings:urlpatterns',
+            'web_static = pithos_webclient.synnefo_settings:static_files',
+            'web_context_processors = '
+            'pithos_webclient.synnefo_settings:context_processors'
         ]
     }
 )
-

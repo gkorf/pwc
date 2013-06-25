@@ -78,8 +78,107 @@ import java.util.*;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Pithos implements EntryPoint, ResizeHandler {
+    private static final boolean IsLOGEnabled = false;
+    public static final boolean IsDetailedHTTPLOGEnabled = true;
+    public static final boolean IsFullResponseBodyLOGEnabled = true;
+    private static final boolean EnableScheduledRefresh = true; // Make false only for debugging purposes.
+
+    public static final Set<String> HTTPHeadersToIgnoreInLOG = new HashSet<String>();
+    static {
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_CONNECTION);
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_DATE);
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_KEEP_ALIVE);
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_SERVER);
+        HTTPHeadersToIgnoreInLOG.add(Const.HTTP_HEADER_VARY);
+        HTTPHeadersToIgnoreInLOG.add(Const.IF_MODIFIED_SINCE);
+    }
 
     public static final Configuration config = GWT.create(Configuration.class);
+    public static final String CONFIG_API_PATH = config.apiPath();
+    static {
+        LOG("CONFIG_API_PATH = ", CONFIG_API_PATH);
+    }
+
+    public static final Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
+    public static String getFromOtherPropertiesOrDefault(String key, String def) {
+        try {
+            final String value = otherProperties.get(key);
+            return value == null ? def : value;
+        }
+        catch(Exception e) {
+            return def;
+        }
+    }
+
+    public static String getFromOtherPropertiesOrNull(String key) {
+        return getFromOtherPropertiesOrDefault(key, null);
+    }
+
+    private static final boolean SHOW_COPYRIGHT;
+    static {
+        final String valueStr = getFromOtherPropertiesOrDefault("SHOW_COPYRIGHT", "true").trim().toLowerCase();
+        SHOW_COPYRIGHT = "true".equals(valueStr);
+        LOG("SHOW_COPYRIGHT = '", valueStr, "' ==> ", SHOW_COPYRIGHT);
+    }
+
+    public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
+    public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
+    static {
+        LOG("STORAGE_API_URL = ", OTHERPROPS_STORAGE_API_URL);
+        LOG("USER_CATALOGS_API_URL = ", OTHERPROPS_USER_CATALOGS_API_URL);
+    }
+
+    public static final String STORAGE_API_URL;
+    static {
+        if(OTHERPROPS_STORAGE_API_URL != null) {
+            STORAGE_API_URL = OTHERPROPS_STORAGE_API_URL;
+        }
+        else if(CONFIG_API_PATH != null) {
+            STORAGE_API_URL = CONFIG_API_PATH;
+        }
+        else {
+            throw new RuntimeException("Unknown STORAGE_API_URL");
+        }
+
+        LOG("Computed STORAGE_API_URL = ", STORAGE_API_URL);
+    }
+
+    public static final String STORAGE_VIEW_URL;
+    static {
+        final String viewURL = getFromOtherPropertiesOrNull("STORAGE_VIEW_URL");
+        if(viewURL != null) {
+            STORAGE_VIEW_URL = viewURL;
+        }
+        else {
+            STORAGE_VIEW_URL = STORAGE_API_URL;
+        }
+
+        LOG("Computed STORAGE_VIEW_URL = ", STORAGE_VIEW_URL);
+    }
+
+    public static final String PUBLIC_LINK_VIEW_PREFIX = getFromOtherPropertiesOrDefault("PUBLIC_LINK_VIEW_PREFIX", "");
+
+    public static final String USER_CATALOGS_API_URL;
+    static {
+        if(OTHERPROPS_USER_CATALOGS_API_URL != null) {
+            USER_CATALOGS_API_URL = OTHERPROPS_USER_CATALOGS_API_URL;
+        }
+        else if(OTHERPROPS_STORAGE_API_URL != null) {
+            throw new RuntimeException("STORAGE_API_URL is defined but USER_CATALOGS_API_URL is not");
+        }
+        else {
+            // https://server.com/v1/ --> https://server.com
+            String url = CONFIG_API_PATH;
+            url = Helpers.stripTrailing(url, "/");
+            url = Helpers.upToIncludingLastPart(url, "/");
+            url = Helpers.stripTrailing(url, "/");
+            url = url + "/user_catalogs";
+
+            USER_CATALOGS_API_URL = url;
+
+            LOG("Computed USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
+        }
+    }
 
     public interface Style extends CssResource {
         String commandAnchor();
@@ -274,7 +373,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private String userID = null;
 
     /**
-     * Hold mappings from user UUIDs to emails and vice-versa.
+     * Holds mappings from user UUIDs to emails and vice-versa.
      */
     private UserCatalogs userCatalogs = new UserCatalogs();
 
@@ -330,29 +429,76 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     static native void __ConsoleLog(String message) /*-{
-      try {
-        console.log(message);
-      } catch (e) {
-      }
+      try { console.log(message); } catch (e) {}
     }-*/;
 
+    public static void LOGError(Throwable error, StringBuilder sb) {
+        if(!isLOGEnabled()) { return; }
+
+        sb.append("\nException: [" + error.toString().replace("\n", "\n  ") + "]");
+        Throwable cause = error.getCause();
+        if(cause != null) {
+            sb.append("\nCauses:\n");
+            while(cause != null) {
+                sb.append("  ");
+                sb.append("[" + cause.toString().replace("\n", "\n  ")  + "]");
+                sb.append("\n");
+                cause = cause.getCause();
+            }
+        }
+        else {
+            sb.append("\n");
+        }
+
+        StackTraceElement[] stackTrace = error.getStackTrace();
+        sb.append("Stack trace (" + stackTrace.length + " elements):\n");
+        for(int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement errorElem = stackTrace[i];
+            sb.append("  [" + i + "] ");
+            sb.append(errorElem.toString());
+            sb.append("\n");
+        }
+    }
+
+    public static void LOGError(Throwable error) {
+        if(!isLOGEnabled()) { return; }
+
+        final StringBuilder sb = new StringBuilder();
+        LOGError(error, sb);
+        if(sb.length() > 0) {
+            __ConsoleLog(sb.toString());
+        }
+    }
+
+    public static boolean isLOGEnabled() {
+        return IsLOGEnabled;
+    }
+
     public static void LOG(Object ...args) {
-        if(false) {
-            final StringBuilder sb = new StringBuilder();
-            for(Object arg : args) {
+        if(!isLOGEnabled()) { return; }
+
+        final StringBuilder sb = new StringBuilder();
+        for(Object arg : args) {
+            if(arg instanceof Throwable) {
+                LOGError((Throwable) arg, sb);
+            }
+            else {
                 sb.append(arg);
             }
-            if(sb.length() > 0) {
-                __ConsoleLog(sb.toString());
-            }
+        }
+
+        if(sb.length() > 0) {
+            __ConsoleLog(sb.toString());
         }
     }
 
     private void initialize() {
+        userCatalogs.updateWithIDAndName("*", "All Pithos users");
+
         lastModified = new Date(); //Initialize if-modified-since value with now.
         resources.pithosCss().ensureInjected();
         boolean bareContent = Window.Location.getParameter("noframe") != null;
-        String contentWidth = bareContent ? Const.PERCENT_100 : "75%";
+        String contentWidth = bareContent ? Const.PERCENT_100 : Const.PERCENT_75;
 
         VerticalPanel outer = new VerticalPanel();
         outer.setWidth(Const.PERCENT_100);
@@ -546,7 +692,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    public void scheduleResfresh() {
+    public void scheduleRefresh() {
+        if(!Pithos.EnableScheduledRefresh) { return; }
+
         Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
 
             @Override
@@ -556,7 +704,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     return true;
                 }
 
-                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getApiPath(), f.getOwnerID(), "/" + f.getContainer()) {
+                HeadRequest<Folder> head = new HeadRequest<Folder>(Folder.class, getStorageAPIURL(), f.getOwnerID(), "/" + f.getContainer()) {
 
                     @Override
                     public void onSuccess(Folder _result) {
@@ -566,7 +714,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
 
                             }, false);
@@ -576,22 +724,22 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
                             });
                         }
                         else {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         if(t instanceof RestException && ((RestException) t).getHttpStatusCode() == HttpStatus.SC_NOT_MODIFIED) {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                         else if(retries >= MAX_RETRIES) {
-                            GWT.log("Error heading folder", t);
+                            LOG("Error heading folder. ", t);
                             setError(t);
                             if(t instanceof RestException) {
                                 displayError("Error heading folder: " + ((RestException) t).getHttpStatusText());
@@ -601,7 +749,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                             }
                         }
                         else {//retry
-                            GWT.log("Retry " + retries);
+                            LOG("Retry ", retries);
                             Scheduler.get().scheduleDeferred(this);
                         }
                     }
@@ -674,9 +822,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
      * Parse and store the user credentials to the appropriate fields.
      */
     private boolean parseUserCredentials() {
-        Configuration conf = (Configuration) GWT.create(Configuration.class);
-        Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
-        String cookie = otherProperties.get(Const.AUTH_COOKIE);
+        final String cookie = otherProperties.get(Const.AUTH_COOKIE);
         String auth = Cookies.getCookie(cookie);
         if(auth == null) {
             authenticateUser();
@@ -688,13 +834,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(auth.endsWith("\"")) {
             auth = auth.substring(0, auth.length() - 1);
         }
-        String[] authSplit = auth.split("\\" + conf.cookieSeparator(), 2);
+        String[] authSplit = auth.split("\\" + config.cookieSeparator(), 2);
         if(authSplit.length != 2) {
             authenticateUser();
             return false;
         }
-        userID = authSplit[0];
-        userToken = authSplit[1];
+        this.userID = authSplit[0];
+        this.userToken = authSplit[1];
 
         String gotoUrl = Window.Location.getParameter("goto");
         if(gotoUrl != null && gotoUrl.length() > 0) {
@@ -715,7 +861,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     public void fetchAccount(final Command callback) {
         String path = "?format=json";
 
-        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getApiPath(), userID, path) {
+        GetRequest<AccountResource> getAccount = new GetRequest<AccountResource>(AccountResource.class, getStorageAPIURL(), userID, path) {
             @Override
             public void onSuccess(AccountResource accountResource) {
                 account = accountResource;
@@ -738,7 +884,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error getting account", t);
+                LOG("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
@@ -758,7 +904,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void updateStatistics() {
-        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getApiPath(), userID, "", account) {
+        HeadRequest<AccountResource> headAccount = new HeadRequest<AccountResource>(AccountResource.class, getStorageAPIURL(), userID, "", account) {
 
             @Override
             public void onSuccess(AccountResource _result) {
@@ -767,7 +913,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error getting account", t);
+                LOG("Error getting account", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error getting account: " + ((RestException) t).getHttpStatusText());
@@ -788,7 +934,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createHomeContainer(final AccountResource _account, final Command callback) {
         String path = "/" + Const.HOME_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getStorageAPIURL(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 if(!_account.hasTrashContainer()) {
@@ -801,7 +947,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error creating pithos", t);
+                LOG("Error creating pithos", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
@@ -822,7 +968,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     protected void createTrashContainer(final Command callback) {
         String path = "/" + Const.TRASH_CONTAINER;
-        PutRequest createPithos = new PutRequest(getApiPath(), getUserID(), path) {
+        PutRequest createPithos = new PutRequest(getStorageAPIURL(), getUserID(), path) {
             @Override
             public void onSuccess(Resource result) {
                 fetchAccount(callback);
@@ -830,7 +976,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error creating pithos", t);
+                LOG("Error creating pithos", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error creating pithos: " + ((RestException) t).getHttpStatusText());
@@ -963,12 +1109,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
         $doc.body.onselectstart = null;
     }-*/;
 
-    /**
-     * @return the absolute path of the API root URL
-     */
-    public String getApiPath() {
-        Configuration conf = (Configuration) GWT.create(Configuration.class);
-        return conf.apiPath();
+    public static String getStorageAPIURL() {
+        return STORAGE_API_URL;
+    }
+
+    public static String getStorageViewURL() {
+        return STORAGE_VIEW_URL;
+    }
+
+    public static boolean isShowCopyrightMessage() {
+        return SHOW_COPYRIGHT;
+    }
+
+    public static String getUserCatalogsURL() {
+        return USER_CATALOGS_API_URL;
+    }
+
+    public static String getFileViewURL(File file) {
+        return Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri();
     }
 
     /**
@@ -989,7 +1147,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         final PleaseWaitPopup pwp = new PleaseWaitPopup();
         pwp.center();
         String path = "/" + folder.getContainer() + "/" + folder.getPrefix() + "?delimiter=/" + "&t=" + System.currentTimeMillis();
-        DeleteRequest deleteFolder = new DeleteRequest(getApiPath(), folder.getOwnerID(), path) {
+        DeleteRequest deleteFolder = new DeleteRequest(getStorageAPIURL(), folder.getOwnerID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1015,7 +1173,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("", t);
+                LOG(t);
                 setError(t);
                 if(t instanceof RestException) {
                     if(((RestException) t).getHttpStatusCode() != Response.SC_NOT_FOUND) {
@@ -1043,7 +1201,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
         if(iter.hasNext()) {
             File file = iter.next();
             String path = targetUri + "/" + file.getName();
-            PutRequest copyFile = new PutRequest(getApiPath(), targetUsername, path) {
+            PutRequest copyFile = new PutRequest(getStorageAPIURL(), targetUsername, path) {
                 @Override
                 public void onSuccess(Resource result) {
                     copyFiles(iter, targetUsername, targetUri, callback);
@@ -1051,7 +1209,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                 @Override
                 public void onError(Throwable t) {
-                    GWT.log("", t);
+                    LOG(t);
                     setError(t);
                     if(t instanceof RestException) {
                         displayError("Unable to copy file: " + ((RestException) t).getHttpStatusText());
@@ -1081,7 +1239,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void copyFolder(final Folder f, final String targetUsername, final String targetUri, boolean move, final Command callback) {
         String path = targetUri + "?delimiter=/";
-        PutRequest copyFolder = new PutRequest(getApiPath(), targetUsername, path) {
+        PutRequest copyFolder = new PutRequest(getStorageAPIURL(), targetUsername, path) {
             @Override
             public void onSuccess(Resource result) {
                 if(callback != null) {
@@ -1091,7 +1249,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("", t);
+                LOG(t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Unable to copy folder: " + ((RestException) t).getHttpStatusText());
@@ -1242,14 +1400,21 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
         selectionModels.add(otherSharedTreeSelectionModel);
         otherSharedTreeViewModel = new OtherSharedTreeViewModel(Pithos.this, otherSharedTreeSelectionModel);
+        // #3784 We show it empty...
+        otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, true);
+        trees.insert(otherSharedTreeView, 1);
+
         LOG("Pithos::createOtherSharedTree(), initializing otherSharedTreeViewModel with a callback");
         otherSharedTreeViewModel.initialize(new Command() {
             @Override
             public void execute() {
-                otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel);
+                // #3784 ... then remove the empty stuff and add a new view with the populated model
+                trees.remove(otherSharedTreeView);
+
+                otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, false);
                 trees.insert(otherSharedTreeView, 1);
                 treeViews.add(otherSharedTreeView);
-                scheduleResfresh();
+                scheduleRefresh();
             }
         });
     }
@@ -1282,6 +1447,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
     public void setError(Throwable t) {
         error = t;
+        LOG(t);
     }
 
     public void showRelevantToolbarButtons() {
@@ -1312,7 +1478,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
             }
         }
         else {
-            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getApiPath(), folder.getOwnerID(), folder.getUri(), folder) {
+            HeadRequest<Folder> headFolder = new HeadRequest<Folder>(Folder.class, getStorageAPIURL(), folder.getOwnerID(), folder.getUri(), folder) {
 
                 @Override
                 public void onSuccess(Folder _result) {
@@ -1326,7 +1492,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                     if(t instanceof RestException) {
                         if(((RestException) t).getHttpStatusCode() == Response.SC_NOT_FOUND) {
                             final String path = folder.getUri();
-                            PutRequest newFolder = new PutRequest(getApiPath(), folder.getOwnerID(), path) {
+                            PutRequest newFolder = new PutRequest(getStorageAPIURL(), folder.getOwnerID(), path) {
                                 @Override
                                 public void onSuccess(Resource _result) {
                                     scheduleFolderHeadCommand(folder, callback);
@@ -1334,7 +1500,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void onError(Throwable _t) {
-                                    GWT.log("", _t);
                                     setError(_t);
                                     if(_t instanceof RestException) {
                                         displayError("Unable to create folder: " + ((RestException) _t).getHttpStatusText());
@@ -1366,7 +1531,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                         displayError("System error heading folder: " + t.getMessage());
                     }
 
-                    GWT.log("Error heading folder", t);
+                    LOG("Error heading folder", t);
                     setError(t);
                 }
 
@@ -1381,7 +1546,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public void scheduleFileHeadCommand(File f, final Command callback) {
-        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getApiPath(), f.getOwnerID(), f.getUri(), f) {
+        HeadRequest<File> headFile = new HeadRequest<File>(File.class, getStorageAPIURL(), f.getOwnerID(), f.getUri(), f) {
 
             @Override
             public void onSuccess(File _result) {
@@ -1392,7 +1557,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error heading file", t);
+                LOG("Error heading file", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error heading file: " + ((RestException) t).getHttpStatusText());
@@ -1493,9 +1658,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         fileList.selectByUrl(selectedUrls);
     }
 
-    public void emptyContainer(final Folder container) {
+    public void purgeContainer(final Folder container) {
         String path = "/" + container.getName() + "?delimiter=/";
-        DeleteRequest delete = new DeleteRequest(getApiPath(), getUserID(), path) {
+        DeleteRequest delete = new DeleteRequest(getStorageAPIURL(), getUserID(), path) {
 
             @Override
             protected void onUnauthorized(Response response) {
@@ -1509,7 +1674,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             @Override
             public void onError(Throwable t) {
-                GWT.log("Error deleting trash", t);
+                LOG("Error deleting trash", t);
                 setError(t);
                 if(t instanceof RestException) {
                     displayError("Error deleting trash: " + ((RestException) t).getHttpStatusText());

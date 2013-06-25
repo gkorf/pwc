@@ -117,7 +117,7 @@ public class RestoreTrashCommand implements Command {
         if (iter.hasNext()) {
             File file = iter.next();
             String path = "/" + Const.HOME_CONTAINER + "/" + file.getPath();
-            PutRequest untrashFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
+            PutRequest untrashFile = new PutRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
                     untrashFiles(iter, callback);

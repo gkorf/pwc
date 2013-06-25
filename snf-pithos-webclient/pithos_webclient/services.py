@@ -1,4 +1,4 @@
-# Copyright 2011-2012 GRNET S.A. All rights reserved.
+# Copyright (C) 2013 GRNET S.A. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or
 # without modification, are permitted provided that the following
@@ -30,24 +30,50 @@
 # documentation are those of the authors and should not be
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
-#
 
-"""
-Django settings metadata. To be used in setup.py snf-webproject entry points.
-"""
 
-installed_apps = [
-        'pithos_webclient'
-]
+pithos_services = {
+    'pithos_object-store': {
+        'type': 'object-store',
+        'component': 'pithos',
+        'prefix': 'object-store',
+        'public': True,
+        'endpoints': [
+            {'versionId': 'v1',
+             'publicURL': None},
+        ],
+        'resources': {
+            'diskspace': {
+                "desc": "Pithos account diskspace",
+                "name": "pithos.diskspace",
+                "unit": "bytes",
+                "service_type": "object-store",
+                "service_origin": "pithos_object-store",
+            },
+        },
+    },
 
-static_files = {'pithos_webclient': ''}
+    'pithos_public': {
+        'type': 'public',
+        'component': 'pithos',
+        'prefix': 'public',
+        'public': True,
+        'endpoints': [
+            {'versionId': 'v2.0',
+             'publicURL': None},
+        ],
+        'resources': {},
+    },
 
-context_processors = [
-   'synnefo.lib.context_processors.cloudbar'
-]
-
-# namespace
-from django.conf.urls.defaults import include, patterns
-urlpatterns = patterns('',
-    ('', include('pithos_webclient.urls')),
-)
+    'pithos_ui': {
+        'type': 'pithos_ui',
+        'component': 'pithos',
+        'prefix': 'ui',
+        'public': False,
+        'endpoints': [
+            {'versionId': '',
+             'publicURL': None},
+        ],
+        'resources': {},
+    },
+}

@@ -261,10 +261,10 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
 
         if (newFilename != null) {
             final String path = file.getParent().getUri() + "/" + newFilename;
-            PutRequest updateFile = new PutRequest(app.getApiPath(), app.getUserID(), path) {
+            PutRequest updateFile = new PutRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
                 @Override
                 public void onSuccess(Resource result) {
-                    updateMetaData(app.getApiPath(), file.getOwnerID(), path, newMeta);
+                    updateMetaData(Pithos.getStorageAPIURL(), file.getOwnerID(), path, newMeta);
                 }
 
                 @Override
@@ -313,7 +313,7 @@ public class FilePropertiesDialog extends AbstractPropertiesDialog {
             Scheduler.get().scheduleDeferred(updateFile);
         }
         else
-            updateMetaData(app.getApiPath(), app.getUserID(), file.getUri(), newMeta);
+            updateMetaData(Pithos.getStorageAPIURL(), app.getUserID(), file.getUri(), newMeta);
         return true;
 	}
 

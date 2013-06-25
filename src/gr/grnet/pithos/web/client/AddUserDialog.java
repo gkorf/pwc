@@ -173,7 +173,7 @@ public class AddUserDialog extends DialogBox {
         final String userID = app.getIDForUserDisplayName(userDisplayName);
         group.addMemberID(userID);
         String path = "?update=";
-        PostRequest updateGroup = new PostRequest(app.getApiPath(), app.getUserID(), path) {
+        PostRequest updateGroup = new PostRequest(Pithos.getStorageAPIURL(), app.getUserID(), path) {
 
             @Override
             public void onSuccess(Resource result) {
