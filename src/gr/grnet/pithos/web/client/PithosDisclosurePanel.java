@@ -77,6 +77,8 @@ public class PithosDisclosurePanel extends Composite {
     private final Resources resources;
     private final String title;
 
+    // This is the header of each one of the extra hierarchies named "Shared with me", "Shared by me" and "Groups".
+    // The previous strings are the values given to the title parameter of the constructor.
 	public PithosDisclosurePanel(final Resources _resources, final String title, boolean ajaxLoader, boolean open) {
         this.title = title;
 
