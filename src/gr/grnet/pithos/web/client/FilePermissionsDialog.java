@@ -34,12 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.rest.HeadRequest;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
@@ -51,16 +45,14 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.rest.HeadRequest;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+
+import java.util.Map;
 
 /**
  * The 'File properties' dialog box implementation.
@@ -241,9 +233,7 @@ public class FilePermissionsDialog extends AbstractPropertiesDialog {
 		if (file.isShared()) {
 			UrlBuilder b = Window.Location.createUrlBuilder();
 			b.setPath(Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri());
-			String href = Window.Location.getHref();
-			boolean hasParameters = href.contains(Const.QUESTION_MARK);
-			path.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + b.buildString());
+			path.setText(b.buildString());
 	        pathPanel.setVisible(true);
 		}
 		else {

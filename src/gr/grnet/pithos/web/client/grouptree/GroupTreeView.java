@@ -35,15 +35,8 @@
 
 package gr.grnet.pithos.web.client.grouptree;
 
-import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.PithosDisclosurePanel;
-import gr.grnet.pithos.web.client.TreeView;
-import gr.grnet.pithos.web.client.PithosDisclosurePanel.Style;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -52,9 +45,11 @@ import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Tree;
+import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
+import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 
 public class GroupTreeView extends Composite implements TreeView {
 
@@ -152,7 +147,7 @@ public class GroupTreeView extends Composite implements TreeView {
     public GroupTreeView(GroupTreeViewModel viewModel) {
         this.model = viewModel;
 
-        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Groups", false);
+        PithosDisclosurePanel panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Groups", false, false);
         /*
          * Create the tree using the model. We use <code>null</code> as the default
          * value of the root node. The default value will be passed to

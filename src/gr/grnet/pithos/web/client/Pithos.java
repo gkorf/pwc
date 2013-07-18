@@ -842,11 +842,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         this.userID = authSplit[0];
         this.userToken = authSplit[1];
 
-        String gotoUrl = Window.Location.getParameter("goto");
-        if(gotoUrl != null && gotoUrl.length() > 0) {
-            Window.Location.assign(gotoUrl);
-            return false;
-        }
         return true;
     }
 
