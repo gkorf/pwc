@@ -77,10 +77,6 @@ public class PithosDisclosurePanel extends Composite {
     private final Resources resources;
     private final String title;
 
-    public PithosDisclosurePanel(final Resources _resources, final String title, boolean open) {
-        this(_resources, title, false, open);
-    }
-
 	public PithosDisclosurePanel(final Resources _resources, final String title, boolean ajaxLoader, boolean open) {
         this.title = title;
 
