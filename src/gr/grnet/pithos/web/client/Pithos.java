@@ -1124,6 +1124,10 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri();
     }
 
+    public static String getVersionedFileViewURL(File file, int version) {
+        return getFileViewURL(file) + "?version=" + version;
+    }
+
     /**
      * History support for folder navigation
      * adds a new browser history entry

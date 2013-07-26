@@ -34,14 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.FileVersionsDialog.Images;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Version;
-import gr.grnet.pithos.web.client.rest.PostRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-
-import java.util.List;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -49,12 +41,14 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.CustomScrollPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.FileVersionsDialog.Images;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Version;
+import gr.grnet.pithos.web.client.rest.PostRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.List;
 
 public class VersionsList extends Composite {
 
@@ -116,7 +110,7 @@ public class VersionsList extends Composite {
 			downloadHtml.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					String fileUrl = Pithos.getStorageAPIURL() + file.getOwnerID() + file.getUri() + "?version=" + v.getVersion();
+                    final String fileUrl = Pithos.getVersionedFileViewURL(file, v.getVersion());
 					Window.open(fileUrl, "_BLANK", "");
 				}
 			});
