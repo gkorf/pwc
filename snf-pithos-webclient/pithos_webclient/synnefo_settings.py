@@ -43,5 +43,5 @@ installed_apps = [
 static_files = {'pithos_webclient': ''}
 
 context_processors = [
-   'synnefo.lib.context_processors.cloudbar'
+   'synnefo.webproject.context_processors.cloudbar'
 ]
