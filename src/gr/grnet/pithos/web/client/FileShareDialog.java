@@ -442,9 +442,7 @@ public class FileShareDialog extends AbstractPropertiesDialog {
                 shownViewURL = b.buildString();
             }
 
-            String href = Window.Location.getHref();
-            boolean hasParameters = href.contains(Const.QUESTION_MARK);
-            privatePathText.setText(href + (hasParameters ? Const.AMPERSAND : Const.QUESTION_MARK) + Const.GOTO_EQ + shownViewURL);
+            privatePathText.setText(shownViewURL);
             privatePathPanel.setVisible(true);
         }
         else {

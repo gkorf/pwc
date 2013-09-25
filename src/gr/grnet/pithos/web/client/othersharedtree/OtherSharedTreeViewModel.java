@@ -189,6 +189,16 @@ public class OtherSharedTreeViewModel implements TreeViewModel {
                 if(userLevelDataProviderForIDs.getList().isEmpty()) {
                     userLevelDataProviderForIDs.getList().add(dummy);
                     app.LOG("OtherSharedTreeViewModel::fetchSharingUsers()::onSuccess() NO sharing users, adding [dummy]=\"", dummy, "\"");
+
+                    // #4140 Must also use the callback before returning!
+                    if(callback != null) {
+                        try {
+                            callback.execute();
+                        }
+                        catch(Exception e) {
+                            Pithos.LOG("Error callback-ing after NO sharing users found", e);
+                        }
+                    }
                     return; // Only the dummy node is present, nothing to fetch from the server
                 }
 
