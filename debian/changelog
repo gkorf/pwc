@@ -1,3 +1,9 @@
+snf-pithos-webclient (0.14.5~rc1-1~wheezy) wheezy; urgency=low
+
+  * New upstream version.
+
+ -- Christos Stavrakakis <cstavr@grnet.gr>  Wed, 25 Sep 2013 12:05:21 +0300
+
 snf-pithos-webclient (0.14-1~squeeze) squeeze; urgency=low
 
   * New upstream version. 
@@ -57,3 +63,4 @@ snf-pithos-webclient (0.8.5-1) stable; urgency=low
   * New upstream version.
 
  -- Kostas Papadimitriou <kpap@grnet.gr>  Fri, 22 Feb 2012 16:44:01 +0300
+
