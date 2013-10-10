@@ -114,6 +114,13 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return getFromOtherPropertiesOrDefault(key, null);
     }
 
+    private static final boolean SHOW_COPYRIGHT;
+    static {
+        final String valueStr = getFromOtherPropertiesOrDefault("SHOW_COPYRIGHT", "true").trim().toLowerCase();
+        SHOW_COPYRIGHT = "true".equals(valueStr);
+        LOG("SHOW_COPYRIGHT = '", valueStr, "' ==> ", SHOW_COPYRIGHT);
+    }
+
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
     public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
     static {
@@ -835,11 +842,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         this.userID = authSplit[0];
         this.userToken = authSplit[1];
 
-        String gotoUrl = Window.Location.getParameter("goto");
-        if(gotoUrl != null && gotoUrl.length() > 0) {
-            Window.Location.assign(gotoUrl);
-            return false;
-        }
         return true;
     }
 
@@ -1110,12 +1112,20 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return STORAGE_VIEW_URL;
     }
 
+    public static boolean isShowCopyrightMessage() {
+        return SHOW_COPYRIGHT;
+    }
+
     public static String getUserCatalogsURL() {
         return USER_CATALOGS_API_URL;
     }
 
     public static String getFileViewURL(File file) {
         return Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri();
+    }
+
+    public static String getVersionedFileViewURL(File file, int version) {
+        return getFileViewURL(file) + "?version=" + version;
     }
 
     /**

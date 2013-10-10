@@ -34,7 +34,8 @@
  */
 package gr.grnet.pithos.web.client;
 
-import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -46,10 +47,7 @@ public class StatusPanel extends Composite {
      * The constructor of the status panel.
      */
     public StatusPanel() {
-        Dictionary otherProperties = Dictionary.getDictionary("otherProperties");
-        final String COMPANY_URL = otherProperties.get("COMPANY_URL");
-        final String COPYRIGHT_MESSAGE = otherProperties.get("COPYRIGHT_MESSAGE");
-        final String SYNNEFO_VERSION = otherProperties.get("SYNNEFO_VERSION");
+        final String SYNNEFO_VERSION = Pithos.getFromOtherPropertiesOrDefault("SYNNEFO_VERSION", "");
 
         HorizontalPanel outer = new HorizontalPanel();
         outer.setWidth("100%");
@@ -59,13 +57,24 @@ public class StatusPanel extends Composite {
         inner.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         HorizontalPanel firstLine = new HorizontalPanel();
         firstLine.setSpacing(8);
-        firstLine.add(new HTML("<a class='grnet-sign' href='" + COMPANY_URL + "'>" + COPYRIGHT_MESSAGE + "</a>"));
+        if(Pithos.isShowCopyrightMessage()) {
+            final String COMPANY_URL = Pithos.getFromOtherPropertiesOrDefault("COMPANY_URL", "#");
+            final String safeCompanyURL = UriUtils.encode(COMPANY_URL);
+            final String COPYRIGHT_MESSAGE = Pithos.getFromOtherPropertiesOrDefault("COPYRIGHT_MESSAGE", "");
+            final String safeCopyrightMessage = SafeHtmlUtils.htmlEscape(COPYRIGHT_MESSAGE);
+            firstLine.add(new HTML("<a class='grnet-sign' href='" + safeCompanyURL + "'>" + safeCopyrightMessage + "</a>"));
+
+            Pithos.LOG("Showing copyright message");
+        }
+        else {
+            Pithos.LOG("Not showing copyright message");
+        }
         inner.add(firstLine);
 
         HorizontalPanel secondLine = new HorizontalPanel();
         secondLine.add(new HTML(
             "<div class='software'>" +
-                "Powered by <a href='http://synnefo.orgs'>Synnefo</a>" +
+                "Powered by <a href='http://synnefo.org'>Synnefo</a>" +
                 "<span class='version'> v" + SYNNEFO_VERSION + "</span>" +
             "</div>"));
 //        secondLine.addStyleName("software");

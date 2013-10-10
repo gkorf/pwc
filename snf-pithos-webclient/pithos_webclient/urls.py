@@ -31,7 +31,11 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
-from django.conf.urls.defaults import include, patterns
+try:
+    from django.conf.urls import include, patterns
+except ImportError:  # Django 1.2
+    from django.conf.urls.defaults import include, patterns
+
 from pithos_webclient import settings
 from snf_django.lib.api.utils import prefix_pattern
 from snf_django.utils.urls import extend_with_root_redirects
