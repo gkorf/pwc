@@ -69,7 +69,7 @@ CLASSIFIERS = [
 
 # Package requirements
 INSTALL_REQUIRES = [
-    'Django>=1.2, <1.3',
+    'Django>=1.2, <1.5',
     'snf-branding',
     'snf-common>=0.9.0rc'
 ]
@@ -288,7 +288,7 @@ setup(
     entry_points={
         'synnefo': [
             'web_apps = pithos_webclient.synnefo_settings:installed_apps',
-            'urls = pithos_webclient.synnefo_settings:urlpatterns',
+            'urls = pithos_webclient.urls:urlpatterns',
             'web_static = pithos_webclient.synnefo_settings:static_files',
             'web_context_processors = '
             'pithos_webclient.synnefo_settings:context_processors'

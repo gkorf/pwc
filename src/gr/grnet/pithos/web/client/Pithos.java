@@ -81,6 +81,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
     private static final boolean IsLOGEnabled = false;
     public static final boolean IsDetailedHTTPLOGEnabled = true;
     public static final boolean IsFullResponseBodyLOGEnabled = true;
+    private static final boolean EnableScheduledRefresh = true; // Make false only for debugging purposes.
 
     public static final Set<String> HTTPHeadersToIgnoreInLOG = new HashSet<String>();
     static {
@@ -99,15 +100,27 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     public static final Dictionary otherProperties = Dictionary.getDictionary(Const.OTHER_PROPERTIES);
-    public static String getFromOtherPropertiesOrNull(String key) {
+    public static String getFromOtherPropertiesOrDefault(String key, String def) {
         try {
-            return otherProperties.get(key);
+            final String value = otherProperties.get(key);
+            return value == null ? def : value;
         }
         catch(Exception e) {
-            LOGError(e);
-            return null;
+            return def;
         }
     }
+
+    public static String getFromOtherPropertiesOrNull(String key) {
+        return getFromOtherPropertiesOrDefault(key, null);
+    }
+
+    private static final boolean SHOW_COPYRIGHT;
+    static {
+        final String valueStr = getFromOtherPropertiesOrDefault("SHOW_COPYRIGHT", "true").trim().toLowerCase();
+        SHOW_COPYRIGHT = "true".equals(valueStr);
+        LOG("SHOW_COPYRIGHT = '", valueStr, "' ==> ", SHOW_COPYRIGHT);
+    }
+
     public static final String OTHERPROPS_STORAGE_API_URL = getFromOtherPropertiesOrNull("STORAGE_API_URL");
     public static final String OTHERPROPS_USER_CATALOGS_API_URL = getFromOtherPropertiesOrNull("USER_CATALOGS_API_URL");
     static {
@@ -126,7 +139,25 @@ public class Pithos implements EntryPoint, ResizeHandler {
         else {
             throw new RuntimeException("Unknown STORAGE_API_URL");
         }
+
+        LOG("Computed STORAGE_API_URL = ", STORAGE_API_URL);
     }
+
+    public static final String STORAGE_VIEW_URL;
+    static {
+        final String viewURL = getFromOtherPropertiesOrNull("STORAGE_VIEW_URL");
+        if(viewURL != null) {
+            STORAGE_VIEW_URL = viewURL;
+        }
+        else {
+            STORAGE_VIEW_URL = STORAGE_API_URL;
+        }
+
+        LOG("Computed STORAGE_VIEW_URL = ", STORAGE_VIEW_URL);
+    }
+
+    public static final String PUBLIC_LINK_VIEW_PREFIX = getFromOtherPropertiesOrDefault("PUBLIC_LINK_VIEW_PREFIX", "");
+
     public static final String USER_CATALOGS_API_URL;
     static {
         if(OTHERPROPS_USER_CATALOGS_API_URL != null) {
@@ -145,7 +176,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
             USER_CATALOGS_API_URL = url;
 
-            LOG("USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
+            LOG("Computed USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
         }
     }
 
@@ -661,7 +692,9 @@ public class Pithos implements EntryPoint, ResizeHandler {
         });
     }
 
-    public void scheduleResfresh() {
+    public void scheduleRefresh() {
+        if(!Pithos.EnableScheduledRefresh) { return; }
+
         Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
 
             @Override
@@ -681,7 +714,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
 
                             }, false);
@@ -691,19 +724,19 @@ public class Pithos implements EntryPoint, ResizeHandler {
 
                                 @Override
                                 public void execute() {
-                                    scheduleResfresh();
+                                    scheduleRefresh();
                                 }
                             });
                         }
                         else {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         if(t instanceof RestException && ((RestException) t).getHttpStatusCode() == HttpStatus.SC_NOT_MODIFIED) {
-                            scheduleResfresh();
+                            scheduleRefresh();
                         }
                         else if(retries >= MAX_RETRIES) {
                             LOG("Error heading folder. ", t);
@@ -809,11 +842,6 @@ public class Pithos implements EntryPoint, ResizeHandler {
         this.userID = authSplit[0];
         this.userToken = authSplit[1];
 
-        String gotoUrl = Window.Location.getParameter("goto");
-        if(gotoUrl != null && gotoUrl.length() > 0) {
-            Window.Location.assign(gotoUrl);
-            return false;
-        }
         return true;
     }
 
@@ -1080,8 +1108,24 @@ public class Pithos implements EntryPoint, ResizeHandler {
         return STORAGE_API_URL;
     }
 
+    public static String getStorageViewURL() {
+        return STORAGE_VIEW_URL;
+    }
+
+    public static boolean isShowCopyrightMessage() {
+        return SHOW_COPYRIGHT;
+    }
+
     public static String getUserCatalogsURL() {
         return USER_CATALOGS_API_URL;
+    }
+
+    public static String getFileViewURL(File file) {
+        return Pithos.getStorageViewURL() + file.getOwnerID() + file.getUri();
+    }
+
+    public static String getVersionedFileViewURL(File file, int version) {
+        return getFileViewURL(file) + "?version=" + version;
     }
 
     /**
@@ -1369,7 +1413,7 @@ public class Pithos implements EntryPoint, ResizeHandler {
                 otherSharedTreeView = new OtherSharedTreeView(otherSharedTreeViewModel, false);
                 trees.insert(otherSharedTreeView, 1);
                 treeViews.add(otherSharedTreeView);
-                scheduleResfresh();
+                scheduleRefresh();
             }
         });
     }

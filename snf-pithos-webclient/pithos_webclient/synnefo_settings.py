@@ -43,12 +43,5 @@ installed_apps = [
 static_files = {'pithos_webclient': ''}
 
 context_processors = [
-   'synnefo.lib.context_processors.cloudbar'
+   'synnefo.webproject.context_processors.cloudbar'
 ]
-
-# namespace
-from django.conf.urls.defaults import include, patterns
-urlpatterns = patterns('',
-    (r'^ui/$', 'pithos_webclient.views.index'),
-    (r'^ui/index.html$', 'pithos_webclient.views.index'),
-)

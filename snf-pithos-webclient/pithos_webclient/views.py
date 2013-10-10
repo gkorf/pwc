@@ -31,26 +31,40 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
+import json
+import copy
+
 from django.views.generic.simple import direct_to_template
+from django.conf import settings as django_settings
 
 from pithos_webclient import settings
-from pithos_webclient.version import  __version__
-
-from django.conf import settings as django_settings
+from pithos_webclient.version import __version__
 
 from synnefo_branding.utils import get_branding_dict
 
-MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL", \
-        getattr(django_settings, "MEDIA_URL", "/static/"))
+
+MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL",
+                    getattr(django_settings, "MEDIA_URL", "/static/"))
 
 URLS_CONFIG = {
-    'STORAGE_API_URL': '/v1',
-    'USER_CATALOGS_API_URL': '/user_catalog'
+    'STORAGE_VIEW_URL': settings.PITHOS_UI_URL.rstrip('/') + '/view/',
+    'STORAGE_API_URL': settings.PITHOS_URL.rstrip('/') + '/',
+    'USER_CATALOGS_API_URL': settings.USER_CATALOG_URL.rstrip('/') + '/',
+    'loginUrl': settings.LOGIN_URL,
+    'feedbackUrl': settings.FEEDBACK_URL
 }
 
 
 def index(request):
     branding_settings = get_branding_dict("")
+    urls_config = copy.deepcopy(URLS_CONFIG)
+
+    for key, value in urls_config.iteritems():
+        urls_config[key] = json.dumps(value)
+
+    for key, value in branding_settings.iteritems():
+        branding_settings[key] = json.dumps(value)
+
     return direct_to_template(request, 'pithos_webclient/index.html', {
         'settings': settings,
         'MEDIA_URL': MEDIA_URL,

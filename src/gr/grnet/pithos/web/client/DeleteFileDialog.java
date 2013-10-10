@@ -34,15 +34,6 @@
  */
 package gr.grnet.pithos.web.client;
 
-import gr.grnet.pithos.web.client.MessagePanel.Images;
-import gr.grnet.pithos.web.client.foldertree.File;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-import gr.grnet.pithos.web.client.rest.DeleteRequest;
-import gr.grnet.pithos.web.client.rest.RestException;
-
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
@@ -51,15 +42,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
+import gr.grnet.pithos.web.client.MessagePanel.Images;
+import gr.grnet.pithos.web.client.foldertree.File;
+import gr.grnet.pithos.web.client.foldertree.Folder;
+import gr.grnet.pithos.web.client.rest.DeleteRequest;
+import gr.grnet.pithos.web.client.rest.RestException;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * The 'delete file' dialog box.
@@ -99,10 +93,14 @@ public class DeleteFileDialog extends DialogBox {
 		inner.addStyleName("inner");
 
 		HTML text;
-		if (files.size() == 1)
-			text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete file '" + files.get(0).getName() + "'?</td></tr></table>");
-		else
-			text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete the selected files?</td></tr></table>");
+        final String fileName = files.get(0).getName();
+        final String safeFileName = SafeHtmlUtils.htmlEscape(fileName);
+		if (files.size() == 1) {
+            text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete file '" + safeFileName + "'?</td></tr></table>");
+        }
+		else {
+            text = new HTML("<table><tr><td>" + AbstractImagePrototype.create(images.warn()).getHTML() + "</td><td>" + "Are you sure you want to <b>permanently</b> delete the selected files?</td></tr></table>");
+        }
 		text.setStyleName("pithos-warnMessage");
 		inner.add(text);
 

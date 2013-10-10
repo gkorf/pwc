@@ -1,4 +1,4 @@
-# Copyright 2011-2012 GRNET S.A. All rights reserved.
+# Copyright (C) 2013 GRNET S.A. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or
 # without modification, are permitted provided that the following
@@ -31,22 +31,49 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
-try:
-    from django.conf.urls import include, patterns
-except ImportError:  # Django 1.2
-    from django.conf.urls.defaults import include, patterns
 
-from pithos_webclient import settings
-from snf_django.lib.api.utils import prefix_pattern
-from snf_django.utils.urls import extend_with_root_redirects
-from synnefo.lib import join_urls
+pithos_services = {
+    'pithos_object-store': {
+        'type': 'object-store',
+        'component': 'pithos',
+        'prefix': 'object-store',
+        'public': True,
+        'endpoints': [
+            {'versionId': 'v1',
+             'publicURL': None},
+        ],
+        'resources': {
+            'diskspace': {
+                "desc": "Pithos account diskspace",
+                "name": "pithos.diskspace",
+                "unit": "bytes",
+                "service_type": "object-store",
+                "service_origin": "pithos_object-store",
+            },
+        },
+    },
 
+    'pithos_public': {
+        'type': 'public',
+        'component': 'pithos',
+        'prefix': 'public',
+        'public': True,
+        'endpoints': [
+            {'versionId': 'v2.0',
+             'publicURL': None},
+        ],
+        'resources': {},
+    },
 
-urlpatterns = patterns('', (
-    prefix_pattern(join_urls(settings.BASE_PATH, settings.UI_PREFIX)) + '$',
-    'pithos_webclient.views.index'),
-)
-
-# set utility redirects
-extend_with_root_redirects(urlpatterns, settings.pithos_services, 'pithos_ui',
-                           settings.BASE_PATH)
+    'pithos_ui': {
+        'type': 'pithos_ui',
+        'component': 'pithos',
+        'prefix': 'ui',
+        'public': False,
+        'endpoints': [
+            {'versionId': '',
+             'publicURL': None},
+        ],
+        'resources': {},
+    },
+}

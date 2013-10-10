@@ -35,14 +35,8 @@
 
 package gr.grnet.pithos.web.client.mysharedtree;
 
-import gr.grnet.pithos.web.client.FolderContextMenu;
-import gr.grnet.pithos.web.client.PithosDisclosurePanel;
-import gr.grnet.pithos.web.client.TreeView;
-import gr.grnet.pithos.web.client.foldertree.Folder;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -53,6 +47,10 @@ import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Tree;
+import gr.grnet.pithos.web.client.FolderContextMenu;
+import gr.grnet.pithos.web.client.PithosDisclosurePanel;
+import gr.grnet.pithos.web.client.TreeView;
+import gr.grnet.pithos.web.client.foldertree.Folder;
 
 public class MysharedTreeView extends Composite implements TreeView {
 
@@ -158,7 +156,7 @@ public class MysharedTreeView extends Composite implements TreeView {
     public MysharedTreeView(MysharedTreeViewModel viewModel) {
         this.model = viewModel;
         
-        panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false);
+        panel = new PithosDisclosurePanel((Resources) GWT.create(Resources.class), "Shared by me", false, false);
         createTree();
 
         initWidget(panel);
