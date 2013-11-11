@@ -49,7 +49,6 @@ public final class Const {
 
     public static final String READ_EQ = "read=";
     public static final String WRITE_EQ = "write=";
-    public static final String GOTO_EQ = "goto=";
     public static final String UPDATE_EQ = "update=";
     public static final String QUESTION_MARK_UPDATE_EQ = QUESTION_MARK + UPDATE_EQ;
 
