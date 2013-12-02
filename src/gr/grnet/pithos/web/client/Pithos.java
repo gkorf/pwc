@@ -40,6 +40,8 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.*;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -179,6 +181,8 @@ public class Pithos implements EntryPoint, ResizeHandler {
             LOG("Computed USER_CATALOGS_API_URL = ", USER_CATALOGS_API_URL);
         }
     }
+
+    public static String FAVICON_URL = getFromOtherPropertiesOrNull("FAVICON_URL");
 
     public interface Style extends CssResource {
         String commandAnchor();
@@ -493,6 +497,16 @@ public class Pithos implements EntryPoint, ResizeHandler {
     }
 
     private void initialize() {
+        // Inject the dynamically provided favicon
+        if(FAVICON_URL != null) {
+            final Document document = Document.get();
+            final Element head = document.getElementsByTagName("head").getItem(0);
+            final LinkElement link = document.createLinkElement();
+            link.setRel("icon");
+            link.setHref(FAVICON_URL);
+            head.appendChild(link);
+        }
+
         userCatalogs.updateWithIDAndName("*", "All Pithos users");
 
         lastModified = new Date(); //Initialize if-modified-since value with now.
