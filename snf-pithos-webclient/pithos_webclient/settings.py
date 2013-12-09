@@ -31,11 +31,13 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
+import pithos.api.settings as pithos_settings
+
+from pithos.api.settings import LazyAstakosUrl
 from django.conf import settings
 from synnefo.lib import join_urls, parse_base_url
 from synnefo.util.keypath import get_path
 from pithos.api.services import pithos_services as vanilla_pithos_services
-import pithos.api.settings as pithos_settings
 from synnefo.lib.services import get_public_endpoint, fill_endpoints
 
 from copy import deepcopy
@@ -81,4 +83,4 @@ ASTAKOS_UI_PROXY_PATH = join_urls(
 
 USER_CATALOG_URL = join_urls(ASTAKOS_ACCOUNT_PROXY_PATH, 'user_catalogs')
 FEEDBACK_URL = join_urls(ASTAKOS_ACCOUNT_PROXY_PATH, 'feedback')
-LOGIN_URL = join_urls(ASTAKOS_UI_PROXY_PATH, 'login?next=')
+LOGIN_URL = join_urls(str(LazyAstakosUrl('ui_url')), 'login?next=')
