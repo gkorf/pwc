@@ -83,4 +83,4 @@ ASTAKOS_UI_PROXY_PATH = join_urls(
 
 USER_CATALOG_URL = join_urls(ASTAKOS_ACCOUNT_PROXY_PATH, 'user_catalogs')
 FEEDBACK_URL = join_urls(ASTAKOS_ACCOUNT_PROXY_PATH, 'feedback')
-LOGIN_URL = join_urls(str(LazyAstakosUrl('ui_url')), 'login?next=')
+LOGIN_URL = join_urls(ASTAKOS_UI_PROXY_PATH, 'login?next=')
