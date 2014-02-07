@@ -54,9 +54,9 @@ BASE_HOST, BASE_PATH = parse_base_url(BASE_URL)
 
 pithos_services = deepcopy(vanilla_pithos_services)
 fill_endpoints(pithos_services, BASE_URL)
-PITHOS_PREFIX = get_path(pithos_services, 'pithos_object-store.prefix')
-PUBLIC_PREFIX = get_path(pithos_services, 'pithos_public.prefix')
-UI_PREFIX = get_path(pithos_services, 'pithos_ui.prefix')
+PITHOS_PREFIX = get_path(pithos_services, ['pithos_object-store', 'prefix'])
+PUBLIC_PREFIX = get_path(pithos_services, ['pithos_public', 'prefix'])
+UI_PREFIX = get_path(pithos_services, ['pithos_ui', 'prefix'])
 
 if not BASE_PATH.startswith("/"):
     BASE_PATH = "/" + BASE_PATH
