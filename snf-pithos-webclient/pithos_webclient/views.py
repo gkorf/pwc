@@ -40,7 +40,7 @@ from django.conf import settings as django_settings
 from pithos_webclient import settings
 from pithos_webclient.version import __version__
 
-from synnefo_branding.utils import get_branding_dict
+from synnefo.branding.utils import get_branding_dict
 
 
 MEDIA_URL = getattr(settings, "PITHOS_WEB_CLIENT_MEDIA_URL",

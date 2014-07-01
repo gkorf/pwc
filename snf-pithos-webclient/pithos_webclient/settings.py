@@ -31,12 +31,12 @@
 # interpreted as representing official policies, either expressed
 # or implied, of GRNET S.A.
 
-import pithos.api.settings as pithos_settings
+import synnefo.pithos.api.settings as pithos_settings
 
-from pithos.api.settings import LazyAstakosUrl
+from synnefo.pithos.api.settings import LazyAstakosUrl
 from django.conf import settings
 from synnefo.lib import join_urls, parse_base_url
-from pithos.api.services import pithos_services as vanilla_pithos_services
+from synnefo.pithos.api.services import pithos_services as vanilla_pithos_services
 from synnefo.lib.services import get_public_endpoint, fill_endpoints
 
 from copy import deepcopy
