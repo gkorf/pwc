@@ -37,7 +37,7 @@ from pithos.api.settings import LazyAstakosUrl
 from django.conf import settings
 from synnefo.lib import join_urls, parse_base_url
 from pithos.api.services import pithos_services as vanilla_pithos_services
-from synnefo.lib.services import get_public_endpoint, fill_endpoints
+from synnefo.lib.services import get_public_endpoint, get_service_prefix
 
 from copy import deepcopy
 
@@ -51,11 +51,11 @@ BASE_URL = getattr(settings, 'PITHOS_BASE_URL',
 
 BASE_HOST, BASE_PATH = parse_base_url(BASE_URL)
 
-pithos_services = deepcopy(vanilla_pithos_services)
-fill_endpoints(pithos_services, BASE_URL)
-PITHOS_PREFIX = pithos_services['pithos_object-store']['prefix']
-PUBLIC_PREFIX = pithos_services['pithos_public']['prefix']
-UI_PREFIX = pithos_services['pithos_ui']['prefix']
+synnefo_services = settings.SYNNEFO_SERVICES
+pithos_services = settings.SYNNEFO_COMPONENTS['pithos']
+PITHOS_PREFIX = get_service_prefix(synnefo_services, 'pithos_object-store')
+PUBLIC_PREFIX = get_service_prefix(synnefo_services, 'pithos_public')
+UI_PREFIX = get_service_prefix(synnefo_services, 'pithos_ui')
 
 if not BASE_PATH.startswith("/"):
     BASE_PATH = "/" + BASE_PATH
