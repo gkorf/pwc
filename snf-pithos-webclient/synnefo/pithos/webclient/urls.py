@@ -40,6 +40,8 @@ from synnefo.pithos.webclient import settings
 from synnefo.django.lib.api.utils import prefix_pattern
 from synnefo.django.utils.urls import extend_with_root_redirects
 from synnefo.lib import join_urls
+from django.conf import settings as synnefo_settings
+synnefo_services = synnefo_settings.SYNNEFO_SERVICES
 
 
 urlpatterns = patterns('', (
@@ -48,5 +50,5 @@ urlpatterns = patterns('', (
 )
 
 # set utility redirects
-extend_with_root_redirects(urlpatterns, settings.pithos_services, 'pithos_ui',
+extend_with_root_redirects(urlpatterns, synnefo_services, 'pithos_ui',
                            settings.BASE_PATH)
