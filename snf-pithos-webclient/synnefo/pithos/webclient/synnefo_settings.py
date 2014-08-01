@@ -37,10 +37,10 @@ Django settings metadata. To be used in setup.py snf-webproject entry points.
 """
 
 installed_apps = [
-        'pithos_webclient'
+        'synnefo.pithos.webclient'
 ]
 
-static_files = {'pithos_webclient': ''}
+static_files = {'synnefo.pithos.webclient': ''}
 
 context_processors = [
    'synnefo.webproject.context_processors.cloudbar'

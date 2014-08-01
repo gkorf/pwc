@@ -46,7 +46,7 @@ from setuptools import setup, find_packages
 
 HERE = os.path.abspath(os.path.normpath(os.path.dirname(__file__)))
 
-from pithos_webclient.version import __version__
+from synnefo.pithos.webclient.version import __version__
 
 # Package info
 VERSION = __version__
@@ -193,9 +193,10 @@ def clean_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
         raise Exception("GWT clean failed")
     os.chdir(curdir)
     #pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static",
+    static_dir = os.path.abspath(os.path.join("synnefo", "pithos", "webclient",
+                                              "static",
                                               "pithos_webclient"))
-    #templates_dir = os.path.abspath(os.path.join("pithos_webclient",
+    #templates_dir = os.path.abspath(os.path.join("synnefo", "pithos", "webclient",
                                                  #"templates",
                                                  #"pithos_webclient"))
     clean_static = ["rm", "-r"] + glob.glob(os.path.join(static_dir, "*"))
@@ -219,9 +220,10 @@ def build_gwt(root="../", public_dir="bin/www/gr.grnet.pithos.web.Pithos/"):
     os.chdir(curdir)
 
     pub_dir = os.path.abspath(os.path.join(root, public_dir))
-    static_dir = os.path.abspath(os.path.join("pithos_webclient", "static",
+    static_dir = os.path.abspath(os.path.join("synnefo", "pithos", "webclient",
+                                              "static",
                                               "pithos_webclient"))
-    templates_dir = os.path.abspath(os.path.join("pithos_webclient",
+    templates_dir = os.path.abspath(os.path.join("synnefo", "pithos", "webclient",
                                                  "templates",
                                                  "pithos_webclient"))
 
@@ -277,6 +279,7 @@ setup(
     maintainer='Synnefo development team',
     maintainer_email='synnefo-devel@googlegroups.com',
 
+    namespace_packages=['synnefo', 'synnefo.pithos'],
     packages=find_packages(),
     include_package_data=True,
     package_data=find_package_data('.'),
@@ -288,11 +291,11 @@ setup(
 
     entry_points={
         'synnefo': [
-            'web_apps = pithos_webclient.synnefo_settings:installed_apps',
-            'urls = pithos_webclient.urls:urlpatterns',
-            'web_static = pithos_webclient.synnefo_settings:static_files',
+            'web_apps = synnefo.pithos.webclient.synnefo_settings:installed_apps',
+            'urls = synnefo.pithos.webclient.urls:urlpatterns',
+            'web_static = synnefo.pithos.webclient.synnefo_settings:static_files',
             'web_context_processors = '
-            'pithos_webclient.synnefo_settings:context_processors'
+            'synnefo.pithos.webclient.synnefo_settings:context_processors'
         ]
     }
 )

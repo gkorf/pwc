@@ -20,7 +20,7 @@ Installation
 
     pip install snf-pithos-webclient -f http://docs.dev.grnet.gr/pypi/
 
-2. Add ``pithos_webclient`` in your django project INSTALLED_APPS setting.
+2. Add ``synnefo.pithos.webclient`` in your django project INSTALLED_APPS setting.
 
 3. Configure your web server to serve package static files placed in
    pithos_web_client/static/pithos_web_client under the

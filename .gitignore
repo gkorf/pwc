@@ -16,9 +16,9 @@ gwt-unitCache
 *.egg-info
 */dist/
 */build/
-*/pithos_webclient/version.py
-*/pithos_webclient/templates/pithos_webclient/*
-*/pithos_webclient/static/pithos_webclient/*
+*/synnefo/pithos/webclient/version.py
+*/synnefo/pithos/webclient/templates/pithos_webclient/*
+*/synnefo/pithos/webclient/static/pithos_webclient/*
 distribute*.tar.gz
 distribute*.egg
 docs/build
