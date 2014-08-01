@@ -1,3 +1,3 @@
 snf-pithos-webclient/conf/* etc/synnefo
-snf-pithos-webclient/pithos_webclient/static/pithos_webclient usr/share/synnefo/static/
+snf-pithos-webclient/synnefo/pithos/webclient/static/pithos_webclient usr/share/synnefo/static/
 
