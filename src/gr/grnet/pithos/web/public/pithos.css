@@ -731,3 +731,7 @@ a.pithos-tag {
 .pithos-versionList {
 	padding-right: 5px;
 }
+
+.props-values .gwt-Label {
+  word-break: break-word;
+}
