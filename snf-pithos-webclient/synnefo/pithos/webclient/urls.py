@@ -36,7 +36,7 @@ try:
 except ImportError:  # Django 1.2
     from django.conf.urls.defaults import include, patterns
 
-from synnefo.pithos.webclient import settings
+from synnefo.pithos.webclient import app_settings as settings
 from synnefo.django.lib.api.utils import prefix_pattern
 from synnefo.django.utils.urls import extend_with_root_redirects
 from synnefo.lib import join_urls

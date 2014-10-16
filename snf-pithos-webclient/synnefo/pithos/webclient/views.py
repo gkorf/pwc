@@ -37,7 +37,7 @@ import copy
 from django.views.generic.simple import direct_to_template
 from django.conf import settings as django_settings
 
-from synnefo.pithos.webclient import settings
+from synnefo.pithos.webclient import app_settings as settings
 from synnefo.pithos.webclient.version import __version__
 
 from synnefo.branding.utils import get_branding_dict
